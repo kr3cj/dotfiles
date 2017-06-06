@@ -1,0 +1,4 @@
+# remote host for container tools (https://docs.docker.com/engine/security/https/)
+# export DOCKER_HOST="tcp://192.168.49.201:2376"
+# export DOCKER_TLS_VERIFY="0"
+# export FLEETCTL_TUNNEL="finf-coreos02.ecovate.com"

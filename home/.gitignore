@@ -1,0 +1,15 @@
+.*.swp
+*.so
+*.a
+*.class
+.svn/
+*.old
+*.bak
+id_rsa
+id_dsa
+.DS_Store
+.aws_auth
+.gce_auth
+.base_homeshick_vars
+.vim/*
+!.vim/puppet.vim

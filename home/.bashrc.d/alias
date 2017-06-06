@@ -1,0 +1,6 @@
+alias lpw="lpass show --password -c LDAP"
+# alias ls='ls --color=auto'
+alias ls='ls -G'
+# alias ll="ls -hl --color=auto"
+alias ll="ls -hl -G"
+alias ducks="sudo du -cmshx ./* --exclude=/home --exclude=/proc --exclude=/mnt | sort -h"

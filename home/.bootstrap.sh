@@ -1,0 +1,76 @@
+#!/bin/bash
+# the purpose of this script is to install my homeshick dotfiles from github
+
+# first, create git ignored base dir file
+if ! [[ -f ~/.base_homeshick_vars ]] ; then
+  echo "Enter your custom full name:"
+  read custom_full_name
+  echo "Enter your custom ldap name:"
+  read custom_ldap_name
+  echo "Enter your custom github handle:"
+  read custom_github_handle
+  echo "Enter your custom home domain name:"
+  read custom_home_domain
+  echo "Enter your custom home subnet:"
+  read custom_nas_host
+  echo "Enter your custom work email:"
+  read custom_home_subnet
+  echo "Enter your custom work subnet:"
+  read custom_work_subnet
+  echo "Enter your custom nas host (fqdn):"
+  read custom_work_email
+  (umask 077 ; touch ~/.base_homeshick_vars)
+  cat << EOF >> ~/.base_homeshick_vars
+export CUSTOM_FULL_NAME="${custom_full_name}"
+export CUSTOM_LDAP_NAME="${custom_ldap_name}"
+export CUSTOM_GITHUB_HANDLE="${custom_github_handle}"
+export CUSTOM_HOME_DOMAIN="${custom_home_domain}"
+export CUSTOM_NAS_HOST="${custom_nas_host}"
+export CUSTOM_HOME_SUBNET="${custom_home_subnet}"
+export CUSTOM_WORK_SUBNET="${custom_work_subnet}"
+export CUSTOM_WORK_EMAIL="${custom_work_email}"
+EOF
+fi
+
+# second, make sure git is installed
+if ! hash git 2>/dev/null ; then
+  if [[ $(uname) == "Darwin" ]] ; then
+    /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+    brew install git
+  elif [[ $(uname) == "Linux" ]] ; then
+    if [[ -f /etc/redhat-release ]] ; then
+      sudo yum install git -y
+    elif [[ -f /etc/os-release ]] ; then
+      sudo apt-get update && sudo apt-get install git -y
+    fi
+  else
+    echo "Unknown unix distro."
+    exit 0
+  fi
+fi
+
+# third, get and run homeshick
+if ! [[ -d $HOME/.homesick/repos/homeshick ]] ; then
+  git clone git://github.com/andsens/homeshick.git $HOME/.homesick/repos/homeshick
+
+  source "$HOME/.homesick/repos/homeshick/homeshick.sh"
+  if [[ -r ~/.ssh/id_rsa.pub ]] ; then
+    homeshick --force clone git@github.com:${CUSTOM_GITHUB_HANDLE}/dotfiles
+  else
+    homeshick --force clone https://github.com:${CUSTOM_GITHUB_HANDLE}/dotfiles
+    homeshick cd dotfiles
+    git remote set-url origin git@github.com:${CUSTOM_GITHUB_HANDLE}/dotfiles.git
+    cd -
+  fi
+
+  homeshick cd dotfiles
+  git config user.name "${CUSTOM_WORK_EMAIL/\.*/}"
+  git config user.email "github@${CUSTOM_HOME_DOMAIN}"
+  cd -
+  homeshick link --force
+else
+  source "$HOME/.homesick/repos/homeshick/homeshick.sh"
+  homeshick pull
+  homeshick --quiet --force refresh
+  homeshick --quiet --force link dotfiles
+fi
