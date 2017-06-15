@@ -1,4 +1,4 @@
-${IS_OSX} || return
+if ! ${IS_OSX} ; then return ; fi
 # aws creds
 if [[ -f ~/.aws_auth ]] ; then
   source ~/.aws_auth

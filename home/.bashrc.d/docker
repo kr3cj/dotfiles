@@ -1,4 +1,4 @@
-${IS_OSX} || return
+if ! ${IS_OSX} ; then return ; fi
 # remote host for container tools (https://docs.docker.com/engine/security/https/)
 # export DOCKER_HOST="tcp://${CUSTOM_WORK_SUBNET}.49.201:2376"
 # export DOCKER_TLS_VERIFY="0"
