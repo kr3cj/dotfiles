@@ -23,7 +23,7 @@ if $(curl github.com --connect-timeout 1 &> /dev/null); then
   if ! lpass status 2>/dev/null ; then lpass login --trust lastpass@${CUSTOM_HOME_DOMAIN} ; fi
   lpass show --password -c LDAP
 
-  ip_address=$(ip addr show | grep 'inet ' | grep -v 127 | head -n1 | awk '{print $2}' | cut -d/ -f1)
+  ip_address=$(/sbin/ifconfig en0 | grep 'inet ' | grep -v '127.0.0.1' | awk '{print $2}')
 
   # figure out location
   ( [[ ${ip_address} =~ "${CUSTOM_WORK_SUBNET}.49." ]] || [[ ${ip_address} =~ "${CUSTOM_WORK_SUBNET}.200." ]] \
