@@ -1,5 +1,7 @@
+${IS_OSX} || exit 0
 # aws creds
 if [[ -f ~/.aws_auth ]] ; then
+  source ~/.aws_auth
   export AWS_CREDENTIAL_FILE=~/.aws_auth
   export AWS_IAM_HOME=~/bin/amazon/iam
   export PATH=${PATH}:${AWS_IAM_HOME}/bin

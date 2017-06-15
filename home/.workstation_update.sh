@@ -9,7 +9,7 @@ if /usr/bin/hash gem 2>/dev/null ; then
   # to remove all ri and rdocs of installed gems:
   # sudo rm -vrf $(sudo gem env gemdir)/doc
 fi
-if [[ $(/usr/local/opt/coreutils/libexec/gnubin/uname) == "Darwin" ]] ; then
+if [[ $(uname) == "Darwin" ]] ; then
   /usr/sbin/softwareupdate -ia
   /usr/local/bin/mas upgrade
   # /usr/local/bin/brew update
@@ -24,7 +24,7 @@ if [[ $(/usr/local/opt/coreutils/libexec/gnubin/uname) == "Darwin" ]] ; then
     /usr/local/bin/brew cask reinstall ${cask1}
   done
   # /usr/local/bin/brew cask outdated | xargs /usr/local/bin/brew cask reinstall
-elif [[ $(/usr/local/opt/coreutils/libexec/gnubin/uname) == "Linux" ]] ; then
+elif [[ $(uname) == "Linux" ]] ; then
   # only proceed for Linux workstations
   if [[ $(runlevel | cut -d ' ' -f2) -le 3 ]] ; then
     echo "Quitting workstation setup on what appears to be a server"

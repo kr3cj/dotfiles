@@ -3,15 +3,13 @@
 
 # get my bearings
 ip_address=""
-is_mac="false"
 is_debian="false"
 is_rhel="false"
 at_work="false"
 
-if [[ $(uname) == "Darwin" ]] ; then
-  is_mac="true"
+if ${IS_OSX} ; then
   ip_address=$(/sbin/ifconfig en0 | grep 'inet ' | grep -v '127.0.0.1' | awk '{print $2}')
-elif [[ $(uname) == "Linux" ]] ; then
+elif ${IS_LINUX} ; then
   # only proceed for Linux workstations
   if [[ $(runlevel | cut -d ' ' -f2) -le 3 ]] ; then
     echo "Quitting workstation setup on what appears to be a server"
@@ -28,7 +26,7 @@ else
 fi
 
 ( [[ ${ip_address} =~ "${CUSTOM_WORK_SUBNET}.49." ]] || [[ ${ip_address} =~ "${CUSTOM_WORK_SUBNET}.200." ]] \
-  || [[ ${ip_address} =~ "${CUSTOM_WORK_SUBNET}.67." ]] ) && at_work="true"
+  || [[ ${ip_address} =~ "${CUSTOM_WORK_SUBNET}.67." ]] ) && ${at_work}
 
 # setup passwdless sudo
 echo "Need sudo password to setup passwdless sudo"
@@ -38,7 +36,7 @@ fi
 
 # setup git
 if ! hash git 2>/dev/null ; then
-  if [[ ${is_mac} == true ]] ; then
+  if ${IS_OSX} ; then
     if ! hash brew 2>/dev/null ; then
       echo "Installing brew"
       /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
@@ -46,11 +44,11 @@ if ! hash git 2>/dev/null ; then
     brew install git
     git config --global user.name "${CUSTOM_FULL_NAME}${CUSTOM_FULL_NAME}${CUSTOM_FULL_NAME}"
     git config --global user.email "${CUSTOM_WORK_EMAIL}"
-  elif [[ ${is_debian} == true ]] ; then
+  elif ${is_debian} ; then
     sudo apt-get udpate && sudo apt-get install git -y
     git config --global user.name "${CUSTOM_FULL_NAME}"
     git config --global user.email "${CUSTOM_WORK_EMAIL}"
-  elif [[ ${is_rhel} == true ]] ; then
+  elif ${is_rhel} ; then
     sudo yum install git -y
     git config --global user.name "${CUSTOM_WORK_EMAIL/\.*/}"
     git config --global user.email "github@${CUSTOM_HOME_DOMAIN}.net"
@@ -58,7 +56,7 @@ if ! hash git 2>/dev/null ; then
 fi
 
 # install software
-if [[ ${is_mac} == true ]] && ! hash mas 2>/dev/null ; then
+if ${IS_OSX} && ! hash mas 2>/dev/null ; then
   echo "Configuring OSX. This will take an hour or so."
   brew tap homebrew/dupes && brew install bash coreutils findutils gnu-tar \
     gnu-sed gawk gnutls gnu-indent gnu-getopt nmap grep mtr ack \
@@ -77,8 +75,11 @@ if [[ ${is_mac} == true ]] && ! hash mas 2>/dev/null ; then
   sudo rm -rf /Applications/{iMovie.app,GarageBand.app,Pages.app,Numbers.app}
   # install main apps into Applications
   HOMEBREW_CASK_OPTS="--appdir=/Applications"
-  brew cask install google-photos-backup iterm2 java keystore-explorer slack spotify gimp \
-    vagrant virtualbox jq google-cloud-sdk beyond-compare
+  brew cask install \
+    sloack spotify gimp google-photos-backup iterm2 \
+    iterm2 vagrant virtualbox jq \
+    java keystore-explorer \
+    google-cloud-sdk beyond-compare visual-studio-code
   # brew install Caskroom/cask/pycharm-ce
 
   HOMEBREW_CASK_OPTS=""
@@ -91,6 +92,10 @@ if [[ ${is_mac} == true ]] && ! hash mas 2>/dev/null ; then
   gcloud init
   gcloud auth list
   gcloud config list
+  # must install helm after kubernetes?
+  brew install kubernetes-helm
+  # install helm plugin for Visual Studio Code
+  helm lugin install https://github.com/technosophos/helm-template
 
   # docker for mac
   wget https://download.docker.com/mac/stable/Docker.dmg
@@ -102,12 +107,19 @@ if [[ ${is_mac} == true ]] && ! hash mas 2>/dev/null ; then
   mkdir ~/Documents/share1
   mkdir ~/Pictures/share1
 
-  # more osx customizations
+  # more osx customizations to show all files
   defaults write com.apple.finder AppleShowAllFiles -bool true
+
+  # cloud provider credentials
+  [[ -f ~/.aws_auth ]] || (umask 177 ; touch ~/.aws_auth)
+  [[ -f ~/.gce_auth ]] || (umask 177 ; touch ~/.gce_auth)
+
+  [[ -d ~/build ]] || mkdir ~/build
+
 fi
 
-if [[ $(uname) == "Linux" ]] && ! hash pip 2>/dev/null ; then
-  if [[ ${is_debian} == true ]] ; then
+if ${IS_LINUX} && ! hash pip 2>/dev/null ; then
+  if ${is_debian} ; then
     echo "Configuring Debian. This will take a few minutes."
     sudo apt-get update
     sudo apt-get install -y apt-transport-https ca-certificates curl software-properties-common
@@ -125,7 +137,7 @@ if [[ $(uname) == "Linux" ]] && ! hash pip 2>/dev/null ; then
     sudo systemctl enable docker
     sudo groupadd docker || true
     sudo usermod -aG docker ${USER}
-  elif [[ ${is_rhel} == true ]] ; then
+  elif ${is_rhel} ; then
     echo "Configuring RHEL. This will take a few minutes."
     sudo yum install python-pip python-dev python3 tmux ack -y
   fi
@@ -156,11 +168,11 @@ fi
 
 # setup lastpass
 if ! hash lpass 2>/dev/null ; then
-  if [[ ${is_mac} == true ]] ; then
+  if ${IS_OSX} ; then
     brew install lastpass-cli --with-pinentry
-  elif [[ ${is_debian} == true ]] ; then
+  elif ${is_debian} ; then
     sudo apt-get install lpass -y
-  elif [[ ${is_rhel} == true ]] ; then
+  elif ${is_rhel} ; then
     sudo yum install lpass -y
   fi
 fi
@@ -171,12 +183,6 @@ for key in id_rsa id_rsa_hudson id_rsa_coreos ; do
   # cp -av ~build/ei/jenkins-home/.ssh/id_rsa ~/.ssh/id_rsa_hudson
   # lastpass-cli -f "coreos root key/Private Key/" ~/.ssh/id_rsa_coreos
 done
-
-# cloud provider credentials
-[[ -f ~/.aws_auth ]] || (umask 177 ; touch ~/.aws_auth)
-[[ -f ~/.gce_auth ]] || (umask 177 ; touch ~/.gce_auth)
-
-# [[ -d ~/build ]] || mkdir ~/build
 
 # upgrade software Fridays at 10am
 if ! $(crontab -l | grep -q workstation_update) ; then

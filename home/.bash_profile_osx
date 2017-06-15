@@ -1,0 +1,55 @@
+# Workaround for OSX incompatibility with commercial routers
+[[ $(sysctl -n net.link.ether.inet.arp_unicast_lim) -ne 1 ]] && \
+  sudo sysctl -w net.link.ether.inet.arp_unicast_lim=1
+
+# impatiently detect healthy internet connectivity
+if $(curl github.com --connect-timeout 1 &> /dev/null); then
+  # set up network related profile
+
+  # get network awaremenss
+  ip_address=""
+  at_work="false"
+  at_home="false"
+
+  ip_address=$(/sbin/ifconfig en0 | grep 'inet ' | grep -v '127.0.0.1' | awk '{print $2}')
+
+  # ssh agent stuff
+  source ${HOME}/.ssh/ssh-agent-setup
+  [[ -z "$(launchctl getenv SSH_AUTH_SOCK)" ]] && eval $(ssh-agent -s)
+  [[ $(ssh-add -l | wc -l) -lt 3 ]] && ssh-add -k ~/.ssh/{id_rsa,id_rsa_coreos,id_rsa_hudson}
+
+  # lastpass
+  export LPASS_AGENT_TIMEOUT=172800
+  if ! lpass status 2>/dev/null ; then lpass login --trust lastpass@${CUSTOM_HOME_DOMAIN} ; fi
+  lpass show --password -c LDAP
+
+  ip_address=$(ip addr show | grep 'inet ' | grep -v 127 | head -n1 | awk '{print $2}' | cut -d/ -f1)
+
+  # figure out location
+  ( [[ ${ip_address} =~ "${CUSTOM_WORK_SUBNET}.49." ]] || [[ ${ip_address} =~ "${CUSTOM_WORK_SUBNET}.200." ]] \
+    || [[ ${ip_address} =~ "${CUSTOM_WORK_SUBNET}.67." ]] ) && ${at_work}
+  [[ ${ip_address} =~ "${CUSTOM_HOME_SUBNET}" ]] && ${at_home}
+
+  if ${at_home} ; then
+    mount -t nfs -o vers=4,rw,soft,intr,bg,rsize=32768,wsize=32768,dsize=32768 \
+      ${CUSTOM_NAS_HOST}:/share ~/Documents/share1
+  fi
+  if ${at_work} ; then
+    # set up SSH tunnel if not already set up
+    # lsof still returns a row when the port is open but dead: lsof -n -i4TCP:2000 | grep LISTEN &>/dev/null
+    if [[ $(curl \
+      --connect-timeout 1 \
+      --silent \
+      --output /dev/null \
+      --write-out "%{http_code}" \
+      --head --socks5-hostname localhost:2000 \
+      http://web.${CUSTOM_NAS_HOST#*\.}/that.gif \
+      ) -ne 200 \
+    ]] ; then
+      echo "Establishing SSH Tunnel for SOCKS5 Proxy"
+      ssh -f -N -o TCPKeepAlive=yes -o StrictHostKeyChecking=no -D 2000 ${CUSTOM_WORK_EMAIL/\.*/}@home.${CUSTOM_HOME_DOMAIN} >/dev/null
+    fi
+  fi
+else
+  echo "Skipping network related profile tasks as there's no healthy internet connectivity."
+fi
