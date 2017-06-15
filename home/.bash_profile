@@ -6,14 +6,17 @@ for PATH1 in /sbin /usr/sbin /usr/local/sbin ; do
   ( [[ -d ${PATH1} ]] && [[ ! "${PATH}" =~ (^|:)"${PATH1}"(:|$) ]] ) && export PATH="${PATH1}:$PATH"
 done
 
-if [[ $(uname) == "Darwin" ]] ; then
-  export IS_OSX="true"
-  source ~/.bash_profile_osx
-fi
-if [[ $(uname) == "Linux" ]] ; then
-  export IS_LINUX="true"
-  source ~/.bash_profile_linux
-fi
+export IS_OSX="false"
+export IS_LINUX="false"
+case "$(uname)" in
+  Darwin)
+    IS_OSX="true" && source ~/.bash_profile_osx ;;
+  Linux)
+    ## source ~/.bash_profile_linux
+    IS_LINUX="true" ;;
+  *)
+    echo "Unable to determine Linux or OSX" ;;
+esac
 
 if ! hash git 2>/dev/null ; then
   echo "System looks new; setting up softare"
