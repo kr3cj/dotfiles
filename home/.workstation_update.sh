@@ -12,7 +12,6 @@ fi
 if [[ $(uname) == "Darwin" ]] ; then
   /usr/sbin/softwareupdate -ia
   /usr/local/bin/mas upgrade
-  # /usr/local/bin/brew update
   /usr/local/bin/brew upgrade
   for cask1 in $(/usr/local/bin/brew cask outdated | awk '{print $1}') ; do
     # TODO: fix problems updating brew casks 1) reinstalling gcloud drops kubectl 2) reinstalling virtualbox as non-root
@@ -40,5 +39,6 @@ if /usr/bin/hash npm 2>/dev/null ; then
   npm install npm -g
   npm update -g
 fi
-/usr/bin/hash /usr/local/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/bin/gcloud 2>/dev/null && \
-  /usr/local/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/bin/gcloud components update
+
+# /usr/local/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/bin/gcloud 2>/dev/null && \
+/usr/bin/hash gcloud 2>/dev/null && gcloud components update --quiet
