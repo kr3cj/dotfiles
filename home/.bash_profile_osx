@@ -29,8 +29,14 @@ if $(curl github.com --connect-timeout 1 &> /dev/null); then
   [[ ${ip_address} =~ "${CUSTOM_HOME_SUBNET}" ]] && at_home="true"
 
   if ${at_home} ; then
-    mount -t nfs -o vers=4,rw,soft,intr,bg,rsize=32768,wsize=32768,dsize=32768 \
+    # sudo umount -f ...
+    # killall -HUP mountd
+    mount | grep "Documents/share1" > /dev/null || mount -t nfs -o \
+      vers=4,rw,soft,intr,bg,rsize=32768,wsize=32768,dsize=32768 \
       ${CUSTOM_NAS_HOST}:/share ~/Documents/share1
+    mount | grep "Pictures/share1" > /dev/null || mount -t nfs -o \
+      vers=4,rw,soft,intr,bg,rsize=32768,wsize=32768,dsize=32768 \
+      ${CUSTOM_NAS_HOST}:/share/pictures ~/Pictures/share1
   fi
   if ${at_work} ; then
     # set up SSH tunnel if not already set up

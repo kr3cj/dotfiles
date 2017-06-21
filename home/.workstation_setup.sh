@@ -76,7 +76,7 @@ if ${IS_OSX} && ! hash mas 2>/dev/null ; then
   # install main apps into Applications
   HOMEBREW_CASK_OPTS="--appdir=/Applications"
   brew cask install \
-    sloack spotify gimp google-photos-backup iterm2 \
+    slack spotify gimp google-photos-backup iterm2 android-file-transfer \
     iterm2 vagrant virtualbox jq \
     java keystore-explorer \
     google-cloud-sdk beyond-compare visual-studio-code
