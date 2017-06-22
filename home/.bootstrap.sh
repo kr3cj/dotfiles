@@ -17,6 +17,8 @@ if ! [[ -f ~/.base_homeshick_vars ]] ; then
   read custom_home_subnet
   echo "Enter your custom work subnet:"
   read custom_work_subnet
+  echo "Enter your custom work domains (space separated):"
+  read custom_work_domains
   echo "Enter your custom nas host (fqdn):"
   read custom_work_email
   (umask 077 ; touch ~/.base_homeshick_vars)
@@ -28,6 +30,7 @@ export CUSTOM_HOME_DOMAIN="${custom_home_domain}"
 export CUSTOM_NAS_HOST="${custom_nas_host}"
 export CUSTOM_HOME_SUBNET="${custom_home_subnet}"
 export CUSTOM_WORK_SUBNET="${custom_work_subnet}"
+export CUSTOM_WORK_DOMAINS="${custom_work_domains}"
 export CUSTOM_WORK_EMAIL="${custom_work_email}"
 EOF
 fi

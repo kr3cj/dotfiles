@@ -42,7 +42,7 @@ if ! hash git 2>/dev/null ; then
       /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
     fi
     brew install git
-    git config --global user.name "${CUSTOM_FULL_NAME}${CUSTOM_FULL_NAME}${CUSTOM_FULL_NAME}"
+    git config --global user.name "${CUSTOM_FULL_NAME}"
     git config --global user.email "${CUSTOM_WORK_EMAIL}"
   elif ${is_debian} ; then
     sudo apt-get udpate && sudo apt-get install git -y
