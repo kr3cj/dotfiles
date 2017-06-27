@@ -6,5 +6,3 @@ if [[ -d ${HOME}/.bashrc.d ]]; then
 fi
 homeshick --quiet refresh
 homeshick link dotfiles
-
-${IS_OSX} && cd ~/build/users/billing

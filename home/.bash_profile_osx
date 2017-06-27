@@ -56,10 +56,16 @@ if $(curl github.com --connect-timeout 1 &> /dev/null); then
       echo "Establishing SSH Tunnel for SOCKS5 Proxy"
       ssh -f -N -D 2000 ${CUSTOM_WORK_EMAIL/\.*/}@home.${CUSTOM_HOME_DOMAIN} -o TCPKeepAlive=yes 2>/dev/null
     fi
-    # unmount NFS?
-    mount | grep "Documents/share1" > /dev/null && umount ~/Documents/share1
-    mount | grep "Pictures/share1" > /dev/null && umount ~/Pictures/share1
+    while $(mount | grep "Documents/share1" > /dev/null) ; do
+      echo "Unmounting home nfs share \"Documents/share1\" while at work"
+      sudo umount -v -t nfs ${CUSTOM_NAS_HOST}:/share
+    done
+    while $(mount | grep "Pictures/share1" > /dev/null) ; do
+      echo "Unmounting home nfs share \"Pictures/share1\: while at work"
+      sudo umount -v -t nfs ${CUSTOM_NAS_HOST}:/share/pictures
+    done
   fi
 else
   echo "Skipping network related profile tasks as there's no healthy internet connectivity."
 fi
+cd ~/build/users/billing
