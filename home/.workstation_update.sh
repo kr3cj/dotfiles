@@ -26,7 +26,7 @@ if [[ $(uname) == "Darwin" ]] ; then
 elif [[ $(uname) == "Linux" ]] ; then
   # only proceed for Linux workstations
   if [[ $(runlevel | cut -d ' ' -f2) -le 3 ]] ; then
-    echo "Quitting workstation setup on what appears to be a server"
+    echo "Quitting workstation update on what appears to be a server"
     exit 0
   fi
   if [[ -f /etc/redhat-release ]] ; then

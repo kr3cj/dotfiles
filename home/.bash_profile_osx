@@ -37,6 +37,8 @@ if $(curl github.com --connect-timeout 1 &> /dev/null); then
     mount | grep "Pictures/share1" > /dev/null || mount -t nfs -o \
       vers=4,rw,soft,intr,bg,rsize=32768,wsize=32768,dsize=32768 \
       ${CUSTOM_NAS_HOST}:/share/pictures ~/Pictures/share1
+    # start google photos backup
+    ("/Applications/Google Photos Backup.app/Contents/MacOS/Google Photos Backup" & ) &> /dev/null
   elif ${at_work} ; then
     # SSH tunnel to datacenters
     lsof -n -i4TCP:2002 | grep LISTEN &>/dev/null || ssh -f -N -D 2002 "${CUSTOM_LDAP_NAME}@forinf2.${CUSTOM_WORK_DOMAINS/% */}" -o TCPKeepAlive=yes 2>/dev/null
@@ -65,7 +67,6 @@ if $(curl github.com --connect-timeout 1 &> /dev/null); then
       sudo umount -v -t nfs ${CUSTOM_NAS_HOST}:/share/pictures
     done
   fi
-else
-  echo "Skipping network related profile tasks as there's no healthy internet connectivity."
-fi
+  # stop google photos backup
+  kill $(pgrep "Google Photos Backup") &> /dev/null
 cd ~/build/users/billing
