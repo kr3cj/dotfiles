@@ -69,4 +69,7 @@ if $(curl github.com --connect-timeout 1 &> /dev/null); then
   fi
   # stop google photos backup
   kill $(pgrep "Google Photos Backup") &> /dev/null
+else
+  echo "Skipping network related profile tasks as there's no healthy internet connectivity."
+fi
 cd ~/build/users/billing
