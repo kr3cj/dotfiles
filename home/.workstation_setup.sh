@@ -77,12 +77,18 @@ if ${IS_OSX} && ! hash mas 2>/dev/null ; then
   HOMEBREW_CASK_OPTS="--appdir=/Applications"
   brew cask install \
     slack spotify gimp google-photos-backup iterm2 android-file-transfer \
-    iterm2 vagrant virtualbox jq \
+    atom iterm2 vagrant virtualbox jq \
     java keystore-explorer \
     google-cloud-sdk beyond-compare visual-studio-code
   # brew install Caskroom/cask/pycharm-ce
-
   HOMEBREW_CASK_OPTS=""
+
+  # install atom editor plugins
+  apm install terminal-plus minimap language-hcl
+
+  # install cisco vpn client
+  echo "Please install the \"Cisco AnyConnect Secure Mobility Client\""
+
   # python stuff
   pip install pylint virtualenv
 

@@ -39,6 +39,8 @@ if $(curl github.com --connect-timeout 1 &> /dev/null); then
       ${CUSTOM_NAS_HOST}:/share/pictures ~/Pictures/share1
     # start google photos backup
     ("/Applications/Google Photos Backup.app/Contents/MacOS/Google Photos Backup" & ) &> /dev/null
+    # start work vpn
+    ("/Applications/Cisco/Cisco AnyConnect Secure Mobility Client.app/Contents/MacOS/Cisco AnyConnect Secure Mobility Client" & ) &> /dev/null
   elif ${at_work} ; then
     # SSH tunnel to datacenters
     lsof -n -i4TCP:2002 | grep LISTEN &>/dev/null || ssh -f -N -D 2002 "${CUSTOM_LDAP_NAME}@forinf2.${CUSTOM_WORK_DOMAINS/% */}" -o TCPKeepAlive=yes 2>/dev/null

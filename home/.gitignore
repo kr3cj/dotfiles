@@ -13,3 +13,5 @@ id_dsa
 .base_homeshick_vars
 .vim/*
 !.vim/puppet.vim
+.atom/packages/
+.atom/storage/
