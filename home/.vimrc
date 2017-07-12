@@ -35,5 +35,9 @@ set tabstop=2    "Number of spaces a tab mimics
 set softtabstop=2 "Ensure spaces can be easily deleted
 set shiftwidth=2 "?
 set expandtab   "Enable for tabs to become spaces
+" Highlight tabs so that we may destroy them
+set list listchars=tab:»·
+" To replace tabs, type ':retab' inside the file
+" nnoremap <silent> <F2> :<C-U>setlocal lcs=tab:>-,trail:-,eol:$ list! list? <CR>
 
 " For sorting visual blocks, see https://github.com/yaroot/vissort

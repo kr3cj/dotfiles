@@ -21,6 +21,10 @@ if ! [[ -f ~/.base_homeshick_vars ]] ; then
   read custom_work_domains
   echo "Enter your custom nas host (fqdn):"
   read custom_work_email
+  echo "Enter your custom work vpn uri for readytalk:"
+  read custom_work_vpn_rt
+  echo "Enter your custom work vpn uris for PGi (space separated):"
+  read custom_work_vpn_pgi
   (umask 077 ; touch ~/.base_homeshick_vars)
   cat << EOF >> ~/.base_homeshick_vars
 export CUSTOM_FULL_NAME="${custom_full_name}"
@@ -30,8 +34,10 @@ export CUSTOM_HOME_DOMAIN="${custom_home_domain}"
 export CUSTOM_NAS_HOST="${custom_nas_host}"
 export CUSTOM_HOME_SUBNET="${custom_home_subnet}"
 export CUSTOM_WORK_SUBNET="${custom_work_subnet}"
-export CUSTOM_WORK_DOMAINS="${custom_work_domains}"
+export CUSTOM_WORK_DOMAINS=(${custom_work_domains})
 export CUSTOM_WORK_EMAIL="${custom_work_email}"
+export CUSTOM_WORK_VPN_RT=(${custom_work_vpn_rt})
+export CUSTOM_WORK_VPN_PGI=(${custom_work_vpn_pgi})
 EOF
 fi
 

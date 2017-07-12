@@ -84,10 +84,31 @@ if ${IS_OSX} && ! hash mas 2>/dev/null ; then
   HOMEBREW_CASK_OPTS=""
 
   # install atom editor plugins
-  apm install terminal-plus minimap language-hcl
+  apm install terminal-plus minimap language-hcl linter-terraform-syntax \
+    autocomplete-bash-builtins linter-checkbashisms markdown-toc terraform-fmt \
+    language-groovy
+  # language-terraform
 
   # install cisco vpn client
   echo "Please install the \"Cisco AnyConnect Secure Mobility Client\""
+  cat << EOF | sudo tee -a /opt/cisco/anyconnect/profile/Profile.xml
+<AnyConnectProfile xmlns="http://schemas.xmlsoap.org/encoding/">
+  <ServerList>
+    <HostEntry>
+      <HostName>readytalk</HostName>
+      <HostAddress>${CUSTOM_WORK_VPN_RT}</HostAddress>
+    </HostEntry>
+    <HostEntry>
+      <HostName>pgi</HostName>
+      <HostAddress>${CUSTOM_WORK_VPN_PGI[0]}</HostAddress>
+      <BackupServerList>
+        <HostAddress>${CUSTOM_WORK_VPN_PGI[1]}</HostAddress>
+        <HostAddress>${CUSTOM_WORK_VPN_PGI[2]}</HostAddress>
+      </BackupServerList>
+    </HostEntry>
+  </ServerList>
+</AnyConnectProfile>
+EOF
 
   # python stuff
   pip install pylint virtualenv
@@ -101,7 +122,8 @@ if ${IS_OSX} && ! hash mas 2>/dev/null ; then
   # must install helm after kubernetes?
   brew install kubernetes-helm
   # install helm plugin for Visual Studio Code
-  helm lugin install https://github.com/technosophos/helm-template
+  helm plugin install https://github.com/technosophos/helm-template
+  helm init
 
   # docker for mac
   wget https://download.docker.com/mac/stable/Docker.dmg
@@ -113,8 +135,10 @@ if ${IS_OSX} && ! hash mas 2>/dev/null ; then
   mkdir ~/Documents/share1
   mkdir ~/Pictures/share1
 
-  # more osx customizations to show all files
-  defaults write com.apple.finder AppleShowAllFiles -bool true
+  ### general osx customizations from https://github.com/mathiasbynens/dotfiles/blob/master/.macos ###
+  # first, backup the current defaults
+  defaults read > ~/osx_defaults_original_$(date +%Y-%m-%d).json
+  bash ~/.macos
 
   # cloud provider credentials
   [[ -f ~/.aws_auth ]] || (umask 177 ; touch ~/.aws_auth)

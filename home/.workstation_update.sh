@@ -24,7 +24,7 @@ if [[ $(uname) == "Darwin" ]] ; then
   done
   # /usr/local/bin/brew cask outdated | xargs /usr/local/bin/brew cask reinstall
   # update atom editor plugins
-  apm upgrade
+  echo yes | apm upgrade
 elif [[ $(uname) == "Linux" ]] ; then
   # only proceed for Linux workstations
   if [[ $(runlevel | cut -d ' ' -f2) -le 3 ]] ; then
