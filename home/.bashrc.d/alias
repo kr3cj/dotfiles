@@ -3,8 +3,8 @@ alias ls='ls -G'
 # alias ll="ls -hl --color=auto"
 alias ll="ls -hl -G"
 alias lpw="lpass show --password -c LDAP"
+alias ducks="sudo du -cshx ./ | sort -h"
 if ${IS_OSX} ; then
-  alias ducks="sudo du -cmshx ./* --exclude=/home --exclude=/proc --exclude=/mnt --exclude=/dev/ --exclude=/run | sort -h"
   alias kubedash="kubectl get po -n=kube-system | grep dashboard | awk '{print \$1}' | \
     xargs -I % kubectl port-forward % 9090 -n=kube-system"
 fi

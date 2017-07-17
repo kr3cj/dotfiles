@@ -4,6 +4,7 @@ set hlsearch
 set cursorline
 set confirm
 set paste
+set pastetoggle=<F2>
 
 au BufReadPost Jenkinsfile setlocal filetype=groovy
 
