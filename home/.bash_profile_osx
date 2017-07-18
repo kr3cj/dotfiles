@@ -30,7 +30,6 @@ if $(curl github.com --connect-timeout 1 &> /dev/null); then
 
   if ${at_home} ; then
     if [[ $(ping -c1 -W1 -i0.1 ${CUSTOM_NAS_HOST} &> /dev/null) ]] ; then
-      # sudo umount -f ...
       # killall -HUP mountd
       mount | grep "Documents/share1" > /dev/null || mount -t nfs -o \
         vers=4,rw,soft,intr,bg,rsize=32768,wsize=32768,dsize=32768 \
@@ -67,8 +66,12 @@ if $(curl github.com --connect-timeout 1 &> /dev/null); then
         2>/dev/null
       [[ ${?} -ne 0 ]] && echo "Unable to establish ssh connection to \"home.${CUSTOM_HOME_DOMAIN}\""
     fi
-    mount | grep "Documents/share1" > /dev/null && sudo umount -v -t nfs ${CUSTOM_NAS_HOST}:/share
-    mount | grep "Pictures/share1" > /dev/null && sudo umount -v -t nfs ${CUSTOM_NAS_HOST}:/share/pictures
+    while $(mount | grep "Documents/share1" > /dev/null) ; do
+      sudo umount -fv -t nfs ${CUSTOM_NAS_HOST}:/share
+    done
+    while $(mount | grep "Pictures/share1" > /dev/null) ; do
+      sudo umount -fv -t nfs ${CUSTOM_NAS_HOST}:/share/pictures
+    done
     # establish vpn connection to PGi
     # [[ $(ping -c1 -w1 -i0.1 172.x.x.x &> /dev/null) || /opt/cisco/anyconnect/bin/vpn connect pgi
     pkill "Google Photos Backup"

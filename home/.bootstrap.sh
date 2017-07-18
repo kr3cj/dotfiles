@@ -43,10 +43,10 @@ fi
 
 # second, make sure git is installed
 if ! hash git 2>/dev/null ; then
-  if ${IS_OSX} ; then
+  if [[ $(uname) == "Darwin" ]] ; then
     /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
     brew install git
-  elif ${IS_LINXU} ; then
+  elif [[ $(uname) == "Linux" ]] ; then
     if [[ -f /etc/redhat-release ]] ; then
       sudo yum install git -y
     elif [[ -f /etc/os-release ]] ; then
