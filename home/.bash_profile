@@ -1,11 +1,3 @@
-[[ -f ~/.base_homeshick_vars ]] && source ~/.base_homeshick_vars
-[[ -f ~/.bashrc ]] && source ~/.bashrc
-
-# add admin paths
-for PATH1 in /sbin /usr/sbin /usr/local/sbin ; do
-  ( [[ -d ${PATH1} ]] && [[ ! "${PATH}" =~ (^|:)"${PATH1}"(:|$) ]] ) && export PATH="${PATH1}:$PATH"
-done
-
 export IS_OSX="false"
 export IS_LINUX="false"
 case "$(uname)" in
@@ -17,6 +9,14 @@ case "$(uname)" in
   *)
     echo "Unable to determine Linux or OSX" ;;
 esac
+
+[[ -f ~/.base_homeshick_vars ]] && source ~/.base_homeshick_vars
+[[ -f ~/.bashrc ]] && source ~/.bashrc
+
+# add admin paths
+for PATH1 in /sbin /usr/sbin /usr/local/sbin ; do
+  ( [[ -d ${PATH1} ]] && [[ ! "${PATH}" =~ (^|:)"${PATH1}"(:|$) ]] ) && export PATH="${PATH1}:$PATH"
+done
 
 if ! hash git 2>/dev/null ; then
   echo "System looks new; setting up softare"

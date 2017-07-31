@@ -1,4 +1,4 @@
-if ! ${IS_OSX} ; then return ; fi
+${IS_OSX} || return
 export GOPATH=$HOME/Go
 export GOROOT=/usr/local/opt/go/libexec
 export PATH=$PATH:$GOPATH/bin
