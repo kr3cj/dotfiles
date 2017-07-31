@@ -4,6 +4,8 @@
 
 # impatiently detect healthy internet connectivity
 if $(curl github.com --connect-timeout 1 &> /dev/null); then
+# TODO: move most of this to a script called after login or screen-unlock
+#  (https://stackoverflow.com/questions/6442364/running-script-upon-login-mac)
   # set up network related profile
 
   # get network awaremenss
@@ -12,6 +14,7 @@ if $(curl github.com --connect-timeout 1 &> /dev/null); then
   at_home="false"
 
   # ssh agent stuff
+  # make alias for ssh -> "ssh -A"?
   source ${HOME}/.ssh/ssh-agent-setup
   [[ -z "$(launchctl getenv SSH_AUTH_SOCK)" ]] && eval $(ssh-agent -s)
   [[ $(ssh-add -l | wc -l) -lt 3 ]] && ssh-add -k ~/.ssh/{id_rsa,id_rsa_coreos,id_rsa_hudson}
@@ -29,25 +32,25 @@ if $(curl github.com --connect-timeout 1 &> /dev/null); then
   [[ ${ip_address} =~ "${CUSTOM_HOME_SUBNET}" ]] && at_home="true"
 
   if ${at_home} ; then
-    if [[ $(ping -c1 -W1 -i0.1 ${CUSTOM_NAS_HOST} &> /dev/null) ]] ; then
+    if $(ping -c1 -W1 -i0.1 ${CUSTOM_NAS_HOST} &> /dev/null) ; then
       # killall -HUP mountd
-      mount | grep "Documents/share1" > /dev/null || mount -t nfs -o \
+      mount | grep -q "Documents/share1" || mount -t nfs -o \
         vers=4,rw,soft,intr,bg,rsize=32768,wsize=32768,dsize=32768 \
         ${CUSTOM_NAS_HOST}:/share ~/Documents/share1
-      mount | grep "Pictures/share1" > /dev/null || mount -t nfs -o \
+      mount | grep -q "Pictures/share1" || mount -t nfs -o \
         vers=4,rw,soft,intr,bg,rsize=32768,wsize=32768,dsize=32768 \
         ${CUSTOM_NAS_HOST}:/share/pictures ~/Pictures/share1
     fi
     # start google photos backup
-    [[ $(pgrep "Google Photos Backup") ]] || \
+    $(pgrep -q "Google Photos Backup") || \
       ("/Applications/Google Photos Backup.app/Contents/MacOS/Google Photos Backup" & ) &> /dev/null
-    # [[ $(ping -c1 -W1 -i0.1 laphroaig.${CUSTOM_WORK_DOMAINS[1]}) ]] || /opt/cisco/anyconnect/bin/vpn connect readytalk
+    # $(ping -c1 -W1 -i0.1 laphroaig.${CUSTOM_WORK_DOMAINS[1]}) || /opt/cisco/anyconnect/bin/vpn connect readytalk
   elif ${at_work} ; then
     # SSH tunnel to datacenters
-    lsof -n -i4TCP:2002 | grep LISTEN &>/dev/null || ssh -f -N -D 2002 "${CUSTOM_LDAP_NAME}@forinf2.${CUSTOM_WORK_DOMAINS[0]}" -o TCPKeepAlive=yes 2>/dev/null
-    lsof -n -i4TCP:2003 | grep LISTEN &>/dev/null || ssh -f -N -D 2003 "${CUSTOM_LDAP_NAME}@laxinf2.${CUSTOM_WORK_DOMAINS[0]}" -o TCPKeepAlive=yes 2>/dev/null
+    lsof -n -i4TCP:2002 | grep -q LISTEN || ssh -f -N -D 2002 "${CUSTOM_LDAP_NAME}@forinf2.${CUSTOM_WORK_DOMAINS[0]}" -o TCPKeepAlive=yes 2>/dev/null
+    lsof -n -i4TCP:2003 | grep -q LISTEN || ssh -f -N -D 2003 "${CUSTOM_LDAP_NAME}@laxinf2.${CUSTOM_WORK_DOMAINS[0]}" -o TCPKeepAlive=yes 2>/dev/null
     # set up SSH tunnel to home if not already set up
-    # note: lsof still returns a row when the port is open but dead: lsof -n -i4TCP:2000 | grep LISTEN &>/dev/null
+    # note: lsof still returns a row when the port is open but dead: lsof -n -i4TCP:2000 | grep -q LISTEN
     if [[ $(curl \
       --connect-timeout 1 \
       --silent \
@@ -66,14 +69,14 @@ if $(curl github.com --connect-timeout 1 &> /dev/null); then
         2>/dev/null
       [[ ${?} -ne 0 ]] && echo "Unable to establish ssh connection to \"home.${CUSTOM_HOME_DOMAIN}\""
     fi
-    while $(mount | grep "Documents/share1" > /dev/null) ; do
+    while $(mount | grep -q "Documents/share1") ; do
       sudo umount -fv -t nfs ${CUSTOM_NAS_HOST}:/share
     done
-    while $(mount | grep "Pictures/share1" > /dev/null) ; do
+    while $(mount | grep -q "Pictures/share1") ; do
       sudo umount -fv -t nfs ${CUSTOM_NAS_HOST}:/share/pictures
     done
     # establish vpn connection to PGi
-    # [[ $(ping -c1 -w1 -i0.1 172.x.x.x &> /dev/null) || /opt/cisco/anyconnect/bin/vpn connect pgi
+    # $(ping -c1 -w1 -i0.1 172.x.x.x &> /dev/null) || /opt/cisco/anyconnect/bin/vpn connect pgi
     pkill "Google Photos Backup"
   fi
 else

@@ -58,12 +58,15 @@ fi
 # install software
 if ${IS_OSX} && ! hash mas 2>/dev/null ; then
   echo "Configuring OSX. This will take an hour or so."
-  brew tap homebrew/dupes && brew install bash coreutils findutils gnu-tar \
-    gnu-sed gawk gnutls gnu-indent gnu-getopt nmap grep mtr ack \
+  brew tap homebrew/dupes
+  # replace osx utils with gnu core utils
+  brew install coreutils findutils gnu-tar gnu-sed gawk gnutls gnu-indent gnu-getopt
+  brew install bash grep nmap mtr ack \
     aria2 mas mtr wget dos2unix \
-    ansible awscli docker docker-compose fleetctl go java openshift-cli packer python python3 rbenv ruby ruby-build
-  # puppet testing shtuff
-  sudo gem install bundler
+    awscli docker docker-compose fleetctl go java openshift-cli packer \
+    python python3 ansible \
+    rbenv ruby ruby-build
+
   # mas is a CLI for AppStore installs/updates
   mas signin ${CUSTOM_WORK_EMAIL}
   mas install 405843582 # Alfred (1.2)
@@ -73,6 +76,10 @@ if ${IS_OSX} && ! hash mas 2>/dev/null ; then
   # mas install 417375580 # BetterSnapTool (1.7)
   # TODO: f.lux
   sudo rm -rf /Applications/{iMovie.app,GarageBand.app,Pages.app,Numbers.app}
+
+  # puppet testing shtuff
+  sudo gem install bundler
+
   # install main apps into Applications
   HOMEBREW_CASK_OPTS="--appdir=/Applications"
   brew cask install \
@@ -84,10 +91,15 @@ if ${IS_OSX} && ! hash mas 2>/dev/null ; then
   HOMEBREW_CASK_OPTS=""
 
   # install atom editor plugins
-  apm install terminal-plus minimap language-hcl linter-terraform-syntax \
+  apm install auto-update-packages terminal-plus minimap language-hcl linter-terraform-syntax \
     autocomplete-bash-builtins linter-checkbashisms markdown-toc terraform-fmt \
     language-groovy
   # language-terraform
+
+  # install visual studio code extensions
+  for i in technosophos.vscode-helm brendandburns.vs-kubernetes PeterJausovec.vscode-docker; do
+    code --install-extension ${i}
+  done
 
   # install cisco vpn client
   echo "Please install the \"Cisco AnyConnect Secure Mobility Client\""
@@ -124,6 +136,11 @@ EOF
   # install helm plugin for Visual Studio Code
   helm plugin install https://github.com/technosophos/helm-template
   helm init
+  # minikube client (all-in-one k8s)
+  curl -Lo minikube https://storage.googleapis.com/minikube/releases/v0.20.0/minikube-darwin-amd64 \
+    && chmod -v +x minikube \
+    && sudo mv -v minikube /usr/local/bin/
+
 
   # docker for mac
   wget https://download.docker.com/mac/stable/Docker.dmg
