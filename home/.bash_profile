@@ -1,3 +1,4 @@
+[[ -f ~/.base_homeshick_vars ]] && source ~/.base_homeshick_vars
 export IS_OSX="false"
 export IS_LINUX="false"
 case "$(uname)" in
@@ -10,7 +11,6 @@ case "$(uname)" in
     echo "Unable to determine Linux or OSX" ;;
 esac
 
-[[ -f ~/.base_homeshick_vars ]] && source ~/.base_homeshick_vars
 [[ -f ~/.bashrc ]] && source ~/.bashrc
 
 # add admin paths
