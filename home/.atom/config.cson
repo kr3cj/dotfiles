@@ -8,6 +8,7 @@
     tabType: "soft"
   "exception-reporting":
     userId: "0c04b8da-0bc1-48e6-956e-25597b02031e"
+  minimap: {}
   "tree-view":
     hideIgnoredNames: true
     hideVcsIgnoredFiles: true

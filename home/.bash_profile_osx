@@ -61,7 +61,7 @@ if $(curl github.com --connect-timeout 1 &> /dev/null); then
       http://web.${CUSTOM_NAS_HOST#*\.}/that.gif \
       ) -ne 200 \
     ]] ; then
-      echo "Establishing SSH Tunnel to \"home.${CUSTOM_HOME_DOMAIN}\" for SOCKS5 Proxy..."
+      echo "Establishing ssh tunnel to \"home.${CUSTOM_HOME_DOMAIN}\" for SOCKS5 Proxy..."
       ssh -f -N -D 2000 ${CUSTOM_WORK_EMAIL/\.*/}@home.${CUSTOM_HOME_DOMAIN} \
         -o TCPKeepAlive=yes \
         -o ConnectTimeout=1 \

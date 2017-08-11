@@ -133,6 +133,7 @@ EOF
   gcloud config list
   # must install helm after kubernetes?
   brew install kubernetes-helm
+  # brew install kops # also installs kubernetes-client which is supplied by gcloud
   # install helm plugin for Visual Studio Code
   helm plugin install https://github.com/technosophos/helm-template
   helm init

@@ -1,3 +1,9 @@
+# STTY doesn't like being sourced
+# control characters
+stty -echoctl
+# flow control
+stty -ixon
+
 if [[ -d ${HOME}/.bashrc.d ]]; then
   while read dotd; do
     source "${dotd}"

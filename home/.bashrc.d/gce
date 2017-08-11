@@ -14,3 +14,6 @@ export KUBECONFIG=~/.kube/config
 # source $(brew --prefix)/etc/bash_completion
 # source /usr/local/etc/bash_completion
 source <(kubectl completion bash)
+
+# export KOPS_STATE_STORE="s3://kops-clusters-state"
+# export KOPS_NAME="blue.${CUSTOM_WORK_DOMAINS[2]}"
