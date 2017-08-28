@@ -9,7 +9,7 @@ if [[ $(uname) == "Darwin" ]] ; then
   /usr/local/bin/mas upgrade
   echo -e "\nUpdating brew..."
   /usr/local/bin/brew upgrade
-  echo -e "\nUPdating brew casks..."
+  echo -e "\nUpdating brew casks..."
   for cask1 in $(/usr/local/bin/brew cask outdated | awk '{print $1}') ; do
     if [[ ${cask1} =~ virtualbox ]] ; then
       echo -e "\nSkipping reinstall of brew cask \"virtualbox\" (known issues with non-root installs at time of coding)."
@@ -17,7 +17,7 @@ if [[ $(uname) == "Darwin" ]] ; then
     elif [[ ${cask1} =~ gcloud ]] ; then
       /usr/local/bin/brew cask reinstall ${cask1}
       echo -e "\nUpgrading gcloud cask requires reinstall of kubectl client..."
-      gcloud components install kubectl -q
+      sudo gcloud components install kubectl -q
       continue
     fi
     /usr/local/bin/brew cask reinstall ${cask1}
@@ -53,11 +53,13 @@ if hash gem 2>/dev/null ; then
 fi
 if hash pip 2>/dev/null ; then
   echo -e "\nUpdating pip..."
-  for pkg in $(pip list --outdated | awk '{print $1}') ; do
-    sudo pip install ${pkg} --upgrade
-  done
+  pip install --upgrade -r <( pip freeze )
+  # for pkg in $(sudo -H pip list --outdated --format=columns | tail -n +3 | awk '{print $1}') ; do
+  #   sudo -H pip install ${pkg} --upgrade
+  # done
+  # pip freeze -local | grep -v '^\-e' | cut -d= -f1 | xargs -n1 pip install -U
 fi
 if hash gcloud 2>/dev/null ; then
   echo -e "\nUpdating glcoud..."
-  gcloud components update --quiet
+  sudo gcloud components update --quiet
 fi

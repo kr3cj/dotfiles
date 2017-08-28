@@ -123,6 +123,7 @@ if ${IS_OSX} && ! hash mas 2>/dev/null ; then
 EOF
 
   # python stuff
+  sudo easy_install pip
   pip install pylint virtualenv
 
   # gce and gke stuff (https://cloud.google.com/sdk/docs/quickstart-mac-os-x)
@@ -131,9 +132,11 @@ EOF
   gcloud init
   gcloud auth list
   gcloud config list
+
   # must install helm after kubernetes?
-  brew install kubernetes-helm
-  # brew install kops # also installs kubernetes-client which is supplied by gcloud
+  # this will install 2 kubernetes clients (gcloud's and brew's)
+  brew install kubernetes-helm kubernetes-cli kops
+
   # install helm plugin for Visual Studio Code
   helm plugin install https://github.com/technosophos/helm-template
   helm init
