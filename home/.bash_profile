@@ -15,8 +15,11 @@ esac
 
 # add admin paths
 for PATH1 in /sbin /usr/sbin /usr/local/sbin ; do
-  ( [[ -d ${PATH1} ]] && [[ ! "${PATH}" =~ (^|:)"${PATH1}"(:|$) ]] ) && export PATH="${PATH1}:$PATH"
+  ( [[ -d ${PATH1} ]] && [[ ! "${PATH}" =~ (^|:)"${PATH1}"(:|$) ]] ) && export PATH="${PATH1}:${PATH}"
 done
+
+# replace osx utilities with GNU core utilities
+${IS_OSX} && export PATH="/usr/local/opt/coreutils/libexec/gnubin:${PATH}"
 
 if ! hash git 2>/dev/null ; then
   echo "System looks new; setting up softare"

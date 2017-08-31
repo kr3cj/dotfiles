@@ -63,9 +63,10 @@ if ${IS_OSX} && ! hash mas 2>/dev/null ; then
   brew install coreutils findutils gnu-tar gnu-sed gawk gnutls gnu-indent gnu-getopt
   brew install bash grep nmap mtr ack \
     aria2 mas mtr wget dos2unix \
-    awscli docker docker-compose fleetctl go java openshift-cli packer \
+    go java maven \
     python python3 ansible \
-    rbenv ruby ruby-build
+    rbenv ruby ruby-build \
+    awscli docker docker-compose fleetctl openshift-cli packer
 
   # mas is a CLI for AppStore installs/updates
   mas signin ${CUSTOM_WORK_EMAIL}
