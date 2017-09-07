@@ -1,5 +1,7 @@
 ${IS_OSX} || return
 export GOPATH=$HOME/Go
 export GOROOT=/usr/local/opt/go/libexec
-export PATH=$PATH:$GOPATH/bin
-export PATH=$PATH:$GOROOT/bin
+
+for newpath in ${GOPATH}/bin ${GOROOT}/bin ; do
+  pathadd ${newpath}
+done

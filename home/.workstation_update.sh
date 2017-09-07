@@ -63,3 +63,5 @@ if hash gcloud 2>/dev/null ; then
   echo -e "\nUpdating glcoud..."
   sudo gcloud components update --quiet
 fi
+# find and fix any ownership problems (~/.config/gcloud/logs/ appears to be a common offender)
+sudo find ~ -user root -exec chown -c corey.bar '{}' \;

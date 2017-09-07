@@ -4,7 +4,7 @@ if [[ -f ~/.aws_auth ]] ; then
   source ~/.aws_auth
   export AWS_CREDENTIAL_FILE=~/.aws_auth
   # export AWS_IAM_HOME=~/bin/amazon/iam
-  # export PATH=${PATH}:${AWS_IAM_HOME}/bin
+  # pathadd ${AWS_IAM_HOME}/bin
 fi
 
 # http://docs.aws.amazon.com/cli/latest/userguide/cli-install-macos.html
