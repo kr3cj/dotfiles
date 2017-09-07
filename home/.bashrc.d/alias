@@ -8,3 +8,20 @@ if ${IS_OSX} ; then
   alias kubedash="kubectl get po -n=kube-system | grep dashboard | awk '{print \$1}' | \
     xargs -I % kubectl port-forward % 9090 -n=kube-system"
 fi
+
+function pathadd() {
+  local newpath=${1%/}
+  if [[ ! -d "${newpath}" ]] ; then
+    echo "Directory \"${1}\" does not exist."
+    return
+  fi
+  if [[ ! "${PATH}" =~ (^|:)"${newpath}"(:|$) ]] ; then
+    # echo "Path \"${newpath}\" already exists in path."
+    return
+  fi
+  if [[ "${2}" == "after" ]] ; then
+    PATH="${PATH}:${newpath}"
+  else
+    PATH="${newpath}:${PATH}"
+  fi
+}
