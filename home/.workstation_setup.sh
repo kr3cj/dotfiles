@@ -61,8 +61,8 @@ if ${IS_OSX} && ! hash mas 2>/dev/null ; then
   brew tap homebrew/dupes
   # replace osx utils with gnu core utils
   brew install coreutils findutils gnu-tar gnu-sed gawk gnutls gnu-indent gnu-getopt
-  brew install bash grep nmap mtr ack \
-    aria2 mas mtr wget dos2unix \
+  brew install bash grep nmap mtr wget \
+    aria2 mas ack dos2unix \
     go java maven \
     python python3 ansible \
     rbenv ruby ruby-build \
@@ -101,6 +101,14 @@ if ${IS_OSX} && ! hash mas 2>/dev/null ; then
   for i in technosophos.vscode-helm brendandburns.vs-kubernetes PeterJausovec.vscode-docker; do
     code --install-extension ${i}
   done
+  # move visual-studio-code overrides into dotfiles?
+  # cat << EOF >> $HOME/Library/Application Support/Code/User/settings.json
+  # {
+  #   "files.autoSave": "afterDelay",
+  #   "workbench.startupEditor": "none"
+  # }
+  #
+
 
   # install cisco vpn client
   echo "Please install the \"Cisco AnyConnect Secure Mobility Client\""

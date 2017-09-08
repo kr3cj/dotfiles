@@ -1,3 +1,4 @@
+echo "Initial \$PATH: \"${PATH}\""
 [[ -f ~/.base_homeshick_vars ]] && source ~/.base_homeshick_vars
 export IS_OSX="false"
 export IS_LINUX="false"
@@ -13,13 +14,11 @@ esac
 
 [[ -f ~/.bashrc ]] && source ~/.bashrc
 
-# add admin paths, replace osx utilities with GNU core utilities
+# add admin paths, replace osx utilities with GNU core utilities (should already include /usr/sbin/ and /sbin )
 for newpath in \
+  /usr/local/sbin \
   /usr/local/opt/coreutils/libexec/gnuman \
   /usr/local/opt/coreutils/libexec/gnubin \
-  /usr/local/sbin \
-  /usr/sbin \
-  /sbin \
   ; do
   pathadd ${newpath}
 done

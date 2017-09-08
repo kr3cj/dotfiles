@@ -47,7 +47,9 @@ if $(curl github.com --connect-timeout 1 &> /dev/null); then
     # $(ping -c1 -W1 -i0.1 laphroaig.${CUSTOM_WORK_DOMAINS[1]}) || /opt/cisco/anyconnect/bin/vpn connect readytalk
   elif ${at_work} ; then
     # SSH tunnel to datacenters
+    # TODO: convert proxy check to "curl --proxy socks5://127.0.0.1:2002 www.google.com"
     (lsof -n -i4TCP:2002 | grep -q LISTEN) || (echo "Establishing ssh tunnel to forinf2.${CUSTOM_WORK_DOMAINS[0]}" ; ssh -f -N -D 2002 "${CUSTOM_LDAP_NAME}@forinf2.${CUSTOM_WORK_DOMAINS[0]}" -o TCPKeepAlive=yes 2> /dev/null)
+    # TODO: convert proxy check to "curl --proxy socks5://127.0.0.1:2003 www.google.com"
     (lsof -n -i4TCP:2003 | grep -q LISTEN) || (echo "Establishing ssh tunnel to laxinf2.${CUSTOM_WORK_DOMAINS[0]}" ; ssh -f -N -D 2003 "${CUSTOM_LDAP_NAME}@laxinf2.${CUSTOM_WORK_DOMAINS[0]}" -o TCPKeepAlive=yes 2> /dev/null)
     # set up SSH tunnel to home if not already set up
     # note: lsof still returns a row when the port is open but dead: lsof -n -i4TCP:2000 | grep -q LISTEN

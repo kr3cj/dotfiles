@@ -15,8 +15,8 @@ function pathadd() {
     echo "Directory \"${1}\" does not exist."
     return
   fi
-  if [[ ! "${PATH}" =~ (^|:)"${newpath}"(:|$) ]] ; then
-    # echo "Path \"${newpath}\" already exists in path."
+  if [[ "${PATH}" =~ (^|:)"${newpath}"(:|$) ]] ; then
+    # echo "Path \"${newpath}\" already exists in path \"${PATH}\"."
     return
   fi
   if [[ "${2}" == "after" ]] ; then
@@ -24,4 +24,5 @@ function pathadd() {
   else
     PATH="${newpath}:${PATH}"
   fi
+  export PATH
 }
