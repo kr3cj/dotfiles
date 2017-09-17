@@ -4,7 +4,7 @@
 
 if [[ $(uname) == "Darwin" ]] ; then
   echo -e "\nUpdating OSX system..."
-  /usr/sbin/softwareupdate -ia
+  /usr/sbin/softwareupdate --install --all
   echo -e "\nUpdating OSX App Store apps..."
   /usr/local/bin/mas upgrade
   echo -e "\nUpdating brew..."
