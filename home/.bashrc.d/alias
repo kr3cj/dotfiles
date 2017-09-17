@@ -3,6 +3,7 @@ alias ls='ls -G'
 # alias ll="ls -hl --color=auto"
 alias ll="ls -hl -G"
 alias lpw="lpass show --password -c LDAP"
+alias srm="/bin/rm -vP"
 alias ducks="sudo du -cshx ./ | sort -h"
 if ${IS_OSX} ; then
   alias kubedash="kubectl get po -n=kube-system | grep dashboard | awk '{print \$1}' | \
