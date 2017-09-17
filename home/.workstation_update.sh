@@ -4,7 +4,7 @@
 
 if [[ $(uname) == "Darwin" ]] ; then
   echo -e "\nUpdating OSX system..."
-  /usr/sbin/softwareupdate -ia
+  /usr/sbin/softwareupdate --install --all
   echo -e "\nUpdating OSX App Store apps..."
   /usr/local/bin/mas upgrade
   echo -e "\nUpdating brew..."
@@ -64,4 +64,4 @@ if hash gcloud 2>/dev/null ; then
   sudo gcloud components update --quiet
 fi
 # find and fix any ownership problems (~/.config/gcloud/logs/ appears to be a common offender)
-sudo find ~ -user root -exec chown -c corey.bar '{}' \;
+sudo find ~ -user root -exec chown --changes corey.bar '{}' \;

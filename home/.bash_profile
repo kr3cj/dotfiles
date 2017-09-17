@@ -1,4 +1,3 @@
-echo "Initial \$PATH: \"${PATH}\""
 [[ -f ~/.base_homeshick_vars ]] && source ~/.base_homeshick_vars
 export IS_OSX="false"
 export IS_LINUX="false"
