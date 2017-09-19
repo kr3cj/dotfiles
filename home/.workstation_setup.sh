@@ -6,6 +6,8 @@ ip_address=""
 is_debian="false"
 is_rhel="false"
 at_work="false"
+brew_options=" --default-names --with-default-names --with-gettext --override-system-vi \
+  --override-system-vim --custom-system-icons"
 
 if ${IS_OSX} ; then
   ip_address=$(/sbin/ifconfig en0 | grep 'inet ' | grep -v '127.0.0.1' | awk '{print $2}')
@@ -34,37 +36,71 @@ if ! sudo grep -q $(whoami) /etc/sudoers ; then
   sudo bash -c "echo \"$(whoami) ALL=(ALL) NOPASSWD: ALL\" >> /etc/sudoers"
 fi
 
-# setup git
-if ! hash git 2>/dev/null ; then
-  if ${IS_OSX} ; then
-    if ! hash brew 2>/dev/null ; then
-      echo "Installing brew"
-      /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
-    fi
-    brew install git
-    git config --global user.name "${CUSTOM_FULL_NAME}"
-    git config --global user.email "${CUSTOM_WORK_EMAIL}"
-  elif ${is_debian} ; then
-    sudo apt-get udpate && sudo apt-get install git -y
-    git config --global user.name "${CUSTOM_FULL_NAME}"
-    git config --global user.email "${CUSTOM_WORK_EMAIL}"
-  elif ${is_rhel} ; then
-    sudo yum install git -y
-    git config --global user.name "${CUSTOM_WORK_EMAIL/\.*/}"
-    git config --global user.email "github@${CUSTOM_HOME_DOMAIN}.net"
-  fi
-fi
-
-# install software
 if ${IS_OSX} && ! hash mas 2>/dev/null ; then
   echo "Configuring OSX. This will take an hour or so."
-  brew tap homebrew/dupes
-  # replace osx utils with gnu core utils
-  brew install coreutils findutils gnu-tar gnu-sed gawk gnutls gnu-indent gnu-getopt
-  brew install bash grep nmap mtr wget \
-    aria2 mas ack dos2unix \
+  # see http://meng6.net/pages/computing/installing_and_configuring/installing_and_configuring_command-line_utilities/
+  echo "install gnu core utilities"
+  brew install coreutils
+  echo "install utilities"
+  brew install binutils
+  brew install diffutils
+  brew install ed --with-default-names
+  # brew install findutils --with-default-names ## This will cause 'brew doctor' to issue warning: "Putting non-prefixed findutils in your path can cause python builds to fail."
+  brew install findutils
+  brew install gawk
+  brew install gnu-indent --with-default-names
+  brew install gnu-sed --with-default-names
+  brew install gnu-tar --with-default-names
+  brew install gnu-which --with-default-names
+  brew install gnutls
+  brew install grep --with-default-names
+  brew install gzip
+  brew install screen
+  brew install watch
+  brew install wdiff --with-gettext
+  brew install wget
+  brew install gnupg
+  brew install gnupg2
+  echo "install newer utilities than OSX provides"
+  brew install bash
+  brew link --overwrite bash
+  # brew install emacs
+  # brew install --cocoa --srgb emacs ##
+  # brew linkapps emacs
+  brew install gdb  # gdb requires further actions to make it work. See `brew info gdb`.
+  brew install guile
+  brew install gpatch
+  brew install m4
+  brew install make
+  brew install nano
+  echo "install more newer utilities"
+  brew install file-formula
+  brew install git
+  brew install less
+  brew install openssh
+  brew install rsync
+  brew install svn
+  brew install unzip
+  brew install vim --override-system-vi
+  # brew install macvim --with-override-system-vim --custom-system-icons
+  # brew link --overwrite macvim
+  # brew linkapps macvim
+  # brew install zsh
+  # echo "install perl"
+  # brew tap homebrew/versions
+  # brew install perl518
+  echo "install python"
+  brew install python
+  # brew linkapps python
+  pip install --upgrade pip setuptools
+
+  echo "install some extra utility packages for me"
+  brew install dos2unix gnu-getopt
+  echo "install extra tools that I like"
+  brew install \
+    ack aria2 mas mtr nmap \
     go java maven \
-    python python3 ansible \
+    python3 ansible \
     rbenv ruby ruby-build \
     awscli docker docker-compose fleetctl openshift-cli packer
 
@@ -178,6 +214,27 @@ EOF
 
 fi
 
+# setup git
+if ! hash git 2>/dev/null ; then
+  if ${IS_OSX} ; then
+    if ! hash brew 2>/dev/null ; then
+      echo "Installing brew"
+      /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+    fi
+    git config --global user.name "${CUSTOM_FULL_NAME}"
+    git config --global user.email "${CUSTOM_WORK_EMAIL}"
+  elif ${is_debian} ; then
+    sudo apt-get udpate && sudo apt-get install git -y
+    git config --global user.name "${CUSTOM_FULL_NAME}"
+    git config --global user.email "${CUSTOM_WORK_EMAIL}"
+  elif ${is_rhel} ; then
+    sudo yum install git -y
+    git config --global user.name "${CUSTOM_WORK_EMAIL/\.*/}"
+    git config --global user.email "github@${CUSTOM_HOME_DOMAIN}.net"
+  fi
+fi
+
+# install software
 if ${IS_LINUX} && ! hash pip 2>/dev/null ; then
   if ${is_debian} ; then
     echo "Configuring Debian. This will take a few minutes."
