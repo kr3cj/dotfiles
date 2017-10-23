@@ -17,5 +17,5 @@ export KUBECONFIG=~/.kube/config
 source <(kubectl completion bash)
 
 export KOPS_STATE_STORE="s3://kops-clusters-state"
-export KOPS_NAME="blue.${CUSTOM_WORK_DOMAINS[2]}"
+export KOPS_NAME="navy.${CUSTOM_WORK_DOMAINS[2]}"
 # kops export kubecfg --name ${KOPS_NAME}
