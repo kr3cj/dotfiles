@@ -120,7 +120,7 @@ if ${IS_OSX} && ! hash mas 2>/dev/null ; then
   # install main apps into Applications
   HOMEBREW_CASK_OPTS="--appdir=/Applications"
   brew cask install \
-    slack spotify gimp google-photos-backup iterm2 android-file-transfer \
+    slack spotify gimp google-photos-backup iterm2 android-file-transfer android-platform-tools \
     atom iterm2 vagrant virtualbox jq vault \
     java keystore-explorer \
     google-cloud-sdk beyond-compare visual-studio-code
@@ -190,12 +190,11 @@ EOF
     && chmod -v +x minikube \
     && sudo mv -v minikube /usr/local/bin/
 
-
   # docker for mac
-  wget https://download.docker.com/mac/stable/Docker.dmg
-  sudo hdiutil attach Docker.img
-  sudo installer -package /Volumes/Docker/Docker.pkg -target /Applications
-  sudo hdiutil detach "/Volumes/Docker/"
+  # wget https://download.docker.com/mac/stable/Docker.dmg
+  # sudo hdiutil attach Docker.img
+  # sudo installer -package /Volumes/Docker/Docker.pkg -target /Applications
+  # sudo hdiutil detach "/Volumes/Docker/"
 
   # prep for home nfs mount
   mkdir ~/Documents/share1

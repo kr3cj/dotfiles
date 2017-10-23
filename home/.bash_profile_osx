@@ -80,6 +80,8 @@ if $(curl github.com --connect-timeout 1 &> /dev/null); then
     # establish vpn connection to PGi
     # $(ping -c1 -w1 -i0.1 172.x.x.x &> /dev/null) || /opt/cisco/anyconnect/bin/vpn connect pgi
     # pkill "Google Photos Backup"
+    $(pgrep -q "Slack") || \
+      ("/Applications/Slack.app/Contents/MacOS/Slack" & ) &> /dev/null
   fi
 else
   echo "Skipping network related profile tasks as there's no healthy internet connectivity."
