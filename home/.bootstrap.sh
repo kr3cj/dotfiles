@@ -40,6 +40,7 @@ export CUSTOM_WORK_VPN_RT=(${custom_work_vpn_rt})
 export CUSTOM_WORK_VPN_PGI=(${custom_work_vpn_pgi})
 EOF
 fi
+source ~/.base_homeshick_vars
 
 # second, make sure git is installed
 if ! hash git 2>/dev/null ; then
@@ -59,10 +60,14 @@ if ! hash git 2>/dev/null ; then
 fi
 
 # third, get and run homeshick
-if ! [[ -d $HOME/.homesick/repos/homeshick ]] ; then
-  git clone git://github.com/andsens/homeshick.git $HOME/.homesick/repos/homeshick
+if ! [[ -d ${HOME}/.homesick/repos/homeshick ]] ; then
+  mkdir -pv ${HOME}/.homesick/repos/
+  git clone git://github.com/andsens/homeshick.git ${HOME}/.homesick/repos/homeshick
+  cd ${HOME}/.homesick/repos
+  git config user.name "${CUSTOM_WORK_EMAIL/\.*/}"
+  git config user.email "github@${CUSTOM_HOME_DOMAIN}"
 
-  source "$HOME/.homesick/repos/homeshick/homeshick.sh"
+  source "${HOME}/.homesick/repos/homeshick/homeshick.sh"
   if [[ -r ~/.ssh/id_rsa.pub ]] ; then
     homeshick --force clone git@github.com:${CUSTOM_GITHUB_HANDLE}/dotfiles
   else
@@ -72,14 +77,12 @@ if ! [[ -d $HOME/.homesick/repos/homeshick ]] ; then
     cd -
   fi
 
-  homeshick cd dotfiles
-  git config user.name "${CUSTOM_WORK_EMAIL/\.*/}"
-  git config user.email "github@${CUSTOM_HOME_DOMAIN}"
-  cd -
+  cd ~
   homeshick link --force
 else
-  source "$HOME/.homesick/repos/homeshick/homeshick.sh"
+  source "${HOME}/.homesick/repos/homeshick/homeshick.sh"
   homeshick pull
   homeshick --quiet --force refresh
   homeshick --quiet --force link dotfiles
 fi
+source ~/.bash_profile
