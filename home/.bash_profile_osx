@@ -19,11 +19,6 @@ if $(curl github.com --connect-timeout 1 &> /dev/null); then
   [[ -z "$(launchctl getenv SSH_AUTH_SOCK)" ]] && eval $(ssh-agent -s)
   [[ $(ssh-add -l | wc -l) -lt 3 ]] && ssh-add -k ~/.ssh/{id_rsa,id_rsa_coreos,id_rsa_hudson}
 
-  # lastpass
-  export LPASS_AGENT_TIMEOUT=172800
-  if ! lpass status 2>/dev/null ; then lpass login --trust lastpass@${CUSTOM_HOME_DOMAIN} ; fi
-  lpass show --password -c LDAP
-
   ip_address=$(/sbin/ifconfig en0 | grep 'inet ' | grep -v '127.0.0.1' | awk '{print $2}')
 
   # figure out location
@@ -47,10 +42,32 @@ if $(curl github.com --connect-timeout 1 &> /dev/null); then
     # $(ping -c1 -W1 -i0.1 laphroaig.${CUSTOM_WORK_DOMAINS[1]}) || /opt/cisco/anyconnect/bin/vpn connect readytalk
   elif ${at_work} ; then
     # SSH tunnel to datacenters
-    # TODO: convert proxy check to "curl --proxy socks5://127.0.0.1:2002 www.google.com"
-    (lsof -n -i4TCP:2002 | grep -q LISTEN) || (echo "Establishing ssh tunnel to forinf2.${CUSTOM_WORK_DOMAINS[0]}" ; ssh -f -N -D 2002 "${CUSTOM_LDAP_NAME}@forinf2.${CUSTOM_WORK_DOMAINS[0]}" -o TCPKeepAlive=yes 2> /dev/null)
-    # TODO: convert proxy check to "curl --proxy socks5://127.0.0.1:2003 www.google.com"
-    (lsof -n -i4TCP:2003 | grep -q LISTEN) || (echo "Establishing ssh tunnel to laxinf2.${CUSTOM_WORK_DOMAINS[0]}" ; ssh -f -N -D 2003 "${CUSTOM_LDAP_NAME}@laxinf2.${CUSTOM_WORK_DOMAINS[0]}" -o TCPKeepAlive=yes 2> /dev/null)
+    if [[ $(curl \
+      --connect-timeout 1 \
+      --silent \
+      --output /dev/null \
+      --write-out "%{http_code}" \
+      --head \
+      --socks5-hostname localhost:2002 \
+      http://www.google.com \
+      ) -ne 200 \
+    ]] ; then
+      echo "Establishing ssh tunnel to forinf2.${CUSTOM_WORK_DOMAINS[0]}"
+      ssh -f -N -D 2002 "${CUSTOM_LDAP_NAME}@forinf2.${CUSTOM_WORK_DOMAINS[0]}" -o TCPKeepAlive=yes 2> /dev/null
+    fi
+    if [[ $(curl \
+      --connect-timeout 1 \
+      --silent \
+      --output /dev/null \
+      --write-out "%{http_code}" \
+      --head \
+      --socks5-hostname localhost:2003 \
+      http://www.google.com \
+      ) -ne 200 \
+    ]] ; then
+      echo "Establishing ssh tunnel to laxinf2.${CUSTOM_WORK_DOMAINS[0]}"
+      ssh -f -N -D 2003 "${CUSTOM_LDAP_NAME}@laxinf2.${CUSTOM_WORK_DOMAINS[0]}" -o TCPKeepAlive=yes 2> /dev/null
+    fi
     # set up SSH tunnel to home if not already set up
     # note: lsof still returns a row when the port is open but dead: lsof -n -i4TCP:2000 | grep -q LISTEN
     if [[ $(curl \
@@ -83,6 +100,12 @@ if $(curl github.com --connect-timeout 1 &> /dev/null); then
     $(pgrep -q "Slack") || \
       ("/Applications/Slack.app/Contents/MacOS/Slack" & ) &> /dev/null
   fi
+
+  # lastpass
+  export LPASS_AGENT_TIMEOUT=172800
+  if ! lpass status 2>/dev/null ; then lpass login --trust lastpass@${CUSTOM_HOME_DOMAIN} ; fi
+  lpass show --password -c LDAP
+
 else
   echo "Skipping network related profile tasks as there's no healthy internet connectivity."
 fi
