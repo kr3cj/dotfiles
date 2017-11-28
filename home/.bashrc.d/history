@@ -2,9 +2,16 @@
 # See bash(1) for more options
 HISTCONTROL=ignoreboth
 
+# append timestamps
+HISTTIMEFORMAT='%F %T '
+# force multiline commands into one line
+shopt -s cmdhist
 # append to the history file, don't overwrite it
 shopt -s histappend
 
+# save history immediately
+PROMPT_COMMAND="history -a"
+
 # for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
-HISTSIZE=10000
-HISTFILESIZE=10000
+HISTSIZE=1000000
+HISTFILESIZE=1000000

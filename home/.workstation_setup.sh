@@ -99,7 +99,7 @@ if ${IS_OSX} && ! hash mas 2>/dev/null ; then
   echo "install extra tools that I like"
   brew install \
     ack aria2 mas mtr nmap \
-    go java maven \
+    go maven \
     python3 ansible \
     rbenv ruby ruby-build \
     awscli docker docker-compose fleetctl openshift-cli packer
@@ -122,15 +122,26 @@ if ${IS_OSX} && ! hash mas 2>/dev/null ; then
   brew cask install \
     slack spotify gimp google-photos-backup iterm2 android-file-transfer android-platform-tools \
     atom iterm2 vagrant virtualbox jq vault \
-    java keystore-explorer \
-    google-cloud-sdk beyond-compare visual-studio-code
+    keystore-explorer \
+    google-cloud-sdk beyond-compare visual-studio-code firefox
   # brew install Caskroom/cask/pycharm-ce
   HOMEBREW_CASK_OPTS=""
 
+  # install java8
+  brew tap caskroom/versions
+  brew cask install java8
+  # setup build system credentials
+  docker login artifactory.ecovate.com
+  # TODO: populate credential files for builds
+  (umask 077 ; mkdir ~/.ivy2 ~/.m2 ; touch ~/.ivy2/{auth.properties,ivysettings.xml} ~/.m2/settings.xml)
+  # TODO: .pgpass, npmrc, .vnc/passwd, .ant/settings.xml, .jspm/config
+
   # install atom editor plugins
-  apm install auto-update-packages terminal-plus minimap language-hcl linter-terraform-syntax \
-    autocomplete-bash-builtins linter-checkbashisms markdown-toc terraform-fmt \
-    language-groovy
+  apm install auto-update-packages terminal-plus open-terminal-here minimap language-hcl \
+    autocomplete-bash-builtins markdown-toc terraform-fmt \
+    language-groovy file-icons tree-view-git-status highlight-selected \
+    linter linter-ui-default intentions busy-signal
+    linter-checkbashisms linter-terraform-syntax
   # language-terraform
 
   # install visual studio code extensions

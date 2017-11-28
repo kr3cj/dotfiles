@@ -16,6 +16,6 @@ export KUBECONFIG=~/.kube/config
 # source /usr/local/etc/bash_completion
 source <(kubectl completion bash)
 
-export KOPS_STATE_STORE="s3://kops-clusters-state"
-export KOPS_NAME="navy.${CUSTOM_WORK_DOMAINS[2]}"
+export KOPS_STATE_STORE="s3://foxden-k8s-cluster-state"
+export KOPS_NAME="hive.cluster.foxden.io"
 # kops export kubecfg --name ${KOPS_NAME}
