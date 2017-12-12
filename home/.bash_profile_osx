@@ -15,8 +15,8 @@ if $(curl github.com --connect-timeout 1 &> /dev/null); then
 
   # ssh agent stuff
   # make alias for ssh -> "ssh -A"?
-  source ${HOME}/.ssh/ssh-agent-setup
-  [[ -z "$(launchctl getenv SSH_AUTH_SOCK)" ]] && eval $(ssh-agent -s)
+#  source ${HOME}/.ssh/ssh-agent-setup
+#  [[ -z "$(launchctl getenv SSH_AUTH_SOCK)" ]] && eval $(ssh-agent -s)
   [[ $(ssh-add -l | wc -l) -lt 3 ]] && ssh-add -k ~/.ssh/{id_rsa,id_rsa_coreos,id_rsa_hudson}
 
   ip_address=$(/sbin/ifconfig en0 | grep 'inet ' | grep -v '127.0.0.1' | awk '{print $2}')

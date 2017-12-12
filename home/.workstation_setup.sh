@@ -102,10 +102,11 @@ if ${IS_OSX} && ! hash mas 2>/dev/null ; then
     go maven \
     python3 ansible \
     rbenv ruby ruby-build \
-    awscli docker docker-compose fleetctl openshift-cli packer
+    awscli docker docker-compose fleetctl openshift-cli packer terraform
 
   # mas is a CLI for AppStore installs/updates
-  mas signin ${CUSTOM_WORK_EMAIL}
+  # TODO: move lpass setup before this step to achieve automatic password prefill
+  mas signin ${CUSTOM_WORK_EMAIL} # "$(lpass show --password 'Apple (work)')"
   mas install 405843582 # Alfred (1.2)
   mas install 497799835 # Xcode
   mas install 595191960 # CopyClip (1.9)
@@ -139,7 +140,7 @@ if ${IS_OSX} && ! hash mas 2>/dev/null ; then
   # install atom editor plugins
   apm install auto-update-packages terminal-plus open-terminal-here minimap language-hcl \
     autocomplete-bash-builtins markdown-toc terraform-fmt \
-    language-groovy file-icons tree-view-git-status highlight-selected \
+    language-groovy file-icons tree-view-git-status highlight-selected git-plus \
     linter linter-ui-default intentions busy-signal
     linter-checkbashisms linter-terraform-syntax
   # language-terraform
@@ -197,9 +198,11 @@ EOF
   helm plugin install https://github.com/technosophos/helm-template
   helm init
   # minikube client (all-in-one k8s)
-  curl -Lo minikube https://storage.googleapis.com/minikube/releases/v0.20.0/minikube-darwin-amd64 \
-    && chmod -v +x minikube \
-    && sudo mv -v minikube /usr/local/bin/
+  # TODO: create function for installing minikube, kubectl etc (in linux) with curl+chmod+mv commands
+  minikube_version=$(curl -s https://api.github.com/repos/kubernetes/minikube/releases/latest | jq -r '.tag_name')
+  curl -Lo minikube https://storage.googleapis.com/minikube/releases/${minikube_version}/minikube-darwin-amd64
+    chmod -v +x minikube
+    sudo mv -v minikube /usr/local/bin/
 
   # docker for mac
   # wget https://download.docker.com/mac/stable/Docker.dmg
@@ -218,7 +221,9 @@ EOF
 
   # cloud provider credentials
   [[ -f ~/.aws_auth ]] || (umask 177 ; touch ~/.aws_auth)
+  # TODO: automatically create ~/.aws_auth by pulling secrets from lpass cli
   [[ -f ~/.gce_auth ]] || (umask 177 ; touch ~/.gce_auth)
+  # TODO: automatically create ~/.gce_auth by pulling secrets from lpass cli
 
   [[ -d ~/build ]] || mkdir ~/build
 
@@ -251,10 +256,6 @@ if ${IS_LINUX} && ! hash pip 2>/dev/null ; then
     sudo apt-get update
     sudo apt-get install -y apt-transport-https ca-certificates curl software-properties-common
     sudo apt-get install -y python-pip python-dev python3 tmux ack-grep
-    # packer is a pain on linux
-    wget https://releases.hashicorp.com/packer/0.12.3/packer_0.12.3_linux_amd64.zip?_ga=1.256734091.1098021006.1490961258 --output-document=/var/tmp/packer.zip
-    unzip /var/tmp/packer.zip -d /usr/local
-    sudo ln -s /usr/local/packer /usr/local/bin/packer
 
     # if you must install docker on a full blown OS
     curl -fsSL https://download.docker.com/linux/debian/gpg | sudo apt-key add -
@@ -264,6 +265,43 @@ if ${IS_LINUX} && ! hash pip 2>/dev/null ; then
     sudo systemctl enable docker
     sudo groupadd docker || true
     sudo usermod -aG docker ${USER}
+
+    # kubectl (TODO: move to shared function)
+    wget -O kubectl https://storage.googleapis.com/kubernetes-release/release/$(curl -s \
+      https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
+    chmod +x ./kubectl
+    sudo mv -v ./kubectl /usr/local/bin/
+    # kops (TODO: move to shared function)
+    wget -O kops https://github.com/kubernetes/kops/releases/download/$(curl -s \
+      https://api.github.com/repos/kubernetes/kops/releases/latest \
+      | grep tag_name | cut -d '"' -f 4)/kops-linux-amd64
+    chmod +x ./kops
+    sudo mv -v ./kops /usr/local/bin/
+    # helm (TODO: move to shared function)
+    curl https://raw.githubusercontent.com/kubernetes/helm/master/scripts/get | bash
+
+    # terraform (TODO: move to shared function)
+    wget -O terraform.zip $(echo "https://releases.hashicorp.com/terraform/$(curl -s \
+      https://checkpoint-api.hashicorp.com/v1/check/terraform | jq -r -M '.current_version')/terraform_$(curl -s \
+      https://checkpoint-api.hashicorp.com/v1/check/terraform | jq -r -M '.current_version')_linux_amd64.zip")
+    unzip terraform.zip -d /usr/local
+    chmod +x ./terraform
+    sudo mv -v ./terraform /usr/local/bin/
+
+    # packer (TODO: move to shared function)
+    wget -O packer.zip $(echo "https://releases.hashicorp.com/packer/$(curl -s \
+      https://checkpoint-api.hashicorp.com/v1/check/packer| jq -r -M '.current_version')/packer$(curl -s \
+      https://checkpoint-api.hashicorp.com/v1/check/packer| jq -r -M '.current_version')_linux_amd64.zip")
+    unzip packer.zip -d /usr/local
+    chmod +x ./packer
+    sudo mv -v ./packer /usr/local/bin/
+
+    # docker-compose (TODO: move to shared function)
+    curl -L https://github.com/docker/compose/releases/download/$(curl -s https://api.github.com/repos/docker/compose/releases/latest | jq -r '.tag_name')/run.sh > \
+      /usr/local/bin/docker-compose
+    chmod +x /usr/local/bin/docker-compose
+    docker-compose --version
+
   elif ${is_rhel} ; then
     echo "Configuring RHEL. This will take a few minutes."
     sudo yum install python-pip python-dev python3 tmux ack -y

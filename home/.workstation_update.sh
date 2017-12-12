@@ -5,8 +5,11 @@
 if [[ $(uname) == "Darwin" ]] ; then
   echo -e "\nUpdating OSX system..."
   /usr/sbin/softwareupdate --install --all
+
   echo -e "\nUpdating OSX App Store apps..."
+  [[ $(/usr/local/bin/mas account) ]] || /usr/local/bin/mas signin ${CUSTOM_WORK_EMAIL} "$(lpass show --password 'Apple (work)')"
   /usr/local/bin/mas upgrade
+
   echo -e "\nUpdating brew..."
   /usr/local/bin/brew upgrade
   echo -e "\nUpdating brew casks..."
@@ -22,8 +25,10 @@ if [[ $(uname) == "Darwin" ]] ; then
     fi
     /usr/local/bin/brew cask reinstall ${cask1}
   done
+
   echo -e "\nUpdating atom editor plugins."
   echo yes | /usr/local/bin/apm upgrade
+
 elif [[ $(uname) == "Linux" ]] ; then
   # only proceed for Linux workstations
   if [[ $(runlevel | cut -d ' ' -f2) -le 3 ]] ; then
@@ -64,3 +69,4 @@ if hash gcloud 2>/dev/null ; then
   sudo gcloud components update --quiet
 fi
 # find and fix any ownership problems (~/.config/gcloud/logs/ appears to be a common offender)
+sudo find -x ~/.config/ -user root -exec chown --changes ${CUSTOM_WORK_EMAIL/\@*/} '{}' \;

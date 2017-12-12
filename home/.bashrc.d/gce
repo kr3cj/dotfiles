@@ -17,5 +17,5 @@ export KUBECONFIG=~/.kube/config
 source <(kubectl completion bash)
 
 export KOPS_STATE_STORE="s3://foxden-k8s-cluster-state"
-export KOPS_NAME="hive.cluster.foxden.io"
+export KOPS_NAME="hole.cluster.foxden.io"
 # kops export kubecfg --name ${KOPS_NAME}

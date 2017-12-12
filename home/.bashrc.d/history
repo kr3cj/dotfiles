@@ -1,17 +1,17 @@
 # don't put duplicate lines or lines starting with space in the history.
 # See bash(1) for more options
-HISTCONTROL=ignoreboth
+export HISTCONTROL=ignoreboth
 
 # append timestamps
-HISTTIMEFORMAT='%F %T '
+export HISTTIMEFORMAT='%F %T '
 # force multiline commands into one line
 shopt -s cmdhist
 # append to the history file, don't overwrite it
 shopt -s histappend
 
 # save history immediately
-PROMPT_COMMAND="history -a"
+# export PROMPT_COMMAND="history -a"
 
 # for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
-HISTSIZE=1000000
-HISTFILESIZE=1000000
+export HISTSIZE=1000000
+export HISTFILESIZE=1000000
