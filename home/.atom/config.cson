@@ -13,6 +13,5 @@
     command: "open -a iTerm.app \"$PWD\""
   "tree-view":
     hideIgnoredNames: true
-    hideVcsIgnoredFiles: true
   welcome:
     showOnStartup: false

@@ -1,6 +1,6 @@
 ${IS_OSX} || return
 # gce bash completion
-source '/usr/local/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/completion.bash.inc'
+# source '/usr/local/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/completion.bash.inc'
 
 # gce pathing (sourcing path.bash.inc duplicates entries into $PATH)
 # source '/usr/local/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/path.bash.inc'
@@ -17,5 +17,5 @@ export KUBECONFIG=~/.kube/config
 source <(kubectl completion bash)
 
 export KOPS_STATE_STORE="s3://foxden-k8s-cluster-state"
-export KOPS_NAME="hole.cluster.foxden.io"
+export KOPS_NAME="dam.cluster.foxden.io"
 # kops export kubecfg --name ${KOPS_NAME}

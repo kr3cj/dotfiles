@@ -99,10 +99,15 @@ if ${IS_OSX} && ! hash mas 2>/dev/null ; then
   echo "install extra tools that I like"
   brew install \
     ack aria2 mas mtr nmap \
-    go maven \
-    python3 ansible \
+    maven python3 ansible \
     rbenv ruby ruby-build \
-    awscli docker docker-compose fleetctl openshift-cli packer terraform
+    awscli docker docker-compose packer terraform \
+    liquidprompt
+    # openshift-cli fleetctl
+  # liquidprompt customizations
+  rm ~/.liquidpromptrc
+  cat /usr/local/share/liquidpromptrc-dist > ~/.liquidpromptrc
+
 
   # mas is a CLI for AppStore installs/updates
   # TODO: move lpass setup before this step to achieve automatic password prefill
@@ -124,7 +129,7 @@ if ${IS_OSX} && ! hash mas 2>/dev/null ; then
     slack spotify gimp google-photos-backup iterm2 android-file-transfer android-platform-tools \
     atom iterm2 vagrant virtualbox jq vault \
     keystore-explorer \
-    google-cloud-sdk beyond-compare visual-studio-code firefox
+    beyond-compare visual-studio-code firefox
   # brew install Caskroom/cask/pycharm-ce
   HOMEBREW_CASK_OPTS=""
 
@@ -181,14 +186,16 @@ EOF
 
   # python stuff
   sudo easy_install pip
-  pip install pylint virtualenv
+  pip install pylint virtualenv yq==2.2.0
 
   # gce and gke stuff (https://cloud.google.com/sdk/docs/quickstart-mac-os-x)
-  go get golang.org/x/tools/cmd/godoc
-  gcloud components install kubectl -q
-  gcloud init
-  gcloud auth list
-  gcloud config list
+  # brew install go
+  # go get golang.org/x/tools/cmd/godoc
+  # brew cask install google-cloud-sdk
+  # gcloud components install kubectl -q
+  # gcloud init
+  # gcloud auth list
+  # gcloud config list
 
   # must install helm after kubernetes?
   # this will install 2 kubernetes clients (gcloud's and brew's)
@@ -247,6 +254,11 @@ if ! hash git 2>/dev/null ; then
     git config --global user.name "${CUSTOM_WORK_EMAIL/\.*/}"
     git config --global user.email "github@${CUSTOM_HOME_DOMAIN}.net"
   fi
+  # TODO auth github
+  # git clone https://github.com/username/repo.git
+  # Username: ${CUSTOM_GITHUB_HANDLE}
+  # Password: $(grab github personal access token from lpass-cli)
+
 fi
 
 # install software
