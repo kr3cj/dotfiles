@@ -7,6 +7,7 @@
 # you can load the corresponding files here:
 #source ~/.config/liquidprompt/nojhan.theme
 #LP_PS1_FILE=~/.config/liquidprompt/nojhan.ps1
+LP_PS1_FILE=~/.config/liquidprompt/liquid.ps1
 
 #############
 # BEHAVIOUR #
@@ -18,7 +19,7 @@ LP_BATTERY_THRESHOLD=75
 
 # Minimal value after which the load average is displayed
 # Recommended value is 60
-LP_LOAD_THRESHOLD=60
+LP_LOAD_THRESHOLD=190
 
 # Minimal value after which the temperature is displayed (in degrees Celsius)
 # Recommended value is 60
@@ -65,7 +66,7 @@ LP_ENABLE_PROXY=0
 
 # Do you want to use the jobs feature?
 # Recommended value is 1
-LP_ENABLE_JOBS=0
+LP_ENABLE_JOBS=1
 
 # Do you want to use the load feature?
 # Recommended value is 1
@@ -106,11 +107,11 @@ LP_ENABLE_BZR=0
 
 # Show time of the last prompt display
 # Recommended value is 0
-LP_ENABLE_TIME=0
+LP_ENABLE_TIME=1
 
 # Show runtime of the last command if over LP_RUNTIME_THRESHOLD
 # Recommended value is 0
-LP_ENABLE_RUNTIME=0
+LP_ENABLE_RUNTIME=1
 
 # Minimal runtime to be displayed
 # Recommended value is 2
@@ -140,13 +141,13 @@ LP_TIME_ANALOG=0
 # recommended value is 0
 # See LP_TITLE_OPEN and LP_TITLE_CLOSE to change escape characters to adapt this
 # feature to your specific terminal.
-LP_ENABLE_TITLE=0
+LP_ENABLE_TITLE=1
 
 # Enable Title for screen and byobu
 LP_ENABLE_SCREEN_TITLE=0
 
 # Use differents colors for differents hosts you SSH in
-LP_ENABLE_SSH_COLORS=0
+LP_ENABLE_SSH_COLORS=1
 
 # Specify a list of complete and colon (":") separated paths in which, all vcs
 # will be disabled
