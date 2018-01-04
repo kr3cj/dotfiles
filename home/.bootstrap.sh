@@ -68,6 +68,7 @@ if ! [[ -d ${HOME}/.homesick/repos/homeshick ]] ; then
   git config user.email "github@${CUSTOM_HOME_DOMAIN}"
 
   source "${HOME}/.homesick/repos/homeshick/homeshick.sh"
+  # TODO: pull public rsa key from github/bitbucket/lastpass and remove below conditional
   if [[ -r ~/.ssh/id_rsa.pub ]] ; then
     homeshick --force clone git@github.com:${CUSTOM_GITHUB_HANDLE}/dotfiles
   else
@@ -85,4 +86,15 @@ else
   homeshick --quiet --force refresh
   homeshick --quiet --force link dotfiles
 fi
+
+# fourth, grab liquidprompt fork
+repo="kr3cj/liquidprompt"
+if homeshick list | grep -q ${repo}; then
+  homeshick --batch pull ${repo/*\//}
+else
+  # TODO: switch between git@ or https:// syntax accordingly
+  homeshick --batch clone ${repo}
+fi
+homeshick --force link
+
 source ~/.bash_profile

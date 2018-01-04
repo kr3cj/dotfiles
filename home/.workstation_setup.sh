@@ -101,23 +101,26 @@ if ${IS_OSX} && ! hash mas 2>/dev/null ; then
     ack aria2 mas mtr nmap \
     maven python3 ansible \
     rbenv ruby ruby-build \
-    awscli docker docker-compose packer terraform \
-    liquidprompt
+    awscli docker docker-compose packer terraform
     # openshift-cli fleetctl
-  # liquidprompt customizations
-  rm ~/.liquidpromptrc
-  cat /usr/local/share/liquidpromptrc-dist > ~/.liquidpromptrc
+
+  # liquidprompt customizations deferred until merges are made for:
+  #  bschwedler:feature/kubernetes-context and pull/476
+  # brew install liquidprompt
+  # rm ~/.liquidpromptrc
+  # cat /usr/local/share/liquidpromptrc-dist > ~/.liquidpromptrc
 
 
   # mas is a CLI for AppStore installs/updates
   # TODO: move lpass setup before this step to achieve automatic password prefill
   mas signin ${CUSTOM_WORK_EMAIL} # "$(lpass show --password 'Apple (work)')"
-  mas install 405843582 # Alfred (1.2)
+  mas install 405843582 # Alfred
   mas install 497799835 # Xcode
-  mas install 595191960 # CopyClip (1.9)
-  mas install 715768417 # Microsoft Remote Desktop (8.0.27246)
-  # mas install 417375580 # BetterSnapTool (1.7)
-  # TODO: f.lux
+  mas install 595191960 # CopyClip
+  mas install 715768417 # Microsoft Remote Desktop
+  mas install 441258766 # Magnet
+  # TODO: give magnet accessibility privileges in system prefs, sec and privacy, privacy tab
+  # mas install 417375580 # BetterSnapTool
   sudo rm -rf /Applications/{iMovie.app,GarageBand.app,Pages.app,Numbers.app}
 
   # puppet testing shtuff
@@ -127,11 +130,17 @@ if ${IS_OSX} && ! hash mas 2>/dev/null ; then
   HOMEBREW_CASK_OPTS="--appdir=/Applications"
   brew cask install \
     slack spotify gimp google-photos-backup iterm2 android-file-transfer android-platform-tools \
-    atom iterm2 vagrant virtualbox jq vault \
+    atom vagrant virtualbox jq vault \
     keystore-explorer \
     beyond-compare visual-studio-code firefox
   # brew install Caskroom/cask/pycharm-ce
   HOMEBREW_CASK_OPTS=""
+
+  # iterm2 customizations
+  # Specify the preferences directory
+  defaults write com.googlecode.iterm2.plist PrefsCustomFolder -string "~/.config"
+  # Tell iTerm2 to use the custom preferences in the directory
+  defaults write com.googlecode.iterm2.plist LoadPrefsFromCustomFolder -bool true
 
   # install java8
   brew tap caskroom/versions
@@ -267,7 +276,13 @@ if ${IS_LINUX} && ! hash pip 2>/dev/null ; then
     echo "Configuring Debian. This will take a few minutes."
     sudo apt-get update
     sudo apt-get install -y apt-transport-https ca-certificates curl software-properties-common
-    sudo apt-get install -y python-pip python-dev python3 tmux ack-grep
+    sudo apt-get install -y python-pip python-dev python3 tmux ack-grep jq
+
+    # python 2
+    sudo apt-get purge python-pip
+    wget https://raw.github.com/pypa/pip/master/contrib/get-pip.py
+    sudo python get-pip.py
+    rm get-pip.py
 
     # if you must install docker on a full blown OS
     curl -fsSL https://download.docker.com/linux/debian/gpg | sudo apt-key add -

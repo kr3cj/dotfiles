@@ -1,49 +1,91 @@
-#!/bin/bash
-
-# git syntax in prompt
+# PS1 generator: https://xta.github.io/HalloweenBash/
 # TODO: use different colors for different datacenters/environments using VLANs
-# export PS1="\[\033[01;32m\]\u@\h\[\033[01;34m\] \w\[\033[01;33m\]\[\033[01;34m\] \
-#   (\$(git branch 2>/dev/null | grep '^*' | colrm 1 2)) \
-#   \$\[\033[00m\] "
 
-# PS1 Codes
-# u - the current user's username
-# h - the current machine's hostname
-# j - the number of jobs managed by this shell
-# @ - the current time (12 hour format)
-# d - the current date
-# w - path of the current working directory
-# W - just the current working directory
-# e - an ASCII escape character (033)
-# n - adds a newline character
+USE_CLASSIC_PS1=false
+USE_FORKED_LIQUIDPROMPT=true
 
-# using github.com/nojhan/liquidprompt for PS1 customizations
-if [[ -f /usr/local/share/liquidprompt ]]; then
-  . /usr/local/share/liquidprompt
+if [[ "${USE_CLASSIC_PS1}" == "true" ]] ; then
+  # declare some PS1 colors
+  NORMAL=$(tput sgr0)
+  BOLD=$(tput bold)
+  BLINK=$(tput blink)
+  WHITE=$(tput setaf 7)
+  RED_BG=$(tput setab 1)
+  GREEN=$(tput setaf 2)
+  BROWN=$(tput setaf ?)
+  BLUE=$(tput setaf 4)
+  YELLOW=$(tput setaf 3)
+
+  # PS1 Codes
+  # u - the current user's username
+  # h - the current machine's hostname
+  # j - the number of jobs managed by this shell
+  # @ - the current time (12 hour format)
+  # d - the current date
+  # w - path of the current working directory
+  # W - just the current working directory
+  # e - an ASCII escape character (033)
+  # n - adds a newline character
+
+  _parse_git_branch () {
+    # get git branch
+    git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/\1/'
+  }
+
+  _kube_ps1() {
+    # get kubernetes context and namespace info
+    # http://blog.cloud66.com/kubernetes-and-gcloud-bash-prompts/
+    # https://gist.github.com/seanknox/c42e77b189678cbddd3c347e5816a152
+    # https://stackoverflow.com/questions/17439482/how-to-make-a-text-blink-in-shell-script
+    local K8S_CONTEXT=$(kubectl config current-context 2> /dev/null || '')
+    local K8S_NS=$(kubectl config view ${K8S_CONTEXT} \
+      --output json | jq ".contexts[] | select(.name==\"${K8S_CONTEXT}\") | .context.namespace" | tr -d '"' || '')
+    if [[ -n ${K8S_CONTEXT} ]]; then
+      # echo -nE "\["
+      if [[ "${K8S_CONTEXT}" =~ "dam" ]]; then
+        echo -e "${BOLD}${WHITE}${RED_BG}${BLINK}${K8S_CONTEXT%%.*}:${K8S_NS}${NORMAL}"
+      else
+        echo "${YELLOW}${K8S_CONTEXT%%.*}:${K8S_NS}${NORMAL}"
+      fi
+      # echo -nE "\]\]"
+    fi
+  }
+
+  export PS1="\[${BOLD}\]\[${GREEN}\]\u@\h\[${BLUE}\] \w\[${BROWN}\]\[${BLUE}\]\$(_parse_git_branch) \$\[${NORMAL}\] "
+  PS1="\$(_kube_ps1) "$PS1
+elif [[ "${USE_FORKED_LIQUIDPROMPT}" == "true" ]] ; then
+  # forked nojhan/liquidprompt until merges are made for:
+  #  bschwedler:feature/kubernetes-context and pull/476
+  [[ $- = *i* ]] && source ~/.homesick/repos/liquidprompt/liquidprompt
+else
+  _kube_ps1() {
+    # get kubernetes context and namespace info
+    # http://blog.cloud66.com/kubernetes-and-gcloud-bash-prompts/
+    # https://gist.github.com/seanknox/c42e77b189678cbddd3c347e5816a152
+    # https://stackoverflow.com/questions/17439482/how-to-make-a-text-blink-in-shell-script
+    local K8S_CONTEXT=$(kubectl config current-context 2> /dev/null || '')
+    local K8S_NS=$(kubectl config view ${K8S_CONTEXT} \
+      --output json | jq ".contexts[] | select(.name==\"${K8S_CONTEXT}\") | .context.namespace" | tr -d '"' || '')
+    if [[ -n ${K8S_CONTEXT} ]]; then
+      # echo -nE "\["
+      if [[ "${K8S_CONTEXT}" =~ "dam" ]]; then
+        echo -e "${BOLD}${WHITE}${RED_BG}${BLINK}${K8S_CONTEXT%%.*}:${K8S_NS}${NORMAL}"
+      else
+        echo "${YELLOW}${K8S_CONTEXT%%.*}:${K8S_NS}${NORMAL}"
+      fi
+      # echo -nE "\]\]"
+    fi
+  }
+
+  # homebrew installation of nojhan/liquidprompt and standard customizations
+  if [[ -f /usr/local/share/liquidprompt ]]; then
+    . /usr/local/share/liquidprompt
+    # using the prefix variable will only execute the inner function on new terminals
+    #  instead of every prompt display :(
+    LP_PS1_PREFIX="$(_kube_ps1) "
+  else
+    echo "Could not find \"/usr/local/share/liquidprompt\". Have you run \"brew install liquidprompt\"?"
+  fi
 fi
 
-# more PS1 colors
-NORMAL=$(tput sgr0)
-BLINK=$(tput blink)
-BRIGHT=$(tput bold)
-WHITE=$(tput setaf 7)
-RED_BG=$(tput setab 1)
-YELLOW=$(tput setaf 3)
 
-__kube_ps1() {
-  # get kubernetes context and namespace info
-  # http://blog.cloud66.com/kubernetes-and-gcloud-bash-prompts/
-  # https://gist.github.com/seanknox/c42e77b189678cbddd3c347e5816a152
-  export K8S_CONTEXT=$(kubectl config current-context 2> /dev/null || '')
-  export K8S_NS=$(kubectl config view ${K8S_CONTEXT} \
-    --output json | jq ".contexts[] | select(.name==\"${K8S_CONTEXT}\") | .context.namespace" | tr -d '"' || '')
-  if [[ -n ${K8S_CONTEXT} ]]; then
-    if [[ "${K8S_CONTEXT}" =~ "dam" ]]; then
-      echo -e "${BRIGHT}${WHITE}${RED_BG}${BLINK}${K8S_CONTEXT%%.*}:${K8S_NS}${NORMAL} "
-    else
-      echo -e "${YELLOW}${K8S_CONTEXT%%.*}:${K8S_NS}${NORMAL} "
-    fi
-  fi
-}
-
-LP_PS1_PREFIX="$(__kube_ps1)"

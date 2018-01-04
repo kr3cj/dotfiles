@@ -5,6 +5,9 @@ set cursorline
 set confirm
 set paste
 set pastetoggle=<F2>
+set history=1000
+"give three lines of context when moving the cursor around
+set scrolloff=3
 
 au BufReadPost Jenkinsfile setlocal filetype=groovy
 

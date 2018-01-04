@@ -39,6 +39,7 @@ elif [[ $(uname) == "Linux" ]] ; then
     sudo yum update -y
   elif [[ -f /etc/os-version ]] ; then
     sudo apt-get update && sudo apt-get upgrade -y
+    # TODO: compare installed versions of devtools with latest available versions of devtools
   fi
 fi
 
@@ -70,3 +71,4 @@ fi
 # fi
 # find and fix any ownership problems (~/.config/gcloud/logs/ appears to be a common offender)
 sudo find -x ~/.config/ -user root -exec chown --changes ${CUSTOM_WORK_EMAIL/\@*/} '{}' \;
+# TODO: update chrome extensions (https://github.com/mdamien/chrome-extensions-archive/issues/8)

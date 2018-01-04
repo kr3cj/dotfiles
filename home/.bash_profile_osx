@@ -53,7 +53,8 @@ if $(curl github.com --connect-timeout 1 &> /dev/null); then
       ) -ne 200 \
     ]] ; then
       echo "Establishing ssh tunnel to forinf2.${CUSTOM_WORK_DOMAINS[0]}"
-      ssh -f -N -D 2002 "${CUSTOM_LDAP_NAME}@forinf2.${CUSTOM_WORK_DOMAINS[0]}" -o TCPKeepAlive=yes 2> /dev/null
+      ssh -f -N -D 2002 "${CUSTOM_LDAP_NAME}@forinf2.${CUSTOM_WORK_DOMAINS[0]}" \
+        -o TCPKeepAlive=yes -o ConnectTimeout=1 -o ConnectionAttempts=1 2> /dev/null
     fi
     if [[ $(curl \
       --connect-timeout 1 \
@@ -66,7 +67,8 @@ if $(curl github.com --connect-timeout 1 &> /dev/null); then
       ) -ne 200 \
     ]] ; then
       echo "Establishing ssh tunnel to laxinf2.${CUSTOM_WORK_DOMAINS[0]}"
-      ssh -f -N -D 2003 "${CUSTOM_LDAP_NAME}@laxinf2.${CUSTOM_WORK_DOMAINS[0]}" -o TCPKeepAlive=yes 2> /dev/null
+      ssh -f -N -D 2003 "${CUSTOM_LDAP_NAME}@laxinf2.${CUSTOM_WORK_DOMAINS[0]}" \
+        -o TCPKeepAlive=yes -o ConnectTimeout=1 -o ConnectionAttempts=1 2> /dev/null
     fi
     # set up SSH tunnel to home if not already set up
     # note: lsof still returns a row when the port is open but dead: lsof -n -i4TCP:2000 | grep -q LISTEN
@@ -82,10 +84,7 @@ if $(curl github.com --connect-timeout 1 &> /dev/null); then
     ]] ; then
       echo "Establishing ssh tunnel to \"home.${CUSTOM_HOME_DOMAIN}\" for SOCKS5 Proxy..."
       ssh -f -N -D 2000 ${CUSTOM_WORK_EMAIL/\.*/}@home.${CUSTOM_HOME_DOMAIN} \
-        -o TCPKeepAlive=yes \
-        -o ConnectTimeout=1 \
-        -o ConnectionAttempts=1 \
-        2>/dev/null
+        -o TCPKeepAlive=yes -o ConnectTimeout=1 -o ConnectionAttempts=1 2>/dev/null
       [[ ${?} -ne 0 ]] && echo "Unable to establish ssh connection to \"home.${CUSTOM_HOME_DOMAIN}\""
     fi
     while $(mount | grep -q "Documents/share1") ; do
