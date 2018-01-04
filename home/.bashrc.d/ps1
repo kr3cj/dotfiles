@@ -1,11 +1,20 @@
 # PS1 generator: https://xta.github.io/HalloweenBash/
 # TODO: use different colors for different datacenters/environments using VLANs
 
-USE_CLASSIC_PS1=false
 USE_FORKED_LIQUIDPROMPT=true
+USE_CLASSIC_PS1=false
 
-if [[ "${USE_CLASSIC_PS1}" == "true" ]] ; then
-  # declare some PS1 colors
+if [[ "${USE_FORKED_LIQUIDPROMPT}" == "true" && \
+! -f ~/.homesick/repos/liquidprompt/liquidprompt ]] ; then
+  echo "Could not find cloned liquidprompt fork. Rerun \"~/.workstation_setup.sh\"?"
+  echo "Using default \"${PS1}\"."
+elif [[ "${USE_FORKED_LIQUIDPROMPT}" == "true" && \
+-f ~/.homesick/repos/liquidprompt/liquidprompt ]] ; then
+  # had to fork nojhan/liquidprompt until merges are made for:
+  #  bschwedler:feature/kubernetes-context, pull/476, etc.
+  [[ $- = *i* ]] && source ~/.homesick/repos/liquidprompt/liquidprompt
+else
+  # declare some PS1 colors and helper functions
   NORMAL=$(tput sgr0)
   BOLD=$(tput bold)
   BLINK=$(tput blink)
@@ -16,22 +25,11 @@ if [[ "${USE_CLASSIC_PS1}" == "true" ]] ; then
   BLUE=$(tput setaf 4)
   YELLOW=$(tput setaf 3)
 
-  # PS1 Codes
-  # u - the current user's username
-  # h - the current machine's hostname
-  # j - the number of jobs managed by this shell
-  # @ - the current time (12 hour format)
-  # d - the current date
-  # w - path of the current working directory
-  # W - just the current working directory
-  # e - an ASCII escape character (033)
-  # n - adds a newline character
-
   _parse_git_branch () {
     # get git branch
-    git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/\1/'
+    branch=$(git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/\1/')
+    [[ -n ${branch} ]] && echo " (${branch}) "
   }
-
   _kube_ps1() {
     # get kubernetes context and namespace info
     # http://blog.cloud66.com/kubernetes-and-gcloud-bash-prompts/
@@ -40,52 +38,30 @@ if [[ "${USE_CLASSIC_PS1}" == "true" ]] ; then
     local K8S_CONTEXT=$(kubectl config current-context 2> /dev/null || '')
     local K8S_NS=$(kubectl config view ${K8S_CONTEXT} \
       --output json | jq ".contexts[] | select(.name==\"${K8S_CONTEXT}\") | .context.namespace" | tr -d '"' || '')
-    if [[ -n ${K8S_CONTEXT} ]]; then
-      # echo -nE "\["
-      if [[ "${K8S_CONTEXT}" =~ "dam" ]]; then
-        echo -e "${BOLD}${WHITE}${RED_BG}${BLINK}${K8S_CONTEXT%%.*}:${K8S_NS}${NORMAL}"
-      else
-        echo "${YELLOW}${K8S_CONTEXT%%.*}:${K8S_NS}${NORMAL}"
-      fi
-      # echo -nE "\]\]"
-    fi
+    [[ -n ${K8S_CONTEXT} ]] && echo "${K8S_CONTEXT%%.*}:${K8S_NS}"
   }
 
-  export PS1="\[${BOLD}\]\[${GREEN}\]\u@\h\[${BLUE}\] \w\[${BROWN}\]\[${BLUE}\]\$(_parse_git_branch) \$\[${NORMAL}\] "
-  PS1="\$(_kube_ps1) "$PS1
-elif [[ "${USE_FORKED_LIQUIDPROMPT}" == "true" ]] ; then
-  # forked nojhan/liquidprompt until merges are made for:
-  #  bschwedler:feature/kubernetes-context and pull/476
-  [[ $- = *i* ]] && source ~/.homesick/repos/liquidprompt/liquidprompt
-else
-  _kube_ps1() {
-    # get kubernetes context and namespace info
-    # http://blog.cloud66.com/kubernetes-and-gcloud-bash-prompts/
-    # https://gist.github.com/seanknox/c42e77b189678cbddd3c347e5816a152
-    # https://stackoverflow.com/questions/17439482/how-to-make-a-text-blink-in-shell-script
-    local K8S_CONTEXT=$(kubectl config current-context 2> /dev/null || '')
-    local K8S_NS=$(kubectl config view ${K8S_CONTEXT} \
-      --output json | jq ".contexts[] | select(.name==\"${K8S_CONTEXT}\") | .context.namespace" | tr -d '"' || '')
-    if [[ -n ${K8S_CONTEXT} ]]; then
-      # echo -nE "\["
-      if [[ "${K8S_CONTEXT}" =~ "dam" ]]; then
-        echo -e "${BOLD}${WHITE}${RED_BG}${BLINK}${K8S_CONTEXT%%.*}:${K8S_NS}${NORMAL}"
-      else
-        echo "${YELLOW}${K8S_CONTEXT%%.*}:${K8S_NS}${NORMAL}"
-      fi
-      # echo -nE "\]\]"
-    fi
-  }
-
-  # homebrew installation of nojhan/liquidprompt and standard customizations
-  if [[ -f /usr/local/share/liquidprompt ]]; then
+  if [[ "${USE_CLASSIC_PS1}" == "true" ]] ; then
+    # PS1 Codes
+    # u - the current user's username
+    # h - the current machine's hostname
+    # j - the number of jobs managed by this shell
+    # @ - the current time (12 hour format)
+    # d - the current date
+    # w - path of the current working directory
+    # W - just the current working directory
+    # e - an ASCII escape character (033)
+    # n - adds a newline character
+    export PS1="\[${BOLD}\]\[${GREEN}\]\u@\h\[${BLUE}\] \w\[${BROWN}\]\[${BLUE}\]\$(_parse_git_branch)\$\[${NORMAL}\] "
+    PS1="\[${YELLOW}\]\$(_kube_ps1)\[${NORMAL}\] "$PS1
+  elif [[ -f /usr/local/share/liquidprompt ]]; then
+    # homebrew installation of nojhan/liquidprompt and standard customizations
     . /usr/local/share/liquidprompt
     # using the prefix variable will only execute the inner function on new terminals
     #  instead of every prompt display :(
     LP_PS1_PREFIX="$(_kube_ps1) "
   else
-    echo "Could not find \"/usr/local/share/liquidprompt\". Have you run \"brew install liquidprompt\"?"
+    echo "Could not find any customized PS1 information. Rerun \"~/.workstation_setup.sh\"?"
+    echo "Using default \"${PS1}\"."
   fi
 fi
-
-
