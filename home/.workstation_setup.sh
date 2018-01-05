@@ -107,9 +107,7 @@ if ${IS_OSX} && ! hash mas 2>/dev/null ; then
   # liquidprompt customizations deferred until merges are made for:
   #  bschwedler:feature/kubernetes-context and pull/476
   # brew install liquidprompt
-  # rm ~/.liquidpromptrc
-  # cat /usr/local/share/liquidpromptrc-dist > ~/.liquidpromptrc
-
+  # standard customizations already tracked by dotfiles via ~/.liquidpromptrc
 
   # mas is a CLI for AppStore installs/updates
   # TODO: move lpass setup before this step to achieve automatic password prefill
