@@ -35,10 +35,10 @@ else
     # http://blog.cloud66.com/kubernetes-and-gcloud-bash-prompts/
     # https://gist.github.com/seanknox/c42e77b189678cbddd3c347e5816a152
     # https://stackoverflow.com/questions/17439482/how-to-make-a-text-blink-in-shell-script
-    local K8S_CONTEXT=$(kubectl config current-context 2> /dev/null || '')
+    local K8S_CONTEXT=$(kubectl config current-context 2> /dev/null || true)
     local K8S_NS=$(kubectl config view ${K8S_CONTEXT} \
-      --output json | jq ".contexts[] | select(.name==\"${K8S_CONTEXT}\") | .context.namespace" | tr -d '"' || '')
-    [[ -n ${K8S_CONTEXT} ]] && echo "${K8S_CONTEXT%%.*}:${K8S_NS}"
+      --output json | jq ".contexts[] | select(.name==\"${K8S_CONTEXT}\") | .context.namespace" | tr -d '"' || true)
+    [[ -n ${K8S_CONTEXT} ]] && echo "${K8S_CONTEXT%%.*}:${K8S_NS} "
   }
 
   if [[ "${USE_CLASSIC_PS1}" == "true" ]] ; then
@@ -53,7 +53,7 @@ else
     # e - an ASCII escape character (033)
     # n - adds a newline character
     export PS1="\[${BOLD}\]\[${GREEN}\]\u@\h\[${BLUE}\] \w\[${BROWN}\]\[${BLUE}\]\$(_parse_git_branch)\$\[${NORMAL}\] "
-    PS1="\[${YELLOW}\]\$(_kube_ps1)\[${NORMAL}\] "$PS1
+    PS1="\[${YELLOW}\]\$(_kube_ps1)\[${NORMAL}\]"$PS1
   elif [[ -f /usr/local/share/liquidprompt ]]; then
     # homebrew installation of nojhan/liquidprompt and standard customizations
     . /usr/local/share/liquidprompt
