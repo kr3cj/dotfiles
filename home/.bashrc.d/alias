@@ -5,6 +5,7 @@ alias ll="ls -hl -G"
 alias lpw="lpass show --password -c LDAP"
 alias srm="/bin/rm -vP"
 alias ducks="sudo du -cshx ./ | sort -h"
+
 if ${IS_OSX} ; then
   alias kubedash="kubectl get po -n=kube-system | grep dashboard | awk '{print \$1}' | \
     xargs -I % kubectl port-forward % 9090 -n=kube-system"
@@ -26,4 +27,18 @@ function pathadd() {
     PATH="${newpath}:${PATH}"
   fi
   export PATH
+}
+
+function gitp {
+  local gbranch=${1:-master}
+  git fetch --all
+  git checkout ${gbranch}
+  git pull origin ${gbranch}
+  git fetch origin --prune
+  git fetch --tags
+  git status
+}
+
+function port {
+  timeout 2 bash -c "echo >/dev/tcp/${1}/{2}" > /dev/null 2>&1 && echo success || echo failure
 }

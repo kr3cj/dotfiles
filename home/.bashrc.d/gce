@@ -19,3 +19,10 @@ source <(kubectl completion bash)
 export KOPS_STATE_STORE="s3://foxden-k8s-cluster-state"
 export KOPS_NAME="dam.cluster.foxden.io"
 # kops export kubecfg --name ${KOPS_NAME}
+
+set_kube_current_ns()
+{
+  local ns="${1:-sudermanjr}"
+  kubectl config set-context $(kubectl config current-context) --namespace=${ns}
+}
+alias kns=set_kube_current_ns

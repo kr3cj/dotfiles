@@ -3,7 +3,7 @@
 export HISTCONTROL=ignoreboth
 
 # append timestamps
-export HISTTIMEFORMAT='%F %T '
+export HISTTIMEFORMAT="$(tput setaf 6)%F %T$(tput sgr0) "
 # force multiline commands into one line
 shopt -s cmdhist
 # append to the history file, don't overwrite it

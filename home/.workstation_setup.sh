@@ -63,7 +63,11 @@ if ${IS_OSX} && ! hash mas 2>/dev/null ; then
   brew install gnupg2
   echo "install newer utilities than OSX provides"
   brew install bash
-  brew link --overwrite bash
+  # brew link --overwrite bash # OR #
+  # prepend new shell to /etc/shells
+  sudo sed -i '/^\/bin\/bash$/i \/usr\/local\/bin\/bash' /etc/shells
+  chsh -s /usr/local/bin/bash
+
   # brew install emacs
   # brew install --cocoa --srgb emacs ##
   # brew linkapps emacs
@@ -128,9 +132,10 @@ if ${IS_OSX} && ! hash mas 2>/dev/null ; then
   HOMEBREW_CASK_OPTS="--appdir=/Applications"
   brew cask install \
     slack spotify gimp google-photos-backup iterm2 android-file-transfer android-platform-tools \
-    atom vagrant virtualbox jq vault \
+    atom vagrant jq vault \
     keystore-explorer \
-    beyond-compare visual-studio-code firefox
+    beyond-compare firefox
+    # virtualbox visual-studio-code
   # brew install Caskroom/cask/pycharm-ce
   HOMEBREW_CASK_OPTS=""
 
@@ -158,9 +163,9 @@ if ${IS_OSX} && ! hash mas 2>/dev/null ; then
   # language-terraform
 
   # install visual studio code extensions
-  for i in technosophos.vscode-helm brendandburns.vs-kubernetes PeterJausovec.vscode-docker; do
-    code --install-extension ${i}
-  done
+  # for i in technosophos.vscode-helm brendandburns.vs-kubernetes PeterJausovec.vscode-docker; do
+  #   code --install-extension ${i}
+  # done
   # move visual-studio-code overrides into dotfiles?
   # cat << EOF >> $HOME/Library/Application Support/Code/User/settings.json
   # {
@@ -274,13 +279,11 @@ if ${IS_LINUX} && ! hash pip 2>/dev/null ; then
     echo "Configuring Debian. This will take a few minutes."
     sudo apt-get update
     sudo apt-get install -y apt-transport-https ca-certificates curl software-properties-common
-    sudo apt-get install -y python-pip python-dev python3 tmux ack-grep jq
-
-    # python 2
-    sudo apt-get purge python-pip
-    wget https://raw.github.com/pypa/pip/master/contrib/get-pip.py
-    sudo python get-pip.py
-    rm get-pip.py
+    sudo apt-get install -y python-dev python3 tmux ack-grep jq
+    # pip
+    sudo wget https://bootstrap.pypa.io/get-pip.py
+    sudo python get-pip.py && rm get-pip.py
+    sudo pip install --upgrade setuptools
 
     # if you must install docker on a full blown OS
     curl -fsSL https://download.docker.com/linux/debian/gpg | sudo apt-key add -
@@ -329,7 +332,11 @@ if ${IS_LINUX} && ! hash pip 2>/dev/null ; then
 
   elif ${is_rhel} ; then
     echo "Configuring RHEL. This will take a few minutes."
-    sudo yum install python-pip python-dev python3 tmux ack -y
+    sudo yum install -y python-dev python3 tmux ack
+    # pip
+    sudo wget https://bootstrap.pypa.io/get-pip.py
+    sudo python get-pip.py && rm get-pip.py
+    sudo pip install --upgrade setuptools
   fi
   # install the rest via pip
     # sudo easy_install pip

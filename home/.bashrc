@@ -1,4 +1,5 @@
 # Only set some things when running interactively
+
 if [[ -n "$PS1" ]]; then
   # STTY doesn't like being sourced
   # control characters
