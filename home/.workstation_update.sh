@@ -65,10 +65,14 @@ if hash pip 2>/dev/null ; then
   # done
   # pip freeze -local | grep -v '^\-e' | cut -d= -f1 | xargs -n1 pip install -U
 fi
+if hash tmux 2>/dev/null ; then
+  echo -e "\nUpdating tmux plugins..."
+  ~/.tmux/plugins/tpm/bin/update_plugins all
+fi
 # if hash gcloud 2>/dev/null ; then
   # echo -e "\nUpdating glcoud..."
   # sudo gcloud components update --quiet
+  # find and fix any ownership problems (~/.config/gcloud/logs/ appears to be a common offender)
+  # sudo find -x ~/.config/ -user root -exec chown --changes ${CUSTOM_WORK_EMAIL/\@*/} '{}' \;
 # fi
-# find and fix any ownership problems (~/.config/gcloud/logs/ appears to be a common offender)
-sudo find -x ~/.config/ -user root -exec chown --changes ${CUSTOM_WORK_EMAIL/\@*/} '{}' \;
 # TODO: update chrome extensions (https://github.com/mdamien/chrome-extensions-archive/issues/8)

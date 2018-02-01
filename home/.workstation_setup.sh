@@ -1,6 +1,9 @@
 #!/bin/bash
 # the purpose of this script is to house all initial workstation customizations in linux or osx
 
+echo =e "\mSystem looks new. Press any key to start installing workstation software."
+read -n 1 -s
+
 # get my bearings
 ip_address=""
 is_debian="false"
@@ -102,11 +105,14 @@ if ${IS_OSX} && ! hash mas 2>/dev/null ; then
   brew install dos2unix gnu-getopt
   echo "install extra tools that I like"
   brew install \
-    ack aria2 mas mtr nmap \
-    maven python3 ansible \
-    rbenv ruby ruby-build \
+    ack aria2 mas mtr nmap tmux reattach-to-user-namespace \
+    maven python3 ansible rbenv ruby ruby-build \
     awscli docker docker-compose packer terraform
     # openshift-cli fleetctl
+
+  # tmux plugins
+  tmux source ~/.tmux.conf
+  ~/.tmux/plugins/tpm/bin/install_plugins
 
   # liquidprompt customizations deferred until merges are made for:
   #  bschwedler:feature/kubernetes-context and pull/476
@@ -270,7 +276,6 @@ if ! hash git 2>/dev/null ; then
   # git clone https://github.com/username/repo.git
   # Username: ${CUSTOM_GITHUB_HANDLE}
   # Password: $(grab github personal access token from lpass-cli)
-
 fi
 
 # install software
