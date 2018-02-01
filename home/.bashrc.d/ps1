@@ -1,5 +1,4 @@
 [[ $- = *i* ]] || return
-${IS_OSX} || return
 
 # PS1 generator: https://xta.github.io/HalloweenBash/
 # TODO: use different colors for different datacenters/environments using VLANs

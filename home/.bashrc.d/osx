@@ -46,8 +46,8 @@ elif ${at_work} ; then
   _create_socks_proxy "forinf2.${CUSTOM_WORK_DOMAINS[0]}" "2002" "${CUSTOM_LDAP_NAME}"
   _create_socks_proxy "laxinf2.${CUSTOM_WORK_DOMAINS[0]}" "2003" "${CUSTOM_LDAP_NAME}"
   # SSH tunnel to home if not already set up
-  _create_socks_proxy "home.${CUSTOM_HOME_DOMAIN}" "2000" "${CUSTOM_WORK_EMAIL/\.*/}" \
-    http://web.${CUSTOM_NAS_HOST#*\.}/that.gif
+  _create_socks_proxy "home.${CUSTOM_HOME_DOMAIN}" "2000" "${CUSTOM_WORK_EMAIL/\.*/}"
+    # http://web.${CUSTOM_NAS_HOST#*\.}/that.gif
 
   while $(mount | grep -q "Documents/share1") ; do
     sudo umount -fv -t nfs ${CUSTOM_NAS_HOST}:/share

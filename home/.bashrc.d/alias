@@ -66,14 +66,15 @@ function _create_socks_proxy {
   local test_url=${4:-"http://www.google.com"}
   local ssh_proxy_options="-f -N -D"
 
-  # note: lsof still returns a row when port open but dead: lsof -n -i4TCP:${port1} | grep -q LISTEN
+  # note: lsof still returns a row when port open but dead: lsof -nP -i4TCP:${port1} | grep -q LISTEN
+  # --socks5-hostname
   if [[ $(curl \
     --connect-timeout 1 \
     --silent \
     --output /dev/null \
     --write-out "%{http_code}" \
     --head \
-    --socks5-hostname localhost:${port1} \
+    --socks5 localhost:${port1} \
     ${test_url} \
     ) -ne 200 \
   ]] ; then
