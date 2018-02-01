@@ -1,0 +1,22 @@
+[[ $- = *i* ]] || return
+${IS_OSX} || return
+
+export KUBECONFIG=~/.kube/config
+# source $(brew --prefix)/etc/bash_completion
+# source /usr/local/etc/bash_completion
+source <(kubectl completion bash)
+
+export KOPS_STATE_STORE="s3://foxden-k8s-cluster-state"
+export KOPS_NAME="dam.cluster.foxden.io"
+# kops export kubecfg --name ${KOPS_NAME}
+
+function set_kube_current_ns()
+{
+  if hash kubectl 2>/dev/null ; then
+    local ns="${1:-utilities}"
+    kubectl config set-context $(kubectl config current-context) --namespace=${ns}
+  fi
+}
+alias kns=set_kube_current_ns
+alias kubedash="kubectl get po -n=kube-system | grep dashboard | awk '{print \$1}' | \
+  xargs -I % kubectl port-forward % 9090 -n=kube-system"

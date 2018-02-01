@@ -3,13 +3,28 @@ export IS_OSX="false"
 export IS_LINUX="false"
 case "$(uname)" in
   Darwin)
-    IS_OSX="true" && source ~/.bash_profile_osx ;;
+    IS_OSX="true" ;;
   Linux)
     ## source ~/.bash_profile_linux
     IS_LINUX="true" ;;
   *)
     echo "Unable to determine Linux or OSX" ;;
 esac
+
+# ssh agent stuff
+# make alias for ssh -> "ssh -A"?
+[[ -f ${HOME}/.ssh/ssh-agent-setup ]] && source ${HOME}/.ssh/ssh-agent-setup
+$(env | grep -q SSH_AUTH_SOCK) || eval $(ssh-agent -s)
+# TODO: get passphrases from LastPass CLI
+[[ $(ssh-add -l | wc -l) -lt 3 ]] && ssh-add -k ~/.ssh/{id_rsa,id_rsa_coreos,id_rsa_hudson}
+
+# impatiently detect healthy internet connectivity
+export HEALTHY_INTERNET=false
+if hash curl 2>/dev/null && $(curl github.com --connect-timeout 1 &> /dev/null); then
+  HEALTHY_INTERNET=true
+else
+  echo "Skipping network related profile tasks as there's no healthy internet connectivity."
+fi
 
 [[ -f ~/.bashrc ]] && source ~/.bashrc
 
@@ -18,17 +33,13 @@ esac
 # /usr/local/opt/gnu-sed/libexec/gnubin \
 # /usr/local/opt/gnu-tar/libexec/gnubin \
 for newpath in \
+  /usr/sbin \
   /usr/local/sbin \
   /usr/local/opt/coreutils/libexec/gnubin \
   ; do
   pathadd ${newpath}
 done
-MANPATH="/usr/local/opt/coreutils/libexec/gnuman:/usr/local/opt/findutils/share/man:${MANPATH-/usr/share/man}"
-MANPATH="/usr/local/opt/gnu-sed/libexec/gnuman:${MANPATH}"
-MANPATH="/usr/local/opt/gnu-tar/libexec/gnuman:${MANPATH}"
-export MANPATH
 
 if ! hash git 2>/dev/null ; then
-  echo "System looks new; setting up softare"
   bash ~/.workstation_setup.sh
 fi

@@ -1,7 +1,7 @@
 filetype plugin indent on
 syntax on
 set hlsearch
-set cursorline
+" set cursorline
 set confirm
 set paste
 set pastetoggle=<F2>

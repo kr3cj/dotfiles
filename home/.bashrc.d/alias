@@ -1,3 +1,5 @@
+[[ $- = *i* ]] || return
+
 # alias ls='ls --color=auto'
 alias ls='ls -G'
 # alias ll="ls -hl --color=auto"
@@ -6,15 +8,10 @@ alias lpw="lpass show --password -c LDAP"
 alias srm="/bin/rm -vP"
 alias ducks="sudo du -cshx ./ | sort -h"
 
-if ${IS_OSX} ; then
-  alias kubedash="kubectl get po -n=kube-system | grep dashboard | awk '{print \$1}' | \
-    xargs -I % kubectl port-forward % 9090 -n=kube-system"
-fi
-
 function pathadd() {
   local newpath=${1%/}
   if [[ ! -d "${newpath}" ]] ; then
-    echo "Directory \"${1}\" does not exist."
+    # echo "Directory \"${1}\" does not exist."
     return
   fi
   if [[ "${PATH}" =~ (^|:)"${newpath}"(:|$) ]] ; then
@@ -29,6 +26,15 @@ function pathadd() {
   export PATH
 }
 
+function port {
+  timeout 2 bash -c "echo >/dev/tcp/${1}/{2}" > /dev/null 2>&1 && echo success || echo failure
+}
+
+function acp {
+  # cp -av ${1} ${1}.$(date +%Y-%m-%d %H-%M)
+  cp -av ${1} ${1}.$(date --rfc-3339=seconds)
+}
+
 function gitp {
   local gbranch=${1:-master}
   git fetch --all
@@ -39,6 +45,44 @@ function gitp {
   git status
 }
 
-function port {
-  timeout 2 bash -c "echo >/dev/tcp/${1}/{2}" > /dev/null 2>&1 && echo success || echo failure
+function ssh {
+  local ssh_options="-o StrictHostKeyChecking=no
+    -o TCPKeepAlive=yes \
+    -o ServerAliveInterval=30 \
+    -o ServerAliveCountMax=2 \
+    -o ConnectionAttempts=2 \
+    -o ConnectTimeout=2"
+  if [[ ${@} =~ "172.16." ]] ; then
+    $(which ssh) ${ssh_options} ${@}
+  else
+    lpw && $(which ssh) ${ssh_options} ${@}
+  fi
+}
+
+function _create_socks_proxy {
+  local host1=${1}
+  local port1=${2}
+  local username=${3}
+  local test_url=${4:-"http://www.google.com"}
+  local ssh_proxy_options="-f -N -D"
+
+  # note: lsof still returns a row when port open but dead: lsof -n -i4TCP:${port1} | grep -q LISTEN
+  if [[ $(curl \
+    --connect-timeout 1 \
+    --silent \
+    --output /dev/null \
+    --write-out "%{http_code}" \
+    --head \
+    --socks5-hostname localhost:${port1} \
+    ${test_url} \
+    ) -ne 200 \
+  ]] ; then
+    # first kill any old sessions
+    pgrep -f "ssh .* ${ssh_proxy_options} ${port1} ${username}@${host1}"
+    pkill -f "ssh .* ${ssh_proxy_options} ${port1} ${username}@${host1}"
+    echo "Establishing ssh tunnel to ${test_url} via ${username}@${host1}:${port1}..."
+    ssh ${ssh_proxy_options} ${port1} "${username}@${host1}" 2> /dev/null
+      # -o TCPKeepAlive=yes -o ConnectTimeout=1 -o ConnectionAttempts=1
+  fi
+  [[ ${?} -ne 0 ]] && echo "Unable to establish ssh connection to ${host1}."
 }

@@ -1,7 +1,7 @@
 #!/bin/bash
 # the purpose of this script is to house all initial workstation customizations in linux or osx
 
-echo =e "\mSystem looks new. Press any key to start installing workstation software."
+echo -e "\mSystem looks new. Press any key to start installing workstation software."
 read -n 1 -s
 
 # get my bearings

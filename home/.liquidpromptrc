@@ -70,11 +70,11 @@ LP_ENABLE_PERM=0
 
 # Enable the proxy detection feature.
 # Recommended value is 1
-LP_ENABLE_PROXY=1
+LP_ENABLE_PROXY=0
 
 # Enable the jobs feature.
 # Recommended value is 1
-LP_ENABLE_JOBS=1
+LP_ENABLE_JOBS=0
 
 # Enable the load feature.
 # Recommended value is 1
@@ -82,7 +82,7 @@ LP_ENABLE_LOAD=0
 
 # Enable the battery feature.
 # Recommended value is 1
-LP_ENABLE_BATT=1
+LP_ENABLE_BATT=0
 
 # Enable the 'sudo credentials' feature.
 # Be warned that this may pollute the syslog if you don't have sudo
@@ -132,14 +132,14 @@ LP_ENABLE_VIRTUALENV=1
 
 # Display the enabled software collections, if any
 # Recommended value is 1
-LP_ENABLE_SCLS=1
+LP_ENABLE_SCLS=0
 
 # Display the kubernetes context and namespace, if any
 # Recommened value is 1
-LP_ENABLE_KUBERNETES=1
+LP_ENABLE_KUBERNETES=0
 
 # Show average system temperature
-LP_ENABLE_TEMP=1
+LP_ENABLE_TEMP=0
 
 # When showing the time, use an analog clock instead of numeric values.
 # The analog clock is "accurate" to the nearest half hour.
@@ -165,5 +165,3 @@ LP_ENABLE_SSH_COLORS=1
 # Specify a list of complete and colon (":") separated paths in which, all vcs
 # will be disabled
 LP_DISABLED_VCS_PATH=""
-
-# vim: set et sts=4 sw=4 tw=120 ft=sh:

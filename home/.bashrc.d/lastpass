@@ -1,0 +1,6 @@
+[[ $- = *i* ]] || return
+${IS_OSX} || return
+
+export LPASS_AGENT_TIMEOUT=172800
+${HEALTHY_INTERNET} || return
+lpass status 2>/dev/null || lpass login --trust lastpass@${CUSTOM_HOME_DOMAIN}

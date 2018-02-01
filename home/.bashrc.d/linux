@@ -1,0 +1,4 @@
+[[ $- = *i* ]] || return
+${IS_LINUX} || return
+
+cd /build/${CUSTOM_LDAP_NAME}/deploy

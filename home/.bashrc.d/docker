@@ -1,5 +1,7 @@
+[[ $- = *i* ]] || return
 ${IS_OSX} || return
+
 # remote host for container tools (https://docs.docker.com/engine/security/https/)
 # export DOCKER_HOST="tcp://${CUSTOM_WORK_SUBNET}.49.201:2376"
 # export DOCKER_TLS_VERIFY="0"
-# export FLEETCTL_TUNNEL="finf-coreos02.ecovate.com"
+# export FLEETCTL_TUNNEL="finf-coreos02.${CUSTOM_WORK_DOMAINS[0]}"

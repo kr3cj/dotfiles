@@ -1,3 +1,6 @@
+[[ $- = *i* ]] || return
+${IS_OSX} || return
+
 # PS1 generator: https://xta.github.io/HalloweenBash/
 # TODO: use different colors for different datacenters/environments using VLANs
 
@@ -25,20 +28,30 @@ else
   BLUE=$(tput setaf 4)
   YELLOW=$(tput setaf 3)
 
-  _parse_git_branch () {
-    # get git branch
-    branch=$(git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/\1/')
-    [[ -n ${branch} ]] && echo " (${branch}) "
+  function _parse_git_branch () {
+    if hash git 2>/dev/null ; then
+      # get git branch
+      branch=$(git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/\1/')
+      [[ -n ${branch} ]] && echo " (${branch}) "
+    else
+      echo ''
+    fi
   }
-  _kube_ps1() {
-    # get kubernetes context and namespace info
-    # http://blog.cloud66.com/kubernetes-and-gcloud-bash-prompts/
-    # https://gist.github.com/seanknox/c42e77b189678cbddd3c347e5816a152
-    # https://stackoverflow.com/questions/17439482/how-to-make-a-text-blink-in-shell-script
-    local K8S_CONTEXT=$(kubectl config current-context 2> /dev/null || true)
-    local K8S_NS=$(kubectl config view ${K8S_CONTEXT} \
-      --output json | jq ".contexts[] | select(.name==\"${K8S_CONTEXT}\") | .context.namespace" | tr -d '"' || true)
-    [[ -n ${K8S_CONTEXT} ]] && echo "${K8S_CONTEXT%%.*}:${K8S_NS} "
+  function _kube_ps1() {
+    # TODO: better error handling
+    if hash kubectl 2>/dev/null ; then
+      # get kubernetes context and namespace info
+      # http://blog.cloud66.com/kubernetes-and-gcloud-bash-prompts/
+      # https://gist.github.com/seanknox/c42e77b189678cbddd3c347e5816a152
+      # https://stackoverflow.com/questions/17439482/how-to-make-a-text-blink-in-shell-script
+      local K8S_CONTEXT=$(kubectl config current-context 2> /dev/null || true)
+      local K8S_NS=$(kubectl config view ${K8S_CONTEXT} \
+        --output json | jq ".contexts[] | select(.name==\"${K8S_CONTEXT}\") \
+        | .context.namespace" | tr -d '"' || true)
+      [[ -n ${K8S_CONTEXT} ]] && echo "${K8S_CONTEXT%%.*}:${K8S_NS} "
+    else
+      echo ''
+    fi
   }
 
   if [[ "${USE_CLASSIC_PS1}" == "true" ]] ; then

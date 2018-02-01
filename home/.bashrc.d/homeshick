@@ -1,2 +1,8 @@
+[[ $- = *i* ]] || return
+
 source "${HOME}/.homesick/repos/homeshick/homeshick.sh"
 source "${HOME}/.homesick/repos/homeshick/completions/homeshick-completion.bash"
+
+homeshick --quiet refresh
+# takes a long time; TODO: try shallow symlinking?
+# homeshick link dotfiles

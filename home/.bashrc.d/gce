@@ -1,4 +1,6 @@
+[[ $- = *i* ]] || return
 ${IS_OSX} || return
+
 # gce bash completion
 # source '/usr/local/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/completion.bash.inc'
 
@@ -10,19 +12,3 @@ ${IS_OSX} || return
 
 # gcloud info
 # gcloud help
-
-export KUBECONFIG=~/.kube/config
-# source $(brew --prefix)/etc/bash_completion
-# source /usr/local/etc/bash_completion
-source <(kubectl completion bash)
-
-export KOPS_STATE_STORE="s3://foxden-k8s-cluster-state"
-export KOPS_NAME="dam.cluster.foxden.io"
-# kops export kubecfg --name ${KOPS_NAME}
-
-set_kube_current_ns()
-{
-  local ns="${1:-sudermanjr}"
-  kubectl config set-context $(kubectl config current-context) --namespace=${ns}
-}
-alias kns=set_kube_current_ns

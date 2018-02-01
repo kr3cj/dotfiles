@@ -1,4 +1,6 @@
-${IS_OSX} || return
+[[ $- = *i* ]] || return
+# http://docs.aws.amazon.com/cli/latest/userguide/cli-install-macos.html
+
 # aws creds
 if [[ -f ~/.aws_auth ]] ; then
   source ~/.aws_auth
@@ -6,5 +8,3 @@ if [[ -f ~/.aws_auth ]] ; then
   # export AWS_IAM_HOME=~/bin/amazon/iam
   # pathadd ${AWS_IAM_HOME}/bin
 fi
-
-# http://docs.aws.amazon.com/cli/latest/userguide/cli-install-macos.html
