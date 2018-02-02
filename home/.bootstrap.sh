@@ -88,7 +88,8 @@ else
 fi
 
 # fourth, grab liquidprompt fork
-repo="kr3cj/liquidprompt sudermanjr/tmux-kube"
+# repo="kr3cj/liquidprompt sudermanjr/tmux-kube"
+repo="sudermanjr/tmux-kube"
 if homeshick list | grep -q ${repo}; then
   homeshick --batch pull ${repo/*\//}
 else

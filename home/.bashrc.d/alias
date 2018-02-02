@@ -81,7 +81,7 @@ function _create_socks_proxy {
     # first kill any old sessions
     pgrep -f "ssh .* ${ssh_proxy_options} ${port1} ${username}@${host1}"
     pkill -f "ssh .* ${ssh_proxy_options} ${port1} ${username}@${host1}"
-    echo "Establishing ssh tunnel to ${test_url} via ${username}@${host1}:${port1}..."
+    echo "Establishing ssh tunnel with ${username}@${host1}:${port1}..."
     ssh ${ssh_proxy_options} ${port1} "${username}@${host1}" 2> /dev/null
       # -o TCPKeepAlive=yes -o ConnectTimeout=1 -o ConnectionAttempts=1
   fi
