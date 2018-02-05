@@ -1,3 +1,6 @@
+# temporary troubleshooting
+[[ ${HISTSIZE} -lt 1000000 ]] && echo -e "\nSomething has overridden \${HISTSIZE} to ${HISTSIZE}!!!\n"
+
 [[ -f ~/.base_homeshick_vars ]] && source ~/.base_homeshick_vars
 export IS_OSX="false"
 export IS_LINUX="false"

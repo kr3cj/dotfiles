@@ -7,25 +7,25 @@ USE_FORKED_LIQUIDPROMPT=false
 USE_CLASSIC_PS1=false
 
 if [[ "${USE_FORKED_LIQUIDPROMPT}" == "true" ]]; then
-  if ! -f ~/.homesick/repos/liquidprompt/liquidprompt ]] ; then
+  if ! -f ~/.homesick/repos/liquidprompt/liquidprompt ; then
     echo "Could not find cloned liquidprompt fork. Rerun \"~/.workstation_setup.sh\"?"
     echo "Using default \"${PS1}\"."
   else
     # had to fork nojhan/liquidprompt until merges are made for:
     #  bschwedler:feature/kubernetes-context, pull/476, etc.
-    [[ $- = *i* ]] && source ~/.homesick/repos/liquidprompt/liquidprompt
+    source ~/.homesick/repos/liquidprompt/liquidprompt
   fi
-elif [[ "${USE_FORKED_LIQUIDPROMPT}" == "false" && \
-  "${USE_CLASSIC_PS1}" == "false" ]]; then
+elif [[ "${USE_FORKED_LIQUIDPROMPT}" == "false" ]] && \
+  [[ "${USE_CLASSIC_PS1}" == "false" ]]; then
   if [[ -f /usr/local/share/liquidprompt ]]; then
     # homebrew installation of nojhan/liquidprompt and standard customizations
-    [[ $- = *i* ]] && source /usr/local/share/liquidprompt
     # using the prefix variable will only execute the inner function on new terminals
     #  instead of every prompt display :(
     # (using tmux status bar instead for kubernetes info) LP_PS1_PREFIX="$(_kube_ps1) "
+    source /usr/local/share/liquidprompt
   fi
 fi
-if [[ "${USE_CLASSIC_PS1}"]]; then
+if [[ "${USE_CLASSIC_PS1}" == "true" ]]; then
   # declare some PS1 colors and helper functions
   NORMAL=$(tput sgr0)
   BOLD=$(tput bold)
