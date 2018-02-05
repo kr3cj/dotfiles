@@ -8,18 +8,10 @@ case "$(uname)" in
   Darwin)
     IS_OSX="true" ;;
   Linux)
-    ## source ~/.bash_profile_linux
     IS_LINUX="true" ;;
   *)
     echo "Unable to determine Linux or OSX" ;;
 esac
-
-# ssh agent stuff
-# make alias for ssh -> "ssh -A"?
-[[ -f ${HOME}/.ssh/ssh-agent-setup ]] && source ${HOME}/.ssh/ssh-agent-setup
-$(env | grep -q SSH_AUTH_SOCK) || eval $(ssh-agent -s)
-# TODO: get passphrases from LastPass CLI
-[[ $(ssh-add -l | wc -l) -lt 1 ]] && ssh-add -k ~/.ssh/{id_rsa,id_rsa_coreos,id_rsa_hudson}
 
 # impatiently detect healthy internet connectivity
 export HEALTHY_INTERNET=false

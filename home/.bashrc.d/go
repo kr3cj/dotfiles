@@ -1,7 +1,7 @@
 [[ $- = *i* ]] || return
 ${IS_OSX} || return
 
-export GOPATH=$HOME/Go
+export GOPATH=${HOME}/Go
 export GOROOT=/usr/local/opt/go/libexec
 
 for newpath in ${GOPATH}/bin ${GOROOT}/bin ; do

@@ -19,9 +19,9 @@ fi
 
 if [[ -d ${HOME}/.bashrc.d ]]; then
   while read dotd; do
-    # echo ${dotd}
+    # echo "Sourcing ${dotd}..."
     source "${dotd}"
-  done < <(find ${HOME}/.bashrc.d -follow -type f -not -name '*.disabled')
+  done < <(find ${HOME}/.bashrc.d -follow -type f -not -name '*.disabled' | sort)
   unset dotd
 fi
 

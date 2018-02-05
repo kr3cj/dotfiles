@@ -29,6 +29,13 @@ if [[ $(uname) == "Darwin" ]] ; then
   echo -e "\nUpdating atom editor plugins."
   echo yes | /usr/local/bin/apm upgrade
 
+  echo "Checking macos disk health"
+  for DEV in disk1 disk1s{1..4}; do
+    sudo diskutil verifyVolume /dev/${DEV}
+    # sudo diskutil repairVolume /dev/${DEV}
+  done
+  sudo diskutil verifyDisk /dev/disk0
+  # sudo diskutil repairDisk /dev/disk0
 elif [[ $(uname) == "Linux" ]] ; then
   # only proceed for Linux workstations
   if [[ $(runlevel | cut -d ' ' -f2) -le 3 ]] ; then

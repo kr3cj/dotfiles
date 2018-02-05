@@ -374,17 +374,22 @@ if ! hash lpass 2>/dev/null ; then
   if ${IS_OSX} ; then
     brew install lastpass-cli --with-pinentry
   elif ${is_debian} ; then
-    sudo apt-get install lpass -y
+    echo "see https://github.com/lastpass/lastpass-cli/blob/master/README.md#debianubuntu"
   elif ${is_rhel} ; then
-    sudo yum install lpass -y
+    sudo yum install lastpass-cli -y
   fi
 fi
 
 # create empty ssh keys
 for key in id_rsa id_rsa_hudson id_rsa_coreos ; do
   [[ -f ~/.ssh/${key} ]] || (umask 177 ; touch ~/.ssh/${key})
-  # cp -av ~build/ei/jenkins-home/.ssh/id_rsa ~/.ssh/id_rsa_hudson
-  # lastpass-cli -f "coreos root key/Private Key/" ~/.ssh/id_rsa_coreos
+  case ${key} in
+    id_rsa)
+      cat $(lpass show --attach "Work SSH Key") >> ~/.ssh/${key} ;;
+    *)
+      # cp -av ~build/ei/jenkins-home/.ssh/id_rsa ~/.ssh/id_rsa_hudson
+      echo "You must manually download the key for ${key}" ;;
+  esac
 done
 
 # upgrade software Fridays at 10am
