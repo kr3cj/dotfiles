@@ -1,0 +1,9 @@
+[[ $- = *i* ]] || return
+${IS_OSX} || return
+${HEALTHY_INTERNET} || return
+
+export LPASS_AGENT_TIMEOUT=172800
+export LPASS_DISABLE_PINENTRY=0
+# TODO: the login cmd sometimes returns "Error: Failed to enter correct password." if unauth'd
+#  which can lead to suspended accounts. but the command works if typed by itself
+lpass status > /dev/null || lpass login --trust lastpass@${CUSTOM_HOME_DOMAIN}

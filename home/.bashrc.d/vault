@@ -1,0 +1,4 @@
+[[ $- = *i* ]] || return
+${IS_OSX} || return
+
+export VAULT_ADDR="https://vault.readytalk.io:8200"

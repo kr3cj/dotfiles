@@ -109,6 +109,7 @@ if ${IS_OSX} && ! hash mas 2>/dev/null ; then
     maven python3 ansible rbenv ruby ruby-build \
     awscli docker docker-compose packer terraform
     # openshift-cli fleetctl
+  # TODO: disable updates in docker so brew update can manage it
 
   # tmux plugins
   tmux source ~/.tmux.conf

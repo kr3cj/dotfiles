@@ -1,4 +1,0 @@
-[[ $- = *i* ]] || return
-${HEALTHY_INTERNET} || return
-
-lpass status > /dev/null || lpass login --trust lastpass@${CUSTOM_HOME_DOMAIN}

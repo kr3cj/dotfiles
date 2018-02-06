@@ -1,4 +1,0 @@
-[[ $- = *i* ]] || return
-${IS_OSX} || return
-
-export LPASS_AGENT_TIMEOUT=172800
