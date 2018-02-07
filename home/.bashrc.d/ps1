@@ -17,12 +17,14 @@ if [[ "${USE_FORKED_LIQUIDPROMPT}" == "true" ]]; then
   fi
 elif [[ "${USE_FORKED_LIQUIDPROMPT}" == "false" ]] && \
   [[ "${USE_CLASSIC_PS1}" == "false" ]]; then
+  # homebrew installation of nojhan/liquidprompt and standard customizations
+  # using the prefix variable will only execute the inner function on new terminals
+  #  instead of every prompt display :(
+  # (using tmux status bar instead for kubernetes info) LP_PS1_PREFIX="$(_kube_ps1) "
   if [[ -f /usr/local/share/liquidprompt ]]; then
-    # homebrew installation of nojhan/liquidprompt and standard customizations
-    # using the prefix variable will only execute the inner function on new terminals
-    #  instead of every prompt display :(
-    # (using tmux status bar instead for kubernetes info) LP_PS1_PREFIX="$(_kube_ps1) "
-    source /usr/local/share/liquidprompt
+    source /usr/local/share/liquidprompt # Darwin
+  elif [[ -f ~/liquidprompt/liquidprompt ]]; then
+    source ~/liquidprompt/liquidprompt # linux
   fi
 fi
 if [[ "${USE_CLASSIC_PS1}" == "true" ]]; then

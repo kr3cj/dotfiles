@@ -27,14 +27,29 @@ if [[ $(uname) == "Darwin" ]] ; then
   done
 
   echo -e "\nUpdating atom editor plugins."
-  echo yes | /usr/local/bin/apm upgrade
+  /usr/local/bin/apm upgrade --confirm false
 
-  echo "Checking macos disk health"
+  echo -e "\nCleaning temporary files."
+  /usr/local/bin/brew cleanup -s
+  /usr/local/bin/brew cask cleanup
+  /usr/local/bin/brew doctor
+  /usr/local/bin/brew missing
+
+  /bin/rm -vr ~/.gradle/caches/*
+  /bin/rm -vr ~/.ivy2/{local,cache}/*
+  /bin/rm -vr ~/Library/Containers/com.apple.mail/Data/Library/Mail\ Downloads/*
+  /usr/bin/sudo /bin/rm -vr /System/Library/Speech/Voices/*
+  /bin/rm -vr /private/var/tmp/*
+  /usr/bin/sudo /usr/sbin/purge
+  /usr/bin/sudo /usr/sbin/periodic daily weekly monthly
+  # /usr/bin/sudo rm -vr ~/Library/Caches/*
+
+  echo -e "\nChecking macos disk health."
   for DEV in disk1 disk1s{1..4}; do
-    sudo diskutil verifyVolume /dev/${DEV}
+    /usr/bin/sudo /usr/sbin/diskutil verifyVolume /dev/${DEV}
     # sudo diskutil repairVolume /dev/${DEV}
   done
-  sudo diskutil verifyDisk /dev/disk0
+  /usr/bin/sudo /usr/sbin/diskutil verifyDisk /dev/disk0
   # sudo diskutil repairDisk /dev/disk0
 elif [[ $(uname) == "Linux" ]] ; then
   # only proceed for Linux workstations

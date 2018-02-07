@@ -24,6 +24,3 @@ if [[ -d ${HOME}/.bashrc.d ]]; then
   done < <(find ${HOME}/.bashrc.d -follow -type f -not -name '*.disabled' | sort)
   unset dotd
 fi
-
-# remember man page views
-# export less="fix"

@@ -1,0 +1,36 @@
+[[ $- = *i* ]] || return
+
+# temporary troubleshooting
+[[ ${HISTSIZE} -lt 1000000 ]] && echo -e "\nSomething has overridden \${HISTSIZE} to ${HISTSIZE}!!!\n"
+
+[[ -f ~/.base_homeshick_vars ]] && source ~/.base_homeshick_vars
+export IS_OSX="false"
+export IS_LINUX="false"
+case "$(uname)" in
+  Darwin)
+    IS_OSX="true" ;;
+  Linux)
+    IS_LINUX="true" ;;
+  *)
+    echo "Unable to determine Linux or OSX" ;;
+esac
+
+if ! hash git 2>/dev/null ; then
+  bash ~/.workstation_setup.sh
+fi
+
+# impatiently detect healthy internet connectivity
+export HEALTHY_INTERNET=false
+if hash curl 2>/dev/null && $(curl github.com --connect-timeout 1 &> /dev/null); then
+  HEALTHY_INTERNET=true
+else
+  echo "Skipping network related profile tasks as there's no healthy internet connectivity."
+fi
+
+export LPASS_AGENT_TIMEOUT=172800
+export LPASS_DISABLE_PINENTRY=0
+
+${HEALTHY_INTERNET} || return
+# TODO: the login cmd sometimes returns "Error: Failed to enter correct password." if unauth'd
+#  which can lead to suspended accounts. but the command works if typed by itself
+lpass status > /dev/null || lpass login --trust lastpass@${CUSTOM_HOME_DOMAIN}

@@ -52,10 +52,13 @@ function ssh {
     -o ServerAliveCountMax=2 \
     -o ConnectionAttempts=2 \
     -o ConnectTimeout=2"
-  if [[ ${@} =~ "172.16." ]] ; then
-    $(which ssh) ${ssh_options} ${@}
-  else
+  local host1="${@}"
+  # copy ldap password to clipboard before ssh'ing to work hosts
+  if [[ "wyn*|for*|lax*|fsh*|lsh*|finf*|linf*|192.168.*|\
+*\.$(echo ${CUSTOM_WORK_DOMAINS[@]} | tr ' ' '|')" =~ "${@}" ]]; then
     lpw && $(which ssh) ${ssh_options} ${@}
+  else
+    $(which ssh) ${ssh_options} ${@}
   fi
 }
 

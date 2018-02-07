@@ -17,3 +17,7 @@ shopt -s histappend
 # for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
 export HISTSIZE=1000000
 export HISTFILESIZE=1000000
+
+if [[ -f /etc/profile ]] && grep -q HISTSIZE= /etc/profile; then
+  sed -i "s/HISTSIZE=.*/HISTSIZE=${HISTSIZE}/g" /etc/profile
+fi

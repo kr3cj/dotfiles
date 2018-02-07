@@ -345,6 +345,9 @@ if ${IS_LINUX} && ! hash pip 2>/dev/null ; then
     sudo python get-pip.py && rm get-pip.py
     sudo pip install --upgrade setuptools
   fi
+  # install liquidprompt for linux
+  cd ; git clone https://github.com/nojhan/liquidprompt.git
+  source liquidprompt/liquidprompt
   # install the rest via pip
     # sudo easy_install pip
   # vagrant, packer, python2+3, ansible, ruby, virtualbox?, gems, docker-ce, fleetctl, java, dos2unix
@@ -354,7 +357,7 @@ fi
 
 # platform agnostic stuff
 # kubernetes stuff
-if [[ ! -f !/.kube/config ]] ; then
+if [[ ! -f ~/.kube/config ]] ; then
   echo "pull down file from lastpass to ~/.kube/config"
 fi
 

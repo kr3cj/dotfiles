@@ -1,0 +1,11 @@
+# add admin paths, replace osx utilities with GNU core utilities (should already include /usr/sbin/ and /sbin )
+# /usr/local/Cellar/findutils/4.6.0/bin \
+# /usr/local/opt/gnu-sed/libexec/gnubin \
+# /usr/local/opt/gnu-tar/libexec/gnubin \
+for newpath in \
+  /usr/sbin \
+  /usr/local/sbin \
+  /usr/local/opt/coreutils/libexec/gnubin \
+  ; do
+  pathadd ${newpath}
+done
