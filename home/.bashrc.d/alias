@@ -46,19 +46,13 @@ function gitp {
 }
 
 function ssh {
-  local ssh_options="-o StrictHostKeyChecking=no
-    -o TCPKeepAlive=yes \
-    -o ServerAliveInterval=30 \
-    -o ServerAliveCountMax=2 \
-    -o ConnectionAttempts=2 \
-    -o ConnectTimeout=2"
   local host1="${@}"
   # copy ldap password to clipboard before ssh'ing to work hosts
-  if [[ "wyn*|for*|lax*|fsh*|lsh*|finf*|linf*|192.168.*|\
-*\.$(echo ${CUSTOM_WORK_DOMAINS[@]} | tr ' ' '|')" =~ "${@}" ]]; then
-    lpw && $(which ssh) ${ssh_options} ${@}
+  if [[ "${host1}" =~ (wyn*|for*|lax*|fsh*|lsh*|finf*|linf*|192.168.*|\
+\.$(echo ${CUSTOM_WORK_DOMAINS[@]} | tr ' ' '|')) ]]; then
+    lpw && $(which ssh) ${host1}
   else
-    $(which ssh) ${ssh_options} ${@}
+    $(which ssh) ${host1}
   fi
 }
 

@@ -4,7 +4,7 @@
 # aws creds
 if [[ -f ~/.aws_auth ]] ; then
   source ~/.aws_auth
-  export AWS_CREDENTIAL_FILE=~/.aws_auth
-  # export AWS_IAM_HOME=~/bin/amazon/iam
+  export AWS_CREDENTIAL_FILE="~/.aws_auth"
+  # export AWS_IAM_HOME="~/bin/amazon/iam"
   # pathadd ${AWS_IAM_HOME}/bin
 fi

@@ -1,4 +1,6 @@
 #!/bin/bash +x
+LOG=/var/tmp/$(basename ${0})_$(date +%Y%m%d-%H%M).log
+(
 # the purpose of this script is to update client binaries on an occasional basis
 # child of ~/.workstation_setup
 
@@ -98,3 +100,5 @@ fi
   # sudo find -x ~/.config/ -user root -exec chown --changes ${CUSTOM_WORK_EMAIL/\@*/} '{}' \;
 # fi
 # TODO: update chrome extensions (https://github.com/mdamien/chrome-extensions-archive/issues/8)
+# close out logging
+) 2>&1 | tee -a ${LOG}

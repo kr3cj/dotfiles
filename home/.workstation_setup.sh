@@ -26,6 +26,7 @@ elif ${IS_LINUX} ; then
   elif [[ -f /etc/os-version ]] ; then
     is_debian="true"
   fi
+
 else
   echo "Unable to determine unix distro."
 fi

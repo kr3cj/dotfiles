@@ -38,9 +38,10 @@ if ${at_home} ; then
       ${CUSTOM_NAS_HOST}:/share/pictures ~/Pictures/share1
   fi
   # start google photos backup
-  $(pgrep -q "Google Photos Backup") || \
+  pgrep -q "Google Photos Backup" || \
     ("/Applications/Google Photos Backup.app/Contents/MacOS/Google Photos Backup" & ) &> /dev/null
-  # $(ping -c1 -W1 -i0.1 laphroaig.${CUSTOM_WORK_DOMAINS[1]}) || /opt/cisco/anyconnect/bin/vpn connect readytalk
+  ping -c1 -W1 -i0.1 laphroaig.${CUSTOM_WORK_DOMAINS[1]} > /dev/null \
+    || /opt/cisco/anyconnect/bin/vpn connect readytalk
 elif ${at_work} ; then
   # SSH tunnel to datacenters
   _create_socks_proxy "forinf2.${CUSTOM_WORK_DOMAINS[0]}" "2002" "${CUSTOM_LDAP_NAME}"
@@ -56,8 +57,9 @@ elif ${at_work} ; then
     sudo umount -fv -t nfs ${CUSTOM_NAS_HOST}:/share/pictures
   done
   # establish vpn connection to PGi
-  # $(ping -c1 -w1 -i0.1 172.x.x.x &> /dev/null) || /opt/cisco/anyconnect/bin/vpn connect pgi
+  # ping -c1 -w1 -i0.1 172.x.x.x > /dev/null \
+  #   || /opt/cisco/anyconnect/bin/vpn connect pgi
   # pkill "Google Photos Backup"
-  $(pgrep -q "Slack") || \
+  pgrep -q "Slack" || \
     ("/Applications/Slack.app/Contents/MacOS/Slack" & ) &> /dev/null
 fi
