@@ -1,33 +1,17 @@
 [[ $- = *i* ]] || return
 
-# PS1 generator: https://xta.github.io/HalloweenBash/
-# TODO: use different colors for different datacenters/environments using VLANs
+if [[ -f ~/.homesick/repos/liquidprompt/liquidprompt ]]; then
+  echo "Detected forked nojhan/liquidprompt"
+  source ~/.homesick/repos/liquidprompt/liquidprompt
+elif [[ -f /usr/local/share/liquidprompt ]]; then
+  source /usr/local/share/liquidprompt # Darwin
+elif [[ -f ~/liquidprompt/liquidprompt ]]; then
+  source ~/liquidprompt/liquidprompt # linux
+else
+  echo "Unable to find liquidprompt installation. Try running:"
+  echo "  cd ; git clone https://github.com/nojhan/liquidprompt.git"
+  echo "Resorting to \$PS1"
 
-USE_FORKED_LIQUIDPROMPT=false
-USE_CLASSIC_PS1=false
-
-if [[ "${USE_FORKED_LIQUIDPROMPT}" == "true" ]]; then
-  if ! -f ~/.homesick/repos/liquidprompt/liquidprompt ; then
-    echo "Could not find cloned liquidprompt fork. Rerun \"~/.workstation_setup.sh\"?"
-    echo "Using default \"${PS1}\"."
-  else
-    # had to fork nojhan/liquidprompt until merges are made for:
-    #  bschwedler:feature/kubernetes-context, pull/476, etc.
-    source ~/.homesick/repos/liquidprompt/liquidprompt
-  fi
-elif [[ "${USE_FORKED_LIQUIDPROMPT}" == "false" ]] && \
-  [[ "${USE_CLASSIC_PS1}" == "false" ]]; then
-  # homebrew installation of nojhan/liquidprompt and standard customizations
-  # using the prefix variable will only execute the inner function on new terminals
-  #  instead of every prompt display :(
-  # (using tmux status bar instead for kubernetes info) LP_PS1_PREFIX="$(_kube_ps1) "
-  if [[ -f /usr/local/share/liquidprompt ]]; then
-    source /usr/local/share/liquidprompt # Darwin
-  elif [[ -f ~/liquidprompt/liquidprompt ]]; then
-    source ~/liquidprompt/liquidprompt # linux
-  fi
-fi
-if [[ "${USE_CLASSIC_PS1}" == "true" ]]; then
   # declare some PS1 colors and helper functions
   NORMAL=$(tput sgr0)
   BOLD=$(tput bold)
@@ -65,6 +49,8 @@ if [[ "${USE_CLASSIC_PS1}" == "true" ]]; then
     fi
   }
 
+  # PS1 generator: https://xta.github.io/HalloweenBash/
+  # TODO: use different colors for different datacenters/environments using VLANs
   export PS1="\[${BOLD}\]\[${GREEN}\]\u@\h\[${BLUE}\] \w\[${BROWN}\]\[${BLUE}\]\$(_parse_git_branch)\$\[${NORMAL}\] "
   PS1="\[${YELLOW}\]\$(_kube_ps1)\[${NORMAL}\]"$PS1
 fi

@@ -32,6 +32,7 @@ export LPASS_DISABLE_PINENTRY=0
 # export LPASS_ASKPASS
 
 ${HEALTHY_INTERNET} || return
+${IS_OSX} || return
 # TODO: in order for the login command to work, stdin must be a tty
 # otherwise it returns "Error: Failed to enter correct password."
 lpass status > /dev/null || lpass login --trust lastpass@${CUSTOM_HOME_DOMAIN}

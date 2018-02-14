@@ -1,4 +1,9 @@
-# alt+left
-"\e[1;9D": backward-word
-# alt+right
-"\e[1;9C": forward-word
+# for xterm
+
+# "\e[1;9D": backward-word # alt+left
+# "\e[1;9C": forward-word # alt+right
+"\e[1;5D": backward-word # ctrl+left
+"\e[1;5C": forward-word # ctrl+right
+
+# "\e[5D": backward-word
+# "\e[5C": forward-word
