@@ -5,6 +5,7 @@
 .svn/
 *.old
 *.bak
+.ssh/config
 id_rsa
 id_dsa
 .DS_Store
