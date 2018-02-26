@@ -2,10 +2,10 @@
 # /usr/local/Cellar/findutils/4.6.0/bin \
 # /usr/local/opt/gnu-sed/libexec/gnubin \
 # /usr/local/opt/gnu-tar/libexec/gnubin \
-for newpath in \
+for path2 in \
   /usr/sbin \
   /usr/local/sbin \
   /usr/local/opt/coreutils/libexec/gnubin \
   ; do
-  pathadd ${newpath}
+  pathadd ${path2}
 done

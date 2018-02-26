@@ -1,13 +1,13 @@
 [[ $- = *i* ]] || return
 
 alias ls='ls --color=auto'
-alias ls='ls -G'
 alias ll="ls -hl --color=auto"
-# alias ll="ls -hl -G"
 alias ducks="sudo du -cshx ./ | sort -h"
 alias cdd="homeshick cd dotfiles"
 
+# TODO: not defined when jumping servers (e.g. ssh lax1 -t ssh lax2)
 function pathadd() {
+  unset newpath
   local newpath=${1%/}
   if [[ ! -d "${newpath}" ]] ; then
     # echo "Directory \"${1}\" does not exist."
@@ -18,11 +18,10 @@ function pathadd() {
     return
   fi
   if [[ "${2}" == "after" ]] ; then
-    PATH="${PATH}:${newpath}"
+    export PATH="${PATH}:${newpath}"
   else
-    PATH="${newpath}:${PATH}"
+    export PATH="${newpath}:${PATH}"
   fi
-  export PATH
 }
 
 function port {
