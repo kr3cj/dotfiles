@@ -1,12 +1,12 @@
 [[ $- = *i* ]] || return
 
-if [[ -f ~/.homesick/repos/liquidprompt/liquidprompt ]]; then
-  echo "Detected forked nojhan/liquidprompt"
-  source ~/.homesick/repos/liquidprompt/liquidprompt
-elif [[ -f /usr/local/share/liquidprompt ]]; then
+if [[ -f /usr/local/share/liquidprompt ]]; then
   source /usr/local/share/liquidprompt # Darwin
 elif [[ -f ~/liquidprompt/liquidprompt ]]; then
   source ~/liquidprompt/liquidprompt # linux
+elif [[ -f ~/.homesick/repos/liquidprompt/liquidprompt ]]; then
+  echo "Detected forked nojhan/liquidprompt"
+  source ~/.homesick/repos/liquidprompt/liquidprompt
 else
   echo "Unable to find liquidprompt installation. Try running:"
   echo "  cd ; git clone https://github.com/nojhan/liquidprompt.git"

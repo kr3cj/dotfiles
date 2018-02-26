@@ -37,25 +37,28 @@ if [[ $(uname) == "Darwin" ]] ; then
   /usr/local/bin/brew doctor
   /usr/local/bin/brew missing
 
-  /bin/rm -vr ~/.gradle/caches/*
-  /bin/rm -vr ~/.ivy2/{local,cache}/*
-  /bin/rm -vr ~/Library/Containers/com.apple.mail/Data/Library/Mail\ Downloads/*
-  /usr/bin/sudo /bin/rm -vr /System/Library/Speech/Voices/*
-  /bin/rm -vr /private/var/tmp/*
+  /bin/rm -vr ~/.gradle/caches/* || echo
+  /bin/rm -vr ~/.ivy2/{local,cache}/* || echo
+  /bin/rm -vr ~/Library/Containers/com.apple.mail/Data/Library/Mail\ Downloads/* || echo
+  /usr/bin/sudo /bin/rm -vr /System/Library/Speech/Voices/* || echo
+  # /usr/bin/sudo /bin/rm -vr /private/var/tmp/* || echo
   /usr/bin/sudo /usr/sbin/purge
   /usr/bin/sudo /usr/sbin/periodic daily weekly monthly
   # /usr/bin/sudo rm -vr ~/Library/Caches/*
 
   echo -e "\nChecking macos disk health."
+  echo "Verifying disk health at $(date +%Y-%m-%d-%H%M). \
+  This will freeze the system for a couple minutes." | /usr/bin/wall
   for DEV in disk1 disk1s{1..4}; do
     /usr/bin/sudo /usr/sbin/diskutil verifyVolume /dev/${DEV}
     # sudo diskutil repairVolume /dev/${DEV}
   done
   /usr/bin/sudo /usr/sbin/diskutil verifyDisk /dev/disk0
+  echo "Finished verifying disk health at $(date +%Y-%m-%d-%H%M)." | /usr/bin/wall
   # sudo diskutil repairDisk /dev/disk0
 elif [[ $(uname) == "Linux" ]] ; then
   # only proceed for Linux workstations
-  if [[ $(runlevel | cut -d ' ' -f2) -le 3 ]] ; then
+  if [[ $(/usr/bin/sudo runlevel | cut -d ' ' -f2) -le 3 ]] ; then
     echo -e "\nQuitting workstation update on what appears to be a server"
     exit 0
   fi

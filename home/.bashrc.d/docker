@@ -5,3 +5,12 @@ ${IS_OSX} || return
 # export DOCKER_HOST="tcp://${CUSTOM_WORK_SUBNET}.49.201:2376"
 # export DOCKER_TLS_VERIFY="0"
 # export FLEETCTL_TUNNEL="finf-coreos02.${CUSTOM_WORK_DOMAINS[0]}"
+
+function docker-reset () {
+  sudo docker stop $(sudo docker ps -a -q)
+  sudo systemctl restart docker.service
+  sudo docker rm $(sudo docker ps -a -q)
+  sudo docker rmi $(sudo docker images -q)
+  sudo systemctl restart docker.service
+  sudo docker ps -a
+}

@@ -1,12 +1,11 @@
 [[ $- = *i* ]] || return
 
-# alias ls='ls --color=auto'
+alias ls='ls --color=auto'
 alias ls='ls -G'
-# alias ll="ls -hl --color=auto"
-alias ll="ls -hl -G"
-alias lpw="lpass show --password -c LDAP"
-alias srm="/bin/rm -vP"
+alias ll="ls -hl --color=auto"
+# alias ll="ls -hl -G"
 alias ducks="sudo du -cshx ./ | sort -h"
+alias cdd="homeshick cd dotfiles"
 
 function pathadd() {
   local newpath=${1%/}
@@ -31,8 +30,12 @@ function port {
 }
 
 function acp {
-  # cp -av ${1} ${1}.$(date +%Y-%m-%d %H-%M)
-  cp -av ${1} ${1}.$(date --rfc-3339=seconds)
+  cp -av ${1} ${1}.$(date +%Y-%m-%d %H-%M)
+  # cp -av ${1} ${1}.$(date --rfc-3339=seconds)
+}
+
+function find-error() {
+  sudo grep -riE 'DENIED|ERR|EXIST|FAIL|INVALID|SPECIFIED|SUCH|UNABLE|WARN' ${1}
 }
 
 function gitp {
@@ -43,17 +46,6 @@ function gitp {
   git fetch origin --prune
   git fetch --tags
   git status
-}
-
-function ssh {
-  local host1="${@}"
-  # copy ldap password to clipboard before ssh'ing to work hosts
-  if [[ "${host1}" =~ (wyn*|for*|lax*|fsh*|lsh*|finf*|linf*|192.168.*|\
-\.$(echo ${CUSTOM_WORK_DOMAINS[@]} | tr ' ' '|')) ]]; then
-    lpw && $(which ssh) ${host1}
-  else
-    $(which ssh) ${host1}
-  fi
 }
 
 function _create_socks_proxy {
@@ -84,3 +76,22 @@ function _create_socks_proxy {
   fi
   [[ ${?} -ne 0 ]] && echo "Unable to establish ssh connection to ${host1}."
 }
+
+if [[ "${IS_OSX}" == "true" ]]; then
+  alias srm="/bin/rm -vP"
+  alias lpw="lpass show --password -c LDAP"
+
+  function ssh {
+    local host1="${@}"
+    # copy ldap password to clipboard before ssh'ing to work hosts
+    if [[ "${host1}" =~ (wyn*|for*|lax*|fsh*|lsh*|finf*|linf*|192.168.*|\
+\.$(echo ${CUSTOM_WORK_DOMAINS[@]} | tr ' ' '|')) ]]; then
+      lpw && $(which ssh) ${host1}
+    else
+      $(which ssh) ${host1}
+    fi
+  }
+elif [[ "${IS_LINUX}" == "true" ]]; then
+  alias list-services="systemctl list-unit-files --type=service | grep enabled | \
+    cut -d. -f1 | sort"
+fi

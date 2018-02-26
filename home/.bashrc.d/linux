@@ -1,4 +1,5 @@
 [[ $- = *i* ]] || return
 ${IS_LINUX} || return
 
-cd /build/${CUSTOM_LDAP_NAME}/deploy
+[[ -d /build/${CUSTOM_LDAP_NAME}/deploy ]] && cd /build/${CUSTOM_LDAP_NAME}/deploy
+if [[ "laphroaig" =~ $(hostname) ]]; then echo "TODO: launch tmux session..."

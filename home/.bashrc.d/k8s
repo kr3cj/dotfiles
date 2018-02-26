@@ -7,8 +7,33 @@ export KUBECONFIG=~/.kube/config
 source <(kubectl completion bash)
 
 export KOPS_STATE_STORE="s3://foxden-k8s-cluster-state"
-
 function set_kube_current_config()
+{
+  local kops_name="${@}"
+  if [[ -z ${kops_name} ]]; then
+    echo "You did not provide a default kops name argument."
+    return 1
+  fi
+  if [[ ${kops_name} =~ "\." ]]; then
+    echo "You did not provide a fully qualified kops name argument."
+    return 1
+  fi
+  if [[ -z $(kubectl config current-context) ]];then
+    echo "\"kubectl config current-context\" is blank!"
+    return 1
+  fi
+  lpw
+  # TODO: start docker if not running
+  docker run --rm \
+    -it \
+    -e VAULT_ADDR=${VAULT_ADDR} \
+    -e CLUSTER_NAME=${kops_name} \
+    -e ACCOUNT_NAME=sre-sa \
+    -e CONTEXT_NAME=${kops_name} \
+    -v ~/.kube:/kube-config \
+    readytalk/kube-vault-deploy:kube-auth
+}
+function set_kube_current_config_old()
 {
   local kops_name="${@}"
   if [[ -z ${kops_name} ]]; then
@@ -41,3 +66,4 @@ alias knc=set_kube_current_config
 alias kns=set_kube_current_ns
 alias kubedash="kubectl get po -n=kube-system | grep dashboard | awk '{print \$1}' | \
   xargs -I % kubectl port-forward % 9090 -n=kube-system"
+alias kwatch="watch kubectl get no,ds,deploy,po,svc,ing,cm,pvc,secret"
