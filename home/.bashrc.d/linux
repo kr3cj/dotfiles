@@ -2,4 +2,3 @@
 ${IS_LINUX} || return
 
 [[ -d /build/${CUSTOM_LDAP_NAME}/deploy ]] && cd /build/${CUSTOM_LDAP_NAME}/deploy
-[[ "laphroaig" =~ $(hostname) ]] && echo "TODO: launch tmux session?"
