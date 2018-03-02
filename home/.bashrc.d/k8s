@@ -2,8 +2,6 @@
 ${IS_OSX} || return
 
 export KUBECONFIG=~/.kube/config
-# source $(brew --prefix)/etc/bash_completion
-# source /usr/local/etc/bash_completion
 source <(kubectl completion bash)
 
 export KOPS_STATE_STORE="s3://foxden-k8s-cluster-state"
@@ -22,7 +20,7 @@ function set_kube_current_config()
     echo "\"kubectl config current-context\" is blank!"
     return 1
   fi
-  lpw
+  lpass show --password -c LDAP
   # TODO: start docker if not running
   docker run --rm \
     -it \

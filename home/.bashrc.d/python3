@@ -1,6 +1,7 @@
 [[ $- = *i* ]] || return
 ${IS_OSX} || return
 
-# Setting PATH for Python 3.4
-# TODO: platform specific pathing :(
-# pathadd /Library/Frameworks/Python.framework/Versions/3.4/bin
+# Setting PATH to use Homebrew Python 3 (instead of system python3)
+# TODO: platform specific pathing
+alias pip="pip3"
+alias python="python3"

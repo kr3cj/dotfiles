@@ -1,7 +1,8 @@
 [[ $- = *i* ]] || return
 
-alias ls='ls --color=auto'
-alias ll="ls -hl --color=auto"
+alias egrep='egrep --color=auto'
+alias fgrep='fgrep --color=auto'
+alias grep='grep --color=auto'
 alias ducks="sudo du -cshx ./ | sort -h"
 alias cdd="homeshick cd dotfiles"
 
@@ -77,6 +78,8 @@ function _create_socks_proxy {
 }
 
 if [[ "${IS_OSX}" == "true" ]]; then
+  alias ls="ls -G"
+  alias ll="ls -hl -G"
   alias srm="/bin/rm -vP"
   alias lpw="lpass show --password -c LDAP"
 
@@ -85,12 +88,14 @@ if [[ "${IS_OSX}" == "true" ]]; then
     # copy ldap password to clipboard before ssh'ing to work hosts
     if [[ "${host1}" =~ (wyn*|for*|lax*|fsh*|lsh*|finf*|linf*|192.168.*|\
 \.$(echo ${CUSTOM_WORK_DOMAINS[@]} | tr ' ' '|')) ]]; then
-      lpw && $(which ssh) ${host1}
+      lpass show --password -c LDAP && $(which ssh) ${host1}
     else
       $(which ssh) ${host1}
     fi
   }
 elif [[ "${IS_LINUX}" == "true" ]]; then
+  alias ls="ls --color=auto"
+  alias ll="ls -hl --color=auto"
   alias list-services="systemctl list-unit-files --type=service | grep enabled | \
     cut -d. -f1 | sort"
 fi

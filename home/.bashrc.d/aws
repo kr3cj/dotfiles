@@ -7,4 +7,29 @@ if [[ -f ~/.aws_auth ]] ; then
   export AWS_CREDENTIAL_FILE=~/.aws_auth
   # export AWS_IAM_HOME=~/bin/amazon/iam
   # pathadd ${AWS_IAM_HOME}/bin
+
+  # use env variables over cli profiles for friendlier k8s integration
+  function set-aws()
+  {
+    # TODO: convert to vault provisioning
+    local acct=${1}
+    case ${acct} in
+      ${CUSTOM_WORK_DOMAINS[0]/\.*/})
+        echo "Setting AWS credentials to ${CUSTOM_WORK_DOMAINS[0]/\.*/}"
+        export AWS_ACCESS_KEY=${} AWS_SECRET_ACCESS_KEY=${} ;;
+      *ops*)
+        echo "Setting AWS credentials to ${CUSTOM_WORK_DOMAINS[0]/\.*/}-ops"
+        export AWS_ACCESS_KEY=${} AWS_SECRET_ACCESS_KEY=${} ;;
+      *foxden*)
+        echo "Setting AWS credentials to ${CUSTOM_WORK_DOMAINS[0]/\.*/}-foxden"
+        export AWS_ACCESS_KEY=${} AWS_SECRET_ACCESS_KEY=${} ;;
+      *webapps*)
+        echo "Setting AWS credentials to ${CUSTOM_WORK_DOMAINS[0]/\.*/}-webapps"
+        export AWS_ACCESS_KEY=${} AWS_SECRET_ACCESS_KEY=${} ;;
+      # GM5)?
+      *)
+        echo "Unable to set AWS credentials; Unknown account"
+        unset AWS_ACCESS_KEY AWS_SECRET_ACCESS_KEY ;;
+    esac
+  }
 fi

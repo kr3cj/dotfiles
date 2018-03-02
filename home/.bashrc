@@ -30,20 +30,18 @@ export LPASS_DISABLE_PINENTRY=0
 # export LPASS_ASKPASS
 
 if [[ "${HEALTHY_INTERNET}" == "true" && "${IS_OSX}" == "true" ]]; then
-  # TODO: in order for the login command to work, "stdin must be a tty"
-  # otherwise it returns "Error: Failed to enter correct password."
+  # TODO: lpass login rquires "stdin must be a tty"
+  # else it returns "Error: Failed to enter correct password."
   # So it cannot be located inside ~/.bashrc.d/
   lpass status > /dev/null || lpass login --trust lastpass@${CUSTOM_HOME_DOMAIN}
 fi
 
-if ! hash git 2>/dev/null ; then
-  bash ~/.workstation_setup.sh
-fi
+hash git 2>/dev/null || bash ~/.workstation_setup.sh
 
 if [[ -d ${HOME}/.bashrc.d ]]; then
-  while read dotd; do
+  for dotd in $(find ${HOME}/.bashrc.d -follow -type f -not -name '*.disabled' | sort); do
     # echo "Sourcing ${dotd}..."
     source "${dotd}"
-  done < <(find ${HOME}/.bashrc.d -follow -type f -not -name '*.disabled' | sort)
+  done
   unset dotd
 fi

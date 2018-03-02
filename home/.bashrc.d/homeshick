@@ -4,5 +4,6 @@ source "${HOME}/.homesick/repos/homeshick/homeshick.sh"
 source "${HOME}/.homesick/repos/homeshick/completions/homeshick-completion.bash"
 
 homeshick --quiet refresh
-# takes a long time; TODO: try shallow symlinking?
+# can take a long time and requires tty?; TODO: try shallow symlinking?
+# https://github.com/andsens/homeshick/wiki/Symlinking#shallow-symlinking
 # homeshick link dotfiles

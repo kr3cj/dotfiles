@@ -98,9 +98,15 @@ if ${IS_OSX} && ! hash mas 2>/dev/null ; then
   # brew tap homebrew/versions
   # brew install perl518
   echo "install python"
-  brew install python
+  # http://docs.python-guide.org/en/latest/starting/install3/osx/
+  brew install python3
   # brew linkapps python
-  pip install --upgrade pip setuptools
+  echo "override python binaries"
+  alias python="python3"
+  alias pip="pip3"
+  pip3 install --upgrade distribute
+  pip3 install --upgrade pip
+  pip install pylint virtualenv yq==2.2.0
 
   echo "install some extra utility packages for me"
   brew install dos2unix gnu-getopt
@@ -134,6 +140,9 @@ if ${IS_OSX} && ! hash mas 2>/dev/null ; then
   # mas install 417375580 # BetterSnapTool
   sudo rm -rf /Applications/{iMovie.app,GarageBand.app,Pages.app,Numbers.app}
 
+  # finish xcode install?
+  # xcode-select --install
+
   # puppet testing shtuff
   sudo gem install bundler
 
@@ -164,12 +173,12 @@ if ${IS_OSX} && ! hash mas 2>/dev/null ; then
   # TODO: .pgpass, npmrc, .vnc/passwd, .ant/settings.xml, .jspm/config
 
   # install atom editor plugins
-  apm install auto-update-packages terminal-plus open-terminal-here minimap language-hcl \
-    autocomplete-bash-builtins markdown-toc terraform-fmt \
+  apm install auto-update-packages open-terminal-here minimap language-hcl \
+   markdown-toc terraform-fmt \
     language-groovy file-icons tree-view-git-status highlight-selected git-plus \
     linter linter-ui-default intentions busy-signal
     linter-checkbashisms linter-terraform-syntax
-  # language-terraform
+  # language-terraform autocomplete-bash-builtins terminal-plus
 
   # install visual studio code extensions
   # for i in technosophos.vscode-helm brendandburns.vs-kubernetes PeterJausovec.vscode-docker; do
@@ -204,10 +213,6 @@ if ${IS_OSX} && ! hash mas 2>/dev/null ; then
   </ServerList>
 </AnyConnectProfile>
 EOF
-
-  # python stuff
-  sudo easy_install pip
-  pip install pylint virtualenv yq==2.2.0
 
   # gce and gke stuff (https://cloud.google.com/sdk/docs/quickstart-mac-os-x)
   # brew install go
