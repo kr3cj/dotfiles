@@ -5,6 +5,7 @@ alias fgrep='fgrep --color=auto'
 alias grep='grep --color=auto'
 alias ducks="sudo du -cshx ./ | sort -h"
 alias cdd="homeshick cd dotfiles"
+alias pp="source ~/.bash_profile"
 
 # TODO: not defined when jumping servers (e.g. ssh lax1 -t ssh lax2)
 function pathadd() {
@@ -40,11 +41,11 @@ function find-error() {
 
 function gitp {
   local gbranch=${1:-master}
-  git fetch --all
+  git fetch --prune --all
   git checkout ${gbranch}
   git pull origin ${gbranch}
-  git fetch origin --prune
-  git fetch --tags
+  # git fetch origin --prune
+  # git fetch --tags
   git status
 }
 
@@ -71,8 +72,9 @@ function _create_socks_proxy {
     pgrep -f "ssh .* ${ssh_proxy_options} ${port1} ${username}@${host1}"
     pkill -f "ssh .* ${ssh_proxy_options} ${port1} ${username}@${host1}"
     echo "Establishing ssh tunnel with ${username}@${host1}:${port1}..."
-    ssh ${ssh_proxy_options} ${port1} "${username}@${host1}" 2> /dev/null
-      # -o TCPKeepAlive=yes -o ConnectTimeout=1 -o ConnectionAttempts=1
+    # TODO: capture output only if the command fails
+    ssh ${ssh_proxy_options} ${port1} "${username}@${host1}" \
+      -o TCPKeepAlive=yes -o ConnectTimeout=1 -o ConnectionAttempts=1 2> /dev/null
   fi
   [[ ${?} -ne 0 ]] && echo "Unable to establish ssh connection to ${host1}."
 }
@@ -82,6 +84,10 @@ if [[ "${IS_OSX}" == "true" ]]; then
   alias ll="ls -hl -G"
   alias srm="/bin/rm -vP"
   alias lpw="lpass show --password -c LDAP"
+  alias slack="open -a Slack"
+  alias spotify="open -a Spotify"
+  # alias gphoto="open --background -a \"Google Photos Backup\""
+  alias gphoto="open --background -a \"Backup and Sync\""
 
   function ssh {
     local host1="${@}"

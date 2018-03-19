@@ -1,6 +1,17 @@
 "*":
+  "bracket-matcher":
+    autocompleteCharacters: [
+      "()"
+      "[]"
+      "{}"
+      "«»"
+      "‹›"
+    ]
   core:
+    openEmptyEditorOnStart: false
+    restorePreviousWindowsOnStart: "always"
     telemetryConsent: "limited"
+    warnOnLargeFileLimit: 1
   editor:
     scrollPastEnd: true
     showIndentGuide: true

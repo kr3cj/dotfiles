@@ -28,6 +28,7 @@ ip_address=$(/sbin/ifconfig en0 | grep 'inet ' | grep -v '127.0.0.1' | awk '{pri
 [[ ${ip_address} =~ "${CUSTOM_HOME_SUBNET}" ]] && at_home="true"
 
 if ${at_home} ; then
+	# TODO: switch SwitchyOmega profile
   if $(ping -c1 -W1 -i0.1 ${CUSTOM_NAS_HOST} &> /dev/null) ; then
     # killall -HUP mountd
     mount | grep -q "Documents/share1" || mount -t nfs -o \
@@ -37,12 +38,10 @@ if ${at_home} ; then
       vers=4,rw,soft,intr,bg,rsize=32768,wsize=32768,dsize=32768 \
       ${CUSTOM_NAS_HOST}:/share/pictures ~/Pictures/share1
   fi
-  # start google photos backup
-  pgrep -q "Google Photos Backup" || \
-    ("/Applications/Google Photos Backup.app/Contents/MacOS/Google Photos Backup" & ) &> /dev/null
-  # establish vpn connections from home
-  # ping -c1 -W1 -i0.1 laphroaig.${CUSTOM_WORK_DOMAINS[1]} > /dev/null \
-  #  || /opt/cisco/anyconnect/bin/vpn connect readytalk
+  # establish vpn connection to work
+  ping -c1 -W1 -i0.1 laphroaig.${CUSTOM_WORK_DOMAINS[1]} &> /dev/null \
+    || (read -t 2 -s -p "Press any key to connect to work VPN..." \
+      && /opt/cisco/anyconnect/bin/vpn connect readytalk ; echo)
   # establish vpn connection to PGi
   # ping -c1 -w1 -i0.1 172.x.x.x > /dev/null || /opt/cisco/anyconnect/bin/vpn connect pgi
 elif ${at_work} ; then
@@ -64,6 +63,9 @@ elif ${at_work} ; then
   # establish vpn connection to PGi
   # ping -c1 -w1 -i0.1 172.x.x.x > /dev/null || /opt/cisco/anyconnect/bin/vpn connect pgi
   # pkill "Google Photos Backup"
-  pgrep -q "Slack" || \
-    ("/Applications/Slack.app/Contents/MacOS/Slack" & ) &> /dev/null
 fi
+# open desktop apps
+pgrep -qf "Slack.app" || open --background -a Slack # this always opens in foreground :()
+pgrep -qf "Spotify.app" || open --background -a Spotify
+pgrep -qf "Backup and Sync.app" || open --background -a "Backup and Sync"
+pgrep -qf "Atom.app" || open --background -a Atom

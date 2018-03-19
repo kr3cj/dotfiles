@@ -115,7 +115,7 @@ if ${IS_OSX} && ! hash mas 2>/dev/null ; then
     ack aria2 mas mtr nmap tmux reattach-to-user-namespace \
     maven python3 ansible rbenv ruby ruby-build \
     awscli docker docker-compose packer terraform
-    # openshift-cli fleetctl
+    # openshift-cli fleetctl; aria2=torrent_client(aria2c)
   # TODO: disable updates in docker so brew update can manage it
 
   # tmux plugins
@@ -138,6 +138,8 @@ if ${IS_OSX} && ! hash mas 2>/dev/null ; then
   mas install 441258766 # Magnet
   # TODO: give magnet accessibility privileges in system prefs, sec and privacy, privacy tab
   # mas install 417375580 # BetterSnapTool
+  echo "Remove the following apps from showing in menu bar: Alfred, ?"
+  
   sudo rm -rf /Applications/{iMovie.app,GarageBand.app,Pages.app,Numbers.app}
 
   # finish xcode install?
@@ -149,13 +151,17 @@ if ${IS_OSX} && ! hash mas 2>/dev/null ; then
   # install main apps into Applications
   HOMEBREW_CASK_OPTS="--appdir=/Applications"
   brew cask install \
-    slack spotify gimp google-photos-backup iterm2 android-file-transfer android-platform-tools \
+    slack spotify gimp google-photos-backup-and-sync iterm2 android-file-transfer android-platform-tools \
     atom vagrant jq vault \
     keystore-explorer \
     beyond-compare firefox
     # virtualbox visual-studio-code
+  # old google-photos-backup available at
+  #  https://onedrive.live.com/?authkey=%21AACjGt3FG05pkGM&cid=8E2F81FF61FCF79E&id=8E2F81FF61FCF79E%21104613&parId=8E2F81FF61FCF79E%2187733&o=OneUp
   # brew install Caskroom/cask/pycharm-ce
   HOMEBREW_CASK_OPTS=""
+
+  # TODO: when etcher-cli comes out, instal it from homebrew
 
   # iterm2 customizations
   # Specify the preferences directory

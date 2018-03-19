@@ -1,3 +1,6 @@
+$include /etc/inputrc
+$include /usr/share/readline/inputrc
+
 # for xterm
 
 # "\e[1;9D": backward-word # alt+left
