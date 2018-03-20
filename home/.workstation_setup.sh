@@ -139,7 +139,7 @@ if ${IS_OSX} && ! hash mas 2>/dev/null ; then
   # TODO: give magnet accessibility privileges in system prefs, sec and privacy, privacy tab
   # mas install 417375580 # BetterSnapTool
   echo "Remove the following apps from showing in menu bar: Alfred, ?"
-  
+
   sudo rm -rf /Applications/{iMovie.app,GarageBand.app,Pages.app,Numbers.app}
 
   # finish xcode install?
@@ -180,7 +180,7 @@ if ${IS_OSX} && ! hash mas 2>/dev/null ; then
 
   # install atom editor plugins
   apm install auto-update-packages open-terminal-here minimap language-hcl \
-   markdown-toc terraform-fmt \
+    markdown-toc terraform-fmt \
     language-groovy file-icons tree-view-git-status highlight-selected git-plus \
     linter linter-ui-default intentions busy-signal
     linter-checkbashisms linter-terraform-syntax
