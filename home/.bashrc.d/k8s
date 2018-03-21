@@ -20,7 +20,7 @@ function set_kube_current_config()
     echo "\"kubectl config current-context\" is blank!"
     return 1
   fi
-  lpass show --password -c LDAP
+  lpass show --password --clip LDAP
   # TODO: start docker if not running
   docker run --rm \
     -it \

@@ -6,8 +6,9 @@ ${IS_OSX} || return
 $(env | grep -q SSH_AUTH_SOCK) || eval $(ssh-agent -s)
 
 for key in id_rsa id_rsa_coreos id_rsa_hudson ; do
-  # TODO: get passphrases from LastPass CLI
+  # TODO: better integrate passphrase from LastPass CLI https://svkt.org/~simias/lpass/#ssh-agent
   if [[ -r ~/.ssh/${key} ]] && ! $(ssh-add -l | grep -q "/.ssh/${key}\ ("); then
+    [[ "${key}" == "id_rsa" ]] && lpass show --field=Passphrase --clip 'Work SSH Key'
     ssh-add -k ~/.ssh/${key}
   fi
 done

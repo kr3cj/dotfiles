@@ -9,7 +9,11 @@ if [[ $(uname) == "Darwin" ]] ; then
   /usr/sbin/softwareupdate --install --all
 
   echo -e "\nUpdating OSX App Store apps..."
-  [[ $(/usr/local/bin/mas account) ]] || /usr/local/bin/mas signin ${CUSTOM_WORK_EMAIL} "$(lpass show --password 'Apple (work)')"
+  # authenticate to apple account if necessary
+  if [[ ! $(/usr/local/bin/mas account) ]]; then
+    /usr/local/bin/lpass show --password --clip "Apple (${CUSTOM_FULL_NAME%% *})" && \
+      /usr/local/bin/mas signin apple@${CUSTOM_HOME_DOMAIN}
+  fi
   /usr/local/bin/mas upgrade
 
   echo -e "\nUpdating brew..."

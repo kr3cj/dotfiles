@@ -130,7 +130,8 @@ if ${IS_OSX} && ! hash mas 2>/dev/null ; then
 
   # mas is a CLI for AppStore installs/updates
   # TODO: move lpass setup before this step to achieve automatic password prefill
-  mas signin ${CUSTOM_WORK_EMAIL} # "$(lpass show --password 'Apple (work)')"
+  lpass show --password --clip "Apple (${CUSTOM_FULL_NAME%% *})" && \
+    mas signin ${CUSTOM_WORK_EMAIL}
   mas install 405843582 # Alfred
   mas install 497799835 # Xcode
   mas install 595191960 # CopyClip
@@ -401,9 +402,11 @@ for key in id_rsa id_rsa_hudson id_rsa_coreos ; do
   [[ -f ~/.ssh/${key} ]] || (umask 177 ; touch ~/.ssh/${key})
   case ${key} in
     id_rsa)
-      cat $(lpass show --attach "Work SSH Key") >> ~/.ssh/${key} ;;
+      cat $(lpass show --field="Private Key" --clip "Work SSH Key") > ~/.ssh/${key} ;;
+    id_rsa_hudson)
+      # cat $(lpass show --field="Private Key" --clip "Hudson SSH Key") > ~/.ssh/${key} ;;
+      echo "try: \"cp -av ~/build/ei/jenkins-home/.ssh/id_rsa ~/.ssh/id_rsa_hudson\""
     *)
-      # cp -av ~build/ei/jenkins-home/.ssh/id_rsa ~/.ssh/id_rsa_hudson
       echo "You must manually download the key for ${key}" ;;
   esac
 done

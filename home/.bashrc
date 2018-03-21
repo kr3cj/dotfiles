@@ -33,7 +33,7 @@ if [[ "${HEALTHY_INTERNET}" == "true" && "${IS_OSX}" == "true" ]]; then
   # TODO: lpass login rquires "stdin must be a tty"
   # else it returns "Error: Failed to enter correct password."
   # So it cannot be located inside ~/.bashrc.d/
-  lpass status > /dev/null || lpass login --trust lastpass@${CUSTOM_HOME_DOMAIN}
+  lpass status > /dev/null || DISPLAY=${DISPLAY:-:0} lpass login --trust lastpass@${CUSTOM_HOME_DOMAIN}
 fi
 
 hash git 2>/dev/null || bash ~/.workstation_setup.sh

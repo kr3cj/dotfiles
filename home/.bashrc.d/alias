@@ -83,7 +83,7 @@ if [[ "${IS_OSX}" == "true" ]]; then
   alias ls="ls -G"
   alias ll="ls -hl -G"
   alias srm="/bin/rm -vP"
-  alias lpw="lpass show --password -c LDAP"
+  alias lpw="lpass show --password --clip LDAP"
   alias slack="open -a Slack"
   alias spotify="open -a Spotify"
   # alias gphoto="open --background -a \"Google Photos Backup\""
@@ -95,7 +95,7 @@ if [[ "${IS_OSX}" == "true" ]]; then
     if [[ "${host1}" =~ (wyn*|for*|lax*|fsh*|lsh*|finf*|linf*|192.168.*|\
 artifactory|builder\
 \.$(echo ${CUSTOM_WORK_DOMAINS[@]} | tr ' ' '|')) ]]; then
-      lpass show --password -c LDAP && $(which ssh) ${host1}
+      lpass show --password --clip LDAP && $(which ssh) ${host1}
     else
       $(which ssh) ${host1}
     fi
