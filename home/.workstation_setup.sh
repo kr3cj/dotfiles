@@ -397,24 +397,6 @@ if ! hash lpass 2>/dev/null ; then
   fi
 fi
 
-# create empty ssh keys
-for key in id_rsa id_rsa_hudson id_rsa_coreos ; do
-  [[ -f ~/.ssh/${key} ]] || (umask 177 ; touch ~/.ssh/${key})
-  case ${key} in
-    id_rsa)
-      cat $(lpass show --field="Private Key" --clip "Work SSH Key") > ~/.ssh/${key} ;;
-    id_rsa_hudson)
-      # cat $(lpass show --field="Private Key" --clip "Hudson SSH Key") > ~/.ssh/${key} ;;
-      echo "try: \"cp -av ~/build/ei/jenkins-home/.ssh/id_rsa ~/.ssh/id_rsa_hudson\""
-    *)
-      echo "You must manually download the key for ${key}" ;;
-  esac
-done
-
-# grab private files TODO: make this fancier and integrate with homeshick
-curl -L ~/.ssh/config https://bitbucket.org/kr3cj/dotfiles_private/raw/3726bd62a0780b8bd983a49ffbebfe9a47560b32/config
-curl -L ~/.base_homeshick_vars https://bitbucket.org/kr3cj/dotfiles_private/raw/3726bd62a0780b8bd983a49ffbebfe9a47560b32/.base_homeshick_vars
-
 # upgrade software Fridays at 10am
 if ! $(crontab -l | grep -q workstation_update) ; then
   (crontab -l 2>/dev/null; echo "0 10 * * 5 ~/.workstation_update.sh") | crontab -

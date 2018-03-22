@@ -45,13 +45,14 @@ if ${at_home} ; then
       ${CUSTOM_NAS_HOST}:/share/pictures ~/Pictures/share1
   fi
 elif ${at_work} ; then
-  # SSH tunnel to datacenters
+  # disconnect VPN connection if necessary
+  $(/opt/cisco/anyconnect/bin/vpn status | grep -q "state: Connected") && \
+    /opt/cisco/anyconnect/bin/vpn disconnect readytalk
+  # maintain SSH tunnels to datacenters
   _create_socks_proxy "forinf2.${CUSTOM_WORK_DOMAINS[0]}" "2002" "${CUSTOM_LDAP_NAME}"
   _create_socks_proxy "laxinf2.${CUSTOM_WORK_DOMAINS[0]}" "2003" "${CUSTOM_LDAP_NAME}"
-  # SSH tunnel to home if not already set up
-  lpass show --password --clip 'proxy.kinnick' && \
-    _create_socks_proxy "home.${CUSTOM_HOME_DOMAIN}" "2000" "${CUSTOM_WORK_EMAIL/\.*/}"
-    # http://web.${CUSTOM_NAS_HOST#*\.}/that.gif
+  # establish SSH tunnel to proxy
+  _create_socks_proxy "home.${CUSTOM_HOME_DOMAIN}" "2000" "${CUSTOM_WORK_EMAIL/\.*/}"
 
   while $(mount | grep -q "Documents/share1") ; do
     sudo umount -fv -t nfs ${CUSTOM_NAS_HOST}:/share

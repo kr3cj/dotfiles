@@ -71,7 +71,10 @@ function _create_socks_proxy {
     # first kill any old sessions
     pgrep -f "ssh .* ${ssh_proxy_options} ${port1} ${username}@${host1}"
     pkill -f "ssh .* ${ssh_proxy_options} ${port1} ${username}@${host1}"
+
     echo "Establishing ssh tunnel with ${username}@${host1}:${port1}..."
+    [[ ${host1} == "home.${CUSTOM_HOME_DOMAIN}" ]] && \
+      lpass show --password --clip "proxy.${CUSTOM_HOME_DOMAIN}"
     # TODO: capture output only if the command fails
     ssh ${ssh_proxy_options} ${port1} "${username}@${host1}" \
       -o TCPKeepAlive=yes -o ConnectTimeout=1 -o ConnectionAttempts=1 2> /dev/null

@@ -5,10 +5,22 @@ ${IS_OSX} || return
 [[ -f ${HOME}/.ssh/ssh-agent-setup ]] && source ${HOME}/.ssh/ssh-agent-setup
 $(env | grep -q SSH_AUTH_SOCK) || eval $(ssh-agent -s)
 
-for key in id_rsa id_rsa_coreos id_rsa_hudson ; do
-  # TODO: better integrate passphrase from LastPass CLI https://svkt.org/~simias/lpass/#ssh-agent
-  if [[ -r ~/.ssh/${key} ]] && ! $(ssh-add -l | grep -q "/.ssh/${key}\ ("); then
-    [[ "${key}" == "id_rsa" ]] && lpass show --field=Passphrase --clip 'Work SSH Key'
-    ssh-add -k ~/.ssh/${key}
+### load ssh keys into agent ###
+# TODO: better integrate passphrase from LastPass CLI? https://svkt.org/~simias/lpass/#ssh-agent
+# create key if necessary
+if [[ ! -f ~/.ssh/id_rsa ]]; then
+  (umask 177; lpass show --field="Private Key" "Work SSH Key" > ~/.ssh/id_rsa)
+fi
+# load key into agent if necessary
+if [[ -r ~/.ssh/id_rsa ]] && ! $(ssh-add -l | grep -q "/.ssh/id_rsa\ ("); then
+  lpass show --field=Passphrase --clip 'Work SSH Key' && ssh-add -k ~/.ssh/id_rsa
+fi
+
+# temporarily load service account keys
+for key2 in jenkins-builder coreos ; do
+  if ! $(ssh-add -l | grep -q "/.ssh/id_rsa_${key2}\ (" ); then
+    (umask 177; vault read -field=private-key secret/ssh-keys/${key2} \
+      > ~/.ssh/id_rsa_${key2}) && ssh-add -t 36000 -k ~/.ssh/id_rsa_${key2}
+    rm -f ~/.ssh/id_rsa_${key2}
   fi
 done
