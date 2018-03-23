@@ -74,7 +74,7 @@ function _create_socks_proxy {
 
     echo "Establishing ssh tunnel with ${username}@${host1}:${port1}..."
     [[ ${host1} == "home.${CUSTOM_HOME_DOMAIN}" ]] && \
-      lpass show --password --clip "proxy.${CUSTOM_HOME_DOMAIN}"
+      lpass show --password --clip "proxy.${CUSTOM_NAS_HOST#*\.}"
     # TODO: capture output only if the command fails
     ssh ${ssh_proxy_options} ${port1} "${username}@${host1}" \
       -o TCPKeepAlive=yes -o ConnectTimeout=1 -o ConnectionAttempts=1 2> /dev/null
