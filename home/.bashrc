@@ -25,6 +25,7 @@ else
   echo "Skipping network related profile tasks as there's no healthy internet connectivity."
 fi
 
+export TRAVIS_CI_RUN="${TRAVIS_CI_RUN:-false}"
 export LPASS_AGENT_TIMEOUT=172800
 export LPASS_DISABLE_PINENTRY=0
 # export LPASS_ASKPASS

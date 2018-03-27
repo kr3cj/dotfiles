@@ -1,8 +1,10 @@
 #!/bin/bash
 # the purpose of this script is to house all initial workstation customizations in linux or osx
 
-echo -e "\mSystem looks new. Press any key to start installing workstation software."
-read -n 1 -s
+if [[ ${TRAVIS_CI_RUN} != true ]]; then
+  echo -e "\mSystem looks new. Press any key to start installing workstation software."
+  read -n 1 -s
+fi
 
 # get my bearings
 ip_address=""
@@ -133,7 +135,7 @@ if ${IS_OSX} && ! hash mas 2>/dev/null ; then
   # standard customizations already tracked by dotfiles via ~/.liquidpromptrc
 
   # mas is a CLI for AppStore installs/updates
-  if [[ ${TRAVIS_CI_RUN} == false ]]; then
+if [[ ${TRAVIS_CI_RUN} != true ]]; then
     lpass show --password --clip "Apple (${CUSTOM_FULL_NAME%% *})" && \
       mas signin ${CUSTOM_WORK_EMAIL}
     mas install 405843582 # Alfred
@@ -179,7 +181,7 @@ if ${IS_OSX} && ! hash mas 2>/dev/null ; then
   brew tap caskroom/versions
   brew cask install java8
   # setup build system credentials
-  if [[ ${TRAVIS_CI_RUN} == false ]]; then
+  if [[ ${TRAVIS_CI_RUN} != true ]]; then
     docker login artifactory.${CUSTOM_WORK_DOMAINS[5]}
     # ensure credential files for development are locked down
     chmod -cHLR 600 ~/.ivy2 ~/.docker ~/.ant # ~/.m2 .pgpass, .vnc/passwd, .jspm/config

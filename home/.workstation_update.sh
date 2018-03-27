@@ -10,7 +10,7 @@ if [[ $(uname) == "Darwin" ]] ; then
 
   echo -e "\nUpdating OSX App Store apps..."
   # authenticate to apple account if necessary
-  if [[ ! $(/usr/local/bin/mas account) ]] && [[ ${TRAVIS_CI_RUN} == false ]]; then
+  if [[ ! $(/usr/local/bin/mas account) ]] && [[ ${TRAVIS_CI_RUN} != true ]]; then
     /usr/local/bin/lpass show --password --clip "Apple (${CUSTOM_FULL_NAME%% *})" && \
       /usr/local/bin/mas signin apple@${CUSTOM_HOME_DOMAIN}
   fi
