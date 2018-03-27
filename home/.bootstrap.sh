@@ -32,10 +32,10 @@ repos="kr3cj/dotfiles \
  https://kr3cj@bitbucket.org/kr3cj/dotfiles_private.git \
  sudermanjr/tmux-kube"
 for repo in ${repos}; do
+  if [[ ${TRAVIS_CI_RUN} == true ]] && [[ ${repo} =~ "dotfiles_private" ]]; then
+    continue
+  fi
   if homeshick list | grep -q ${repo}; then
-    if [[ ${TRAVIS_CI_RUN} == true ]] && [[ ${repo} =~ "dotfiles_private" ]]; then
-      continue;
-    fi
     # must trim long git URIs to just repo name
     homeshick --batch pull $(echo ${repo/*\//} | sed -e "s/\.git$//")
   else
