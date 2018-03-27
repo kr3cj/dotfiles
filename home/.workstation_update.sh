@@ -10,7 +10,7 @@ if [[ $(uname) == "Darwin" ]] ; then
 
   echo -e "\nUpdating OSX App Store apps..."
   # authenticate to apple account if necessary
-  if [[ ! $(/usr/local/bin/mas account) ]]; then
+  if [[ ! $(/usr/local/bin/mas account) ]] && [[ ${TRAVIS_CI_RUN} == false ]]; then
     /usr/local/bin/lpass show --password --clip "Apple (${CUSTOM_FULL_NAME%% *})" && \
       /usr/local/bin/mas signin apple@${CUSTOM_HOME_DOMAIN}
   fi
@@ -50,16 +50,18 @@ if [[ $(uname) == "Darwin" ]] ; then
   /usr/bin/sudo /usr/sbin/periodic daily weekly monthly
   # /usr/bin/sudo rm -vr ~/Library/Caches/*
 
-  echo -e "\nChecking macos disk health."
-  echo "Verifying disk health at $(date +%Y-%m-%d-%H%M). \
-  This will freeze the system for a couple minutes." | /usr/bin/wall
-  for DEV in disk1 disk1s{1..4}; do
-    /usr/bin/sudo /usr/sbin/diskutil verifyVolume /dev/${DEV}
+  # TODO: Must reboot immediately else the Finder disk sync issues and error -43?
+  # echo -e "\nChecking macos disk health."
+  # echo "Verifying disk health at $(date +%Y-%m-%d-%H%M). \
+  # This will freeze the system for a couple minutes." | /usr/bin/wall
+  # for DEV in disk1 disk1s{1..4}; do
+    # /usr/bin/sudo /usr/sbin/diskutil verifyVolume /dev/${DEV}
     # sudo diskutil repairVolume /dev/${DEV}
-  done
-  /usr/bin/sudo /usr/sbin/diskutil verifyDisk /dev/disk0
-  echo "Finished verifying disk health at $(date +%Y-%m-%d-%H%M)." | /usr/bin/wall
+  # done
+  # /usr/bin/sudo /usr/sbin/diskutil verifyDisk /dev/disk0
+  # echo "Finished verifying disk health at $(date +%Y-%m-%d-%H%M)." | /usr/bin/wall
   # sudo diskutil repairDisk /dev/disk0
+
 elif [[ $(uname) == "Linux" ]] ; then
   # only proceed for Linux workstations
   if [[ $(/usr/bin/sudo runlevel | cut -d ' ' -f2) -le 3 ]] ; then

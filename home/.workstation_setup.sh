@@ -117,6 +117,10 @@ if ${IS_OSX} && ! hash mas 2>/dev/null ; then
     awscli docker docker-compose packer terraform
     # openshift-cli fleetctl; aria2=torrent_client(aria2c)
   # TODO: disable updates in docker so brew update can manage it
+  echo "install lastpass client"
+  # brew cask install xquartz
+  # brew install xclip
+  brew install lastpass-cli --with-pinentry
 
   # tmux plugins
   tmux source ~/.tmux.conf
@@ -129,14 +133,15 @@ if ${IS_OSX} && ! hash mas 2>/dev/null ; then
   # standard customizations already tracked by dotfiles via ~/.liquidpromptrc
 
   # mas is a CLI for AppStore installs/updates
-  # TODO: move lpass setup before this step to achieve automatic password prefill
-  lpass show --password --clip "Apple (${CUSTOM_FULL_NAME%% *})" && \
-    mas signin ${CUSTOM_WORK_EMAIL}
-  mas install 405843582 # Alfred
-  mas install 497799835 # Xcode
-  mas install 595191960 # CopyClip
-  mas install 715768417 # Microsoft Remote Desktop
-  mas install 441258766 # Magnet
+  if [[ ${TRAVIS_CI_RUN} == false ]]; then
+    lpass show --password --clip "Apple (${CUSTOM_FULL_NAME%% *})" && \
+      mas signin ${CUSTOM_WORK_EMAIL}
+    mas install 405843582 # Alfred
+    mas install 497799835 # Xcode
+    mas install 595191960 # CopyClip
+    mas install 715768417 # Microsoft Remote Desktop
+    mas install 441258766 # Magnet
+  fi
   # TODO: give magnet accessibility privileges in system prefs, sec and privacy, privacy tab
   # mas install 417375580 # BetterSnapTool
   echo "Remove the following apps from showing in menu bar: Alfred, ?"
@@ -174,10 +179,11 @@ if ${IS_OSX} && ! hash mas 2>/dev/null ; then
   brew tap caskroom/versions
   brew cask install java8
   # setup build system credentials
-  docker login artifactory.ecovate.com
-  # TODO: populate credential files for builds
-  (umask 077 ; mkdir ~/.ivy2 ~/.m2 ; touch ~/.ivy2/{auth.properties,ivysettings.xml} ~/.m2/settings.xml)
-  # TODO: .pgpass, npmrc, .vnc/passwd, .ant/settings.xml, .jspm/config
+  if [[ ${TRAVIS_CI_RUN} == false ]]; then
+    docker login artifactory.${CUSTOM_WORK_DOMAINS[5]}
+    # ensure credential files for development are locked down
+    chmod -cHLR 600 ~/.ivy2 ~/.docker ~/.ant # ~/.m2 .pgpass, .vnc/passwd, .jspm/config
+  fi
 
   # install atom editor plugins
   apm install auto-update-packages open-terminal-here minimap language-hcl \
@@ -206,7 +212,7 @@ if ${IS_OSX} && ! hash mas 2>/dev/null ; then
 <AnyConnectProfile xmlns="http://schemas.xmlsoap.org/encoding/">
   <ServerList>
     <HostEntry>
-      <HostName>readytalk</HostName>
+      <HostName>$(echo ${CUSTOM_WORK_EMAIL#*@} | sed -e "s/\.com$//")</HostName>
       <HostAddress>${CUSTOM_WORK_VPN_RT}</HostAddress>
     </HostEntry>
     <HostEntry>
@@ -289,7 +295,7 @@ if ! hash git 2>/dev/null ; then
   fi
   # TODO auth github
   # git clone https://github.com/username/repo.git
-  # Username: ${CUSTOM_GITHUB_HANDLE}
+  # Username: kr3cj
   # Password: $(grab github personal access token from lpass-cli)
 fi
 
@@ -304,6 +310,8 @@ if ${IS_LINUX} && ! hash pip 2>/dev/null ; then
     sudo wget https://bootstrap.pypa.io/get-pip.py
     sudo python get-pip.py && rm get-pip.py
     sudo pip install --upgrade setuptools
+    # lastpass
+    echo "For LastPass CLI, see https://github.com/lastpass/lastpass-cli/blob/master/README.md#debianubuntu"
 
     # if you must install docker on a full blown OS
     curl -fsSL https://download.docker.com/linux/debian/gpg | sudo apt-key add -
@@ -352,7 +360,7 @@ if ${IS_LINUX} && ! hash pip 2>/dev/null ; then
 
   elif ${is_rhel} ; then
     echo "Configuring RHEL. This will take a few minutes."
-    sudo yum install -y python-dev python3 tmux ack
+    sudo yum install -y python-dev python3 tmux ack lastpass-cli
     # pip
     sudo wget https://bootstrap.pypa.io/get-pip.py
     sudo python get-pip.py && rm get-pip.py
@@ -368,13 +376,7 @@ if ${IS_LINUX} && ! hash pip 2>/dev/null ; then
   sudo pip install PyYAML jinja2 paramiko ansible packer vagrant markupsafe
 fi
 
-# platform agnostic stuff
-# kubernetes stuff
-if [[ ! -f ~/.kube/config ]] ; then
-  echo "pull down file from lastpass to ~/.kube/config"
-fi
-
-# setup homeshick (after git)
+# setup homeshick (after git); duplicated from .bootstrap.sh
 # /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 if ! [[ -d $HOME/.homesick/repos/homeshick ]] ; then
   git clone git://github.com/andsens/homeshick.git $HOME/.homesick/repos/homeshick
@@ -384,17 +386,6 @@ else
   source $HOME/.homesick/repos/homeshick/homeshick.sh
   # homeshick pull
   homeshick --quiet refresh
-fi
-
-# setup lastpass
-if ! hash lpass 2>/dev/null ; then
-  if ${IS_OSX} ; then
-    brew install lastpass-cli --with-pinentry
-  elif ${is_debian} ; then
-    echo "see https://github.com/lastpass/lastpass-cli/blob/master/README.md#debianubuntu"
-  elif ${is_rhel} ; then
-    sudo yum install lastpass-cli -y
-  fi
 fi
 
 # upgrade software Fridays at 10am

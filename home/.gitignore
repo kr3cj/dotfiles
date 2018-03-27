@@ -16,3 +16,11 @@ id_dsa
 !.vim/puppet.vim
 .atom/packages/
 .atom/storage/
+.docker/config.json
+.ivy2/*
+.npmrc
+.pgpass
+.jspm/*
+.vnc/*
+.m2/*
+.ant/*
