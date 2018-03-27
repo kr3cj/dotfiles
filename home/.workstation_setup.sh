@@ -17,7 +17,7 @@ case "$(uname)" in
     echo "Unable to determine Linux or OSX" ;;
 esac
 
-if ${IS_LINUX} ; then
+if [[ ${IS_LINUX} == true ]]; then
   # only proceed for Linux workstations, not servers
   if [[ ! $(systemctl get-default) =~ graphical.target ]] ; then
     echo "Quitting workstation setup on what appears to be a linux server"
@@ -324,7 +324,7 @@ if ${IS_LINUX} && ! hash packer 2>/dev/null ; then
 
   elif ${is_rhel} ; then
     echo "Configuring RHEL. This will take a few minutes."
-    sudo yum install -y python-dev python3 tmux ack lastpass-cli git
+    sudo yum install -y python-dev python3 tmux ack lastpass-cli git curl
     # pip
     sudo wget https://bootstrap.pypa.io/get-pip.py
     sudo python get-pip.py && rm get-pip.py
