@@ -263,6 +263,7 @@ EOF
   ### general osx customizations from https://github.com/mathiasbynens/dotfiles/blob/master/.macos ###
   # first, backup the current defaults
   defaults read > ~/osx_defaults_original_$(date +%Y-%m-%d).json
+  homeshick track dotfiles_private ~/osx_defaults_original_$(date +%Y-%m-%d).json
   bash ~/.macos
 
   # cloud provider credentials

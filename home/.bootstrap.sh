@@ -36,7 +36,8 @@ for repo in ${repos}; do
     if [[ ${TRAVIS_CI_RUN} == true ]] && [[ ${repo} =~ "dotfiles_private" ]]; then
       continue;
     fi
-    homeshick --batch pull ${repo/*\//}
+    # must trim long git URIs to just repo name
+    homeshick --batch pull $(echo ${repo/*\//} | sed -e "s/\.git$//")
   else
     # TODO: switch between git@ or https:// syntax accordingly
     homeshick --batch clone ${repo}
