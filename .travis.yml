@@ -23,9 +23,9 @@ env:
 install: true
 # before_script
 script:
-  - home/.bootstrap.sh
-  - home/.workstation_setup.sh # in case the trigger (hash git) works in .bashrc
-  - home/.workstation_update.sh
+  - bash home/.bootstrap.sh
+  - bash home/.workstation_setup.sh # in case the trigger (hash git) doesn't trip in .bashrc
+  - bsah home/.workstation_update.sh
 # OPTIONAL before_cache (for cleaning up cache)
 
 notifications:
