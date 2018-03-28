@@ -19,13 +19,12 @@ esac
 
 if [[ ${IS_LINUX} == true ]]; then
   # only proceed for Linux workstations, not servers
-  if [[ ! $(systemctl get-default) =~ graphical.target ]] ; then
+  if [[ ! $(/usr/sbin/systemctl get-default) =~ graphical.target ]] ; then
     echo "Quitting workstation setup on what appears to be a linux server"
     exit 0
   fi
 fi
 
-echo "Check for passwdless sudo"
 if ! sudo grep -q $(whoami) /etc/sudoers ; then
   echo "Need sudo password to setup passwdless sudo"
   sudo bash -c "echo \"$(whoami) ALL=(ALL) NOPASSWD: ALL\" >> /etc/sudoers"
@@ -282,7 +281,7 @@ if ${IS_LINUX} && ! hash packer 2>/dev/null ; then
     # if you must install docker on a full blown OS
     sudo apt-get update
     sudo apt-get install -y docker-ce
-    sudo systemctl enable docker
+    sudo /usr/bin/systemctl enable docker
     sudo groupadd docker || true
     sudo usermod -aG docker ${USER}
 

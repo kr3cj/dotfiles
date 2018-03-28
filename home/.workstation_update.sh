@@ -63,9 +63,9 @@ if [[ $(uname) == "Darwin" ]] ; then
   # sudo diskutil repairDisk /dev/disk0
 
 elif [[ $(uname) == "Linux" ]] ; then
-  # only proceed for Linux workstations
-  if [[ $(/usr/bin/sudo runlevel | cut -d ' ' -f2) -le 3 ]] ; then
-    echo -e "\nQuitting workstation update on what appears to be a server"
+  # only proceed for Linux workstations, not servers
+  if [[ ! $(/usr/bin/systemctl get-default) =~ graphical.target ]] ; then
+    echo "Quitting workstation setup on what appears to be a linux server"
     exit 0
   fi
   if [[ -f /etc/redhat-release ]] ; then
