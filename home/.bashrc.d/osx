@@ -29,9 +29,12 @@ ip_address=$(/sbin/ifconfig en0 | grep 'inet ' | grep -v '127.0.0.1' | awk '{pri
 
 if ${at_home} ; then
   # establish vpn connection to work
-  ping -c1 -W1 -i0.1 laphroaig.${CUSTOM_WORK_DOMAINS[1]} &> /dev/null \
-    || (read -t 2 -s -p "Press any key to connect to work VPN..." \
-      && /opt/cisco/anyconnect/bin/vpn connect readytalk ; echo)
+  if ! $(ping -c1 -W1 -i0.1 laphroaig.${CUSTOM_WORK_DOMAINS[1]} &> /dev/null); then
+    (read -t 2 -s -p "To connect to work VPN, press any key within 2 seconds..." \
+      && lpass show --password --clip "AD" && \
+      /opt/cisco/anyconnect/bin/vpn connect readytalk
+      echo)
+  fi
   # establish vpn connection to PGi
   # ping -c1 -w1 -i0.1 172.x.x.x > /dev/null || /opt/cisco/anyconnect/bin/vpn connect pgi
 	# TODO: switch SwitchyOmega profile

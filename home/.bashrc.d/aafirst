@@ -15,7 +15,7 @@ case "$(uname)" in
     echo "Unable to determine Linux or OSX" ;;
 esac
 
-( ${IS_OSX} && ${at_work} ) || return
+${IS_OSX} || return
 export VAULT_ADDR="https://vault.${CUSTOM_WORK_DOMAINS[2]}:8200"
 export VAULT_CLIENT_TIMEOUT=2
 # vault authentication, if necessary
@@ -23,5 +23,5 @@ if ! vault token lookup &> /dev/null ; then
   echo "Must re-authenticate with VAULT (${VAULT_ADDR}...)"
   lpass show --password --clip LDAP
   vault login -method=ldap username=${CUSTOM_LDAP_NAME} > /dev/null
-  # pbcopy </dev/null
+  pbcopy </dev/null
 fi
