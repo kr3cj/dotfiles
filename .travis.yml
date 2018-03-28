@@ -18,7 +18,7 @@ env:
   - TRAVIS_CI_RUN=true GIT_SSH='ssh -o StrictHostKeyChecking=no' GIT_AUTHOR_NAME='Travis CI' GIT_AUTHOR_EMAIL='travis@example.com'
 
 install:
-  - [[ ${TRAVIS_OS_NAME} == linux ]] && sudo apt-get install systemd
+  - if [ ${TRAVIS_OS_NAME} = linux ]; then sudo apt-get install systemd ; fi
 
 script:
   - bash -x home/.bootstrap.sh

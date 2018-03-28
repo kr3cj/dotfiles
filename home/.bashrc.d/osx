@@ -73,4 +73,4 @@ fi
 pgrep -qf "Slack.app" || open --background -a Slack # this always opens in foreground :(
 pgrep -qf "Spotify.app" || open --background -a Spotify
 pgrep -qf "Backup and Sync.app" || open --background -a "Backup and Sync"
-pgrep -qf "Atom.app" || open --background -a Atom
+pgrep -qf "Atom.app" || open --background -a Atom # this always opens in foreground, too
