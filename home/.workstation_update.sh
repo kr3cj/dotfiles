@@ -65,7 +65,7 @@ if [[ $(uname) == "Darwin" ]] ; then
   fi
 elif [[ $(uname) == "Linux" ]] ; then
   # only proceed for Linux workstations, not servers
-  if [[ ! -d /usr/share/xsessions ]] ; then
+  if [[ ! -d /usr/share/xsessions ]] && [[ ${TRAVIS_CI_RUN} != true ]]; then
     echo "Quitting workstation setup on what appears to be a linux server"
     exit 0
   fi

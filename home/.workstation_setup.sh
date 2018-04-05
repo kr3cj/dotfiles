@@ -17,9 +17,9 @@ case "$(uname)" in
     echo "Unable to determine Linux or OSX" ;;
 esac
 
-if [[ ${IS_LINUX} == true ]]; then
-  # only proceed for Linux workstations, not servers
-  if [[ ! -d /usr/share/xsessions ]] ; then
+# only proceed for Linux workstations, not servers
+if [[ ${IS_LINUX} == true ]] && [[ ! -d /usr/share/xsessions ]]; then
+  if [[ ${TRAVIS_CI_RUN} != true ]]; then
     echo "Quitting workstation setup on what appears to be a linux server"
     exit 0
   fi
@@ -66,7 +66,9 @@ if ${IS_OSX} && ! hash mas 2>/dev/null ; then
   brew install bash
   # brew link --overwrite bash # OR #
   # prepend new shell to /etc/shells
-  sudo sed -i '/^\/bin\/bash$/i \/usr\/local\/bin\/bash' /etc/shells
+  if [[ ${TRAVIS_CI_RUN} != true ]]; then
+    sudo sed -i '/^\/bin\/bash$/i \/usr\/local\/bin\/bash' /etc/shells
+  fi
   chsh -s /usr/local/bin/bash
 
   # brew install emacs
@@ -152,7 +154,9 @@ if [[ ${TRAVIS_CI_RUN} != true ]]; then
   # xcode-select --install
 
   # puppet testing shtuff
-  sudo gem install bundler
+  if [[ ${TRAVIS_CI_RUN} != true ]]; then
+    sudo gem install bundler
+  fi
 
   # install main apps into Applications
   HOMEBREW_CASK_OPTS="--appdir=/Applications"
