@@ -202,7 +202,7 @@ if [[ ${TRAVIS_CI_RUN} != true ]]; then
   #   code --install-extension ${i}
   # done
   # move visual-studio-code overrides into dotfiles?
-  # cat << EOF >> $HOME/Library/Application Support/Code/User/settings.json
+  # cat << EOF >> ${HOME}/Library/Application Support/Code/User/settings.json
   # {
   #   "files.autoSave": "afterDelay",
   #   "workbench.startupEditor": "none"
@@ -244,8 +244,8 @@ EOF
   brew install kubernetes-helm kubernetes-cli kops
 
   # install helm plugin for Visual Studio Code
-  helm plugin install https://github.com/technosophos/helm-template
   helm init
+  helm plugin install https://github.com/technosophos/helm-template
   # minikube client (all-in-one k8s)
   # TODO: create function for installing minikube, kubectl etc (in linux) with curl+chmod+mv commands
   # minikube_version=$(curl -s https://api.github.com/repos/kubernetes/minikube/releases/latest | jq -r '.tag_name')
@@ -255,13 +255,14 @@ EOF
 
   # prep for home nfs mount
   [[ -d ~/Documents/share1 ]] || mkdir ~/Documents/share1
-  [ -d ~/Pictures/share1 ]] || mkdir ~/Pictures/share1
+  [[ -d ~/Pictures/share1 ]] || mkdir ~/Pictures/share1
 
   ### general osx customizations from https://github.com/mathiasbynens/dotfiles/blob/master/.macos ###
   # first, backup the current defaults
   defaults read > ~/osx_defaults_original_$(date +%Y-%m-%d).json
+  source "${HOME}/.homesick/repos/homeshick/homeshick.sh"
   homeshick track dotfiles_private ~/osx_defaults_original_$(date +%Y-%m-%d).json
-  bash ~/.macos
+  [[ ${TRAVIS_CI_RUN} != true ]] && bash ~/.macos
 
   # cloud provider credentials
   [[ -f ~/.aws_auth ]] || (umask 177 ; touch ~/.aws_auth)
@@ -273,6 +274,16 @@ fi
 
 # install software on linux
 if ${IS_LINUX} && ! hash packer 2>/dev/null ; then
+  is_debian="false"
+  is_rhel="false"
+
+  if [[ -f /etc/redhat-release ]] ; then
+    is_rhel="true"
+  elif [[ -f /etc/os-version ]] ; then
+    is_debian="true"
+  else
+    echo "Unable to determine unix distro."
+  fi
   if ${is_debian} ; then
     echo "Configuring Debian. This will take a few minutes."
     sudo apt-get update

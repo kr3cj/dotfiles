@@ -23,7 +23,7 @@
     panelHeight: 316
   minimap: {}
   "open-terminal-here":
-    command: "open -a iTerm.app \"$PWD\""
+    command: "open -a iTerm.app \"${PWD}\""
   "tree-view":
     hideIgnoredNames: true
   welcome:

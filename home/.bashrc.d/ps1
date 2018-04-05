@@ -10,7 +10,7 @@ elif [[ -f ~/.homesick/repos/liquidprompt/liquidprompt ]]; then
 else
   echo "Unable to find liquidprompt installation. Try running:"
   echo "  cd ; git clone https://github.com/nojhan/liquidprompt.git"
-  echo "Resorting to \$PS1"
+  echo "Resorting to \${PS1}"
 
   # declare some PS1 colors and helper functions
   NORMAL=$(tput sgr0)
@@ -52,5 +52,5 @@ else
   # PS1 generator: https://xta.github.io/HalloweenBash/
   # TODO: use different colors for different datacenters/environments using VLANs
   export PS1="\[${BOLD}\]\[${GREEN}\]\u@\h\[${BLUE}\] \w\[${BROWN}\]\[${BLUE}\]\$(_parse_git_branch)\$\[${NORMAL}\] "
-  PS1="\[${YELLOW}\]\$(_kube_ps1)\[${NORMAL}\]"$PS1
+  PS1="\[${YELLOW}\]\$(_kube_ps1)\[${NORMAL}\]"${PS1}
 fi

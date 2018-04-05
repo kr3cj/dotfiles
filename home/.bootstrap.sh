@@ -19,12 +19,12 @@ if ! hash git 2>/dev/null ; then
 fi
 
 # second, set up homeshick repos
-if [[ ! -d $HOME/.homesick/repos/homeshick ]]; then
-  git clone https://github.com/andsens/homeshick.git $HOME/.homesick/repos/homeshick
+if [[ ! -d ${HOME}/.homesick/repos/homeshick ]]; then
+  git clone https://github.com/andsens/homeshick.git ${HOME}/.homesick/repos/homeshick
 else
-  ( cd $HOME/.homesick/repos/homeshick; git pull )
+  ( cd ${HOME}/.homesick/repos/homeshick; git pull )
 fi
-hash homeshick 2> /dev/null || source $HOME/.homesick/repos/homeshick/homeshick.sh
+hash homeshick 2> /dev/null || source ${HOME}/.homesick/repos/homeshick/homeshick.sh
 
 # TODO: not sure if dotfiles_private will work with the conditionals
 repos="kr3cj/dotfiles \

@@ -4,7 +4,7 @@ ${IS_OSX} || return
 # gce bash completion
 # source '/usr/local/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/completion.bash.inc'
 
-# gce pathing (sourcing path.bash.inc duplicates entries into $PATH)
+# gce pathing (sourcing path.bash.inc duplicates entries into ${PATH})
 # source '/usr/local/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/path.bash.inc'
 
 # gce creds
