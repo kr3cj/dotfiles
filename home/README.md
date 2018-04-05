@@ -1,21 +1,31 @@
 `~/.bash_profile` manages many things. Here is a what a fresh run might produce:
 
 ```
-net.link.ether.inet.arp_unicast_lim: 3 -> 1
-Initialising new SSH agent...
-Enter passphrase for /Users/${CUSTOM_WORK_EMAIL/\@*/}/.ssh/id_rsa:
-Identity added: /Users/${CUSTOM_WORK_EMAIL/\@*/}/.ssh/id_rsa (/Users/${CUSTOM_WORK_EMAIL/\@*/}/.ssh/id_rsa)
-Enter passphrase for /Users/${CUSTOM_WORK_EMAIL/\@*/}/.ssh/id_rsa:
-Bad passphrase, try again for /Users/${CUSTOM_WORK_EMAIL/\@*/}/.ssh/id_rsa:
-Identity added: /Users/${CUSTOM_WORK_EMAIL/\@*/}/.ssh/id_rsa (/Users/${CUSTOM_WORK_EMAIL/\@*/}/.ssh/id_rsa)
-Identity added: /Users/${CUSTOM_WORK_EMAIL/\@*/}/.ssh/id_rsa_coreos (/Users/${CUSTOM_WORK_EMAIL/\@*/}/.ssh/id_rsa_coreos)
-Identity added: /Users/${CUSTOM_WORK_EMAIL/\@*/}/.ssh/id_rsa_hudson (/Users/${CUSTOM_WORK_EMAIL/\@*/}/.ssh/id_rsa_hudson)
 Not logged in.
 Success: Logged in as lastpass@${CUSTOM_HOME_DOMAIN}.
-Establishing ssh tunnel to forinf2.${CUSTOM_WORK_DOMAINS[0]}
-Establishing ssh tunnel to laxinf2.${CUSTOM_WORK_DOMAINS[0]}
-Establishing ssh tunnel to "home.${CUSTOM_HOME_DOMAIN}" for SOCKS5 Proxy...
-${CUSTOM_WORK_EMAIL/\.*/}@home.${CUSTOM_HOME_DOMAIN}'s password:
+Must re-authenticate with VAULT (https://vault.${CUSTOM_WORK_DOMAINS[3]}:8200...)
+Password (will be hidden):
+Enter passphrase for /Users/${LOGNAME}/.ssh/id_rsa:
+Identity added: /Users/${LOGNAME}/.ssh/id_rsa (/Users/${LOGNAME}/.ssh/id_rsa)
+Lifetime set to 36000 seconds
+Identity added: /Users/${LOGNAME}/.ssh/id_rsa_jenkins-builder (/Users/${LOGNAME}/.ssh/id_rsa_jenkins-builder)
+Lifetime set to 36000 seconds
+Identity added: /Users/${LOGNAME}/.ssh/id_rsa_coreos (/Users/${LOGNAME}/.ssh/id_rsa_coreos)
+Lifetime set to 36000 seconds
+net.link.ether.inet.arp_unicast_lim: 0 -> 1
+Establishing ssh tunnel with ${CUSTOM_LDAP_NAME}@forinf2.${CUSTOM_WORK_DOMAINS[0]}:2002...
+Establishing ssh tunnel with ${CUSTOM_LDAP_NAME}@laxinf2.${CUSTOM_WORK_DOMAINS[0]}:2003...
+Establishing ssh tunnel with ${LOGNAME/\.*/}@${CUSTOM_HOME_DOMAIN}:2000...
+${LOGNAME/\.*/}@home.${CUSTOM_HOME_DOMAIN}'s password:
+net.link.ether.inet.arp_unicast_lim: 3 -> 1
+nas.${CUSTOM_NAS_HOST#*\.}:/share unmount from /Users/${LOGNAME}/Documents/share1
+nas.${CUSTOM_NAS_HOST#*\.}:/share unmount from /Users/${LOGNAME}/Documents/share1
+umount: unmount(/Users/${LOGNAME}/Documents/share1): Invalid argument
+attempting to unmount /Users/${LOGNAME}/Documents/share1 by fsid
+nas.${CUSTOM_NAS_HOST#*\.}:/share/pictures unmount from /Users/${LOGNAME}/Pictures/share1
+nas.${CUSTOM_NAS_HOST#*\.}:/share/pictures unmount from /Users/${LOGNAME}/Pictures/share1
+umount: unmount(/Users/${LOGNAME}/Pictures/share1): Invalid argument
+attempting to unmount /Users/${LOGNAME}/Pictures/share1 by fsid
       refresh The castles dotfiles,homeshick are outdated.
         pull? [yN] y
       symlink .atom/config.cson
@@ -47,7 +57,7 @@ ${CUSTOM_WORK_EMAIL/\.*/}@home.${CUSTOM_HOME_DOMAIN}'s password:
 `~/.workstation_update.sh` attempts to update all possibly client binaries and artifacts. Here is what a run might look like:
 
 ```
-${CUSTOM_WORK_EMAIL/\@*/}@MC02RR283FVH6 ~ () $ ~/.workstation_update.sh
+${LOGNAME}@MC02RR283FVH6 ~ () $ ~/.workstation_update.sh
 
 Updating OSX system...
 Software Update Tool

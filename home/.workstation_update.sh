@@ -11,8 +11,9 @@ if [[ $(uname) == "Darwin" ]] ; then
   echo -e "\nUpdating OSX App Store apps..."
   # authenticate to apple account if necessary
   if [[ ! $(/usr/local/bin/mas account) ]] && [[ ${TRAVIS_CI_RUN} != true ]]; then
-    /usr/local/bin/lpass show --password --clip "Apple (${CUSTOM_FULL_NAME%% *})" && \
+    /usr/local/bin/lpass show --password --clip "Apple" && \
       /usr/local/bin/mas signin apple@${CUSTOM_HOME_DOMAIN}
+    pbcopy </dev/null
   fi
   /usr/local/bin/mas upgrade
 
@@ -44,27 +45,27 @@ if [[ $(uname) == "Darwin" ]] ; then
   /bin/rm -vr ~/.gradle/caches/* || echo
   /bin/rm -vr ~/.ivy2/{local,cache}/* || echo
   /bin/rm -vr ~/Library/Containers/com.apple.mail/Data/Library/Mail\ Downloads/* || echo
-  /usr/bin/sudo /bin/rm -vr /System/Library/Speech/Voices/* || echo
-  # /usr/bin/sudo /bin/rm -vr /private/var/tmp/* || echo
-  /usr/bin/sudo /usr/sbin/purge
-  /usr/bin/sudo /usr/sbin/periodic daily weekly monthly
-  # /usr/bin/sudo rm -vr ~/Library/Caches/*
-
-  # TODO: Must reboot immediately else the Finder disk sync issues and error -43?
-  # echo -e "\nChecking macos disk health."
-  # echo "Verifying disk health at $(date +%Y-%m-%d-%H%M). \
-  # This will freeze the system for a couple minutes." | /usr/bin/wall
-  # for DEV in disk1 disk1s{1..4}; do
-    # /usr/bin/sudo /usr/sbin/diskutil verifyVolume /dev/${DEV}
-    # sudo diskutil repairVolume /dev/${DEV}
-  # done
-  # /usr/bin/sudo /usr/sbin/diskutil verifyDisk /dev/disk0
-  # echo "Finished verifying disk health at $(date +%Y-%m-%d-%H%M)." | /usr/bin/wall
-  # sudo diskutil repairDisk /dev/disk0
-
+  if [[ ${TRAVIS_CI_RUN} != true ]]; then
+    /usr/bin/sudo /bin/rm -vr /System/Library/Speech/Voices/* || echo
+    # /usr/bin/sudo /bin/rm -vr /private/var/tmp/* || echo
+    /usr/bin/sudo /usr/sbin/purge
+    /usr/bin/sudo /usr/sbin/periodic daily weekly monthly
+    # /usr/bin/sudo rm -vr ~/Library/Caches/*
+    # TODO: Must reboot immediately else the Finder disk sync issues and error -43?
+    # echo -e "\nChecking macos disk health."
+    # echo "Verifying disk health at $(date +%Y-%m-%d-%H%M). \
+    # This will freeze the system for a couple minutes." | /usr/bin/wall
+    # for DEV in disk1 disk1s{1..4}; do
+      # /usr/bin/sudo /usr/sbin/diskutil verifyVolume /dev/${DEV}
+      # sudo diskutil repairVolume /dev/${DEV}
+    # done
+    # /usr/bin/sudo /usr/sbin/diskutil verifyDisk /dev/disk0
+    # echo "Finished verifying disk health at $(date +%Y-%m-%d-%H%M)." | /usr/bin/wall
+    # sudo diskutil repairDisk /dev/disk0
+  fi
 elif [[ $(uname) == "Linux" ]] ; then
   # only proceed for Linux workstations, not servers
-  if [[ ! $(/usr/bin/systemctl get-default) =~ graphical.target ]] ; then
+  if [[ ! -d /usr/share/xsessions ]] ; then
     echo "Quitting workstation setup on what appears to be a linux server"
     exit 0
   fi
@@ -82,7 +83,7 @@ if hash npm 2>/dev/null ; then
   npm install npm -g
   npm update -g
 fi
-if hash gem 2>/dev/null ; then
+if hash gem 2>/dev/null && [[ ${TRAVIS_CI_RUN} != true ]]; then
   echo -e "\nUpdating gems..."
   # ~/.gemrc should prevent ri or rdoc files from being installed
   sudo gem update --system --conservative --minimal-deps --no-verbose --force
@@ -90,7 +91,7 @@ if hash gem 2>/dev/null ; then
   # to remove all ri and rdocs of installed gems:
   # sudo rm -vrf $(sudo gem env gemdir)/doc
 fi
-if hash pip 2>/dev/null ; then
+if hash pip 2>/dev/null && [[ ${TRAVIS_CI_RUN} != true ]]; then
   echo -e "\nUpdating pip..."
   pip install --upgrade -r <( pip freeze )
   # for pkg in $(sudo -H pip list --outdated --format=columns | tail -n +3 | awk '{print $1}') ; do
@@ -102,11 +103,11 @@ if hash tmux 2>/dev/null ; then
   echo -e "\nUpdating tmux plugins..."
   ~/.tmux/plugins/tpm/bin/update_plugins all
 fi
-# if hash gcloud 2>/dev/null ; then
+# if hash gcloud 2>/dev/null && [[ ${TRAVIS_CI_RUN} != true ]]; then
   # echo -e "\nUpdating glcoud..."
   # sudo gcloud components update --quiet
   # find and fix any ownership problems (~/.config/gcloud/logs/ appears to be a common offender)
-  # sudo find -x ~/.config/ -user root -exec chown --changes ${CUSTOM_WORK_EMAIL/\@*/} '{}' \;
+  # sudo find -x ~/.config/ -user root -exec chown --changes ${LOGNAME} '{}' \;
 # fi
 # TODO: update chrome extensions (https://github.com/mdamien/chrome-extensions-archive/issues/8)
 # close out logging

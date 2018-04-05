@@ -1,5 +1,0 @@
-[[ $- = *i* ]] || return
-${IS_OSX} || return
-
-export VAULT_ADDR="https://vault.readytalk.io:8200"
-export vAULT_CLIENT_TIMEOUT=2

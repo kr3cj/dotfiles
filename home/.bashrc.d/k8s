@@ -30,6 +30,7 @@ function set_kube_current_config()
     -e CONTEXT_NAME=${kops_name} \
     -v ~/.kube:/kube-config \
     readytalk/kube-vault-deploy:kube-auth
+  pbcopy </dev/null
 }
 function set_kube_current_config_old()
 {

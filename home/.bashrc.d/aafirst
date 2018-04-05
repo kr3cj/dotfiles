@@ -23,5 +23,6 @@ if ! vault token lookup &> /dev/null ; then
   echo "Must re-authenticate with VAULT (${VAULT_ADDR}...)"
   lpass show --password --clip LDAP
   vault login -method=ldap username=${CUSTOM_LDAP_NAME} > /dev/null
+  vault token renew -increment=10h > /dev/null
   pbcopy </dev/null
 fi

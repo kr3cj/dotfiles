@@ -9,16 +9,17 @@ matrix:
   include:
     - os: linux
       dist: trusty
-      # sudo: required
+      sudo: required
       # services: docker
     - os: osx
       osx_image: xcode8.3
+      # currently not working with travis :(
+      # sudo: required
 
 env:
   - TRAVIS_CI_RUN=true GIT_SSH='ssh -o StrictHostKeyChecking=no' GIT_AUTHOR_NAME='Travis CI' GIT_AUTHOR_EMAIL='travis@example.com'
 
-install:
-  - if [ ${TRAVIS_OS_NAME} = linux ]; then sudo apt-get install systemd ; fi
+install: true
 
 script:
   - bash -x home/.bootstrap.sh
@@ -33,4 +34,4 @@ notifications:
   # slack: https://docs.travis-ci.com/user/notifications/#Configuring-Slack-notifications
     # secure: a;lsdkjf;lasdkfj
 
-sudo: required
+# sudo: required

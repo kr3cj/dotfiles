@@ -1,5 +1,3 @@
-[[ $- = *i* ]] || return
-
 alias egrep='egrep --color=auto'
 alias fgrep='fgrep --color=auto'
 alias grep='grep --color=auto'
@@ -7,7 +5,6 @@ alias ducks="sudo du -cshx ./ | sort -h"
 alias cdd="homeshick cd dotfiles"
 alias pp="source ~/.bash_profile"
 
-# TODO: not defined when jumping servers (e.g. ssh lax1 -t ssh lax2)
 function pathadd() {
   unset newpath
   local newpath=${1%/}
@@ -87,11 +84,20 @@ if [[ "${IS_OSX}" == "true" ]]; then
   alias ls="ls -G"
   alias ll="ls -hl -G"
   alias srm="/bin/rm -vP"
-  alias lpw="lpass show --password --clip LDAP"
   alias slack="open -a Slack"
   alias spotify="open -a Spotify"
   # alias gphoto="open --background -a \"Google Photos Backup\""
   alias gphoto="open --background -a \"Backup and Sync\""
+  alias vc="/opt/cisco/anyconnect/bin/vpn connect ${CUSTOM_WORK_DOMAINS[2]/\.*/}"
+  alias vd="/opt/cisco/anyconnect/bin/vpn disconnect"
+  alias vs="/opt/cisco/anyconnect/bin/vpn status"
+
+  function lpw {
+    lpass show --password --clip LDAP
+    # schedule clearing of the clipboard after 5 seconds
+    # echo 'sleep 5 ; /usr/bin/pbcopy </dev/null' | at now
+    echo 'sleep 5 ; date' | at now
+  }
 
   function ssh {
     local host1="${@}"
@@ -99,9 +105,11 @@ if [[ "${IS_OSX}" == "true" ]]; then
 builder\.$(echo ${CUSTOM_WORK_DOMAINS[@]} | tr ' ' '|')) ]]; then
       # copy ldap password to clipboard before ssh'ing to work hosts
       lpass show --password --clip LDAP && $(which ssh) ${host1}
+      pbcopy </dev/null
     elif [[ "${host1}" == "home.${CUSTOM_HOME_DOMAIN}" ]]; then
       lpass show --password --clip "proxy.${CUSTOM_NAS_HOST#*\.}" && \
         $(which ssh) ${host1}
+      pbcopy </dev/null
     else
       $(which ssh) ${host1}
     fi

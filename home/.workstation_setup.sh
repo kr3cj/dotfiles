@@ -19,13 +19,13 @@ esac
 
 if [[ ${IS_LINUX} == true ]]; then
   # only proceed for Linux workstations, not servers
-  if [[ ! $(/usr/sbin/systemctl get-default) =~ graphical.target ]] ; then
+  if [[ ! -d /usr/share/xsessions ]] ; then
     echo "Quitting workstation setup on what appears to be a linux server"
     exit 0
   fi
 fi
 
-if ! sudo grep -q $(whoami) /etc/sudoers ; then
+if ! sudo grep -q $(whoami) /etc/sudoers && [[ ${TRAVIS_CI_RUN} != true ]]; then
   echo "Need sudo password to setup passwdless sudo"
   sudo bash -c "echo \"$(whoami) ALL=(ALL) NOPASSWD: ALL\" >> /etc/sudoers"
 fi
@@ -131,19 +131,22 @@ if ${IS_OSX} && ! hash mas 2>/dev/null ; then
 
   # mas is a CLI for AppStore installs/updates
 if [[ ${TRAVIS_CI_RUN} != true ]]; then
-    lpass show --password --clip "Apple (${CUSTOM_FULL_NAME%% *})" && \
-      mas signin ${CUSTOM_WORK_EMAIL}
+    lpass show --password --clip "Apple" && \
+      mas signin apple@${CUSTOM_HOME_DOMAIN}
+    pbcopy </dev/null
     mas install 405843582 # Alfred
     mas install 497799835 # Xcode
     mas install 595191960 # CopyClip
     mas install 715768417 # Microsoft Remote Desktop
     mas install 441258766 # Magnet
   fi
+  # TODO: Create Dock shortcut to "/System/Library/CoreServices/Screen Sharing.app"
   # TODO: give magnet accessibility privileges in system prefs, sec and privacy, privacy tab
   # mas install 417375580 # BetterSnapTool
   echo "Remove the following apps from showing in menu bar: Alfred, ?"
-
-  sudo rm -rf /Applications/{iMovie.app,GarageBand.app,Pages.app,Numbers.app}
+  if [[ ${TRAVIS_CI_RUN} != true ]]; then
+    sudo rm -rf /Applications/{iMovie.app,GarageBand.app,Pages.app,Numbers.app}
+  fi
 
   # finish xcode install?
   # xcode-select --install
@@ -208,7 +211,7 @@ if [[ ${TRAVIS_CI_RUN} != true ]]; then
 <AnyConnectProfile xmlns="http://schemas.xmlsoap.org/encoding/">
   <ServerList>
     <HostEntry>
-      <HostName>$(echo ${CUSTOM_WORK_EMAIL#*@} | sed -e "s/\.com$//")</HostName>
+      <HostName>${CUSTOM_WORK_DOMAINS[2]/\.*/}</HostName>
       <HostAddress>${CUSTOM_WORK_VPN_RT}</HostAddress>
     </HostEntry>
     <HostEntry>
