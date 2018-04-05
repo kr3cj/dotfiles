@@ -66,10 +66,10 @@ if ${IS_OSX} && ! hash mas 2>/dev/null ; then
   brew install bash
   # brew link --overwrite bash # OR #
   # prepend new shell to /etc/shells
-  if [[ ${TRAVIS_CI_RUN} != true ]]; then
+  if [[ ${TRAVIS_CI_RUN} != true ]]; then # remove once osx images allow passwdless sudo
     sudo sed -i '/^\/bin\/bash$/i \/usr\/local\/bin\/bash' /etc/shells
+    chsh -s /usr/local/bin/bash
   fi
-  chsh -s /usr/local/bin/bash
 
   # brew install emacs
   # brew install --cocoa --srgb emacs ##
