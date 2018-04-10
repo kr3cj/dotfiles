@@ -25,6 +25,7 @@ function set_kube_current_config()
   docker run --rm \
     -it \
     -e VAULT_ADDR=${VAULT_ADDR} \
+    -e VAULT_TOKEN=$(cat ~/.vault-token) \
     -e CLUSTER_NAME=${kops_name} \
     -e ACCOUNT_NAME=sre-sa \
     -e CONTEXT_NAME=${kops_name} \
