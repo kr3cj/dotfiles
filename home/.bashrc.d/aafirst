@@ -8,9 +8,9 @@ export IS_OSX="false"
 export IS_LINUX="false"
 case "$(uname)" in
   Darwin)
-    IS_OSX="true" ;;
+    export IS_OSX="true" ;;
   Linux)
-    IS_LINUX="true" ;;
+    export IS_LINUX="true" ;;
   *)
     echo "Unable to determine Linux or OSX" ;;
 esac

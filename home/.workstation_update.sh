@@ -79,7 +79,7 @@ fi
 
 # 3rd party package management
 if hash npm 2>/dev/null ; then
-  "Updating npm..."
+  echo -e "Updating npm..."
   npm install npm -g
   npm update -g
 fi
@@ -91,7 +91,7 @@ if hash gem 2>/dev/null && [[ ${TRAVIS_CI_RUN} != true ]]; then
   # to remove all ri and rdocs of installed gems:
   # sudo rm -vrf $(sudo gem env gemdir)/doc
 fi
-if hash pip 2>/dev/null && [[ ${TRAVIS_CI_RUN} != true ]]; then
+if hash pip 2>/dev/null; then
   echo -e "\nUpdating pip..."
   pip install --upgrade -r <( pip freeze )
   # for pkg in $(sudo -H pip list --outdated --format=columns | tail -n +3 | awk '{print $1}') ; do

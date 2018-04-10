@@ -23,19 +23,6 @@ function pathadd() {
   fi
 }
 
-function port {
-  timeout 2 bash -c "echo >/dev/tcp/${1}/{2}" > /dev/null 2>&1 && echo success || echo failure
-}
-
-function acp {
-  cp -av ${1} ${1}.$(date +%Y-%m-%d %H-%M)
-  # cp -av ${1} ${1}.$(date --rfc-3339=seconds)
-}
-
-function find-error() {
-  sudo grep -riE 'DENIED|ERR|EXIST|FAIL|INVALID|SPECIFIED|SUCH|UNABLE|WARN' ${1}
-}
-
 function gitp {
   local gbranch=${1:-master}
   git fetch --prune --all
@@ -80,6 +67,24 @@ function _create_socks_proxy {
   [[ ${?} -ne 0 ]] && echo "Unable to establish ssh connection to ${host1}."
 }
 
+function port {
+  timeout 2 bash -c "echo >/dev/tcp/${1}/{2}" > /dev/null 2>&1 && echo success || echo failure
+}
+
+function acp {
+  cp -av ${1} ${1}.$(date +%Y-%m-%d %H-%M)
+  # cp -av ${1} ${1}.$(date --rfc-3339=seconds)
+}
+
+function find-error() {
+  sudo grep -riE 'DENIED|ERR|EXIST|FAIL|INVALID|SPECIFIED|SUCH|UNABLE|WARN' ${1}
+}
+
+function speedtest {
+  curl -s https://raw.githubusercontent.com/sivel/speedtest-cli/master/speedtest.py \
+  | python -
+}
+
 if [[ "${IS_OSX}" == "true" ]]; then
   alias ls="ls -G"
   alias ll="ls -hl -G"
@@ -95,19 +100,23 @@ if [[ "${IS_OSX}" == "true" ]]; then
   function lpw {
     lpass show --password --clip LDAP
     # schedule clearing of the clipboard after 5 seconds
-    # echo 'sleep 5 ; /usr/bin/pbcopy </dev/null' | at now
-    echo 'sleep 5 ; date' | at now
+    echo "$(brew --prefix)/opt/coreutils/libexec/gnubin/sleep 5 ; /usr/bin/pbcopy </dev/null" | at now
   }
 
   function ssh {
     local host1="${@}"
     if [[ "${host1}" =~ (wyn*|for*|lax*|fsh*|lsh*|finf*|linf*|192.168.*|\
-builder\.$(echo ${CUSTOM_WORK_DOMAINS[@]} | tr ' ' '|')) ]]; then
+macmini*|wheezybuild*|squeezebuild*|builder\
+\.$(echo ${CUSTOM_WORK_DOMAINS[@]} | tr ' ' '|')) ]]; then
       # copy ldap password to clipboard before ssh'ing to work hosts
       lpass show --password --clip LDAP && $(which ssh) ${host1}
       pbcopy </dev/null
     elif [[ "${host1}" == "home.${CUSTOM_HOME_DOMAIN}" ]]; then
       lpass show --password --clip "proxy.${CUSTOM_NAS_HOST#*\.}" && \
+        $(which ssh) ${host1}
+      pbcopy </dev/null
+    elif [[ "${host1}" =~ (macbuild*) ]]; then
+      lpass show --password --clip "AD" && \
         $(which ssh) ${host1}
       pbcopy </dev/null
     else

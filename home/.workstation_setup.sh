@@ -2,7 +2,7 @@
 # the purpose of this script is to house all initial workstation customizations in linux or osx
 
 if [[ ${TRAVIS_CI_RUN} != true ]]; then
-  echo -e "\mSystem looks new. Press any key to start installing workstation software."
+  echo -e "\nSystem looks new. Press any key to start installing workstation software."
   read -n 1 -s
 fi
 
@@ -122,6 +122,7 @@ if ${IS_OSX} && ! hash mas 2>/dev/null ; then
   brew install lastpass-cli --with-pinentry
 
   # tmux plugins
+  git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
   tmux source ~/.tmux.conf
   ~/.tmux/plugins/tpm/bin/install_plugins
 

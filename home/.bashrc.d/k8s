@@ -66,3 +66,14 @@ alias kns=set_kube_current_ns
 alias kubedash="kubectl get po -n=kube-system | grep dashboard | awk '{print \$1}' | \
   xargs -I % kubectl port-forward % 9090 -n=kube-system"
 alias kwatch="watch kubectl get no,ds,deploy,po,svc,ing,cm,pvc,secret"
+
+function helm_diff()
+{
+  helm get values -a ${product}-${environment} > before.yaml
+  helm upgrade --dry-run --debug --wait --reuse-values --timeout 600 -f values.yaml -f "${environment}-values.yaml" -f "versions.yaml" "illuminate-${environment}" . | sed -n '/COMPUTED VALUES:/,/HOOKS:/{/COMPUTED VALUES:/b;/HOOKS:/b;p}' > preview.yaml
+  diff before.yaml preview.yaml
+  rm before.yaml preview.yaml
+
+  # or
+  https://github.com/databus23/helm-diff
+}
