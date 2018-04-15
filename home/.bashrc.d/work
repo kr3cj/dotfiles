@@ -46,9 +46,9 @@ if ${at_home} ; then
       ${CUSTOM_NAS_HOST}:/share/pictures ~/Pictures/share1
   fi
 elif ${at_work} ; then
-  # disconnect VPN connection if necessary
-  $(/opt/cisco/anyconnect/bin/vpn status | grep -q "state: Connected") && \
-    /opt/cisco/anyconnect/bin/vpn disconnect ${CUSTOM_WORK_DOMAINS[2]/\.*/}
+  # disconnect VPN connection if necessary (TODO: smarter detection if on VPN at home)
+  # $(/opt/cisco/anyconnect/bin/vpn status | grep -q "state: Connected") && \
+  #   /opt/cisco/anyconnect/bin/vpn disconnect ${CUSTOM_WORK_DOMAINS[2]/\.*/}
   # maintain SSH tunnels to datacenters
   _create_socks_proxy "forinf2.${CUSTOM_WORK_DOMAINS[0]}" "2002" "${CUSTOM_LDAP_NAME}"
   _create_socks_proxy "laxinf2.${CUSTOM_WORK_DOMAINS[0]}" "2003" "${CUSTOM_LDAP_NAME}"

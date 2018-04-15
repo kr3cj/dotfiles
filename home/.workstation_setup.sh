@@ -108,12 +108,12 @@ if ${IS_OSX} && ! hash mas 2>/dev/null ; then
   pip install pylint virtualenv yq==2.2.0
 
   echo "install some extra utility packages for me"
-  brew install dos2unix gnu-getopt
+  brew install dos2unix gnu-getopt jq
   echo "install extra tools that I like"
   brew install \
     ack aria2 mas mtr nmap tmux reattach-to-user-namespace \
     maven python3 ansible rbenv ruby ruby-build \
-    awscli docker docker-compose packer terraform
+    awscli docker docker-compose packer terraform vault
     # openshift-cli fleetctl; aria2=torrent_client(aria2c)
   # TODO: disable updates in docker so brew update can manage it
   echo "install lastpass client"
@@ -188,10 +188,11 @@ if [[ ${TRAVIS_CI_RUN} != true ]]; then
   # install main apps into Applications
   HOMEBREW_CASK_OPTS="--appdir=/Applications"
   brew cask install \
-    slack spotify gimp google-photos-backup-and-sync iterm2 android-file-transfer android-platform-tools \
-    atom vagrant jq vault \
+    slack spotify gimp google-backup-and-sync iterm2 android-file-transfer android-platform-tools \
+    atom vagrant \
     keystore-explorer \
     beyond-compare firefox
+    # google-
     # virtualbox visual-studio-code
   # old google-photos-backup available at
   #  https://onedrive.live.com/?authkey=%21AACjGt3FG05pkGM&cid=8E2F81FF61FCF79E&id=8E2F81FF61FCF79E%21104613&parId=8E2F81FF61FCF79E%2187733&o=OneUp
