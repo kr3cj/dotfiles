@@ -26,21 +26,15 @@ else
 fi
 hash homeshick 2> /dev/null || source ${HOME}/.homesick/repos/homeshick/homeshick.sh
 
-# TODO: not sure if dotfiles_private will work with the conditionals
-repos="kr3cj/dotfiles \
+public_repos="kr3cj/dotfiles \
  kr3cj/liquidprompt \
- https://kr3cj@bitbucket.org/kr3cj/dotfiles_private.git \
  sudermanjr/tmux-kube"
-for repo in ${repos}; do
-  if [[ ${TRAVIS_CI_RUN} == true ]] && [[ ${repo} =~ "dotfiles_private" ]]; then
-    continue
-  fi
-  if homeshick list | grep -q ${repo}; then
+for public_repo in ${public_repos}; do
+  if homeshick list | grep -q ${public_repo}; then
     # must trim long git URIs to just repo name
-    homeshick --batch pull $(echo ${repo/*\//} | sed -e "s/\.git$//")
+    homeshick --batch pull $(echo ${public_repo/*\//} | sed -e "s/\.git$//")
   else
-    # TODO: switch between git@ or https:// syntax accordingly
-    homeshick --batch clone ${repo}
+    homeshick --batch clone ${public_repo}
   fi
 done
 homeshick --force link

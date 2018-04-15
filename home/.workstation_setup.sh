@@ -121,6 +121,32 @@ if ${IS_OSX} && ! hash mas 2>/dev/null ; then
   # brew install xclip
   brew install lastpass-cli --with-pinentry
 
+  # now we can install any private repos with private ssh key
+  if [[ ${TRAVIS_CI_RUN} == true ]] && [[ ${private_repo} =~ "dotfiles_private" ]]; then
+    break
+  else
+    # load personal ssh key if necessary
+    if ! $(ssh-add -l | grep -q "/.ssh/id_rsa_personal\ ("); then
+      (umask 177
+      lpass show --field="Private Key" "Personal SSH Key" > ~/.ssh/id_rsa_personal
+      )
+      lpass show --field=Passphrase --clip "Personal SSH Key"
+      ssh-add -t 36000 -k ~/.ssh/id_rsa_personal
+      pbcopy </dev/null
+      rm -f ~/.ssh/id_rsa_personal
+    fi
+    private_repos="git@bitbucket.org:kr3cj/dotfiles_private.git"
+    for private_repo in ${private_repos}; do
+      if homeshick list | grep -q ${private_repo}; then
+        # must trim long git URIs to just repo name
+        homeshick --batch pull $(echo ${private_repo/*\//} | sed -e "s/\.git$//")
+      else
+        homeshick --batch clone ${private_repo}
+      fi
+      homeshick --force link
+    done
+  fi
+
   # tmux plugins
   git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
   tmux source ~/.tmux.conf
