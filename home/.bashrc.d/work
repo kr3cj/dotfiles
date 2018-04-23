@@ -18,18 +18,23 @@ if [[ -z ${ip_address} ]]; then
 fi
 
 # figure out location
-( [[ ${ip_address} =~ "${CUSTOM_WORK_SUBNET}.49." ]] || \
-  [[ ${ip_address} =~ "${CUSTOM_WORK_SUBNET}.200." ]] || \
-  [[ ${ip_address} =~ "${CUSTOM_WORK_SUBNET}.201." ]] || \
-  [[ ${ip_address} =~ "${CUSTOM_WORK_SUBNET}.67." ]] ) && at_work="true"
-[[ ${ip_address} =~ "${CUSTOM_HOME_SUBNET}" ]] && at_home="true"
+case ${ip_address} in
+  ${CUSTOM_WORK_SUBNET}.49.*|${CUSTOM_WORK_SUBNET}.200.*\
+  |${CUSTOM_WORK_SUBNET}.201.*|${CUSTOM_WORK_SUBNET}.67.*)
+    at_work="true" ;;
+  ${CUSTOM_HOME_SUBNET}.*)
+    at_home="true" ;;
+  *)
+    echo "Could not determine location from ip_address ${ip_address}."
+    # TODO: inject logic for what to do in non-work/non-home networks
+esac
 
 if ${at_home} ; then
   # establish vpn connection to work
   if ! $(ping -c1 -W1 -i0.1 laphroaig.${CUSTOM_WORK_DOMAINS[1]} &> /dev/null); then
     (read -t 2 -s -p "To connect to work VPN, press any key within 2 seconds..." \
       && lpass show --password --clip "AD" && \
-      /opt/cisco/anyconnect/bin/vpn connect ${CUSTOM_WORK_DOMAINS[2]/\.*/}
+      /opt/cisco/anyconnect/bin/vpn connect ${CUSTOM_WORK_DOMAINS[2]/\.*/} && pp
       echo && pbcopy </dev/null
     )
   fi

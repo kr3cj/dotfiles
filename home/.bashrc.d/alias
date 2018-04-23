@@ -52,6 +52,7 @@ function _create_socks_proxy {
     ${test_url} \
     ) -ne 200 \
   ]] ; then
+    echo "curl to www.google.com over ${port1} did not respond with HTTP 200"
     # first kill any old sessions
     pgrep -f "ssh .* ${ssh_proxy_options} ${port1} ${username}@${host1}"
     pkill -f "ssh .* ${ssh_proxy_options} ${port1} ${username}@${host1}"

@@ -307,7 +307,7 @@ if ${IS_LINUX} && ! hash packer 2>/dev/null ; then
 
   if [[ -f /etc/redhat-release ]] ; then
     is_rhel="true"
-  elif [[ -f /etc/os-version ]] ; then
+  elif [[ -f /etc/os-release ]] ; then
     is_debian="true"
   else
     echo "Unable to determine unix distro."
