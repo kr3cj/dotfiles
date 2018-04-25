@@ -52,7 +52,6 @@ function _create_socks_proxy {
     ${test_url} \
     ) -ne 200 \
   ]] ; then
-    echo "curl to www.google.com over ${port1} did not respond with HTTP 200"
     # first kill any old sessions
     pgrep -f "ssh .* ${ssh_proxy_options} ${port1} ${username}@${host1}"
     pkill -f "ssh .* ${ssh_proxy_options} ${port1} ${username}@${host1}"
@@ -63,7 +62,7 @@ function _create_socks_proxy {
     # TODO: capture output only if the command fails
     ssh ${ssh_proxy_options} ${port1} "${username}@${host1}" \
       -o TCPKeepAlive=yes -o ConnectTimeout=1 -o ConnectionAttempts=1 2> /dev/null
-    pbcopy </dev/null
+    clear_clip
   fi
   [[ ${?} -ne 0 ]] && echo "Unable to establish ssh connection to ${host1}."
 }
@@ -87,8 +86,9 @@ function speedtest {
 }
 
 if [[ "${IS_OSX}" == "true" ]]; then
-  alias ls="ls -G"
-  alias ll="ls -hl -G"
+  # since the path file hasn't been sourced yet, use absolute paths to ls for macos
+  alias ls="/usr/local/opt/coreutils/libexec/gnubin/ls -G --color=auto"
+  alias ll="/usr/local/opt/coreutils/libexec/gnubin/ls -hl -G --color=auto"
   alias srm="/bin/rm -vP"
   alias slack="open -a Slack"
   alias spotify="open -a Spotify"
@@ -100,28 +100,25 @@ if [[ "${IS_OSX}" == "true" ]]; then
 
   function lpw {
     lpass show --password --clip LDAP
-    # schedule clearing of the clipboard after 5 seconds
-    echo "$(brew --prefix)/opt/coreutils/libexec/gnubin/sleep 5 ; /usr/bin/pbcopy </dev/null" | at now
+    clear_clip 5
   }
 
   function ssh {
     local host1="${@}"
-    if [[ "${host}" == wyninf13 ]]; then
-      lpass show --password --clip wyninf13 && $(which ssh) ${host1}
-    elif [[ "${host1}" =~ (wyn*|for*|lax*|fsh*|lsh*|finf*|linf*|192.168.*|\
-macmini*|wheezybuild*|squeezebuild*|builder\
-\.$(echo ${CUSTOM_WORK_DOMAINS[@]} | tr ' ' '|')) ]]; then
-      lpass show --password --clip LDAP && $(which ssh) ${host1}
-    elif [[ "${host1}" == "home.${CUSTOM_HOME_DOMAIN}" ]]; then
-      lpass show --password --clip "proxy.${CUSTOM_NAS_HOST#*\.}" && \
-        $(which ssh) ${host1}
-    elif [[ "${host1}" =~ (macbuild*) ]]; then
-      lpass show --password --clip "AD" && $(which ssh) ${host1}
-    else
-      $(which ssh) ${host1}
-    fi
-    # TODO: disown or background this asynchronously
-    pbcopy </dev/null
+    case "${host1}" in
+      wyninf13)
+        lpass show --password --clip wyninf13 ;;
+      wyn*|for*|lax*|fsh*|lsh*|finf*|linf*|192.168.*|\
+macmini*|wheezybuild*|squeezebuild*|laphroaig|builder\
+\.$(echo ${CUSTOM_WORK_DOMAINS[@]} | tr ' ' '|'))
+        lpass show --password --clip LDAP ;;
+      home.${CUSTOM_HOME_DOMAIN})
+        lpass show --password --clip "proxy.${CUSTOM_NAS_HOST#*\.}" ;;
+      macbuild*)
+        lpass show --password --clip "AD" ;;
+    esac
+    clear_clip 8
+    $(which ssh) ${host1}
   }
 elif [[ "${IS_LINUX}" == "true" ]]; then
   alias ls="ls --color=auto"

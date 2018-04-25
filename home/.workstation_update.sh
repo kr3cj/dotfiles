@@ -13,7 +13,7 @@ if [[ $(uname) == "Darwin" ]] ; then
   if [[ ! $(/usr/local/bin/mas account) ]] && [[ ${TRAVIS_CI_RUN} != true ]]; then
     /usr/local/bin/lpass show --password --clip "Apple" && \
       /usr/local/bin/mas signin apple@${CUSTOM_HOME_DOMAIN}
-    pbcopy </dev/null
+    clear_clip
   fi
   /usr/local/bin/mas upgrade
 

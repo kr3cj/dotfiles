@@ -118,7 +118,6 @@ if ${IS_OSX} && ! hash mas 2>/dev/null ; then
   # TODO: disable updates in docker so brew update can manage it
   echo "install lastpass client"
   # brew cask install xquartz
-  # brew install xclip
   brew install lastpass-cli --with-pinentry
 
   # now we can install any private repos with private ssh key
@@ -132,7 +131,7 @@ if ${IS_OSX} && ! hash mas 2>/dev/null ; then
       )
       lpass show --field=Passphrase --clip "Personal SSH Key"
       ssh-add -t 36000 -k ~/.ssh/id_rsa_personal
-      pbcopy </dev/null
+      clear_clip
       rm -f ~/.ssh/id_rsa_personal
     fi
     private_repos="git@bitbucket.org:kr3cj/dotfiles_private.git"
@@ -162,7 +161,7 @@ if ${IS_OSX} && ! hash mas 2>/dev/null ; then
 if [[ ${TRAVIS_CI_RUN} != true ]]; then
     lpass show --password --clip "Apple" && \
       mas signin apple@${CUSTOM_HOME_DOMAIN}
-    pbcopy </dev/null
+    clear_clip
     mas install 405843582 # Alfred
     mas install 497799835 # Xcode
     mas install 595191960 # CopyClip
@@ -292,12 +291,13 @@ EOF
   homeshick track dotfiles_private ~/osx_defaults_original_$(date +%Y-%m-%d).json
   [[ ${TRAVIS_CI_RUN} != true ]] && bash ~/.macos
 
-  # cloud provider credentials
-  [[ -f ~/.aws_auth ]] || (umask 177 ; touch ~/.aws_auth)
-  [[ -f ~/.gce_auth ]] || (umask 177 ; touch ~/.gce_auth)
-
+  # Run python code to checkout all repositories
   [[ -d ~/build ]] || mkdir ~/build
-  # TODO: run python code to checkout all repositories
+  cd ~/build
+  git clone asottile/all-repos
+  cd all-repos
+
+
 fi
 
 # install software on linux
@@ -316,7 +316,7 @@ if ${IS_LINUX} && ! hash packer 2>/dev/null ; then
     echo "Configuring Debian. This will take a few minutes."
     sudo apt-get update
     sudo apt-get install -y apt-transport-https ca-certificates curl git software-properties-common
-    sudo apt-get install -y python-dev python3 tmux ack-grep jq
+    sudo apt-get install -y python-dev python3 tmux ack-grep jq xclip
     # pip
     sudo wget https://bootstrap.pypa.io/get-pip.py
     sudo python get-pip.py && rm get-pip.py
@@ -369,7 +369,7 @@ if ${IS_LINUX} && ! hash packer 2>/dev/null ; then
 
   elif ${is_rhel} ; then
     echo "Configuring RHEL. This will take a few minutes."
-    sudo yum install -y python-dev python3 tmux ack lastpass-cli git curl
+    sudo yum install -y python-dev python3 tmux ack lastpass-cli git curl xclip
     # pip
     sudo wget https://bootstrap.pypa.io/get-pip.py
     sudo python get-pip.py && rm get-pip.py

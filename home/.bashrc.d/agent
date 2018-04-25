@@ -18,7 +18,7 @@ for key2 in "" _personal; do
     )
     lpass show --field=Passphrase --clip "${key_desc} SSH Key"
     ssh-add -t 36000 -k ~/.ssh/id_rsa${key2}
-    pbcopy </dev/null
+    clear_clip
     rm -f ~/.ssh/id_rsa${key2}
   fi
 done

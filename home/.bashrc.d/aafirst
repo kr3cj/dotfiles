@@ -16,6 +16,18 @@ case "$(uname)" in
 esac
 
 ${IS_OSX} || return
+
+function clear_clip {
+  # clear clipboard after N seconds
+  local wait_time="${1:-0}"
+  (
+    {
+      sleep ${wait_time}
+      pbcopy < /dev/null
+    } & disown
+  ) 2> /dev/null
+}
+
 export VAULT_ADDR="https://vault.${CUSTOM_WORK_DOMAINS[2]}:8200"
 export VAULT_CLIENT_TIMEOUT=2
 # vault authentication, if necessary
@@ -24,5 +36,5 @@ if ! vault token lookup &> /dev/null ; then
   lpass show --password --clip LDAP
   vault login -method=ldap username=${CUSTOM_LDAP_NAME} > /dev/null
   vault token renew -increment=10h > /dev/null
-  pbcopy </dev/null
+  clear_clip
 fi

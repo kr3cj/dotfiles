@@ -22,7 +22,7 @@ case ${ip_address} in
   ${CUSTOM_WORK_SUBNET}.49.*|${CUSTOM_WORK_SUBNET}.200.*\
   |${CUSTOM_WORK_SUBNET}.201.*|${CUSTOM_WORK_SUBNET}.67.*)
     at_work="true" ;;
-  ${CUSTOM_HOME_SUBNET}.*)
+  ${CUSTOM_HOME_SUBNET}*)
     at_home="true" ;;
   *)
     echo "Could not determine location from ip_address ${ip_address}."
@@ -35,7 +35,7 @@ if ${at_home} ; then
     (read -t 2 -s -p "To connect to work VPN, press any key within 2 seconds..." \
       && lpass show --password --clip "AD" && \
       /opt/cisco/anyconnect/bin/vpn connect ${CUSTOM_WORK_DOMAINS[2]/\.*/} && pp
-      echo && pbcopy </dev/null
+      echo && clear_clip
     )
   fi
   # establish vpn connection to PGi
