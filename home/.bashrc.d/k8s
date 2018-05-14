@@ -4,9 +4,16 @@ ${IS_OSX} || return
 export KUBECONFIG=~/.kube/config
 source <(kubectl completion bash)
 
-export KOPS_STATE_STORE="s3://foxden-k8s-cluster-state"
+# export KOPS_STATE_STORE="s3://foxden-k8s-cluster-state"
+export KOPS_STATE_STORE="s3://webrtc-gateway-kops-state"
+
 function set_kube_current_config()
 {
+  if [[ ${VAULT_REACHABLE} != "true" ]]; then
+    echo "Skipping set_kube_current_config as vault is unreachable..."
+    return 1
+  fi
+  
   local kops_name="${@}"
   if [[ -z ${kops_name} ]]; then
     echo "You did not provide a default kops name argument."
@@ -20,8 +27,12 @@ function set_kube_current_config()
     echo "\"kubectl config current-context\" is blank!"
     return 1
   fi
+
+  # open Docker if necessary
+  pgrep -qf "Docker.app" || open --background -a Docker
+  # uses vault to auth to s3 bucket so you don't need AWS env variables
+  # should populate ~/.kube/config file with appropriate environment info
   lpass show --password --clip LDAP
-  # TODO: start docker if not running
   docker run --rm \
     -it \
     -e VAULT_ADDR=${VAULT_ADDR} \
@@ -32,6 +43,8 @@ function set_kube_current_config()
     -v ~/.kube:/kube-config \
     readytalk/kube-vault-deploy:kube-auth
   clear_clip
+
+  kops export kubecfg ${kops_name}
 }
 function set_kube_current_config_old()
 {

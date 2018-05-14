@@ -23,16 +23,6 @@ function pathadd() {
   fi
 }
 
-function gitp {
-  local gbranch=${1:-master}
-  git fetch --prune --all
-  git checkout ${gbranch}
-  git pull origin ${gbranch}
-  # git fetch origin --prune
-  # git fetch --tags
-  git status
-}
-
 function _create_socks_proxy {
   local host1=${1}
   local port1=${2}
@@ -60,7 +50,7 @@ function _create_socks_proxy {
     [[ ${host1} == "home.${CUSTOM_HOME_DOMAIN}" ]] && \
       lpass show --password --clip "proxy.${CUSTOM_NAS_HOST#*\.}"
     # TODO: capture output only if the command fails
-    ssh ${ssh_proxy_options} ${port1} "${username}@${host1}" \
+    /usr/bin/ssh ${ssh_proxy_options} ${port1} "${username}@${host1}" \
       -o TCPKeepAlive=yes -o ConnectTimeout=1 -o ConnectionAttempts=1 2> /dev/null
     clear_clip
   fi
@@ -100,7 +90,18 @@ if [[ "${IS_OSX}" == "true" ]]; then
 
   function lpw {
     lpass show --password --clip LDAP
-    clear_clip 5
+    clear_clip 8
+  }
+
+  function clear_clip {
+    # clear clipboard after N seconds
+    local wait_time="${1:-0}"
+    (
+      {
+        sleep ${wait_time}
+        pbcopy < /dev/null
+      } & disown
+    ) 2> /dev/null
   }
 
   function ssh {
@@ -118,7 +119,8 @@ macmini*|wheezybuild*|squeezebuild*|laphroaig|builder\
         lpass show --password --clip "AD" ;;
     esac
     clear_clip 8
-    $(which ssh) ${host1}
+    # using homebrew ssh $(which ssh) results in 'Bad configuration option: usekeychain'
+    /usr/bin/ssh ${host1}
   }
 elif [[ "${IS_LINUX}" == "true" ]]; then
   alias ls="ls --color=auto"

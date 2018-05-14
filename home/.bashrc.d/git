@@ -1,0 +1,22 @@
+# setup git
+if ${IS_OSX} ; then
+  GIT_SSH="/usr/bin/ssh"
+#   git config --global user.name "${CUSTOM_FULL_NAME}"
+#   git config --global user.email "${CUSTOM_WORK_EMAIL}"
+# elif ${is_debian} ; then
+#   git config --global user.name "${CUSTOM_FULL_NAME}"
+#   git config --global user.email "${CUSTOM_WORK_EMAIL}"
+# elif ${is_rhel} ; then
+#   git config --global user.name "${CUSTOM_WORK_EMAIL/\.*/}"
+#   git config --global user.email "github@${CUSTOM_HOME_DOMAIN}.net"
+fi
+
+function gitp {
+  local gbranch=${1:-master}
+  git fetch --prune --all
+  git checkout ${gbranch}
+  git pull origin ${gbranch}
+  # git fetch origin --prune
+  # git fetch --tags
+  git status
+}

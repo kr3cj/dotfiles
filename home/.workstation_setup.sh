@@ -20,7 +20,7 @@ esac
 # only proceed for Linux workstations, not servers
 if [[ ${IS_LINUX} == true ]] && [[ ! -d /usr/share/xsessions ]]; then
   if [[ ${TRAVIS_CI_RUN} != true ]]; then
-    echo "Quitting workstation setup on what appears to be a linux server"
+    echo "Quitting workfstation setup on what appears to be a linux server"
     exit 0
   fi
 fi
@@ -121,7 +121,7 @@ if ${IS_OSX} && ! hash mas 2>/dev/null ; then
   brew install lastpass-cli --with-pinentry
 
   # now we can install any private repos with private ssh key
-  if [[ ${TRAVIS_CI_RUN} == true ]] && [[ ${private_repo} =~ "dotfiles_private" ]]; then
+  if [[ ${TRAVIS_CI_RUN} == true ]]
     break
   else
     # load personal ssh key if necessary
@@ -206,11 +206,11 @@ if [[ ${TRAVIS_CI_RUN} != true ]]; then
   # Tell iTerm2 to use the custom preferences in the directory
   defaults write com.googlecode.iterm2.plist LoadPrefsFromCustomFolder -bool true
 
-  # install java8
-  brew tap caskroom/versions
-  brew cask install java8
-  # setup build system credentials
   if [[ ${TRAVIS_CI_RUN} != true ]]; then
+    # install java8
+    brew tap caskroom/versions
+    brew cask install java8
+    # setup build system credentials
     docker login artifactory.${CUSTOM_WORK_DOMAINS[5]}
     # ensure credential files for development are locked down
     chmod -cHLR 600 ~/.ivy2 ~/.docker ~/.ant # ~/.m2 .pgpass, .vnc/passwd, .jspm/config

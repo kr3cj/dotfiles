@@ -1,5 +1,11 @@
 [[ $- = *i* ]] || return
+
+# fix ssh directory permissions
+find -L ~/.ssh/ -type f -exec chmod 600 '{}' \;
+find -L ~/.ssh/ -type d -exec chmod 700 '{}' \;
+
 ${IS_OSX} || return
+${HEALTHY_INTERNET} || return
 
 # ssh agent stuff
 [[ -f ${HOME}/.ssh/ssh-agent-setup ]] && source ${HOME}/.ssh/ssh-agent-setup
@@ -24,6 +30,10 @@ for key2 in "" _personal; do
 done
 
 # temporarily load ssh keys from vault into agent
+if [[ ${VAULT_REACHABLE} != "true" ]]; then
+  echo "Skip loading of more ssh-keys as vault is unreachable."
+  return
+fi
 for key3 in jenkins-builder coreos ; do
   if ! $(ssh-add -l | grep -q "/.ssh/id_rsa_${key3}\ (" ); then
     (umask 177

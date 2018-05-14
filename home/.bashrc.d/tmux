@@ -6,4 +6,4 @@ function _ssh_auth_save() {
 }
 alias screen='_ssh_auth_save ; $(which screen)'
 alias tmux='_ssh_auth_save ; $(which tmux)'
-alias tma='lpass show --password --clip LDAP && ssh -tt laphroaig tmux new-session -A'
+alias tma='lpass show --password --clip LDAP && /usr/bin/ssh -tt laphroaig tmux new-session -A'

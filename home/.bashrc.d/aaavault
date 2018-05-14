@@ -1,0 +1,19 @@
+${IS_OSX} || return
+
+export VAULT_REACHABLE="true"
+$(port ${VAULT_ADDR} &> /dev/null) || VAULT_REACHABLE="false"
+
+export VAULT_ADDR="https://vault.${CUSTOM_WORK_DOMAINS[2]}:8200"
+# export VAULT_MFA=#TODO
+export VAULT_CLIENT_TIMEOUT=2
+
+# vault authentication, if available and necessary
+if ${HEALTHY_INTERNET} && ${VAULT_REACHABLE} && ! vault token lookup &> /dev/null; then
+  echo "Must re-authenticate with VAULT (${VAULT_ADDR}...)"
+  lpass show --password --clip LDAP
+  vault login -method=ldap username=${CUSTOM_LDAP_NAME} > /dev/null
+  vault token renew -increment=10h > /dev/null
+  clear_clip
+else
+  echo "Skipping vault auth as it is unreachable."
+fi
