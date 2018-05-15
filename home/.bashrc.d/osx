@@ -11,7 +11,9 @@ MANPATH="/usr/local/opt/gnu-tar/libexec/gnuman:${MANPATH}"
 export MANPATH
 
 # open desktop apps
-# pgrep -qf "Slack.app" || open --background -a Slack # this always opens in foreground :(
+if ${at_work}; then
+  pgrep -qf "Slack.app" || open --background -a Slack # this always opens in foreground :(
+  pgrep -qf "Atom.app" || open --background -a Atom # this always opens in foreground, too
+fi
+pgrep -qf "Backup and Sync.app" || open --background -a "Backup and Sync"
 # pgrep -qf "Spotify.app" || open --background -a Spotify
-# pgrep -qf "Backup and Sync.app" || open --background -a "Backup and Sync"
-# pgrep -qf "Atom.app" || open --background -a Atom # this always opens in foreground, too

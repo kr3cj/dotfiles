@@ -10,21 +10,21 @@ export KOPS_STATE_STORE="s3://webrtc-gateway-kops-state"
 function set_kube_current_config()
 {
   if [[ ${VAULT_REACHABLE} != "true" ]]; then
-    echo "Skipping set_kube_current_config as vault is unreachable..."
+    (>&2 echo "Skipping set_kube_current_config as vault is unreachable...")
     return 1
   fi
-  
+
   local kops_name="${@}"
   if [[ -z ${kops_name} ]]; then
-    echo "You did not provide a default kops name argument."
+    (>&2 echo "You did not provide a default kops name argument.")
     return 1
   fi
   if [[ ${kops_name} =~ "\." ]]; then
-    echo "You did not provide a fully qualified kops name argument."
+    (>&2 echo "You did not provide a fully qualified kops name argument.")
     return 1
   fi
   if [[ -z $(kubectl config current-context) ]];then
-    echo "\"kubectl config current-context\" is blank!"
+    (>&2 echo "\"kubectl config current-context\" is blank!")
     return 1
   fi
 
@@ -50,19 +50,19 @@ function set_kube_current_config_old()
 {
   local kops_name="${@}"
   if [[ -z ${kops_name} ]]; then
-    echo "You did not provide a default kops name argument."
+    (>&2 echo "You did not provide a default kops name argument.")
     return 1
   fi
   if [[ ${kops_name} =~ "\." ]]; then
-    echo "You did not provide a fully qualified kops name argument."
+    (>&2 echo "You did not provide a fully qualified kops name argument.")
     return 1
   fi
   if [[ -z ${KOPS_STATE_STORE} ]]; then
-    echo "\${KOPS_STATE_STORE} is blank; unable to retrieve kubeconfig from s3."
+    (>&2 echo "\${KOPS_STATE_STORE} is blank; unable to retrieve kubeconfig from s3.")
     return 1
   fi
   if [[ -z $(kubectl config current-context) ]];then
-    echo "\"kubectl config current-context\" is blank!"
+    (>&2 echo "\"kubectl config current-context\" is blank!")
     return 1
   fi
   kops export kubecfg --name $(kubectl config current-context)

@@ -58,7 +58,34 @@ function _create_socks_proxy {
 }
 
 function port {
-  timeout 2 bash -c "echo >/dev/tcp/${1}/{2}" > /dev/null 2>&1 && echo success || echo failure
+  # strip http.* from parameter
+  local host1=${1#*//}
+  # find port from either "server1:1234" or "server1 1234"
+  local port1
+  if [[ -n ${2} ]] && [[ ${host1} =~ ":" ]]; then
+    (>&2 echo "  detected multiple port inputs; using ${2}")
+    port1=${2}
+    # strip port from host variable
+    host1=${host1%:*}
+  elif [[ -n ${2} ]]; then
+    port1=${2}
+  elif [[ -z ${2} ]] && [[ ${host1} =~ ":" ]]; then
+    port1=${host1#*:}
+    # strip port from host variable
+    host1=${host1%:*}
+  elif [[ -z ${2} ]] && [[ ! ${host} =~ ":" ]]; then
+    (>&2 echo "You must supply a port number as an additional parameter or append \":1234\".")
+    return 1
+  fi
+
+  if ! [[ "${port1}" =~ ^[0-9]+$ ]]; then
+    (>&2 echo "You supplied an incorrect port.")
+    return 1
+  fi
+
+  # echo "Checking host \"${host1}\" over port \"${port1}\"."
+  timeout 2 bash -c "echo >/dev/tcp/${host1}/${port1}" > /dev/null 2>&1 && echo success \
+    || (>&2 echo "failure"; return 1)
 }
 
 function acp {
