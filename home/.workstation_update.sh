@@ -20,6 +20,7 @@ if hash gem 2>/dev/null && [[ ${TRAVIS_CI_RUN} != true ]]; then
 fi
 if hash pip 2>/dev/null; then
   echo -e "\nUpdating pip..."
+  pip install --upgrade setuptools
   pip install --upgrade -r <( pip freeze )
   # for pkg in $(sudo -H pip list --outdated --format=columns | tail -n +3 | awk '{print $1}') ; do
   #   sudo -H pip install ${pkg} --upgrade

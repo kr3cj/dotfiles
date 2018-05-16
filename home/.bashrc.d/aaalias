@@ -136,7 +136,7 @@ if [[ "${IS_OSX}" == "true" ]]; then
     case "${host1}" in
       wyninf13)
         lpass show --password --clip wyninf13 ;;
-      wyn*|for*|lax*|fsh*|lsh*|finf*|linf*|192.168.*|\
+      wyn*|for*|lax*|fsh*|lsh*|finf*|linf*|ec2h*|192.168.*|\
 macmini*|wheezybuild*|squeezebuild*|laphroaig|builder\
 \.$(echo ${CUSTOM_WORK_DOMAINS[@]} | tr ' ' '|'))
         lpass show --password --clip LDAP ;;

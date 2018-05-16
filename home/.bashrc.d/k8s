@@ -29,7 +29,7 @@ function set_kube_current_config()
   fi
 
   # open Docker if necessary
-  pgrep -qf "Docker.app" || open --background -a Docker
+  pgrep -qf "Docker.app" || open --hide --background -a Docker
   # uses vault to auth to s3 bucket so you don't need AWS env variables
   # should populate ~/.kube/config file with appropriate environment info
   lpass show --password --clip LDAP
