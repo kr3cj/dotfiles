@@ -48,3 +48,6 @@ if [[ -d ${HOME}/.bashrc.d ]]; then
   done
   unset dotd
 fi
+
+# remove any dead links from .bashrc.d
+find ${HOME}/.bashrc.d/ -xtype l -exec rm -v '{}' \;

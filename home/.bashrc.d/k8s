@@ -4,22 +4,26 @@ ${IS_OSX} || return
 export KUBECONFIG=~/.kube/config
 source <(kubectl completion bash)
 
-# export KOPS_STATE_STORE="s3://foxden-k8s-cluster-state"
-export KOPS_STATE_STORE="s3://webrtc-gateway-kops-state"
+# k8s auth
+if [[ -f ~/.k8s_auth ]] ; then
+  source ~/.k8s_auth
+fi
 
 function set_kube_current_config()
 {
+  KUBE_VAULT_DEPLOY_CONTAINER_NAME="readytalk/kube-vault-deploy:kube-auth"
+  # KUBE_VAULT_DEPLOY_CONTAINER_NAME="readytalk/kube-vault-deploy:latest"
   if [[ ${VAULT_REACHABLE} != "true" ]]; then
     (>&2 echo "Skipping set_kube_current_config as vault is unreachable...")
     return 1
   fi
 
-  local kops_name="${@}"
-  if [[ -z ${kops_name} ]]; then
+  local KOPS_NAME="${@}"
+  if [[ -z ${KOPS_NAME} ]]; then
     (>&2 echo "You did not provide a default kops name argument.")
     return 1
   fi
-  if [[ ${kops_name} =~ "\." ]]; then
+  if [[ ${KOPS_NAME} =~ "\." ]]; then
     (>&2 echo "You did not provide a fully qualified kops name argument.")
     return 1
   fi
@@ -27,6 +31,11 @@ function set_kube_current_config()
     (>&2 echo "\"kubectl config current-context\" is blank!")
     return 1
   fi
+
+  echo -e "\${KOPS_NAME}=\"${KOPS_NAME}\"; \${KOPS_STATE_STORE}=\"${KOPS_STATE_STORE}\"; \
+  \${KOPS_STATE_STORE_REGION}=\"${KOPS_STATE_STORE_REGION}\""
+  echo -e "Using container:tag \"${KUBE_VAULT_DEPLOY_CONTAINER_NAME}\"; is this correct?\n"
+  read -p "Press any key to continue or CTRL+C to abort."
 
   # open Docker if necessary
   pgrep -qf "Docker.app" || open --hide --background -a Docker
@@ -37,23 +46,23 @@ function set_kube_current_config()
     -it \
     -e VAULT_ADDR=${VAULT_ADDR} \
     -e VAULT_TOKEN=$(cat ~/.vault-token) \
-    -e CLUSTER_NAME=${kops_name} \
+    -e CLUSTER_NAME=${KOPS_NAME} \
     -e ACCOUNT_NAME=sre-sa \
-    -e CONTEXT_NAME=${kops_name} \
+    -e CONTEXT_NAME=${KOPS_NAME} \
     -v ~/.kube:/kube-config \
-    readytalk/kube-vault-deploy:kube-auth
+    ${KUBE_VAULT_DEPLOY_CONTAINER_NAME}
   clear_clip
 
-  kops export kubecfg ${kops_name}
+  # kops export kubecfg ${KOPS_NAME}
 }
 function set_kube_current_config_old()
 {
-  local kops_name="${@}"
-  if [[ -z ${kops_name} ]]; then
+  local KOPS_NAME="${@}"
+  if [[ -z ${KOPS_NAME} ]]; then
     (>&2 echo "You did not provide a default kops name argument.")
     return 1
   fi
-  if [[ ${kops_name} =~ "\." ]]; then
+  if [[ ${KOPS_NAME} =~ "\." ]]; then
     (>&2 echo "You did not provide a fully qualified kops name argument.")
     return 1
   fi

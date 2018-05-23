@@ -67,10 +67,11 @@ if [[ $(uname) == "Darwin" ]] ; then
   /usr/local/bin/brew cask cleanup
   /usr/local/bin/brew doctor
   /usr/local/bin/brew missing
+  /usr/local/bin/brew prune
 
-  /bin/rm -vr ~/.gradle/caches/* || echo
-  /bin/rm -vr ~/.ivy2/{local,cache}/* || echo
-  /bin/rm -vr ~/Library/Containers/com.apple.mail/Data/Library/Mail\ Downloads/* || echo
+  /bin/rm -vr ~/.gradle/caches/* 2> /dev/null || echo
+  /bin/rm -vr ~/.ivy2/{local,cache}/* 2> /dev/null || echo
+  /bin/rm -vr ~/Library/Containers/com.apple.mail/Data/Library/Mail\ Downloads/* 2> /dev/null || echo
   if [[ ${TRAVIS_CI_RUN} != true ]]; then
     /usr/bin/sudo /bin/rm -vr /System/Library/Speech/Voices/* || echo
     # /usr/bin/sudo /bin/rm -vr /private/var/tmp/* || echo

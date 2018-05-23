@@ -113,9 +113,9 @@ if ${IS_OSX} && ! hash mas 2>/dev/null ; then
   brew install \
     ack aria2 mas mtr nmap tmux reattach-to-user-namespace \
     maven python3 ansible rbenv ruby ruby-build \
-    awscli docker docker-compose packer terraform vault
+    awscli packer siege terraform vault
     # openshift-cli fleetctl; aria2=torrent_client(aria2c)
-  # TODO: disable updates in docker so brew update can manage it
+
   echo "install lastpass client"
   # brew cask install xquartz
   brew install lastpass-cli --with-pinentry
@@ -186,13 +186,16 @@ if [[ ${TRAVIS_CI_RUN} != true ]]; then
 
   # install main apps into Applications
   HOMEBREW_CASK_OPTS="--appdir=/Applications"
+  # TODO: disable updates in docker so brew update can manage it, disable experimental features
   brew cask install \
     slack spotify gimp google-backup-and-sync iterm2 android-file-transfer android-platform-tools \
-    atom vagrant \
+    atom vagrant docker docker-compose \
     keystore-explorer \
-    beyond-compare firefox
+    beyond-compare firefox private-internet-access
     # google-
     # virtualbox visual-studio-code
+  # TODO: use openvpn to connect to PIA via CLI
+  #  https://helpdesk.privateinternetaccess.com/hc/en-us/articles/219437987-Installing-OpenVPN-PIA-on-MacOS
   # old google-photos-backup available at
   #  https://onedrive.live.com/?authkey=%21AACjGt3FG05pkGM&cid=8E2F81FF61FCF79E&id=8E2F81FF61FCF79E%21104613&parId=8E2F81FF61FCF79E%2187733&o=OneUp
   # brew install Caskroom/cask/pycharm-ce

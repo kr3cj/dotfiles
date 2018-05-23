@@ -103,6 +103,7 @@ function speedtest {
 }
 
 if [[ "${IS_OSX}" == "true" ]]; then
+  alias find="/usr/local/opt/findutils/bin/gfind"
   # since the path file hasn't been sourced yet, use absolute paths to ls for macos
   alias ls="/usr/local/opt/coreutils/libexec/gnubin/ls -G --color=auto"
   alias ll="/usr/local/opt/coreutils/libexec/gnubin/ls -hl -G --color=auto"
@@ -111,10 +112,15 @@ if [[ "${IS_OSX}" == "true" ]]; then
   alias spotify="open -a Spotify"
   # alias gphoto="open --background -a \"Google Photos Backup\""
   alias gphoto="open --background -a \"Backup and Sync\""
-  alias vc="/opt/cisco/anyconnect/bin/vpn connect ${CUSTOM_WORK_DOMAINS[2]/\.*/}"
-  alias vd="/opt/cisco/anyconnect/bin/vpn disconnect"
+  alias vd="/opt/cisco/anyconnect/bin/vpn disconnect && pp"
   alias vs="/opt/cisco/anyconnect/bin/vpn status"
 
+  function vc {
+    lpass show --password --clip AD
+    /opt/cisco/anyconnect/bin/vpn connect ${CUSTOM_WORK_DOMAINS[2]/\.*/}
+    clear_clip 5
+    source ~/.bash_profile # to clean up work/home network connection configs
+  }
   function lpw {
     lpass show --password --clip LDAP
     clear_clip 8
@@ -148,6 +154,18 @@ macmini*|wheezybuild*|squeezebuild*|laphroaig|builder\
     clear_clip 8
     # using homebrew ssh $(which ssh) results in 'Bad configuration option: usekeychain'
     /usr/bin/ssh ${host1}
+  }
+
+  function openit {
+    # quickly opens macos programs in the background if not already running
+    local -a programs=("${@}")
+    local program1
+    local -i item
+
+    for ((item = 0; item < ${#programs[@]}; item++)); do
+      program1="${programs[${item}]}"
+      pgrep -qf "${program1}.app" || (nohup open --hide --background -a ${program1} >/dev/null 2>&1 &)
+    done
   }
 elif [[ "${IS_LINUX}" == "true" ]]; then
   alias ls="ls --color=auto"

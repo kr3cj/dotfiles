@@ -5,15 +5,15 @@ ${IS_OSX} || return
 [[ $(sysctl -n net.link.ether.inet.arp_unicast_lim) -ne 1 ]] && \
   sudo sysctl -w net.link.ether.inet.arp_unicast_lim=1
 
+export  HOMEBREW_CASK_OPTS="--appdir=/Applications"
+
 MANPATH="/usr/local/opt/coreutils/libexec/gnuman:/usr/local/opt/findutils/share/man:${MANPATH-/usr/share/man}"
 MANPATH="/usr/local/opt/gnu-sed/libexec/gnuman:${MANPATH}"
 MANPATH="/usr/local/opt/gnu-tar/libexec/gnuman:${MANPATH}"
 export MANPATH
 
-# open desktop apps
+# open desktop apps (TODO: --background not working for Slack and Atom)
 if ${at_work}; then
-  pgrep -qf "Slack.app" || open --hide --background -a Slack # this always opens in foreground :(
-  pgrep -qf "Atom.app" || open --hide --background -a Atom # this always opens in foreground, too
+  openit Slack Atom
 fi
-pgrep -qf "Backup and Sync.app" || open --hide --background -a "Backup and Sync"
-pgrep -qf "Spotify.app" || open --hide --background -a Spotify
+openit "Backup and Sync" "Spotify"

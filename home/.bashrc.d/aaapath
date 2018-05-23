@@ -2,6 +2,7 @@
 # /usr/local/Cellar/findutils/4.6.0/bin \
 # /usr/local/opt/gnu-sed/libexec/gnubin \
 # /usr/local/opt/gnu-tar/libexec/gnubin \
+
 for path2 in \
   /usr/sbin \
   /usr/local/sbin \
