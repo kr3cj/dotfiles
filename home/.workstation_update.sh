@@ -63,6 +63,7 @@ if [[ $(uname) == "Darwin" ]] ; then
   /usr/local/bin/apm upgrade --confirm false
 
   echo -e "\nCleaning temporary files."
+  PATH="/usr/local/bin:${PATH}"
   /usr/local/bin/brew cleanup -s
   /usr/local/bin/brew cask cleanup
   /usr/local/bin/brew doctor
@@ -73,8 +74,8 @@ if [[ $(uname) == "Darwin" ]] ; then
   /bin/rm -vr ~/.ivy2/{local,cache}/* 2> /dev/null || echo
   /bin/rm -vr ~/Library/Containers/com.apple.mail/Data/Library/Mail\ Downloads/* 2> /dev/null || echo
   if [[ ${TRAVIS_CI_RUN} != true ]]; then
-    /usr/bin/sudo /bin/rm -vr /System/Library/Speech/Voices/* || echo
-    # /usr/bin/sudo /bin/rm -vr /private/var/tmp/* || echo
+    /usr/bin/sudo /bin/rm -vr /System/Library/Speech/Voices/* 2> /dev/null || echo
+    # /usr/bin/sudo /bin/rm -vr /private/var/tmp/* 2> /dev/null || echo
     /usr/bin/sudo /usr/sbin/purge
     /usr/bin/sudo /usr/sbin/periodic daily weekly monthly
     # /usr/bin/sudo rm -vr ~/Library/Caches/*
@@ -116,5 +117,7 @@ elif [[ $(uname) == "Linux" ]] ; then
   fi
 fi
 
+# clear old log files
+/usr/bin/find /var/tmp/ -type f -name "workstation_update_*.log" -user ${USER} -mtime +60 -delete
 # close out logging
 ) 2>&1 | tee -a ${LOG}

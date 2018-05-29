@@ -16,4 +16,4 @@ export MANPATH
 if ${at_work}; then
   openit Slack Atom
 fi
-openit "Backup and Sync" "Spotify"
+openit "Backup and Sync" # "Spotify"
