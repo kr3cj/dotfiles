@@ -39,7 +39,10 @@ if [[ "${HEALTHY_INTERNET}" == "true" && "${IS_OSX}" == "true" ]]; then
   lpass status > /dev/null || DISPLAY=${DISPLAY:-:0} lpass login --trust lastpass@${CUSTOM_HOME_DOMAIN}
 fi
 
-hash git 2>/dev/null || bash ~/.workstation_setup.sh
+if [[ ${TRAVIS_CI_RUN} != true ]]; then
+  # this prevents workstation update from running before workstation setup in travis builds
+  hash git 2>/dev/null || bash ~/.workstation_setup.sh
+fi
 
 if [[ -d ${HOME}/.bashrc.d ]]; then
   for dotd in $(find ${HOME}/.bashrc.d -follow -type f -not -name '*.disabled' | sort); do
