@@ -5,12 +5,12 @@ export KUBECONFIG=~/.kube/config
 source <(kubectl completion bash)
 
 # k8s auth
-if [[ -f ~/.k8s_auth ]] ; then
-  source ~/.k8s_auth
-fi
+[[ -f ~/.k8s_auth ]] && source ~/.k8s_auth
 
 function set_kube_current_config()
 {
+  [[ -f ~/.k8s_auth ]] && source ~/.k8s_auth
+
   KUBE_VAULT_DEPLOY_CONTAINER_NAME="readytalk/kube-vault-deploy:kube-auth"
   # KUBE_VAULT_DEPLOY_CONTAINER_NAME="readytalk/kube-vault-deploy:latest"
   if [[ ${VAULT_REACHABLE} != "true" ]]; then

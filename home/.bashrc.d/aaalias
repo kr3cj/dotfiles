@@ -148,6 +148,14 @@ macmini*|wheezybuild*|squeezebuild*|laphroaig|builder\
         lpass show --password --clip LDAP ;;
       home.${CUSTOM_HOME_DOMAIN})
         lpass show --password --clip "proxy.${CUSTOM_NAS_HOST#*\.}" ;;
+      nas.${CUSTOM_HOME_DOMAIN})
+        lpass show --password --clip "nas.${CUSTOM_NAS_HOST#*\.}" ;;
+      web.${CUSTOM_HOME_DOMAIN})
+        lpass show --password --clip "web.${CUSTOM_NAS_HOST#*\.}" ;;
+      ship.${CUSTOM_HOME_DOMAIN})
+        lpass show --password --clip "ship.${CUSTOM_NAS_HOST#*\.}" ;;
+      plex.${CUSTOM_HOME_DOMAIN})
+        lpass show --password --clip "plex.${CUSTOM_NAS_HOST#*\.}" ;;
       macbuild*)
         lpass show --password --clip "AD" ;;
     esac
