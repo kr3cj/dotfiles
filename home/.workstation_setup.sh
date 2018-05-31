@@ -121,9 +121,7 @@ if ${IS_OSX} && ! hash mas 2>/dev/null ; then
   brew install lastpass-cli --with-pinentry
 
   # now we can install any private repos with private ssh key
-  if [[ ${TRAVIS_CI_RUN} == true ]]
-    break
-  else
+  if [[ ${TRAVIS_CI_RUN} != true ]]
     # load personal ssh key if necessary
     if ! $(ssh-add -l | grep -q "/.ssh/id_rsa_personal\ ("); then
       (umask 177

@@ -117,7 +117,9 @@ elif [[ $(uname) == "Linux" ]] ; then
   fi
 fi
 
-# clear old log files
-/usr/bin/find /var/tmp/ -type f -name "workstation_update_*.log" -user ${USER} -mtime +60 -delete
+if [[ ${TRAVIS_CI_RUN} != true ]]; then
+  # clear old log files
+  /usr/bin/find /var/tmp -type f -name "workstation_update_*.log" -user $(whoami) -mtime +60 -delete
+fi
 # close out logging
 ) 2>&1 | tee -a ${LOG}
