@@ -185,11 +185,14 @@ if [[ ${TRAVIS_CI_RUN} != true ]]; then
   # install main apps into Applications
   HOMEBREW_CASK_OPTS="--appdir=/Applications"
   # TODO: disable updates in docker so brew update can manage it, disable experimental features
+  # broken up into 3 commands to avoid 10 minute travis build timeout
   brew cask install \
-    slack spotify gimp google-backup-and-sync iterm2 android-file-transfer android-platform-tools \
-    atom vagrant docker docker-compose \
-    keystore-explorer \
+    slack spotify gimp google-backup-and-sync iterm2
+  brew cask install \
+    atom vagrant docker docker-compose keystore-explorer
+  brew cask install \
     beyond-compare firefox private-internet-access
+    # android-file-transfer android-platform-tools
     # google-
     # virtualbox visual-studio-code
   # TODO: use openvpn to connect to PIA via CLI
