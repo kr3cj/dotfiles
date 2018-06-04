@@ -185,13 +185,13 @@ if [[ ${TRAVIS_CI_RUN} != true ]]; then
   # install main apps into Applications
   HOMEBREW_CASK_OPTS="--appdir=/Applications"
   # TODO: disable updates in docker so brew update can manage it, disable experimental features
-  # broken up into 3 commands to avoid 10 minute travis build timeout
   brew cask install \
-    atom slack spotify gimp google-backup-and-sync iterm2 vagrant
-  brew cask install \
-    docker docker-compose 
-  brew cask install \
+    atom slack spotify gimp google-backup-and-sync iterm2 vagrant \
     beyond-compare firefox keystore-explorer private-internet-access
+  # broken up into separate commands to avoid 10 minute travis build timeout
+  brew cask install docker
+  brew cask install docker-compose
+
     # android-file-transfer android-platform-tools
     # google-
     # virtualbox visual-studio-code
