@@ -190,7 +190,7 @@ if [[ ${TRAVIS_CI_RUN} != true ]]; then
     beyond-compare firefox keystore-explorer private-internet-access
   # broken up into separate commands to avoid 10 minute travis build timeout
   brew cask install docker
-  brew cask install docker-compose
+  brew install docker-compose
 
     # android-file-transfer android-platform-tools
     # google-
