@@ -187,11 +187,11 @@ if [[ ${TRAVIS_CI_RUN} != true ]]; then
   # TODO: disable updates in docker so brew update can manage it, disable experimental features
   # broken up into 3 commands to avoid 10 minute travis build timeout
   brew cask install \
-    slack spotify gimp google-backup-and-sync iterm2
+    atom slack spotify gimp google-backup-and-sync iterm2 vagrant
   brew cask install \
-    atom vagrant docker docker-compose keystore-explorer
+    docker docker-compose 
   brew cask install \
-    beyond-compare firefox private-internet-access
+    beyond-compare firefox keystore-explorer private-internet-access
     # android-file-transfer android-platform-tools
     # google-
     # virtualbox visual-studio-code
