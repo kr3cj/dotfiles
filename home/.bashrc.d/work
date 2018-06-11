@@ -55,7 +55,8 @@ elif ${at_work} ; then
   # maintain SSH tunnels to datacenters
   _create_socks_proxy "forinf2.${CUSTOM_WORK_DOMAINS[0]}" "2002" "${CUSTOM_LDAP_NAME}"
   _create_socks_proxy "laxinf2.${CUSTOM_WORK_DOMAINS[0]}" "2003" "${CUSTOM_LDAP_NAME}"
-  # establish SSH tunnel to proxy
+  # establish SSH tunnel to home proxy
+  lpass show --password --clip "proxy.${CUSTOM_NAS_HOST#*\.}"
   _create_socks_proxy "home.${CUSTOM_HOME_DOMAIN}" "2000" "${LOGNAME/\.*/}"
 
   while $(mount | grep -q "Documents/share1") ; do
@@ -68,7 +69,9 @@ elif ${at_work} ; then
   # /opt/cisco/anyconnect/bin/vpn disconnect ${CUSTOM_WORK_DOMAINS[2]/\.*/}
   # establish vpn connection to PGi
   # ping -c1 -w1 -i0.1 172.x.x.x > /dev/null || /opt/cisco/anyconnect/bin/vpn connect pgi
-  # pkill "Google Photos Backup"
+
+  # open desktop apps (TODO: --background not working for Slack and Atom)
+  openit Slack Atom
 else
   echo
   if ! $(ping -c1 -W1 -i0.1 laphroaig.${CUSTOM_WORK_DOMAINS[1]} &> /dev/null); then
@@ -83,3 +86,4 @@ else
     && open -a "Private Internet Access"
   echo
 fi
+openit "Backup and Sync" # "Spotify"

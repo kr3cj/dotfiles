@@ -11,9 +11,3 @@ MANPATH="/usr/local/opt/coreutils/libexec/gnuman:/usr/local/opt/findutils/share/
 MANPATH="/usr/local/opt/gnu-sed/libexec/gnuman:${MANPATH}"
 MANPATH="/usr/local/opt/gnu-tar/libexec/gnuman:${MANPATH}"
 export MANPATH
-
-# open desktop apps (TODO: --background not working for Slack and Atom)
-if ${at_work}; then
-  openit Slack Atom
-fi
-openit "Backup and Sync" # "Spotify"

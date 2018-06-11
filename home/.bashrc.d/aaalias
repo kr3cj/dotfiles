@@ -137,32 +137,32 @@ if [[ "${IS_OSX}" == "true" ]]; then
     ) 2> /dev/null
   }
 
-  function ssh {
-    local host1="${@}"
-    case "${host1}" in
+  eval "function ssh {
+    local host1=\"\${@}\"
+    case \"\${host1}\" in
       wyninf13)
         lpass show --password --clip wyninf13 ;;
       wyn*|for*|lax*|fsh*|lsh*|finf*|linf*|ec2h*|192.168.*|\
-macmini*|wheezybuild*|squeezebuild*|laphroaig|builder\
-\.$(echo ${CUSTOM_WORK_DOMAINS[@]} | tr ' ' '|'))
+macmini*|wheezybuild*|squeezebuild*|laphroaig|builder|\
+$(echo ${CUSTOM_WORK_DOMAINS[@]/#/*.} | tr ' ' '|'))
         lpass show --password --clip LDAP ;;
       home.${CUSTOM_HOME_DOMAIN})
-        lpass show --password --clip "proxy.${CUSTOM_NAS_HOST#*\.}" ;;
+        lpass show --password --clip \"proxy.${CUSTOM_NAS_HOST#*\.}\" ;;
       nas.${CUSTOM_HOME_DOMAIN})
-        lpass show --password --clip "nas.${CUSTOM_NAS_HOST#*\.}" ;;
+        lpass show --password --clip \"nas.${CUSTOM_NAS_HOST#*\.}\" ;;
       web.${CUSTOM_HOME_DOMAIN})
-        lpass show --password --clip "web.${CUSTOM_NAS_HOST#*\.}" ;;
+        lpass show --password --clip \"web.${CUSTOM_NAS_HOST#*\.}\" ;;
       ship.${CUSTOM_HOME_DOMAIN})
-        lpass show --password --clip "ship.${CUSTOM_NAS_HOST#*\.}" ;;
+        lpass show --password --clip \"ship.${CUSTOM_NAS_HOST#*\.}\" ;;
       plex.${CUSTOM_HOME_DOMAIN})
-        lpass show --password --clip "plex.${CUSTOM_NAS_HOST#*\.}" ;;
+        lpass show --password --clip \"plex.${CUSTOM_NAS_HOST#*\.}\" ;;
       macbuild*)
-        lpass show --password --clip "AD" ;;
+        lpass show --password --clip AD ;;
     esac
     clear_clip 8
     # using homebrew ssh $(which ssh) results in 'Bad configuration option: usekeychain'
-    /usr/bin/ssh ${host1}
-  }
+    /usr/bin/ssh \${host1}
+  }"
 
   function openit {
     # quickly opens macos programs in the background if not already running

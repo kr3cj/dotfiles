@@ -4,6 +4,13 @@ LOG=/var/tmp/workstation_update_$(date +%Y%m%d-%H%M).log
 # the purpose of this script is to update client binaries on an occasional basis
 # child of ~/.workstation_setup
 
+if [[ ${TRAVIS_CI_RUN} != true ]]; then
+  echo -e "Backup current osx configs..."
+  defaults read > ~/.homesick/repos/dotfiles_private/.osx_current.json
+  [[ ! -l ~/.osx_current.json ]] && \
+    ln -s ~/.homesick/repos/dotfiles_private/.osx_current.json ~/.osx_current.json
+fi
+
 # 3rd party package management
 if hash npm 2>/dev/null ; then
   echo -e "Updating npm..."
@@ -94,6 +101,7 @@ if [[ $(uname) == "Darwin" ]] ; then
 
   echo -e "\nUpdating OSX system..."
   /usr/sbin/softwareupdate --install --all
+  # /usr/sbin/softwareupdate --restart
 
   echo -e "\nUpdating OSX App Store apps..."
   # authenticate to apple account if necessary

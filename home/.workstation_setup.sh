@@ -18,8 +18,8 @@ case "$(uname)" in
 esac
 
 # only proceed for Linux workstations, not servers
-if [[ ${IS_LINUX} == true ]] && [[ ! -d /usr/share/xsessions ]]; then
-  if [[ ${TRAVIS_CI_RUN} != true ]]; then
+if [[ ${TRAVIS_CI_RUN} != true ]]; then
+  if [[ ${IS_LINUX} == true ]] && [[ ! -d /usr/share/xsessions ]]; then
     echo "Quitting workfstation setup on what appears to be a linux server"
     exit 0
   fi
@@ -204,13 +204,14 @@ if [[ ${TRAVIS_CI_RUN} != true ]]; then
 
   # TODO: when etcher-cli comes out, instal it from homebrew
 
-  # iterm2 customizations
-  # Specify the preferences directory
-  defaults write com.googlecode.iterm2.plist PrefsCustomFolder -string "~/.config"
-  # Tell iTerm2 to use the custom preferences in the directory
-  defaults write com.googlecode.iterm2.plist LoadPrefsFromCustomFolder -bool true
-
   if [[ ${TRAVIS_CI_RUN} != true ]]; then
+    # iterm2 customizations
+    # Specify the preferences directory
+    defaults write com.googlecode.iterm2.plist PrefsCustomFolder -string \
+      "~/.homesick/repos/dotfiles_private/iterm2/"
+    # Tell iTerm2 to use the custom preferences in the directory
+    defaults write com.googlecode.iterm2.plist LoadPrefsFromCustomFolder -bool true
+
     # install java8
     brew tap caskroom/versions
     brew cask install java8
@@ -218,6 +219,35 @@ if [[ ${TRAVIS_CI_RUN} != true ]]; then
     docker login artifactory.${CUSTOM_WORK_DOMAINS[5]}
     # ensure credential files for development are locked down
     chmod -cHLR 600 ~/.ivy2 ~/.docker ~/.ant # ~/.m2 .pgpass, .vnc/passwd, .jspm/config
+
+    # install cisco vpn client
+    echo "Please install the \"Cisco AnyConnect Secure Mobility Client\""
+    cat << EOF | sudo tee -a /opt/cisco/anyconnect/profile/Profile.xml
+<AnyConnectProfile xmlns="http://schemas.xmlsoap.org/encoding/">
+  <ServerList>
+    <HostEntry>
+      <HostName>${CUSTOM_WORK_DOMAINS[2]/\.*/}</HostName>
+      <HostAddress>${CUSTOM_WORK_VPN_RT}</HostAddress>
+    </HostEntry>
+    <HostEntry>
+      <HostName>pgi</HostName>
+      <HostAddress>${CUSTOM_WORK_VPN_PGI[0]}</HostAddress>
+      <BackupServerList>
+        <HostAddress>${CUSTOM_WORK_VPN_PGI[1]}</HostAddress>
+        <HostAddress>${CUSTOM_WORK_VPN_PGI[2]}</HostAddress>
+      </BackupServerList>
+    </HostEntry>
+  </ServerList>
+</AnyConnectProfile>
+EOF
+
+    ### general osx customizations ###
+    # first, backup the current defaults
+    defaults read > ~/.osx_defaults_original_$(date +%Y-%m-%d).json
+    source "${HOME}/.homesick/repos/homeshick/homeshick.sh"
+    homeshick track dotfiles_private ~/osx_defaults_original_$(date +%Y-%m-%d).json
+    # second, load customizations https://github.com/mathiasbynens/dotfiles/blob/master/.macos
+    bash ~/.osx_customizations.json
   fi
 
   # install atom editor plugins
@@ -239,28 +269,7 @@ if [[ ${TRAVIS_CI_RUN} != true ]]; then
   #   "workbench.startupEditor": "none"
   # }
   #
-  if [[ ${TRAVIS_CI_RUN} != true ]]; then
-    # install cisco vpn client
-    echo "Please install the \"Cisco AnyConnect Secure Mobility Client\""
-    cat << EOF | sudo tee -a /opt/cisco/anyconnect/profile/Profile.xml
-<AnyConnectProfile xmlns="http://schemas.xmlsoap.org/encoding/">
-  <ServerList>
-    <HostEntry>
-      <HostName>${CUSTOM_WORK_DOMAINS[2]/\.*/}</HostName>
-      <HostAddress>${CUSTOM_WORK_VPN_RT}</HostAddress>
-    </HostEntry>
-    <HostEntry>
-      <HostName>pgi</HostName>
-      <HostAddress>${CUSTOM_WORK_VPN_PGI[0]}</HostAddress>
-      <BackupServerList>
-        <HostAddress>${CUSTOM_WORK_VPN_PGI[1]}</HostAddress>
-        <HostAddress>${CUSTOM_WORK_VPN_PGI[2]}</HostAddress>
-      </BackupServerList>
-    </HostEntry>
-  </ServerList>
-</AnyConnectProfile>
-EOF
-  fi
+
   # gce and gke stuff (https://cloud.google.com/sdk/docs/quickstart-mac-os-x)
   # brew install go
   # go get golang.org/x/tools/cmd/godoc
@@ -288,12 +297,9 @@ EOF
   [[ -d ~/Documents/share1 ]] || mkdir ~/Documents/share1
   [[ -d ~/Pictures/share1 ]] || mkdir ~/Pictures/share1
 
-  ### general osx customizations from https://github.com/mathiasbynens/dotfiles/blob/master/.macos ###
-  # first, backup the current defaults
-  defaults read > ~/osx_defaults_original_$(date +%Y-%m-%d).json
-  source "${HOME}/.homesick/repos/homeshick/homeshick.sh"
-  homeshick track dotfiles_private ~/osx_defaults_original_$(date +%Y-%m-%d).json
-  [[ ${TRAVIS_CI_RUN} != true ]] && bash ~/.macos
+if [[ ${TRAVIS_CI_RUN} != true ]]; then
+
+fi
 
   # Run python code to checkout all repositories
   [[ -d ~/build ]] || mkdir ~/build

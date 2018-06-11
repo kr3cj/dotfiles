@@ -44,7 +44,7 @@ attempting to unmount /Users/${LOGNAME}/Pictures/share1 by fsid
       symlink .bootstrap.sh
       symlink .gitignore
       symlink .inputrc
-      symlink .macos
+      symlink .osx_customizations.json
       symlink .ssh/config
       symlink .ssh/id_rsa.pub
       symlink .ssh/ssh-agent-setup
