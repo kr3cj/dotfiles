@@ -7,8 +7,8 @@ LOG=/var/tmp/workstation_update_$(date +%Y%m%d-%H%M).log
 if [[ ${TRAVIS_CI_RUN} != true ]]; then
   echo -e "Backup current osx configs..."
   defaults read > ~/.homesick/repos/dotfiles_private/.osx_current.json
-  [[ ! -l ~/.osx_current.json ]] && \
-    ln -s ~/.homesick/repos/dotfiles_private/.osx_current.json ~/.osx_current.json
+  # [[ -l ~/.osx_current.json ]] ||   \
+  #  ln -s ~/.homesick/repos/dotfiles_private/.osx_current.json ~/.osx_current.json
 fi
 
 # 3rd party package management
@@ -98,6 +98,11 @@ if [[ $(uname) == "Darwin" ]] ; then
     # echo "Finished verifying disk health at $(date +%Y-%m-%d-%H%M)." | /usr/bin/wall
     # sudo diskutil repairDisk /dev/disk0
   fi
+
+  echo -e "\nPrint any dead links in home directory..."
+  find ${HOME} -xtype l ! -path "*/Library/*" ! -path "*/.virtualenvs/*" ! -path "*/build/*" \
+    -exec echo 'Broken symlink: {}' \;
+    # -exec rm -v '{}' \;
 
   echo -e "\nUpdating OSX system..."
   /usr/sbin/softwareupdate --install --all

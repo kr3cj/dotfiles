@@ -89,6 +89,7 @@ if ${IS_OSX} && ! hash mas 2>/dev/null ; then
   brew install svn
   brew install unzip
   brew install vim --override-system-vi
+  brew install tcpdump
   # brew install macvim --with-override-system-vim --custom-system-icons
   # brew link --overwrite macvim
   # brew linkapps macvim
@@ -187,7 +188,9 @@ if [[ ${TRAVIS_CI_RUN} != true ]]; then
   # TODO: disable updates in docker so brew update can manage it, disable experimental features
   brew cask install \
     atom slack spotify gimp google-backup-and-sync iterm2 vagrant \
-    beyond-compare firefox keystore-explorer private-internet-access
+    beyond-compare firefox keystore-explorer private-internet-access \
+    wireshark
+
   # broken up into separate commands to avoid 10 minute travis build timeout
   brew cask install docker
   brew install docker-compose
@@ -202,7 +205,14 @@ if [[ ${TRAVIS_CI_RUN} != true ]]; then
   # brew install Caskroom/cask/pycharm-ce
   HOMEBREW_CASK_OPTS=""
 
-  # TODO: when etcher-cli comes out, instal it from homebrew
+  # TODO: when etcher-cli comes out, install it from homebrew
+
+  # https://developer.mozilla.org/en-US/docs/Mozilla/Command_Line_Options
+  echo "Lock down firefox about:config
+    network.trr.mode=2
+    network.trr.uri=https://mozilla.cloudflare-dns.com/dns-query
+    browser.search.defaultenginename
+  "
 
   if [[ ${TRAVIS_CI_RUN} != true ]]; then
     # iterm2 customizations
@@ -326,7 +336,7 @@ if ${IS_LINUX} && ! hash packer 2>/dev/null ; then
     echo "Configuring Debian. This will take a few minutes."
     sudo apt-get update
     sudo apt-get install -y apt-transport-https ca-certificates curl git software-properties-common
-    sudo apt-get install -y python-dev python3 tmux ack-grep jq xclip
+    sudo apt-get install -y python-dev python3 tmux ack-grep jq xclip aria2
     # pip
     sudo wget https://bootstrap.pypa.io/get-pip.py
     sudo python get-pip.py && rm get-pip.py
@@ -379,7 +389,7 @@ if ${IS_LINUX} && ! hash packer 2>/dev/null ; then
 
   elif ${is_rhel} ; then
     echo "Configuring RHEL. This will take a few minutes."
-    sudo yum install -y python-dev python3 tmux ack lastpass-cli git curl xclip
+    sudo yum install -y python-dev python3 tmux ack lastpass-cli git curl xclip aria2
     # pip
     sudo wget https://bootstrap.pypa.io/get-pip.py
     sudo python get-pip.py && rm get-pip.py

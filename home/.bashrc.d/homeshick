@@ -19,5 +19,8 @@ homeshick --quiet refresh
 # can take a long time and requires tty?; TODO: try shallow symlinking?
 # https://github.com/andsens/homeshick/wiki/Symlinking#shallow-symlinking
 
-${IS_LINUX} && homeshick --force link dotfiles dotfiles_private
-clear_clip
+${IS_LINUX} || return
+homeshick --force link dotfiles dotfiles_private
+echo -e "\nPrint any dead links in home directory..."
+find ${HOME} -xtype l ! -path "*/Library/*" ! -path "*/.virtualenvs/*" ! -path "*/build/*" \
+  -exec echo 'Broken symlink: {}' \;

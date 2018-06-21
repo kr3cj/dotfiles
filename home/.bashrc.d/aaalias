@@ -97,19 +97,28 @@ function find-error() {
   sudo grep -riE 'DENIED|ERR|EXIST|FAIL|INVALID|SPECIFIED|SUCH|UNABLE|WARN' ${1}
 }
 
+function aria2c {
+  aria2c -x2 --seed-ratio=1.0 --check-integrity true ${@}
+}
+
 function speedtest {
   curl -s https://raw.githubusercontent.com/sivel/speedtest-cli/master/speedtest.py \
   | python -
 }
 
+function whatismyip {
+  curl ifconfig.me
+}
+
 if [[ "${IS_OSX}" == "true" ]]; then
   alias find="/usr/local/opt/findutils/bin/gfind"
   # since the path file hasn't been sourced yet, use absolute paths to ls for macos
-  alias ls="/usr/local/opt/coreutils/libexec/gnubin/ls -G --color=auto"
-  alias ll="/usr/local/opt/coreutils/libexec/gnubin/ls -hl -G --color=auto"
+  alias ls="/usr/local/opt/coreutils/libexec/gnubin/ls -a -G --color=auto"
+  alias ll="/usr/local/opt/coreutils/libexec/gnubin/ls -hal -G --color=auto"
   alias srm="/bin/rm -vP"
   alias slack="open -a Slack"
   alias spotify="open -a Spotify"
+  # alias pia="nohup ~/.pia_manager/pia_manager.app/Contents/MacOS/runner.sh >/dev/null 2>&1 &"
   # alias gphoto="open --background -a \"Google Photos Backup\""
   alias gphoto="open --background -a \"Backup and Sync\""
   alias vd="/opt/cisco/anyconnect/bin/vpn disconnect && pp"
@@ -137,6 +146,7 @@ if [[ "${IS_OSX}" == "true" ]]; then
     ) 2> /dev/null
   }
 
+  unalias ssh 2> /dev/null
   eval "function ssh {
     local host1=\"\${@}\"
     case \"\${host1}\" in
@@ -148,13 +158,13 @@ $(echo ${CUSTOM_WORK_DOMAINS[@]/#/*.} | tr ' ' '|'))
         lpass show --password --clip LDAP ;;
       home.${CUSTOM_HOME_DOMAIN})
         lpass show --password --clip \"proxy.${CUSTOM_NAS_HOST#*\.}\" ;;
-      nas.${CUSTOM_HOME_DOMAIN})
+      nas|nas.${CUSTOM_NAS_HOST#*\.})
         lpass show --password --clip \"nas.${CUSTOM_NAS_HOST#*\.}\" ;;
-      web.${CUSTOM_HOME_DOMAIN})
+      web|web.${CUSTOM_NAS_HOST#*\.})
         lpass show --password --clip \"web.${CUSTOM_NAS_HOST#*\.}\" ;;
-      ship.${CUSTOM_HOME_DOMAIN})
+      ship|ship.${CUSTOM_NAS_HOST#*\.})
         lpass show --password --clip \"ship.${CUSTOM_NAS_HOST#*\.}\" ;;
-      plex.${CUSTOM_HOME_DOMAIN})
+      plex|plex.${CUSTOM_NAS_HOST#*\.})
         lpass show --password --clip \"plex.${CUSTOM_NAS_HOST#*\.}\" ;;
       macbuild*)
         lpass show --password --clip AD ;;
@@ -176,8 +186,8 @@ $(echo ${CUSTOM_WORK_DOMAINS[@]/#/*.} | tr ' ' '|'))
     done
   }
 elif [[ "${IS_LINUX}" == "true" ]]; then
-  alias ls="ls --color=auto"
-  alias ll="ls -hl --color=auto"
+  alias ls="ls -a --color=auto"
+  alias ll="ls -hal --color=auto"
   alias list-services="systemctl list-unit-files --type=service | grep enabled | \
     cut -d. -f1 | sort"
   # enforce one use of clipboard memory

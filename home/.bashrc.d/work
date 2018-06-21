@@ -36,9 +36,6 @@ if ${at_home} ; then
       echo && clear_clip
     )
   fi
-  # establish vpn connection to PGi
-  # ping -c1 -w1 -i0.1 172.x.x.x > /dev/null || /opt/cisco/anyconnect/bin/vpn connect pgi
-	# TODO: switch SwitchyOmega profile
   if $(ping -c1 -W1 -i0.1 ${CUSTOM_NAS_HOST} &> /dev/null) ; then
     # killall -HUP mountd
     mount | grep -q "Documents/share1" || mount -t nfs -o \
@@ -82,8 +79,9 @@ else
     )
   fi
   echo
-  read -t 2 -p "If in public location and need P.I.A. VPN, press Enter key within 2 seconds..." \
-    && open -a "Private Internet Access"
+  # read -t 2 -p "If in public location and need P.I.A. VPN, press Enter key within 2 seconds..." \
+    # && nohup ~/.pia_manager/pia_manager.app/Contents/MacOS/runner.sh >/dev/null 2>&1 &
+    # && open -a "Private Internet Access"
   echo
 fi
 openit "Backup and Sync" # "Spotify"

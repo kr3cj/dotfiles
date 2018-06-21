@@ -3,6 +3,7 @@ ${IS_OSX} || return
 export VAULT_REACHABLE="true"
 export VAULT_ADDR="https://vault.${CUSTOM_WORK_DOMAINS[2]}:8200"
 export VAULT_CLIENT_TIMEOUT=2
+export VAULT_MAX_RETRIES=5
 # export VAULT_MFA=#TODO
 
 # TODO: this port check is expensive; only check if token lookup fails?
@@ -14,7 +15,11 @@ if [[ "${HEALTHY_INTERNET}" == "true" ]] && [[ "${VAULT_REACHABLE}" == "true" ]]
     echo "Must re-authenticate with VAULT (${VAULT_ADDR}...)"
     lpass show --password --clip LDAP
     vault login -method=ldap username=${CUSTOM_LDAP_NAME} > /dev/null
-    vault token renew -increment=10h > /dev/null
+    if [[ ${?} -ne 0 ]]; then
+      export VAULT_REACHABLE="false"
+    else
+      vault token renew -increment=10h > /dev/null
+    fi
     clear_clip
   fi
 else

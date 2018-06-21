@@ -10,6 +10,9 @@ source <(kubectl completion bash)
 function set_kube_current_config()
 {
   [[ -f ~/.k8s_auth ]] && source ~/.k8s_auth
+  [[ -f ~/.aws_auth ]] && source ~/.aws_auth
+  env | grep AWS_
+  echo
 
   KUBE_VAULT_DEPLOY_CONTAINER_NAME="readytalk/kube-vault-deploy:kube-auth"
   # KUBE_VAULT_DEPLOY_CONTAINER_NAME="readytalk/kube-vault-deploy:latest"
@@ -32,8 +35,16 @@ function set_kube_current_config()
     return 1
   fi
 
-  echo -e "\${KOPS_NAME}=\"${KOPS_NAME}\"; \${KOPS_STATE_STORE}=\"${KOPS_STATE_STORE}\"; \
-  \${KOPS_STATE_STORE_REGION}=\"${KOPS_STATE_STORE_REGION}\""
+  echo "LATEST_COREOS_VERSION=$(curl -s https://coreos.com/dist/aws/aws-stable.json \
+      | jq --raw-output '.release_info.version'); \
+    CURRENT_KOPS_VERSION=$(kops version | awk '{print $2}'); \
+    LATEST_KOPS_VERSION=$(curl -s https://api.github.com/repos/kubernetes/kops/releases/latest \
+      | jq -r '.tag_name')
+    CURRENT_K8S_VERSION=$(kubectl version)\n
+    LATEST_K8S_VERSION=$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)"
+
+  echo -e "\n\${KOPS_NAME}=\"${KOPS_NAME}\"; \${KOPS_STATE_STORE}=\"${KOPS_STATE_STORE}\"; \
+    \${KOPS_STATE_STORE_REGION}=\"${KOPS_STATE_STORE_REGION}\""
   echo -e "Using container:tag \"${KUBE_VAULT_DEPLOY_CONTAINER_NAME}\"; is this correct?\n"
   read -p "Press any key to continue or CTRL+C to abort."
 

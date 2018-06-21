@@ -9,7 +9,7 @@ ${HEALTHY_INTERNET} || return
 
 # ssh agent stuff
 [[ -f ${HOME}/.ssh/ssh-agent-setup ]] && source ${HOME}/.ssh/ssh-agent-setup
-$(env | grep -q SSH_AUTH_SOCK) || eval $(ssh-agent -s)
+$(env | grep -q SSH_AUTH_SOCK) || ( eval $(ssh-agent -s) || (ssh_clean && ssh_start))
 
 ### load ssh keys into agent ###
 # TODO: better integrate passphrase from LastPass CLI? https://svkt.org/~simias/lpass/#ssh-agent

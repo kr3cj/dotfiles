@@ -6,4 +6,12 @@ function _ssh_auth_save() {
 }
 alias screen='_ssh_auth_save ; $(which screen)'
 alias tmux='_ssh_auth_save ; $(which tmux)'
-alias tma='lpass show --password --clip LDAP && /usr/bin/ssh -tt laphroaig tmux new-session -A'
+
+unalias tma 2> /dev/null # remove after awhile
+function tma() {
+  local host1=${1}
+  lpass show --password --clip LDAP
+  /usr/bin/ssh -tt -o TCPKeepAlive=yes -o ServerAliveInterval=120 \
+    ${host1} tmux -CC attach
+    # ${host1} tmux new-session -A
+}
