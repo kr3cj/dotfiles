@@ -37,7 +37,10 @@ fi
 for key3 in jenkins-builder coreos ; do
   if ! $(ssh-add -l | grep -q "/.ssh/id_rsa_${key3}\ (" ); then
     (umask 177
-    vault read -field=private-key secret/ssh-keys/${key3} > ~/.ssh/id_rsa_${key3}
+    # vault read -field=private-key secret/ssh-keys/${key3} > ~/.ssh/id_rsa_${key3}
+    curl -s -H "X-Vault-Token: $(cat ~/.vault-token)" \
+      ${VAULT_ADDR}/v1/secret/ssh-keys/${key3} \
+      | jq -r '.data."private-key"' > ~/.ssh/id_rsa_${key3}
     )
     ssh-add -t 36000 -k ~/.ssh/id_rsa_${key3}
     rm -f ~/.ssh/id_rsa_${key3}
