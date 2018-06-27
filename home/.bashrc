@@ -23,8 +23,6 @@ export TRAVIS_CI_RUN="${TRAVIS_CI_RUN:-false}"
 export HEALTHY_INTERNET=false
 if hash curl 2>/dev/null && $(curl github.com --connect-timeout 1 &> /dev/null); then
   HEALTHY_INTERNET=true
-else
-  echo "Skipping network related profile tasks as there's no healthy internet connectivity."
 fi
 
 # lastpass stuff cannot be inside bashrc.d file due to tty req'ts

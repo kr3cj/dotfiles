@@ -21,6 +21,6 @@ homeshick --quiet refresh
 
 ${IS_LINUX} || return
 homeshick --force link dotfiles dotfiles_private
-echo -e "\nPrint any dead links in home directory..."
-find ${HOME} -xtype l ! -path "*/Library/*" ! -path "*/.virtualenvs/*" ! -path "*/build/*" \
+# print any dead links in home directory
+find ${HOME} -mindepth 1 -maxdepth 2 -xtype l ! -path "*/Library/*" ! -path "*/.virtualenvs/*" ! -path "*/build/*" \
   -exec echo 'Broken symlink: {}' \;

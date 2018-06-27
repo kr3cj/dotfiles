@@ -1,5 +1,9 @@
 [[ $- = *i* ]] || return
 
+# moved echo from .bashrc since text from there can mess up rsync
+${HEALTHY_INTERNET} || echo "Skipping network related profile tasks as \
+there's no healthy internet connectivity."
+
 #  troubleshooting
 # [[ ${HISTSIZE} -lt 1000000 ]] && echo -e "\nSomething has overridden \${HISTSIZE} to ${HISTSIZE}!!!\n"
 

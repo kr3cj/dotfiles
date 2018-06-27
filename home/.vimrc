@@ -8,6 +8,10 @@ set pastetoggle=<F2>
 set history=1000
 "give three lines of context when moving the cursor around
 set scrolloff=3
+"allow delete and backspace keys in insert mode"
+set backspace=indent,eol,start
+nnoremap <BS> X
+set ruler
 
 au BufReadPost Jenkinsfile setlocal filetype=groovy
 
