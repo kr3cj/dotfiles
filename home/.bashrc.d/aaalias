@@ -97,8 +97,8 @@ function find-error() {
   sudo grep -riE 'DENIED|ERR|EXIST|FAIL|INVALID|SPECIFIED|SUCH|UNABLE|WARN' ${1}
 }
 
-function aria2c {
-  aria2c -x2 --seed-ratio=1.0 --check-integrity true ${@}
+function aria {
+  $(which aria2c) -c --always-resume=true -x2 --seed-ratio=1.0 --check-integrity true ${@}
 }
 
 function speedtest {
@@ -113,7 +113,7 @@ function whatismyip {
 if [[ "${IS_OSX}" == "true" ]]; then
   alias find="/usr/local/opt/findutils/bin/gfind"
   # since the path file hasn't been sourced yet, use absolute paths to ls for macos
-  alias ls="/usr/local/opt/coreutils/libexec/gnubin/ls -a -G --color=auto"
+  alias ls="/usr/local/opt/coreutils/libexec/gnubin/ls -G --color=auto"
   alias ll="/usr/local/opt/coreutils/libexec/gnubin/ls -hal -G --color=auto"
   alias srm="/bin/rm -vP"
   alias slack="open -a Slack"
@@ -186,7 +186,7 @@ $(echo ${CUSTOM_WORK_DOMAINS[@]/#/*.} | tr ' ' '|'))
     done
   }
 elif [[ "${IS_LINUX}" == "true" ]]; then
-  alias ls="ls -a --color=auto"
+  alias ls="ls --color=auto"
   alias ll="ls -hal --color=auto"
   alias list-services="systemctl list-unit-files --type=service | grep enabled | \
     cut -d. -f1 | sort"
