@@ -1,7 +1,10 @@
 #!/bin/bash
 # the purpose of this script is to install my homeshick dotfiles from github
 
-# first, make sure git is installed
+# first, make sure xcode is installed
+# TODO: automated way without needing mas?
+    
+# second , make sure git is installed
 if ! hash git 2>/dev/null ; then
   if [[ $(uname) == "Darwin" ]] ; then
     /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
@@ -18,7 +21,7 @@ if ! hash git 2>/dev/null ; then
   fi
 fi
 
-# second, set up homeshick repos
+# third, set up homeshick repos
 if [[ ! -d ${HOME}/.homesick/repos/homeshick ]]; then
   git clone https://github.com/andsens/homeshick.git ${HOME}/.homesick/repos/homeshick
 else
@@ -39,4 +42,4 @@ for public_repo in ${public_repos}; do
 done
 homeshick --force link
 
-source ~/.bash_profile
+[[ -f ~/.bash_profile]] && source ~/.bash_profile
