@@ -29,6 +29,8 @@ for key2 in "" _personal; do
   fi
 done
 
+# remove next line if bar gets vault
+return
 # temporarily load ssh keys from vault into agent
 if [[ ${VAULT_REACHABLE} != "true" ]]; then
   echo "Skip loading of more ssh-keys as vault is unreachable."

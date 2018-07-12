@@ -1,7 +1,9 @@
 ${IS_OSX} || return
+# uncomment next line if bar gets vault
+return
 
 export VAULT_REACHABLE="true"
-export VAULT_ADDR="https://vault.${CUSTOM_WORK_DOMAINS[2]}:8200"
+export VAULT_ADDR="https://vault.${CUSTOM_WORK_DOMAINS[1]}:8200"
 export VAULT_CLIENT_TIMEOUT=2
 export VAULT_MAX_RETRIES=5
 # export VAULT_MFA=#TODO

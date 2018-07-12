@@ -111,7 +111,6 @@ function whatismyip {
 }
 
 if [[ "${IS_OSX}" == "true" ]]; then
-  alias find="/usr/local/opt/findutils/bin/gfind"
   # since the path file hasn't been sourced yet, use absolute paths to ls for macos
   alias ls="/usr/local/opt/coreutils/libexec/gnubin/ls -G --color=auto"
   alias ll="/usr/local/opt/coreutils/libexec/gnubin/ls -hal -G --color=auto"
@@ -126,7 +125,7 @@ if [[ "${IS_OSX}" == "true" ]]; then
 
   function vc {
     lpass show --password --clip AD
-    /opt/cisco/anyconnect/bin/vpn connect ${CUSTOM_WORK_DOMAINS[2]/\.*/}
+    /opt/cisco/anyconnect/bin/vpn connect ${CUSTOM_WORK_DOMAINS[1]/\.*/}
     clear_clip 5
     source ~/.bash_profile # to clean up work/home network connection configs
   }
@@ -152,8 +151,7 @@ if [[ "${IS_OSX}" == "true" ]]; then
     case \"\${host1}\" in
       wyninf13)
         lpass show --password --clip wyninf13 ;;
-      wyn*|for*|lax*|fsh*|lsh*|finf*|linf*|ec2h*|192.168.*|\
-macmini*|wheezybuild*|squeezebuild*|laphroaig|builder|\
+      10.10.*|\
 $(echo ${CUSTOM_WORK_DOMAINS[@]/#/*.} | tr ' ' '|'))
         lpass show --password --clip LDAP ;;
       home.${CUSTOM_HOME_DOMAIN})

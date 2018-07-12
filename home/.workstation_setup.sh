@@ -226,7 +226,7 @@ if [[ ${TRAVIS_CI_RUN} != true ]]; then
     brew tap caskroom/versions
     brew cask install java8
     # setup build system credentials
-    docker login artifactory.${CUSTOM_WORK_DOMAINS[5]}
+    docker login artifactory.${CUSTOM_WORK_DOMAINS[2]}
     # ensure credential files for development are locked down
     chmod -cHLR 600 ~/.ivy2 ~/.docker ~/.ant # ~/.m2 .pgpass, .vnc/passwd, .jspm/config
 
@@ -238,14 +238,6 @@ if [[ ${TRAVIS_CI_RUN} != true ]]; then
     <HostEntry>
       <HostName>${CUSTOM_WORK_DOMAINS[2]/\.*/}</HostName>
       <HostAddress>${CUSTOM_WORK_VPN_RT}</HostAddress>
-    </HostEntry>
-    <HostEntry>
-      <HostName>pgi</HostName>
-      <HostAddress>${CUSTOM_WORK_VPN_PGI[0]}</HostAddress>
-      <BackupServerList>
-        <HostAddress>${CUSTOM_WORK_VPN_PGI[1]}</HostAddress>
-        <HostAddress>${CUSTOM_WORK_VPN_PGI[2]}</HostAddress>
-      </BackupServerList>
     </HostEntry>
   </ServerList>
 </AnyConnectProfile>
@@ -308,8 +300,6 @@ EOF
   [[ -d ~/Pictures/share1 ]] || mkdir ~/Pictures/share1
 
 if [[ ${TRAVIS_CI_RUN} != true ]]; then
-
-fi
 
   # Run python code to checkout all repositories
   [[ -d ~/build ]] || mkdir ~/build
@@ -407,6 +397,7 @@ if ${IS_LINUX} && ! hash packer 2>/dev/null ; then
 fi
 
 # upgrade software Fridays at 10am
-if ! $(crontab -l | grep -q workstation_update) ; then
-  (crontab -l 2>/dev/null; echo "0 10 * * 5 ~/.workstation_update.sh") | crontab -
-fi
+# if ! $(crontab -l | grep -q workstation_update) ; then
+#   (crontab -l 2>/dev/null; echo "0 10 * * 5 ~/.workstation_update.sh") | crontab -
+# fi
+
