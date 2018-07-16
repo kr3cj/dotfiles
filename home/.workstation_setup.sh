@@ -226,7 +226,7 @@ if [[ ${TRAVIS_CI_RUN} != true ]]; then
     brew tap caskroom/versions
     brew cask install java8
     # setup build system credentials
-    docker login artifactory.${CUSTOM_WORK_DOMAINS[2]}
+    docker login ${CUSTOM_WORK_JFROG_SUBDOMAIN}.jfrog.io
     # ensure credential files for development are locked down
     chmod -cHLR 600 ~/.ivy2 ~/.docker ~/.ant # ~/.m2 .pgpass, .vnc/passwd, .jspm/config
 

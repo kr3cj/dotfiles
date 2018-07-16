@@ -14,20 +14,20 @@ $(env | grep -q SSH_AUTH_SOCK) || ( eval $(ssh-agent -s) || (ssh_clean && ssh_st
 ### load ssh keys into agent ###
 # TODO: better integrate passphrase from LastPass CLI? https://svkt.org/~simias/lpass/#ssh-agent
 # temporarily load ssh keys from lastpass into agent
-for key2 in "" _personal; do
-  if ! $(ssh-add -l | grep -q "/.ssh/id_rsa${key2}\ ("); then
-    key_desc="Work"
-    [[ ${key2} == "_personal" ]] && key_desc="Personal"
-    # create key if necessary
-    (umask 177
-    lpass show --field="Private Key" "${key_desc} SSH Key" > ~/.ssh/id_rsa${key2}
-    )
-    lpass show --field=Passphrase --clip "${key_desc} SSH Key"
-    ssh-add -t 36000 -k ~/.ssh/id_rsa${key2}
-    clear_clip
-    rm -f ~/.ssh/id_rsa${key2}
-  fi
-done
+# for key2 in "" _personal; do
+#   if ! $(ssh-add -l | grep -q "/.ssh/id_rsa${key2}\ ("); then
+#     key_desc="Work"
+#     [[ ${key2} == "_personal" ]] && key_desc="Personal"
+#     # create key if necessary
+#     (umask 177
+#     lpass show --field="Private Key" "${key_desc} SSH Key" > ~/.ssh/id_rsa${key2}
+#     )
+#     lpass show --field=Passphrase --clip "${key_desc} SSH Key"
+#     ssh-add -t 36000 -k ~/.ssh/id_rsa${key2}
+#     clear_clip
+#     rm -f ~/.ssh/id_rsa${key2}
+#   fi
+# done
 
 # remove next line if bar gets vault
 return
