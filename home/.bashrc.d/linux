@@ -16,9 +16,7 @@ else
 fi
 
 ip_address=$(ip addr show | grep 'inet ' | grep -v 127 | head -n1 | awk '{print $2}' | cut -d/ -f1)
-if [[ ${ip_address} =~ "${CUSTOM_WORK_SUBNET}.49." ]] || \
-  [[ ${ip_address} =~ "${CUSTOM_WORK_SUBNET}.200." ]] || \
-  [[ ${ip_address} =~ "${CUSTOM_WORK_SUBNET}.201." ]] || \
-  [[ ${ip_address} =~ "${CUSTOM_WORK_SUBNET}.67." ]]; then
+if [[ ${ip_address} =~ "${CUSTOM_WORK_SUBNET}.26." ]] || \
+  [[ ${ip_address} =~ "${CUSTOM_WORK_SUBNET}.1." ]]; then
   at_work=true
 fi

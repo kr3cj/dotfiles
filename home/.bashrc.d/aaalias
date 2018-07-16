@@ -111,7 +111,7 @@ function whatismyip {
 }
 
 if [[ "${IS_OSX}" == "true" ]]; then
-  alias curl="/usr/local/opt/openssl/bin/curl"
+  alias curl="/usr/local/opt/curl/bin/curl"
   # since the path file hasn't been sourced yet, use absolute paths to ls for macos
   alias ls="/usr/local/opt/coreutils/libexec/gnubin/ls -G --color=auto"
   alias ll="/usr/local/opt/coreutils/libexec/gnubin/ls -hal -G --color=auto"
@@ -152,7 +152,7 @@ if [[ "${IS_OSX}" == "true" ]]; then
 #    case \"\${host1}\" in
 #      wyninf13)
 #        lpass show --password --clip wyninf13 ;;
-#      10.10.*|\
+#      ${CUSTOM_WORK_SUBNET}.*|\
 #$(echo ${CUSTOM_WORK_DOMAINS[@]/#/*.} | tr ' ' '|'))
 #        lpass show --password --clip LDAP ;;
 #      home.${CUSTOM_HOME_DOMAIN})
