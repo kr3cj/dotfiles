@@ -10,7 +10,7 @@ source <(kubectl completion bash)
 function set_kube_current_config()
 {
   [[ -f ~/.k8s_auth ]] && source ~/.k8s_auth
-  [[ -f ~/.aws_auth ]] && source ~/.aws_auth
+  # [[ -f ~/.aws_auth ]] && source ~/.aws_auth
   env | grep AWS_
   echo
 

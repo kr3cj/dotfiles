@@ -29,7 +29,7 @@ $(env | grep -q SSH_AUTH_SOCK) || ( eval $(ssh-agent -s) || (ssh_clean && ssh_st
 #   fi
 # done
 
-# remove next line if bar gets vault
+# remove next line if work gets vault
 return
 # temporarily load ssh keys from vault into agent
 if [[ ${VAULT_REACHABLE} != "true" ]]; then

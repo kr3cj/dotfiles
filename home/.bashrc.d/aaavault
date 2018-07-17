@@ -1,5 +1,5 @@
 ${IS_OSX} || return
-# uncomment next line if bar gets vault
+# uncomment next line if work gets vault
 return
 
 export VAULT_REACHABLE="true"

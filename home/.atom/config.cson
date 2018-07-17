@@ -13,6 +13,7 @@
     telemetryConsent: "limited"
     warnOnLargeFileLimit: 1
   editor:
+    fontSize: 12
     scrollPastEnd: true
     showIndentGuide: true
     showInvisibles: true

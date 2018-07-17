@@ -131,7 +131,7 @@ if [[ "${IS_OSX}" == "true" ]]; then
     source ~/.bash_profile # to clean up work/home network connection configs
   }
   function lpw {
-    lpass show --password --clip LDAP
+    lpass show --password --clip "${CUSTOM_WORK_DOMAINS[0]/.com/} Macbook login"
     clear_clip 8
   }
 

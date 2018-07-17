@@ -108,6 +108,16 @@ if ${IS_OSX} && ! hash mas 2>/dev/null ; then
   pip3 install --upgrade pip
   pip install pylint virtualenv yq==2.2.0
 
+  echo "install node"
+  brew install node
+  curl -u${NPM_REPO_LOGIN} "https://${CUSTOM_WORK_JFROG_SUBDOMAIN}.jfrog.io/${CUSTOM_WORK_JFROG_SUBDOMAIN}/api/npm/${CUSTOM_WORK_DOMAINS[0]/.com/}-npm/auth/${CUSTOM_WORK_DOMAINS[0]/.com/}" > .npmrc
+  # npm login ${CUSTOM_WORK_JFROG_SUBDOMAIN}.jfrog.io
+  npm install --global yo
+  npm install --global @${CUSTOM_WORK_DOMAINS[0]/.com/}/generator-aws-vault
+  brew install ${CUSTOM_WORK_DOMAINS[0]/.com/}/public/sopstool
+  yo @${CUSTOM_WORK_DOMAINS[0]/.com/}/aws-vault
+  brew cask install caskroom/cask/intellij-idea-ce
+
   echo "install some extra utility packages for me"
   brew install dos2unix gnu-getopt jq
   echo "install extra tools that I like"
@@ -400,4 +410,3 @@ fi
 # if ! $(crontab -l | grep -q workstation_update) ; then
 #   (crontab -l 2>/dev/null; echo "0 10 * * 5 ~/.workstation_update.sh") | crontab -
 # fi
-
