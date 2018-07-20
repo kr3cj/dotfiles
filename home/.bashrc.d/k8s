@@ -4,6 +4,10 @@ ${IS_OSX} || return
 export KUBECONFIG=~/.kube/config
 source <(kubectl completion bash)
 
+alias kops-prod='aws-vault exec --assume-role-ttl=1h \
+  kops-admin -- kops --state=s3://kops-store.${CUSTOM_WORK_DOMAINS[1]} \
+  --name k8s.${CUSTOM_WORK_DOMAINS[1]}'
+
 # k8s auth
 [[ -f ~/.k8s_auth ]] && source ~/.k8s_auth
 

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # the purpose of this script is to install my homeshick dotfiles from github
 
 # first, make sure xcode is installed

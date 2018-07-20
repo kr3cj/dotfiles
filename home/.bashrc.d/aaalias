@@ -89,8 +89,7 @@ function port {
 }
 
 function acp {
-  cp -av ${1} ${1}.$(date +%Y-%m-%d %H-%M)
-  # cp -av ${1} ${1}.$(date --rfc-3339=seconds)
+  cp -av ${1} ${1}.$(date --rfc-3339=date)
 }
 
 function find-error() {

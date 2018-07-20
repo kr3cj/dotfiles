@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # the purpose of this script is to house all initial workstation customizations in linux or osx
 
 if [[ ${TRAVIS_CI_RUN} != true ]]; then
@@ -108,28 +108,19 @@ if ${IS_OSX} && ! hash mas 2>/dev/null ; then
   pip3 install --upgrade pip
   pip install pylint virtualenv yq==2.2.0
 
-  echo "install node"
-  brew install node
-  curl -u${NPM_REPO_LOGIN} "https://${CUSTOM_WORK_JFROG_SUBDOMAIN}.jfrog.io/${CUSTOM_WORK_JFROG_SUBDOMAIN}/api/npm/${CUSTOM_WORK_DOMAINS[0]/.com/}-npm/auth/${CUSTOM_WORK_DOMAINS[0]/.com/}" > .npmrc
-  # npm login ${CUSTOM_WORK_JFROG_SUBDOMAIN}.jfrog.io
-  npm install --global yo
-  npm install --global @${CUSTOM_WORK_DOMAINS[0]/.com/}/generator-aws-vault
-  brew install ${CUSTOM_WORK_DOMAINS[0]/.com/}/public/sopstool
-  yo @${CUSTOM_WORK_DOMAINS[0]/.com/}/aws-vault
-  brew cask install caskroom/cask/intellij-idea-ce
-
   echo "install some extra utility packages for me"
   brew install dos2unix gnu-getopt jq
   echo "install extra tools that I like"
   brew install \
     ack aria2 mas mtr nmap tmux reattach-to-user-namespace \
-    maven python3 ansible rbenv ruby ruby-build \
-    awscli packer siege terraform vault
+    maven python3 ansible node rbenv ruby ruby-build \
+    awscli packer siege terraform travis vault
     # openshift-cli fleetctl; aria2=torrent_client(aria2c)
 
   echo "install lastpass client"
-  # brew cask install xquartz
   brew install lastpass-cli --with-pinentry
+  lpass status > /dev/null || \
+    DISPLAY=${DISPLAY:-:0} lpass login --trust lastpass@${CUSTOM_HOME_DOMAIN}
 
   # now we can install any private repos with private ssh key
   if [[ ${TRAVIS_CI_RUN} != true ]]; then
@@ -179,7 +170,6 @@ if [[ ${TRAVIS_CI_RUN} != true ]]; then
   fi
   # TODO: Create Dock shortcut to "/System/Library/CoreServices/Screen Sharing.app"
   # TODO: give magnet accessibility privileges in system prefs, sec and privacy, privacy tab
-  # mas install 417375580 # BetterSnapTool
   echo "Remove the following apps from showing in menu bar: Alfred, ?"
   if [[ ${TRAVIS_CI_RUN} != true ]]; then
     sudo rm -rf /Applications/{iMovie.app,GarageBand.app,Pages.app,Numbers.app}
@@ -237,27 +227,12 @@ if [[ ${TRAVIS_CI_RUN} != true ]]; then
     brew cask install java8
     # setup build system credentials
     docker login ${CUSTOM_WORK_JFROG_SUBDOMAIN}.jfrog.io
-    # ensure credential files for development are locked down
-    chmod -cHLR 600 ~/.ivy2 ~/.docker ~/.ant # ~/.m2 .pgpass, .vnc/passwd, .jspm/config
-
-    # install cisco vpn client
-    echo "Please install the \"Cisco AnyConnect Secure Mobility Client\""
-    cat << EOF | sudo tee -a /opt/cisco/anyconnect/profile/Profile.xml
-<AnyConnectProfile xmlns="http://schemas.xmlsoap.org/encoding/">
-  <ServerList>
-    <HostEntry>
-      <HostName>${CUSTOM_WORK_DOMAINS[2]/\.*/}</HostName>
-      <HostAddress>${CUSTOM_WORK_VPN_RT}</HostAddress>
-    </HostEntry>
-  </ServerList>
-</AnyConnectProfile>
-EOF
 
     ### general osx customizations ###
     # first, backup the current defaults
-    defaults read > ~/.osx_defaults_original_$(date +%Y-%m-%d).json
+    defaults read > ~/.osx_defaults_original_$(date --rfc-3339=seconds).json
     source "${HOME}/.homesick/repos/homeshick/homeshick.sh"
-    homeshick track dotfiles_private ~/osx_defaults_original_$(date +%Y-%m-%d).json
+    homeshick track dotfiles_private ~/osx_defaults_original_$(date --rfc-3339=seconds).json
     # second, load customizations https://github.com/mathiasbynens/dotfiles/blob/master/.macos
     bash ~/.osx_customizations.json
   fi
@@ -266,8 +241,8 @@ EOF
   apm install auto-update-packages open-terminal-here minimap language-hcl \
     markdown-toc terraform-fmt \
     language-groovy file-icons tree-view-git-status highlight-selected git-plus \
-    linter linter-ui-default intentions busy-signal
-    linter-checkbashisms linter-terraform-syntax
+    linter linter-ui-default intentions busy-signal \
+    linter-checkbashisms linter-terraform-syntax language-terraform
   # language-terraform autocomplete-bash-builtins terminal-plus
 
   # install visual studio code extensions
@@ -283,7 +258,7 @@ EOF
   #
 
   # gce and gke stuff (https://cloud.google.com/sdk/docs/quickstart-mac-os-x)
-  # brew install go
+  brew install go
   # go get golang.org/x/tools/cmd/godoc
   # brew cask install google-cloud-sdk
   # gcloud components install kubectl -q
@@ -314,8 +289,8 @@ if [[ ${TRAVIS_CI_RUN} != true ]]; then
   # Run python code to checkout all repositories
   [[ -d ~/build ]] || mkdir ~/build
   cd ~/build
-  git clone asottile/all-repos
-  cd all-repos
+  # git clone asottile/all-repos
+  # cd all-repos
 
 
 fi
@@ -407,6 +382,6 @@ if ${IS_LINUX} && ! hash packer 2>/dev/null ; then
 fi
 
 # upgrade software Fridays at 10am
-# if ! $(crontab -l | grep -q workstation_update) ; then
-#   (crontab -l 2>/dev/null; echo "0 10 * * 5 ~/.workstation_update.sh") | crontab -
-# fi
+if ! $(crontab -l | grep -q workstation_update) ; then
+  (crontab -l 2>/dev/null; echo "0 10 * * 5 ~/.workstation_update.sh") | crontab -
+fi

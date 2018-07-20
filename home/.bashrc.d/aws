@@ -1,6 +1,42 @@
 [[ $- = *i* ]] || return
 # http://docs.aws.amazon.com/cli/latest/userguide/cli-install-macos.html
 
+export AWS_SESSION_TTL=12h
+export AWS_FEDERATION_TOKEN_TTL=12h
+export AWS_ASSUME_ROLE_TTL=1h
+
+# This allows for running aws-cli commands securely
+## Usage: `awv stage-admin aws s3 ls`
+function awv()
+{
+  local profile=${1}
+  shift
+  aws-vault exec ${profile} -- ${*}
+}
+
+# This allows for logging into the AWS console as a federated user via your IAM keys instead of the console password.
+## Usage: `awslogin staging`
+function awslogin()
+{
+  aws-vault login ${@}
+}
+
+# This creates a new shell session with the correct environment variables set so you can run SDK programs without issue.
+# Note `-il` will run all your normal Login and BashRC files. (interactive, login flags)
+## Usage: `awsshell staging`
+function awsshell()
+{
+  aws-vault exec ${1} -- ${SHELL} -il
+}
+
+# This allows for an easy check of which profiles are configured
+function aws-profiles()
+{
+  cat ~/.aws/config | grep -o "profile [a-zA-Z0-9\-]\+"
+}
+
+alias ec2="aws-vault login default"
+
 # aws creds
 # aws-vault exec default --env | grep AWS
 

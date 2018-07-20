@@ -1,5 +1,5 @@
-#!/bin/bash +x
-LOG=/var/tmp/workstation_update_$(date +%Y%m%d-%H%M).log
+#!/usr/bin/env bash +x
+LOG=/var/tmp/workstation_update_$(date --rfc-3339=seconds).log
 (
 # the purpose of this script is to update client binaries on an occasional basis
 # child of ~/.workstation_setup
@@ -20,10 +20,10 @@ fi
 if hash gem 2>/dev/null && [[ ${TRAVIS_CI_RUN} != true ]]; then
   echo -e "\nUpdating gems..."
   # ~/.gemrc should prevent ri or rdoc files from being installed
-  sudo gem update --system --conservative --minimal-deps --no-verbose --force
-  sudo gem update --conservative --minimal-deps --no-verbose --force
+  # sudo gem update --system --conservative --minimal-deps --no-verbose --force
+  # sudo gem update --conservative --minimal-deps --no-verbose --force
   # to remove all ri and rdocs of installed gems:
-  # sudo rm -vrf $(sudo gem env gemdir)/doc
+  sudo rm -vrf $(sudo gem env gemdir)/doc
 fi
 if hash pip 2>/dev/null; then
   echo -e "\nUpdating pip..."
@@ -86,27 +86,18 @@ if [[ $(uname) == "Darwin" ]] ; then
     /usr/bin/sudo /usr/sbin/purge
     /usr/bin/sudo /usr/sbin/periodic daily weekly monthly
     # /usr/bin/sudo rm -vr ~/Library/Caches/*
-    # TODO: Must reboot immediately else the Finder disk sync issues and error -43?
-    # echo -e "\nChecking macos disk health."
-    # echo "Verifying disk health at $(date +%Y-%m-%d-%H%M). \
-    # This will freeze the system for a couple minutes." | /usr/bin/wall
-    # for DEV in disk1 disk1s{1..4}; do
-      # /usr/bin/sudo /usr/sbin/diskutil verifyVolume /dev/${DEV}
-      # sudo diskutil repairVolume /dev/${DEV}
-    # done
-    # /usr/bin/sudo /usr/sbin/diskutil verifyDisk /dev/disk0
-    # echo "Finished verifying disk health at $(date +%Y-%m-%d-%H%M)." | /usr/bin/wall
-    # sudo diskutil repairDisk /dev/disk0
+
+    # ensure credential files for development are locked down
+    for item1 in ~/.ivy2 ~/.docker ~/.ant ~/.m2 ~/.pgpass ~/.vnc/passwd ~/.jspm/config; do
+      [[ -f ${item1} ]] && chmod -c 600 ${item1}
+      [[ -d ${item1} ]] && chmod -cR 700 ${item1}
+    done
   fi
 
   echo -e "\nPrint any dead links in home directory..."
   find ${HOME} -xtype l ! -path "*/Library/*" ! -path "*/.virtualenvs/*" ! -path "*/build/*" \
     -exec echo 'Broken symlink: {}' \;
     # -exec rm -v '{}' \;
-
-  echo -e "\nUpdating OSX system..."
-  /usr/sbin/softwareupdate --install --all
-  # /usr/sbin/softwareupdate --restart
 
   echo -e "\nUpdating OSX App Store apps..."
   # authenticate to apple account if necessary
@@ -116,6 +107,24 @@ if [[ $(uname) == "Darwin" ]] ; then
     clear_clip
   fi
   /usr/local/bin/mas upgrade
+
+  echo -e "\nUpdating OSX system..."
+  /usr/sbin/softwareupdate --install --all
+  # /usr/sbin/softwareupdate --restart
+  if [[ ${TRAVIS_CI_RUN} != true ]]; then
+    # TODO: Must reboot immediately else the Finder can get disk sync issues and error -43?
+    echo -e "\nChecking macos disk health."
+    echo "Verifying disk health at $(date --rfc-3339=seconds). \
+    # This will freeze the system for a couple minutes." | /usr/bin/wall
+    # for DEV in disk1 disk1s{1..4}; do
+      # /usr/bin/sudo /usr/sbin/diskutil verifyVolume /dev/${DEV}
+      # sudo diskutil repairVolume /dev/${DEV}
+    # done
+    /usr/bin/sudo /usr/sbin/diskutil verifyDisk /dev/disk0
+    echo "Finished verifying disk health at $(date --rfc-3339=seconds)." | /usr/bin/wall
+    # sudo diskutil repairDisk /dev/disk0
+  fi
+
 elif [[ $(uname) == "Linux" ]] ; then
   # only proceed for Linux workstations, not servers
   if [[ ! -d /usr/share/xsessions ]] && [[ ${TRAVIS_CI_RUN} != true ]]; then

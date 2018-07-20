@@ -9,6 +9,7 @@ ${HEALTHY_INTERNET} || return
 ip_address=""
 at_work="false"
 at_home="false"
+on_vpn="false"
 
 # look for VPN IP first
 ip_address=$(/sbin/ifconfig utun1 2> /dev/null | grep 'inet ' | grep -v '127.0.0.1' | awk '{print $2}')
@@ -22,21 +23,22 @@ case ${ip_address} in
     at_work="true" ;;
   ${CUSTOM_HOME_SUBNET}*)
     at_home="true" ;;
+  ${CUSTOM_VPN_SUBNET}.*)
+    on_vpn="true" ;;
   *)
     echo "Could not determine location from ip_address ${ip_address}." ;;
 esac
 
 if ${at_home} ; then
   # prompt for vpn connection to work
-  if ! $(ping -c1 -W1 -i0.1 laphroaig.${CUSTOM_WORK_DOMAINS[1]} &> /dev/null); then
+  if ! $(ping -c1 -W1 -i0.1 chef.${CUSTOM_WORK_DOMAINS[1]} &> /dev/null); then
     (read -t 1 -s -p "To connect to work VPN, press Enter key within 1 second..." \
-      && lpass show --password --clip "AD" && \
-      /opt/cisco/anyconnect/bin/vpn connect ${CUSTOM_WORK_DOMAINS[1]/\.*/} && pp
+      && lpass show --password --clip "OneLogin" && \
+      openit "Endpoint Security VPN" && pp
       echo && clear_clip
     )
   fi
   if $(ping -c1 -W1 -i0.1 ${CUSTOM_NAS_HOST} &> /dev/null) ; then
-    # killall -HUP mountd
     mount | grep -q "Documents/share1" || mount -t nfs -o \
       vers=4,rw,soft,intr,bg,rsize=32768,wsize=32768,dsize=32768 \
       ${CUSTOM_NAS_HOST}:/share ~/Documents/share1
@@ -46,11 +48,7 @@ if ${at_home} ; then
   fi
 elif ${at_work} ; then
   # disconnect VPN connection if necessary (TODO: smarter detection if on VPN at home)
-  # $(/opt/cisco/anyconnect/bin/vpn status | grep -q "state: Connected") && \
-  #   /opt/cisco/anyconnect/bin/vpn disconnect ${CUSTOM_WORK_DOMAINS[1]/\.*/}
-  # maintain SSH tunnels to datacenters
-  # _create_socks_proxy "forinf2.${CUSTOM_WORK_DOMAINS[0]}" "2002" "${CUSTOM_LDAP_NAME}"
-  # _create_socks_proxy "laxinf2.${CUSTOM_WORK_DOMAINS[0]}" "2003" "${CUSTOM_LDAP_NAME}"
+  # killall -HUP "Endpoint Security VPN"
   # establish SSH tunnel to home proxy
   lpass show --password --clip "proxy.${CUSTOM_NAS_HOST#*\.}"
   _create_socks_proxy "home.${CUSTOM_HOME_DOMAIN}" "2000" "${LOGNAME/bar/}"
@@ -61,13 +59,14 @@ elif ${at_work} ; then
   while $(mount | grep -q "Pictures/share1") ; do
     sudo umount -fv -t nfs ${CUSTOM_NAS_HOST}:/share/pictures
   done
-  # disconnect any vpn connections to ${CUSTOM_WORK_DOMAINS[1]/\.*/}
-  # /opt/cisco/anyconnect/bin/vpn disconnect ${CUSTOM_WORK_DOMAINS[1]/\.*/}
-  # establish vpn connection to work
-  # ping -c1 -w1 -i0.1 172.x.x.x > /dev/null || /opt/cisco/anyconnect/bin/vpn connect work
 
   # open desktop apps (TODO: --background not working for Slack and Atom)
   openit Slack Atom
+elif ${on_vpn} ; then
+  # establish SSH tunnel to home proxy
+  lpass show --password --clip "proxy.${CUSTOM_NAS_HOST#*\.}"
+  # TODO: curl gets "000" response code when on VPN
+  _create_socks_proxy "home.${CUSTOM_HOME_DOMAIN}" "2000" "${LOGNAME/bar/}"
 else
   echo
   if ! $(ping -c1 -W1 -i0.1 laphroaig.${CUSTOM_WORK_DOMAINS[1]} &> /dev/null); then
