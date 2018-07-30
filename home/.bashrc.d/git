@@ -15,10 +15,12 @@ function gitp {
   local default_branch="$(git symbolic-ref refs/remotes/origin/HEAD \
     | sed 's@^refs/remotes/origin/@@')"
   local current_branch="$(git rev-parse --abbrev-ref HEAD)"
+
   if ! [[ "${default_branch}" == "${current_branch}" ]]; then
     echo -e "\n Default branch: \"${default_branch}\"\n Current branch: \"${current_branch}\"\n"
   fi
-  local gbranch=${1:${current_branch}}
+  local gbranch=${1:-${current_branch}}
+
   git fetch --prune --all
   git checkout ${gbranch}
   git pull origin ${gbranch}

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash +x
-LOG=/var/tmp/workstation_update_$(date --rfc-3339=seconds).log
+LOG=/var/tmp/workstation_update_$(date +%Y-%m-%d).log
 (
 # the purpose of this script is to update client binaries on an occasional basis
 # child of ~/.workstation_setup
@@ -50,6 +50,11 @@ if [[ $(uname) == "Darwin" ]] ; then
   echo -e "\nUpdating code..."
   # cd ~/build/all-repos
 
+  echo -e "\nUpdating work specific yeoman tools..."
+  for generator1 in $(yo --generators | grep /); do
+    npm install --global ${generator/\//\/generator-}
+  done
+
   echo -e "\nUpdating brew..."
   /usr/local/bin/brew upgrade
   echo -e "\nUpdating brew casks..."
@@ -89,13 +94,13 @@ if [[ $(uname) == "Darwin" ]] ; then
 
     # ensure credential files for development are locked down
     for item1 in ~/.ivy2 ~/.docker ~/.ant ~/.m2 ~/.pgpass ~/.vnc/passwd ~/.jspm/config; do
-      [[ -f ${item1} ]] && chmod -c 600 ${item1}
-      [[ -d ${item1} ]] && chmod -cR 700 ${item1}
+      [[ -f ${item1} ]] && chmod -v 600 ${item1}
+      [[ -d ${item1} ]] && chmod -vR 700 ${item1}
     done
   fi
 
   echo -e "\nPrint any dead links in home directory..."
-  find ${HOME} -xtype l ! -path "*/Library/*" ! -path "*/.virtualenvs/*" ! -path "*/build/*" \
+  /usr/local/opt/findutils/libexec/gnubin/find ${HOME} -xtype l ! -path "*/Library/*" ! -path "*/.virtualenvs/*" ! -path "*/build/*" \
     -exec echo 'Broken symlink: {}' \;
     # -exec rm -v '{}' \;
 
@@ -114,14 +119,14 @@ if [[ $(uname) == "Darwin" ]] ; then
   if [[ ${TRAVIS_CI_RUN} != true ]]; then
     # TODO: Must reboot immediately else the Finder can get disk sync issues and error -43?
     echo -e "\nChecking macos disk health."
-    echo "Verifying disk health at $(date --rfc-3339=seconds). \
+    echo "Verifying disk health at $(/usr/local/opt/coreutils/libexec/gnubin/date --rfc-3339=seconds). \
     # This will freeze the system for a couple minutes." | /usr/bin/wall
     # for DEV in disk1 disk1s{1..4}; do
       # /usr/bin/sudo /usr/sbin/diskutil verifyVolume /dev/${DEV}
       # sudo diskutil repairVolume /dev/${DEV}
     # done
     /usr/bin/sudo /usr/sbin/diskutil verifyDisk /dev/disk0
-    echo "Finished verifying disk health at $(date --rfc-3339=seconds)." | /usr/bin/wall
+    echo "Finished verifying disk health at $(/usr/local/opt/coreutils/libexec/gnubin/date --rfc-3339=seconds)." | /usr/bin/wall
     # sudo diskutil repairDisk /dev/disk0
   fi
 

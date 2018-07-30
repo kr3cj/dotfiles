@@ -2,9 +2,17 @@
 ${IS_OSX} || return
 
 # remote host for container tools (https://docs.docker.com/engine/security/https/)
-# export DOCKER_HOST="tcp://${CUSTOM_WORK_SUBNET}.49.201:2376"
-# export DOCKER_TLS_VERIFY="0"
-# export FLEETCTL_TUNNEL="finf-coreos02.${CUSTOM_WORK_DOMAINS[0]}"
+export DOCKER_REGISTRY="${CUSTOM_WORK_DOCKER_REGISTRY_ID}.dkr.ecr.us-east-1.amazonaws.com"
+
+function docker-login () {
+  docker run --rm \
+    -e AWS_ACCESS_KEY_ID \
+    -e AWS_SECRET_ACCESS_KEY \
+    -e AWS_DEFAULT_REGION \
+    -e AWS_REGION \
+    mesosphere/aws-cli ecr get-login --registry-ids ${CUSTOM_WORK_DOCKER_REGISTRY_ID} --region \
+      us-east-1 --no-include-email
+}
 
 function docker-reset () {
   docker-compose down --remove-orphans
