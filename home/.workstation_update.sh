@@ -49,6 +49,9 @@ fi
 if [[ $(uname) == "Darwin" ]] ; then
   echo -e "\nUpdating code..."
   # cd ~/build/all-repos
+  # copy non-homesickable stuff to homesick
+  cp -av ~/.kube/config ~/.homesick/repos/dotfiles_private/home/.kube/
+  cp -av ~/.docker/*.json ~/.homesick/repos/dotfiles_private/home/.docker/
 
   echo -e "\nUpdating work specific yeoman tools..."
   for generator1 in $(yo --generators | grep /); do
