@@ -27,4 +27,4 @@ ${IS_OSX} || return
   # unset file1
 # fi
 
-sopstool completion --sh bash
+# sopstool completion --sh bash
