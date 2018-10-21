@@ -3,6 +3,7 @@ alias fgrep='fgrep --color=auto'
 alias grep='grep --color=auto'
 alias ducks="sudo du -cshx ./ | sort -h"
 alias cdd="homeshick cd dotfiles"
+alias cb="cd ~/build/github"
 alias pp="source ~/.bash_profile"
 
 function pathadd() {
@@ -46,8 +47,8 @@ function _create_socks_proxy {
     ${test_url})
   if [[ ${response} -ne 200 ]] ; then
     # first kill any old sessions
-    pgrep -f "ssh .* ${ssh_proxy_options} ${port1} ${username}@${host1}"
-    pkill -f "ssh .* ${ssh_proxy_options} ${port1} ${username}@${host1}"
+    pgrep -f "ssh ${ssh_proxy_options} ${port1} ${username}@${host1}"
+    pkill -f "ssh ${ssh_proxy_options} ${port1} ${username}@${host1}"
 
     echo "Establishing ssh tunnel with ${username}@${host1}:${port1}..."
     [[ ${host1} == "home.${CUSTOM_HOME_DOMAIN}" ]] && \
@@ -118,15 +119,13 @@ if [[ "${IS_OSX}" == "true" ]]; then
   alias curl="/usr/local/opt/curl/bin/curl"
   # since the path file hasn't been sourced yet, use absolute paths to ls for macos
   alias ls="/usr/local/opt/coreutils/libexec/gnubin/ls -G --color=auto"
-  alias ll="/usr/local/opt/coreutils/libexec/gnubin/ls -hal -G --color=auto"
+  alias ll="/usr/local/opt/coreutils/libexec/gnubin/ls -hl -G --color=auto"
   alias srm="/bin/rm -vP"
   alias slack="open -a Slack"
   alias spotify="open -a Spotify"
   # alias pia="nohup ~/.pia_manager/pia_manager.app/Contents/MacOS/runner.sh >/dev/null 2>&1 &"
   # alias gphoto="open --background -a \"Google Photos Backup\""
   alias gphoto="open --background -a \"Backup and Sync\""
-  alias vd="/opt/cisco/anyconnect/bin/vpn disconnect && pp"
-  alias vs="/opt/cisco/anyconnect/bin/vpn status"
 
   function vc {
     lpass show --password --clip AD
@@ -135,7 +134,7 @@ if [[ "${IS_OSX}" == "true" ]]; then
     source ~/.bash_profile # to clean up work/home network connection configs
   }
   function lpw {
-    lpass show --password --clip "${CUSTOM_WORK_DOMAINS[0]/.com/} Macbook login"
+    lpass show --password --clip "${CUSTOM_WORK_DOMAINS[0]/.com/} macbook"
     clear_clip 8
   }
 
@@ -151,31 +150,33 @@ if [[ "${IS_OSX}" == "true" ]]; then
   }
 
 #  unalias ssh 2> /dev/null
-#  eval "function ssh {
-#    local host1=\"\${@}\"
-#    case \"\${host1}\" in
-#      wyninf13)
-#        lpass show --password --clip wyninf13 ;;
-#      ${CUSTOM_WORK_SUBNET}.*|\
-#$(echo ${CUSTOM_WORK_DOMAINS[@]/#/*.} | tr ' ' '|'))
-#        lpass show --password --clip LDAP ;;
-#      home.${CUSTOM_HOME_DOMAIN})
-#        lpass show --password --clip \"proxy.${CUSTOM_NAS_HOST#*\.}\" ;;
-#      nas|nas.${CUSTOM_NAS_HOST#*\.})
-#        lpass show --password --clip \"nas.${CUSTOM_NAS_HOST#*\.}\" ;;
-#      web|web.${CUSTOM_NAS_HOST#*\.})
-#        lpass show --password --clip \"web.${CUSTOM_NAS_HOST#*\.}\" ;;
-#      ship|ship.${CUSTOM_NAS_HOST#*\.})
-#        lpass show --password --clip \"ship.${CUSTOM_NAS_HOST#*\.}\" ;;
-#      plex|plex.${CUSTOM_NAS_HOST#*\.})
-#        lpass show --password --clip \"plex.${CUSTOM_NAS_HOST#*\.}\" ;;
-#      macbuild*)
-#        lpass show --password --clip AD ;;
-#    esac
-#    clear_clip 8
-#    # using homebrew ssh $(which ssh) results in 'Bad configuration option: usekeychain'
-#    /usr/bin/ssh \${host1}
-#  }"
+  eval "function ssh {
+    local host1=\"\${@}\"
+    case \"\${host1}\" in
+      wyninf13)
+        lpass show --password --clip wyninf13 ;;
+      ${CUSTOM_WORK_SUBNET}.*|\
+$(echo ${CUSTOM_WORK_DOMAINS[@]/#/*.}|tr ' ' '|'))
+        lpass show --password --clip LDAP ;;
+      home.${CUSTOM_HOME_DOMAIN})
+        lpass show --password --clip \"proxy.${CUSTOM_NAS_HOST#*\.}\" ;;
+      nas|nas.${CUSTOM_NAS_HOST#*\.})
+        lpass show --password --clip \"nas.${CUSTOM_NAS_HOST#*\.}\" ;;
+      web|web.${CUSTOM_NAS_HOST#*\.})
+        lpass show --password --clip \"web.${CUSTOM_NAS_HOST#*\.}\" ;;
+      ship|ship.${CUSTOM_NAS_HOST#*\.})
+        lpass show --password --clip \"ship.${CUSTOM_NAS_HOST#*\.}\" ;;
+      plex|plex.${CUSTOM_NAS_HOST#*\.})
+        lpass show --password --clip \"plex.${CUSTOM_NAS_HOST#*\.}\" ;;
+      proxy|proxy.${CUSTOM_NAS_HOST#*\.})
+        lpass show --password --clip \"proxy.${CUSTOM_NAS_HOST#*\.}\" ;;
+      macbuild*)
+        lpass show --password --clip AD ;;
+    esac
+    clear_clip 8
+    # using homebrew ssh $(which ssh) results in 'Bad configuration option: usekeychain'
+    /usr/bin/ssh \${host1}
+  }"
 
   function openit {
     # quickly opens macos programs in the background if not already running
@@ -185,7 +186,7 @@ if [[ "${IS_OSX}" == "true" ]]; then
 
     for ((item = 0; item < ${#programs[@]}; item++)); do
       program1="${programs[${item}]}"
-      pgrep -qf "${program1}.app" || (nohup open --hide --background -a ${program1} >/dev/null 2>&1 &)
+      pgrep -qf "${program1}.app" || (nohup open --hide --background -a "${program1}" >/dev/null 2>&1 &)
     done
   }
 elif [[ "${IS_LINUX}" == "true" ]]; then
@@ -202,7 +203,7 @@ elif [[ "${IS_LINUX}" == "true" ]]; then
     --always-resume=true \
     --seed-ratio=1.0 \
     --check-integrity=true \
-    --dir=/share/
+    --dir=/share/ \
     ${1}
   }
   # -x2 \

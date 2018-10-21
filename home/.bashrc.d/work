@@ -16,7 +16,8 @@ ip_address=$(/sbin/ifconfig 2> /dev/null | grep 'inet ' | grep -v '127.0.0.1' | 
 
 # figure out location
 if [[ ${ip_address} =~ ${CUSTOM_WORK_SUBNET}.26.* ]] || \
- [[ ${ip_address} =~ ${CUSTOM_WORK_SUBNET}.1.* ]]; then
+  [[ ${ip_address} =~ ${CUSTOM_WORK_SUBNET}.29.* ]] || \
+  [[ ${ip_address} =~ ${CUSTOM_WORK_SUBNET}.1.* ]]; then
   at_work="true"
 elif [[ ${ip_address} =~ ${CUSTOM_VPN_SUBNET}.* ]]; then
   on_vpn="true"
@@ -37,11 +38,12 @@ if ${at_home} ; then
   fi
   if $(ping -c1 -W1 -i0.1 ${CUSTOM_NAS_HOST} &> /dev/null) ; then
     mount | grep -q "Documents/share1" || mount -t nfs -o \
-      vers=4,rw,soft,intr,bg,rsize=32768,wsize=32768,dsize=32768 \
+      vers=4,rw,soft,intr,bg,rwsize=32768,dsize=32768 \
       ${CUSTOM_NAS_HOST}:/share ~/Documents/share1
     mount | grep -q "Pictures/share1" || mount -t nfs -o \
-      vers=4,rw,soft,intr,bg,rsize=32768,wsize=32768,dsize=32768 \
+      vers=4,rw,soft,intr,bg,rwsize=32768,dsize=32768 \
       ${CUSTOM_NAS_HOST}:/share/pictures ~/Pictures/share1
+    openit "Backup and Sync"
   fi
 elif ${at_work} ; then
   # disconnect any VPN connection
@@ -51,7 +53,7 @@ elif ${at_work} ; then
   # sudo launchctl unload /Library/LaunchDaemons/com.checkpoint.epc.service.plist &&\
   #   sudo kextunload  /System/Library/Extensions/cpfw.kext
   # establish SSH tunnel to home proxy
-  lpass show --password --clip "proxy.${CUSTOM_NAS_HOST#*\.}"
+  ## lpass show --password --clip "proxy.${CUSTOM_NAS_HOST#*\.}"
   _create_socks_proxy "home.${CUSTOM_HOME_DOMAIN}" "2000" "${LOGNAME:0:5}"
 
   while $(mount | grep -q "Documents/share1") ; do
@@ -62,7 +64,7 @@ elif ${at_work} ; then
   done
 
   # open desktop apps (TODO: --background not working for Slack and Atom)
-  openit Slack Atom
+  openit Slack Spotify "Visual Studio Code"
 elif ${on_vpn} ; then
   # establish SSH tunnel to home proxy
   lpass show --password --clip "proxy.${CUSTOM_NAS_HOST#*\.}"
@@ -77,7 +79,6 @@ else
         # && sudo launchctl load /Library/LaunchDaemons/com.checkpoint.epc.service.plist \
         # && sudo kextload /System/Library/Extensions/cpfw.kext \
         # && /Applications/Endpoint\ Security\ VPN.app/Contents/MacOS/Endpoint_Security_VPN 2>1 > /dev/null &
-      pp
       echo && clear_clip
     )
   fi
@@ -87,4 +88,3 @@ else
     # && open -a "Private Internet Access"
   echo
 fi
-openit "Backup and Sync" # "Spotify"

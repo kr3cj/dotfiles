@@ -109,12 +109,12 @@ if ${IS_OSX} && ! hash mas 2>/dev/null ; then
   pip install pylint virtualenv yq==2.2.0
 
   echo "install some extra utility packages for me"
-  brew install dos2unix gnu-getopt jq
+  brew install dos2unix gnu-getopt jq pstree bash-completion
   echo "install extra tools that I like"
   brew install \
     ack aria2 mas mtr nmap tmux reattach-to-user-namespace \
     maven python3 ansible node rbenv ruby ruby-build \
-    awscli packer siege terraform travis vault
+    awscli hub packer siege terraform travis vault
     # openshift-cli fleetctl; aria2=torrent_client(aria2c)
 
   echo "install lastpass client"
@@ -165,7 +165,7 @@ if [[ ${TRAVIS_CI_RUN} != true ]]; then
     mas install 405843582 # Alfred
     mas install 497799835 # Xcode
     mas install 595191960 # CopyClip
-    mas install 715768417 # Microsoft Remote Desktop
+    mas install 1295203466 # Microsoft Remote Desktop 10.x
     mas install 441258766 # Magnet
   fi
   # TODO: Create Dock shortcut to "/System/Library/CoreServices/Screen Sharing.app"
@@ -189,13 +189,13 @@ if [[ ${TRAVIS_CI_RUN} != true ]]; then
   brew cask install \
     atom slack spotify gimp google-backup-and-sync iterm2 vagrant \
     beyond-compare firefox keystore-explorer private-internet-access \
-    wireshark
+    wireshark visual-studio-code
 
   # broken up into separate commands to avoid 10 minute travis build timeout
   brew cask install docker
-  brew install docker-compose
+  brew install docker-compose android-file-transfer
 
-    # android-file-transfer android-platform-tools
+    # android-platform-tools
     # google-
     # virtualbox visual-studio-code
   # TODO: use openvpn to connect to PIA via CLI
@@ -245,21 +245,42 @@ if [[ ${TRAVIS_CI_RUN} != true ]]; then
     linter-checkbashisms linter-terraform-syntax language-terraform
   # language-terraform autocomplete-bash-builtins terminal-plus
 
-  # install visual studio code extensions
-  # for i in technosophos.vscode-helm brendandburns.vs-kubernetes PeterJausovec.vscode-docker; do
-  #   code --install-extension ${i}
-  # done
-  # move visual-studio-code overrides into dotfiles?
-  # cat << EOF >> ${HOME}/Library/Application Support/Code/User/settings.json
-  # {
-  #   "files.autoSave": "afterDelay",
-  #   "workbench.startupEditor": "none"
-  # }
-  #
+  # install visual studio code extensions (weird hack required)
+  cat << EOF > /var/tmp/vscode_installs.sh
+#!$(which bash)
+EOF
+  for extension1 in \
+    bierner.markdown-preview-github-styles \
+    brendandburns.vs-kubernetes \
+    codezombiech.gitignore \
+    CoenraadS.bracket-pair-colorizer \
+    donjayamanne.git-extension-pack \
+    donjayamanne.githistory \
+    eamodio.gitlens \
+    erd0s.terraform-autocomplete \
+    felixrieseberg.vsc-travis-ci-status \
+    ipedrazas.kubernetes-snippets \
+    KnisterPeter.vscode-github \
+    mauve.terraform \
+    ms-python.python \
+    ms-vscode.go \
+    PeterJausovec.vscode-docker \
+    technosophos.vscode-helm \
+    ; do
+    echo "code --install-extension ${extension1} --verbose" >> /var/tmp/vscode_installs.sh
+  done
+  bash /var/tmp/vscode_installs.sh && rm -v /var/tmp/vscode_installs.sh
+  echo "Grab Personal Access Token from GitHub; put into vscode"
+  cat << EOF >> ${HOME}/Library/Application Support/Code/User/settings.json
+  {
+    "files.autoSave": "afterDelay",
+    "workbench.startupEditor": "none"
+  }
+  EOF
 
   # gce and gke stuff (https://cloud.google.com/sdk/docs/quickstart-mac-os-x)
   brew install go
-  # go get golang.org/x/tools/cmd/godoc
+  go get golang.org/x/tools/cmd/godoc
   # brew cask install google-cloud-sdk
   # gcloud components install kubectl -q
   # gcloud init
@@ -268,7 +289,7 @@ if [[ ${TRAVIS_CI_RUN} != true ]]; then
 
   # must install helm after kubernetes?
   # this will install 2 kubernetes clients (gcloud's and brew's)
-  brew install kubernetes-helm kubernetes-cli kops
+  brew install kubernetes-helm kubernetes-cli kops kubectx
 
   # install helm plugin for Visual Studio Code
   helm init

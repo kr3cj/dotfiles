@@ -47,11 +47,14 @@ fi
 # TODO: update chrome extensions (https://github.com/mdamien/chrome-extensions-archive/issues/8)
 
 if [[ $(uname) == "Darwin" ]] ; then
-  echo -e "\nUpdating code..."
+  # echo -e "\nUpdating code..."
   # cd ~/build/all-repos
-  # copy non-homesickable stuff to homesick
+  echo -e "Updating stubborn config files to homesick repo"
   cp -av ~/.kube/config ~/.homesick/repos/dotfiles_private/home/.kube/
   cp -av ~/.docker/*.json ~/.homesick/repos/dotfiles_private/home/.docker/
+  [[ -d ~/.homesick/repos/dotfiles/home/.code ]] || mkdir ~/.homesick/repos/dotfiles/home/.code
+  cp -av ~/Library/Application\ Support/Code/User/settings.json \
+    ~/.homesick/repos/dotfiles/home/.code/settings.json
 
   echo -e "\nUpdating work specific yeoman tools..."
   for generator1 in $(yo --generators | grep /); do
@@ -80,7 +83,7 @@ if [[ $(uname) == "Darwin" ]] ; then
   echo -e "\nCleaning temporary files."
   PATH="/usr/local/bin:${PATH}"
   /usr/local/bin/brew cleanup -s
-  /usr/local/bin/brew cask cleanup
+  # /usr/local/bin/brew cask cleanup
   /usr/local/bin/brew doctor
   /usr/local/bin/brew missing
   /usr/local/bin/brew prune
@@ -96,7 +99,7 @@ if [[ $(uname) == "Darwin" ]] ; then
     # /usr/bin/sudo rm -vr ~/Library/Caches/*
 
     # ensure credential files for development are locked down
-    for item1 in ~/.ivy2 ~/.docker ~/.ant ~/.m2 ~/.pgpass ~/.vnc/passwd ~/.jspm/config; do
+    for item1 in ~/.ivy2 ~/.docker ~/.ant ~/.m2 ~/.pgpass ~/.vnc/passwd ~/.jspm/config ~/.code/settings.json; do
       [[ -f ${item1} ]] && chmod -v 600 ${item1}
       [[ -d ${item1} ]] && chmod -vR 700 ${item1}
     done
@@ -106,6 +109,11 @@ if [[ $(uname) == "Darwin" ]] ; then
   /usr/local/opt/findutils/libexec/gnubin/find ${HOME} -xtype l ! -path "*/Library/*" ! -path "*/.virtualenvs/*" ! -path "*/build/*" \
     -exec echo 'Broken symlink: {}' \;
     # -exec rm -v '{}' \;
+
+  echo -e "\nPrint any repos with https auth..."
+  for dir1 in ~/build/ ~/.homesick/repos/ ; do
+    find ${dir1} -maxdepth 6 -path "*/.git/config" -exec grep https '{}' \;
+  done
 
   echo -e "\nUpdating OSX App Store apps..."
   # authenticate to apple account if necessary
@@ -148,8 +156,8 @@ elif [[ $(uname) == "Linux" ]] ; then
 fi
 
 if [[ ${TRAVIS_CI_RUN} != true ]]; then
-  # clear old log files
-  /usr/bin/find /var/tmp -type f -name "workstation_update_*.log" -user $(whoami) -mtime +60 -delete
+   echo -e "\nClear old log files."
+  /usr/bin/find /var/tmp -type f -name "workstation_update_*.log" -user $(whoami) -mtime +60 -print -delete
 fi
 # close out logging
 ) 2>&1 | tee -a ${LOG}

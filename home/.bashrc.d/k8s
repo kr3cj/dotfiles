@@ -4,16 +4,72 @@ ${IS_OSX} || return
 export KUBECONFIG=~/.kube/config
 source <(kubectl completion bash)
 
-alias kops-prod="aws-vault exec --assume-role-ttl=1h kops-admin -- \
-  kops export kubecfg --state=s3://kops-store.${CUSTOM_WORK_DOMAINS[1]} \
-  --name k8s.${CUSTOM_WORK_DOMAINS[1]}"
-alias kops-staging="aws-vault exec --assume-role-ttl=1h staging-admin -- \
-  kops export kubecfg --state=s3://kops-store-staging.${CUSTOM_WORK_DOMAINS[1]} \
-  --name k8s-staging.${CUSTOM_WORK_DOMAINS[1]}"
+# The below functions are useful for calling one time kops commands on any env, regardless of current kubectx pointers
+# TODO: find out why calling the functions directly doesnt work (must paste output)
+function kops-prod() {
+  ${at_home} && lpass show --password --clip macbook
+  # clear_clip 8
+  aws-vault exec kops-admin -- kops --name k8s.${CUSTOM_WORK_DOMAINS[1]} --state=s3://kops-store.${CUSTOM_WORK_DOMAINS[1]} ${@}
+  # aws-vault exec kops-admin -- ${SHELL} -il --init-file <(echo "\
+  #   kops export kubecfg --name k8s.${CUSTOM_WORK_DOMAINS[1]} --state=s3://kops-store.${CUSTOM_WORK_DOMAINS[1]}\
+  # ")
+}
+function kops-a () {
+  ${at_home} && lpass show --password --clip macbook
+  aws-vault exec k8s-a -- kops --name a.${CUSTOM_WORK_DOMAINS[1]} --state=s3://${CUSTOM_WORK_DOMAINS[0]/.com/}-kops-store-a.${CUSTOM_WORK_DOMAINS[1]} ${@}
+}
+function kops-warm() {
+  ${at_home} && lpass show --password --clip macbook
+  aws-vault exec kops-warm -- kops --name k8s-warm.${CUSTOM_WORK_DOMAINS[1]} --state=s3://ib-kops-store-warm.${CUSTOM_WORK_DOMAINS[1]} ${@}
+}
+function kops-staging() {
+  ${at_home} && lpass show --password --clip macbook
+  aws-vault exec kops-staging -- kops --name k8s-staging.${CUSTOM_WORK_DOMAINS[1]} --state=s3://kops-store-staging.${CUSTOM_WORK_DOMAINS[1]} ${@}
+}
+function kops-sandbox() {
+  ${at_home} && lpass show --password --clip macbook
+  aws-vault exec kops-sandbox -- kops --name k8s-sandbox.${CUSTOM_WORK_DOMAINS[1]} --state=s3://ib-kops-store-sandbox.${CUSTOM_WORK_DOMAINS[1]} ${@}
+}
+function kops-sandbox-v2() {
+  ${at_home} && lpass show --password --clip macbook
+  aws-vault exec kops-sandbox-v2 -- kops --name k8s-sandbox-v2.${CUSTOM_WORK_DOMAINS[1]} --state=s3://ib-kops-store-sandbox-v2.${CUSTOM_WORK_DOMAINS[1]} ${@}
+}
 
 # k8s auth
 [[ -f ~/.k8s_auth ]] && source ~/.k8s_auth
 
+function get_kube_versions()
+{
+  local L8ST_COREOS_V=$(curl -s https://coreos.com/dist/aws/aws-stable.json \
+    | jq --raw-output '.release_info.version') \
+  local CURR_KOPS_V=$(kops version | awk '{print $2}') \
+  local L8ST_KOPS_V=$(curl -s https://api.github.com/repos/kubernetes/kops/releases/latest \
+    | jq -r '.tag_name') \
+  local CURR_K8S_V=$(kubectl version --short --output=json | jq -r '.serverVersion.gitVersion')
+  local L8ST_K8S_V=$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)
+  local CURR_HELMC_V=$(helm version --client --short | awk '{print $2}')
+  local CURR_HELMS_V=$(helm version --server --short | awk '{print $2}')
+  local L8ST_HELM_V=$(curl -s https://api.github.com/repos/helm/helm/releases/latest | jq -r '.tag_name')
+  # TODO: GO_V=$(kubectl version --short --output=json | jq -r '.serverVersion.goVersion')
+  # TODO: Debian Version
+  # TODO: Docker version
+
+  cat << TABLE_EOF
+  +------------+-----------------+----------------+
+  | SOFTWARE   | CURRENT VERSION | LATEST VERSION |
+  +------------+-----------------+----------------+
+  | CoreOS     | N/A             | ${L8ST_COREOS_V}       |
+  +------------+-----------------+----------------+
+  | Kops       | ${CURR_KOPS_V}          | ${L8ST_KOPS_V}         |
+  +------------+-----------------+----------------+
+  | Kubernetes | ${CURR_K8S_V}          | ${L8ST_K8S_V}        |
+  +------------+-----------------+----------------+
+  | Helm Client| ${CURR_HELMC_V} | ${L8ST_HELM_V}        |
+  +------------+-----------------+----------------+
+  | Helm Server| ${CURR_HELMS_V} | ${L8ST_HELM_V}        |
+  +------------+-----------------+----------------+
+TABLE_EOF
+}
 function set_kube_current_config()
 {
   [[ -f ~/.k8s_auth ]] && source ~/.k8s_auth
@@ -42,13 +98,7 @@ function set_kube_current_config()
     return 1
   fi
 
-  echo "LATEST_COREOS_VERSION=$(curl -s https://coreos.com/dist/aws/aws-stable.json \
-      | jq --raw-output '.release_info.version'); \
-    CURRENT_KOPS_VERSION=$(kops version | awk '{print $2}'); \
-    LATEST_KOPS_VERSION=$(curl -s https://api.github.com/repos/kubernetes/kops/releases/latest \
-      | jq -r '.tag_name')
-    CURRENT_K8S_VERSION=$(kubectl version)\n
-    LATEST_K8S_VERSION=$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)"
+  get_kube_versions
 
   echo -e "\n\${KOPS_NAME}=\"${KOPS_NAME}\"; \${KOPS_STATE_STORE}=\"${KOPS_STATE_STORE}\"; \
     \${KOPS_STATE_STORE_REGION}=\"${KOPS_STATE_STORE_REGION}\""
@@ -110,11 +160,12 @@ alias kwatch="watch kubectl get no,ds,deploy,po,svc,ing,cm,pvc,secret"
 
 function helm_diff()
 {
+  local product=${1}
+  local environment=${2}
   helm get values -a ${product}-${environment} > before.yaml
   helm upgrade --dry-run --debug --wait --reuse-values --timeout 600 -f values.yaml -f "${environment}-values.yaml" -f "versions.yaml" "illuminate-${environment}" . | sed -n '/COMPUTED VALUES:/,/HOOKS:/{/COMPUTED VALUES:/b;/HOOKS:/b;p}' > preview.yaml
   diff before.yaml preview.yaml
   rm before.yaml preview.yaml
 
-  # or
-  https://github.com/databus23/helm-diff
+  # or https://github.com/databus23/helm-diff
 }

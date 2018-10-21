@@ -5,23 +5,27 @@ ${IS_OSX} || return
 export DOCKER_REGISTRY="${CUSTOM_WORK_DOCKER_REGISTRY_ID}.dkr.ecr.us-east-1.amazonaws.com"
 
 function docker-login () {
+  aws-vault exec default -- | bash \
   docker run --rm \
     -e AWS_ACCESS_KEY_ID \
     -e AWS_SECRET_ACCESS_KEY \
+    -e AWS_SECURITY_TOKEN \
+    -e AWS_SESSION_TOKEN \
     -e AWS_DEFAULT_REGION \
     -e AWS_REGION \
     mesosphere/aws-cli ecr get-login --registry-ids ${CUSTOM_WORK_DOCKER_REGISTRY_ID} --region \
-      us-east-1 --no-include-email
+      ${AWS_REGION} --no-include-email
 }
 
+alias docker-clean="sudo docker system prune --all --force --volumes"
+
 function docker-reset () {
-  docker-compose down --remove-orphans
-  sudo docker stop $(sudo docker ps -a -q) || echo
-  sudo docker rm $(sudo docker ps -a -q) || echo
-  sudo docker rmi $(sudo docker images -q) || echo
+  [[ -f docker-compose.yml || -f docker-compose.yaml ]] && docker-compose down --remove-orphans
+  sudo docker stop $(sudo docker container ls -a -q)
+  sudo docker system prune -a -f --volumes
 
   ${IS_LINUX} && sudo systemctl restart docker.service
-  ${IS_OSX} && (killall Docker && open /Applications/Docker.app && sleep 30)
+  # ${IS_OSX} && (echo -e "\nRestarting docker... (wait 1 min)" && killall Docker && open /Applications/Docker.app && sleep 60)
 
   sudo docker ps -a
 }

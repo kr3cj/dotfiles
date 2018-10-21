@@ -10,6 +10,7 @@ for path2 in \
   /usr/local/opt/findutils/libexec/gnubin \
   /usr/local/opt/curl/bin \
   /usr/local/opt/openssl/bin \
+  /Applications/Visual\ Studio\ Code.app/Contents/Resources/app/bin \
   ; do
   pathadd ${path2}
 done

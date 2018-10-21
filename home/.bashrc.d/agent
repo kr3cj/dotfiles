@@ -8,27 +8,49 @@ ${IS_OSX} || return
 ${HEALTHY_INTERNET} || return
 
 # ssh agent stuff
-[[ -f ${HOME}/.ssh/ssh-agent-setup ]] && source ${HOME}/.ssh/ssh-agent-setup
-$(env | grep -q SSH_AUTH_SOCK) || ( eval $(ssh-agent -s) || (ssh_clean && ssh_start))
+# TODO: convert to launchctl https://www.packetmischief.ca/2016/09/06/ssh-agent-on-os-x/
+if ! [[ -S ${SSH_AUTH_SOCK} ]]; then
+  cat << EOF
+  echo "Stupid unreliable ssh-agent ..."
+  "declare -F | grep \ ssh_": $(declare -F | grep \ ssh_)
+  "cat ~/.ssh/known_hosts"
+  SSH_AUTH_SOCK=${SSH_AUTH_SOCK}
+  SSH_AGENT_PID=${SSH_AGENT_PID}
+  "ps -ef | grep ssh-agent": $(ps -ef | grep ssh-agent)
+  "ssh-add -l": $(ssh-add -l)
+EOF
+  read -p "Did not find valid socket for SSH_AUTH_SOCK; press any key to clear ssh-agent resources."
+  pkill -f "ssh-agent -s"
+  unset SSH_AUTH_SOCK SSH_AGENT_PID
+  [[ -f ${HOME}/.ssh/ssh-agent-setup ]] && source ${HOME}/.ssh/ssh-agent-setup
+  eval $(ssh-agent -s) || (ssh_clean && ssh_start)
 
-### load ssh keys into agent ###
-# TODO: better integrate passphrase from LastPass CLI? https://svkt.org/~simias/lpass/#ssh-agent
-# temporarily load ssh keys from lastpass into agent
-# for key2 in "" _personal; do
-#   if ! $(ssh-add -l | grep -q "/.ssh/id_rsa${key2}\ ("); then
-#     key_desc="Work"
-#     [[ ${key2} == "_personal" ]] && key_desc="Personal"
-#     # create key if necessary
-#     (umask 177
-#     lpass show --field="Private Key" "${key_desc} SSH Key" > ~/.ssh/id_rsa${key2}
-#     )
-#     lpass show --field=Passphrase --clip "${key_desc} SSH Key"
-#     ssh-add -t 36000 -k ~/.ssh/id_rsa${key2}
-#     clear_clip
-#     rm -f ~/.ssh/id_rsa${key2}
-#   fi
-# done
+  # Moved from tmux
+  function _ssh_auth_save() {
+    ln -sf "${SSH_AUTH_SOCK}" "${HOME}/.ssh/ssh-auth-sock.${HOSTNAME}"
+  }
+  alias screen='_ssh_auth_save ; $(which screen)'
+  alias tmux='_ssh_auth_save ; $(which tmux)'
+fi
 
+for key2 in "" _personal; do
+  if ! $(ssh-add -l | grep -q "/.ssh/id_rsa${key2}\ ("); then
+    key_desc="Work"
+    [[ ${key2} == "_personal" ]] && key_desc="Personal"
+    if ${at_home}; then
+      ### temporarily load ssh keys, if necessary, from lastpass into agent ###
+      # TODO: better integrate passphrase from LastPass CLI? https://svkt.org/~simias/lpass/#ssh-agent
+      (umask 177
+      lpass show --field="Private Key" "${key_desc} SSH Key" > ~/.ssh/id_rsa${key2}
+      )
+      lpass show --field=Passphrase --clip "${key_desc} SSH Key"
+      ssh-add -t 36000 -k ~/.ssh/id_rsa${key2}
+      clear_clip
+      # rm -f ~/.ssh/id_rsa${key2}
+    fi
+    ssh-add -k ~/.ssh/id_rsa${key2}
+  fi
+done
 # remove next line if work gets vault
 return
 # temporarily load ssh keys from vault into agent

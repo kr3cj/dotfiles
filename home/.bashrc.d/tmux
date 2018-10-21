@@ -1,13 +1,6 @@
 [[ $- = *i* ]] || return
 ${IS_OSX} || return
 
-function _ssh_auth_save() {
-  ln -sf "${SSH_AUTH_SOCK}" "${HOME}/.ssh/ssh-auth-sock.${HOSTNAME}"
-}
-alias screen='_ssh_auth_save ; $(which screen)'
-alias tmux='_ssh_auth_save ; $(which tmux)'
-
-unalias tma 2> /dev/null # remove after awhile
 function tma() {
   local host1=${1}
   lpass show --password --clip LDAP

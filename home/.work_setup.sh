@@ -2,7 +2,8 @@
 # for work specific installations and configuration
 # assumes you have already run ~/.workstation_setup.sh
 
-docker login ${CUSTOM_WORK_JFROG_SUBDOMAIN}.jfrog.io
+# fancy docker login
+aws ecr get-login --no-include-email | bash
 
 brew cask install aws-vault
 
@@ -16,8 +17,7 @@ yo @${CUSTOM_WORK_DOMAINS[0]/.com/}/aws-vault
 echo "Add the aws-vault keychain into keychain access and change timeout from 5m to 60m"
 brew cask install caskroom/cask/intellij-idea-ce
 
-echo "configure ruby gems"
-(
+# repo specific stuff
 if [[ -d ~/build/github/infrastructure ]]; then
   cd ~/build/github/infrastructure
 else
@@ -25,11 +25,16 @@ else
   git clone git@github.com:${CUSTOM_WORK_DOMAINS[0]/.com/}/infrastructure.git
   cd infrastructure
 fi
+
+echo "configure terraform"
+# brew install tfenv
+# tfenv install $(cat .terraform-version)
+
+echo "configure ruby gems"
 brew bundle
 bundle install
 bundle exec gem install berkshelf
 gem install travis --no-rdoc
-)
 
 echo "configure travis"
 # from an work github repo
@@ -53,5 +58,8 @@ fi
 ./setup.sh
 helm plugin install https://github.com/lrills/helm-unittest --version 0.1.2
 # helm unittest <chart_name>
-# TODO: install alfred
+go get -u github.com/kcmerrill/alfred
 )
+
+# misc
+brew install blackbox

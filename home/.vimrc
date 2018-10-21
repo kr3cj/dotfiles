@@ -3,8 +3,6 @@ syntax on
 set hlsearch
 " set cursorline
 set confirm
-set paste
-set pastetoggle=<F2>
 set history=1000
 "give three lines of context when moving the cursor around
 set scrolloff=3
@@ -49,3 +47,16 @@ set list listchars=tab:»·
 " nnoremap <silent> <F2> :<C-U>setlocal lcs=tab:>-,trail:-,eol:$ list! list? <CR>
 
 " For sorting visual blocks, see https://github.com/yaroot/vissort
+
+" Automatic paste mode (https://coderwall.com/p/if9mda/automatically-set-paste-mode-in-vim-when-pasting-in-insert-mode)
+let &t_SI .= "\<Esc>[?2004h"
+let &t_EI .= "\<Esc>[?2004l"
+
+inoremap <special> <expr> <Esc>[200~ XTermPasteBegin()
+
+function! XTermPasteBegin()
+  set pastetoggle=<Esc>[201~
+  set paste
+  return ""
+endfunction
+
