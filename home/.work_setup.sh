@@ -10,6 +10,7 @@ brew cask install aws-vault
 echo "configure node"
 curl -u${NPM_REPO_LOGIN} "https://${CUSTOM_WORK_JFROG_SUBDOMAIN}.jfrog.io/${CUSTOM_WORK_JFROG_SUBDOMAIN}/api/npm/${CUSTOM_WORK_DOMAINS[0]/.com/}-npm/auth/${CUSTOM_WORK_DOMAINS[0]/.com/}" > .npmrc
 # npm login ${CUSTOM_WORK_JFROG_SUBDOMAIN}.jfrog.io
+# npm config set registry https://${CUSTOM_WORK_JFROG_SUBDOMAIN}.jfrog.io/${CUSTOM_WORK_JFROG_SUBDOMAIN}/api/npm/${CUSTOM_WORK_DOMAINS[0]/.com/}-npm/
 npm install --global yo yarn pajv
 npm install --global @${CUSTOM_WORK_DOMAINS[0]/.com/}/generator-aws-vault
 brew install ${CUSTOM_WORK_DOMAINS[0]/.com/}/public/sopstool
@@ -27,14 +28,19 @@ else
 fi
 
 echo "configure terraform"
-# brew install tfenv
-# tfenv install $(cat .terraform-version)
+tfenv install $(cat .terraform-version)
+brew install terraform_landscape
+# terraform plan ... | landscape
+# OR paste output into https://chrislewisdev.github.io/prettyplan/
 
 echo "configure ruby gems"
 brew bundle
 bundle install
 bundle exec gem install berkshelf
 gem install travis --no-rdoc
+
+# echo "configure chef client and virtualbox"
+# brew cask install chef/chef/chefdk virtualbox
 
 echo "configure travis"
 # from an work github repo
@@ -63,3 +69,19 @@ go get -u github.com/kcmerrill/alfred
 
 # misc
 brew install blackbox
+
+# asdf
+# https://github.com/thoughtbot/dotfiles/issues/577
+# brew install asdf
+# chmod u+x $(brew --prefix asdf)/asdf.sh
+# ln -s $(brew --prefix asdf)/asdf.sh ~/.asdf/asdf.sh
+git clone https://github.com/asdf-vm/asdf.git ~/.asdf
+brew install libxslt unixodbc
+
+# install helm via asdf
+asdf plugin-add helm https://github.com/Antiarchitect/asdf-helm.git
+asdf install helm 2.8.2
+asdf global helm 2.8.2
+
+# cli
+echo "Setup cli https://github.com/${CUSTOM_WORK_DOMAINS[0]/.com/}/${CUSTOM_WORK_DOMAINS[0]/.com/}_cli"

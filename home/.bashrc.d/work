@@ -15,9 +15,7 @@ on_vpn="false"
 ip_address=$(/sbin/ifconfig 2> /dev/null | grep 'inet ' | grep -v '127.0.0.1' | awk '{print $2}')
 
 # figure out location
-if [[ ${ip_address} =~ ${CUSTOM_WORK_SUBNET}.26.* ]] || \
-  [[ ${ip_address} =~ ${CUSTOM_WORK_SUBNET}.29.* ]] || \
-  [[ ${ip_address} =~ ${CUSTOM_WORK_SUBNET}.1.* ]]; then
+if [[ ${ip_address} =~ ${CUSTOM_WORK_SUBNET}.*.* ]]; then
   at_work="true"
 elif [[ ${ip_address} =~ ${CUSTOM_VPN_SUBNET}.* ]]; then
   on_vpn="true"

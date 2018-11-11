@@ -9,30 +9,85 @@ source <(kubectl completion bash)
 function kops-prod() {
   ${at_home} && lpass show --password --clip macbook
   # clear_clip 8
-  aws-vault exec kops-admin -- kops --name k8s.${CUSTOM_WORK_DOMAINS[1]} --state=s3://kops-store.${CUSTOM_WORK_DOMAINS[1]} ${@}
+  aws-vault exec kops-admin -- kops \
+    --name k8s.${CUSTOM_WORK_DOMAINS[1]} \
+    --state=s3://kops-store.${CUSTOM_WORK_DOMAINS[1]} \
+    ${@}
   # aws-vault exec kops-admin -- ${SHELL} -il --init-file <(echo "\
   #   kops export kubecfg --name k8s.${CUSTOM_WORK_DOMAINS[1]} --state=s3://kops-store.${CUSTOM_WORK_DOMAINS[1]}\
   # ")
 }
-function kops-a () {
+function kops-cmd () {
+  # this is useful for running one kops command without any prior configs for the cluster
+  if [[ ${#} -lt 2 ]]; then
+    echo "Invalid arguments. You must supply a cluster letter and a kops command: \"kops-cmd a get clusters\""
+    return 1
+  fi
+  local cluster_letter="${1}"
+  shift
+  local kops_cmd="${@}"
+  if [[ "${cluster_letter}" != [a-z] ]]; then
+    echo "Not a valid cluster name. Quitting."
+    return 1
+  fi
+  if ! $(aws-vault list | grep ^k8s-${cluster_letter}\  > /dev/null); then
+    echo "Setting up an aws profile for \"k8s-${cluster_letter}\" in ~/.aws/config ..."
+    local default_aws_acct target_aws_acct aws_region username
+    read -p "Please enter the target aws account number: " target_aws_acct
+    read -p "Please enter the region (default: us-east-1): " aws_region
+    aws_region=${aws_region:-us-east-1}
+    username=$(git config --global user.email)
+    cat << EOF >> ~/.aws/config
+
+[profile k8s-${cluster_letter}]
+role_arn=arn:aws:iam::${target_aws_acct}:role/k8s-${cluster_letter}.${CUSTOM_WORK_DOMAINS[1]}-AdminRole
+source_profile = default
+region = ${aws_region}
+mfa_serial = arn:aws:iam::${CUSTOM_WORK_DEFAULT_AWS_ACCT}:mfa/${username/@${CUSTOM_WORK_DOMAINS[0]}/}
+EOF
+  # aws-vault remove k8s-${cluster_name} # doesn't work
+  fi
+
+  local kops_options="--name k8s-${cluster_letter}.${CUSTOM_WORK_DOMAINS[1]} \
+    --state=s3://${CUSTOM_WORK_DOMAINS[0]/.com/}-kops-store-k8s-${cluster_letter}.${CUSTOM_WORK_DOMAINS[1]}"
+
+  if ! $(kubectx | grep ^k8s-${cluster_letter}.${CUSTOM_WORK_DOMAINS[1]}$ > /dev/null); then
+    echo "Creating kubectl context for cluster \"k8s-${cluster_letter}\"..."
+    aws-vault exec k8s-${cluster_letter} -- kops ${kops_options} export kubecfg
+    # deleting from kubeconfig
+    # kubectx -d k8s-${cluster_letter}.${CUSTOM_WORK_DOMAINS[1]}
+    #   OR kubectl config delete-context k8s-${cluster_letter}.${CUSTOM_WORK_DOMAINS[1]}
+    # kubectl config delete-cluster k8s-${cluster_letter}.${CUSTOM_WORK_DOMAINS[1]}
+    # kubectl config set-context "" # https://github.com/kubernetes/kubectl/issues/483
+  fi
+
+  kubectl config set-context $(kubectl config current-context) --namespace=default
   ${at_home} && lpass show --password --clip macbook
-  aws-vault exec k8s-a -- kops --name a.${CUSTOM_WORK_DOMAINS[1]} --state=s3://${CUSTOM_WORK_DOMAINS[0]/.com/}-kops-store-a.${CUSTOM_WORK_DOMAINS[1]} ${@}
+  aws-vault exec k8s-${cluster_letter} -- kops \
+    ${kops_options} \
+    ${kops_cmd}
 }
-function kops-warm() {
-  ${at_home} && lpass show --password --clip macbook
-  aws-vault exec kops-warm -- kops --name k8s-warm.${CUSTOM_WORK_DOMAINS[1]} --state=s3://ib-kops-store-warm.${CUSTOM_WORK_DOMAINS[1]} ${@}
-}
+# these should go away
 function kops-staging() {
   ${at_home} && lpass show --password --clip macbook
-  aws-vault exec kops-staging -- kops --name k8s-staging.${CUSTOM_WORK_DOMAINS[1]} --state=s3://kops-store-staging.${CUSTOM_WORK_DOMAINS[1]} ${@}
+  aws-vault exec kops-staging -- kops \
+    --name k8s-staging.${CUSTOM_WORK_DOMAINS[1]} \
+    --state=s3://kops-store-staging.${CUSTOM_WORK_DOMAINS[1]} \
+    ${@}
 }
 function kops-sandbox() {
   ${at_home} && lpass show --password --clip macbook
-  aws-vault exec kops-sandbox -- kops --name k8s-sandbox.${CUSTOM_WORK_DOMAINS[1]} --state=s3://ib-kops-store-sandbox.${CUSTOM_WORK_DOMAINS[1]} ${@}
+  aws-vault exec kops-sandbox -- kops \
+    --name k8s-sandbox.${CUSTOM_WORK_DOMAINS[1]} \
+    --state=s3://ib-kops-store-sandbox.${CUSTOM_WORK_DOMAINS[1]} \
+    ${@}
 }
 function kops-sandbox-v2() {
   ${at_home} && lpass show --password --clip macbook
-  aws-vault exec kops-sandbox-v2 -- kops --name k8s-sandbox-v2.${CUSTOM_WORK_DOMAINS[1]} --state=s3://ib-kops-store-sandbox-v2.${CUSTOM_WORK_DOMAINS[1]} ${@}
+  aws-vault exec kops-sandbox-v2 -- kops \
+    --name k8s-sandbox-v2.${CUSTOM_WORK_DOMAINS[1]} \
+    --state=s3://ib-kops-store-sandbox-v2.${CUSTOM_WORK_DOMAINS[1]} \
+    ${@}
 }
 
 # k8s auth
@@ -121,7 +176,7 @@ function set_kube_current_config()
     ${KUBE_VAULT_DEPLOY_CONTAINER_NAME}
   clear_clip
 
-  # kops export kubecfg ${KOPS_NAME}
+  # kops export kubecfg --name ${KOPS_NAME}
 }
 function set_kube_current_config_old()
 {
@@ -160,12 +215,14 @@ alias kwatch="watch kubectl get no,ds,deploy,po,svc,ing,cm,pvc,secret"
 
 function helm_diff()
 {
-  local product=${1}
-  local environment=${2}
-  helm get values -a ${product}-${environment} > before.yaml
-  helm upgrade --dry-run --debug --wait --reuse-values --timeout 600 -f values.yaml -f "${environment}-values.yaml" -f "versions.yaml" "illuminate-${environment}" . | sed -n '/COMPUTED VALUES:/,/HOOKS:/{/COMPUTED VALUES:/b;/HOOKS:/b;p}' > preview.yaml
-  diff before.yaml preview.yaml
-  rm before.yaml preview.yaml
+  local release=${1}
+  helm get values -a ${release} > before.yaml
+  helm upgrade name-of-service path-to-chart/ --dry-run --debug --wait --reuse-values --timeout 600 \
+    -f values.yaml \
+    -f "${release}-values.yaml" \
+    sed -n '/COMPUTED VALUES:/,/HOOKS:/{/COMPUTED VALUES:/b;/HOOKS:/b;p}' > after.yaml
+  diff before.yaml after.yaml
+  rm before.yaml after.yaml
 
   # or https://github.com/databus23/helm-diff
 }

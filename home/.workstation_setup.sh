@@ -114,7 +114,7 @@ if ${IS_OSX} && ! hash mas 2>/dev/null ; then
   brew install \
     ack aria2 mas mtr nmap tmux reattach-to-user-namespace \
     maven python3 ansible node rbenv ruby ruby-build \
-    awscli hub packer siege terraform travis vault
+    awscli hub packer siege tfenv travis vault
     # openshift-cli fleetctl; aria2=torrent_client(aria2c)
 
   echo "install lastpass client"
@@ -187,17 +187,18 @@ if [[ ${TRAVIS_CI_RUN} != true ]]; then
   HOMEBREW_CASK_OPTS="--appdir=/Applications"
   # TODO: disable updates in docker so brew update can manage it, disable experimental features
   brew cask install \
-    atom slack spotify gimp google-backup-and-sync iterm2 vagrant \
+    atom slack spotify gimp github google-backup-and-sync iterm2 vagrant \
     beyond-compare firefox keystore-explorer private-internet-access \
     wireshark visual-studio-code
 
   # broken up into separate commands to avoid 10 minute travis build timeout
   brew cask install docker
+    # virtualbox
   brew install docker-compose android-file-transfer
 
     # android-platform-tools
     # google-
-    # virtualbox visual-studio-code
+    # visual-studio-code
   # TODO: use openvpn to connect to PIA via CLI
   #  https://helpdesk.privateinternetaccess.com/hc/en-us/articles/219437987-Installing-OpenVPN-PIA-on-MacOS
   # old google-photos-backup available at
@@ -289,7 +290,8 @@ EOF
 
   # must install helm after kubernetes?
   # this will install 2 kubernetes clients (gcloud's and brew's)
-  brew install kubernetes-helm kubernetes-cli kops kubectx
+  # brew install kubernetes-helm # disabling in favor of asdf installed helm
+  brew install kubernetes-cli kops kubectx
 
   # install helm plugin for Visual Studio Code
   helm init

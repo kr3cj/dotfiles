@@ -13,4 +13,5 @@
     "gitlens.advanced.messages": {
         "suppressShowKeyBindingsNotice": true
     },
+    "explorer.confirmDelete": false,
 }

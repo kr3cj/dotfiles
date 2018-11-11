@@ -88,6 +88,14 @@ if [[ $(uname) == "Darwin" ]] ; then
   /usr/local/bin/brew missing
   /usr/local/bin/brew prune
 
+  if hash asdf 2>/dev/null ; then
+    echo -e "\nUpdating asdf..."
+    (cd ~/.asdf
+    gitp master)
+    echo -e "\nUpdating asdf plugins..."
+    /usr/local/bin/asdf plugin-update --all
+  fi
+
   /bin/rm -vr ~/.gradle/caches/* 2> /dev/null || echo
   /bin/rm -vr ~/.ivy2/{local,cache}/* 2> /dev/null || echo
   /bin/rm -vr ~/Library/Containers/com.apple.mail/Data/Library/Mail\ Downloads/* 2> /dev/null || echo
