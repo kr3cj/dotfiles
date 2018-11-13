@@ -71,17 +71,12 @@ go get -u github.com/kcmerrill/alfred
 brew install blackbox
 
 # asdf
-# https://github.com/thoughtbot/dotfiles/issues/577
-# brew install asdf
-# chmod u+x $(brew --prefix asdf)/asdf.sh
-# ln -s $(brew --prefix asdf)/asdf.sh ~/.asdf/asdf.sh
-git clone https://github.com/asdf-vm/asdf.git ~/.asdf
-brew install libxslt unixodbc
+brew install asdf
 
 # install helm via asdf
-asdf plugin-add helm https://github.com/Antiarchitect/asdf-helm.git
-asdf install helm 2.8.2
-asdf global helm 2.8.2
+asdf plugin-add helm
+asdf install helm 2.11.0
+asdf global helm 2.11.0
 
 # cli
 echo "Setup cli https://github.com/${CUSTOM_WORK_DOMAINS[0]/.com/}/${CUSTOM_WORK_DOMAINS[0]/.com/}_cli"
