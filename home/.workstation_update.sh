@@ -83,17 +83,18 @@ if [[ $(uname) == "Darwin" ]] ; then
   echo -e "\nCleaning temporary files."
   PATH="/usr/local/bin:${PATH}"
   /usr/local/bin/brew cleanup -s
+
   # /usr/local/bin/brew cask cleanup
   /usr/local/bin/brew doctor
+  for problematic_brews in kubernetes-helm docker docker-machine docker-compose ; do
+    /usr/local/bin/brew link ${problematic_brews} --overwrite
+  done
   /usr/local/bin/brew missing
   /usr/local/bin/brew prune
 
   if hash asdf 2>/dev/null ; then
-    echo -e "\nUpdating asdf..."
-    (cd ~/.asdf
-    gitp master)
     echo -e "\nUpdating asdf plugins..."
-    /usr/local/bin/asdf plugin-update --all
+    $(brew --prefix asdf)/bin/asdf plugin-update --all
   fi
 
   /bin/rm -vr ~/.gradle/caches/* 2> /dev/null || echo

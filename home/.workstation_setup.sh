@@ -335,10 +335,6 @@ if ${IS_LINUX} && ! hash packer 2>/dev/null ; then
     sudo apt-get update
     sudo apt-get install -y apt-transport-https ca-certificates curl git software-properties-common
     sudo apt-get install -y python-dev python3 tmux ack-grep jq xclip aria2
-    # pip
-    sudo wget https://bootstrap.pypa.io/get-pip.py
-    sudo python get-pip.py && rm get-pip.py
-    sudo pip install --upgrade setuptools
     # lastpass
     echo "For LastPass CLI, see https://github.com/lastpass/lastpass-cli/blob/master/README.md#debianubuntu"
 
@@ -388,11 +384,12 @@ if ${IS_LINUX} && ! hash packer 2>/dev/null ; then
   elif ${is_rhel} ; then
     echo "Configuring RHEL. This will take a few minutes."
     sudo yum install -y python-dev python3 tmux ack lastpass-cli git curl xclip aria2
-    # pip
-    sudo wget https://bootstrap.pypa.io/get-pip.py
-    sudo python get-pip.py && rm get-pip.py
-    sudo pip install --upgrade setuptools
   fi
+  # pip
+  sudo wget https://bootstrap.pypa.io/get-pip.py
+  sudo python get-pip.py && rm get-pip.py
+  sudo pip install --upgrade setuptools
+  pip install awscli --upgrade --user
   # install liquidprompt for linux
   cd
   git clone https://github.com/nojhan/liquidprompt.git

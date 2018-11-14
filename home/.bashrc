@@ -35,6 +35,8 @@ if [[ "${HEALTHY_INTERNET}" == "true" && "${IS_OSX}" == "true" ]]; then
   # else it returns "Error: Failed to enter correct password."
   # So it cannot be located inside ~/.bashrc.d/
   lpass status > /dev/null || DISPLAY=${DISPLAY:-:0} lpass login --trust lastpass@${CUSTOM_HOME_DOMAIN}
+  # if lastpass extension becomes unresponse, delete .suid and .uid from and restart browser
+  # srm -v ~/Library/Containers/com.lastpass.LastPass/Data/Library/Application Support/LastPass/{}
 fi
 
 if [[ ${TRAVIS_CI_RUN} != true ]]; then

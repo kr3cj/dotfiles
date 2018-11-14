@@ -75,20 +75,6 @@ function kops-staging() {
     --state=s3://kops-store-staging.${CUSTOM_WORK_DOMAINS[1]} \
     ${@}
 }
-function kops-sandbox() {
-  ${at_home} && lpass show --password --clip macbook
-  aws-vault exec kops-sandbox -- kops \
-    --name k8s-sandbox.${CUSTOM_WORK_DOMAINS[1]} \
-    --state=s3://ib-kops-store-sandbox.${CUSTOM_WORK_DOMAINS[1]} \
-    ${@}
-}
-function kops-sandbox-v2() {
-  ${at_home} && lpass show --password --clip macbook
-  aws-vault exec kops-sandbox-v2 -- kops \
-    --name k8s-sandbox-v2.${CUSTOM_WORK_DOMAINS[1]} \
-    --state=s3://ib-kops-store-sandbox-v2.${CUSTOM_WORK_DOMAINS[1]} \
-    ${@}
-}
 
 # k8s auth
 [[ -f ~/.k8s_auth ]] && source ~/.k8s_auth
