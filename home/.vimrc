@@ -37,10 +37,10 @@ nnoremap <silent> <F6> :let _s=@/<Bar>:%s/\s\+$//e<Bar>:let @/=_s<Bar>:nohl<CR>
 " Automatic indenting and tab key uses spaces
 set smartindent  "Automatic indenting
 set autoindent
+set expandtab   "Enable for tabs to become spaces
 set tabstop=2    "Number of spaces a tab mimics
 set softtabstop=2 "Ensure spaces can be easily deleted
 set shiftwidth=2 "?
-set expandtab   "Enable for tabs to become spaces
 " Highlight tabs so that we may destroy them
 set list listchars=tab:»·
 " To replace tabs, type ':retab' inside the file
@@ -59,4 +59,3 @@ function! XTermPasteBegin()
   set paste
   return ""
 endfunction
-

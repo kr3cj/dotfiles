@@ -127,11 +127,10 @@ if ${IS_OSX} && ! hash mas 2>/dev/null ; then
     # load personal ssh key if necessary
     if ! $(ssh-add -l | grep -q "/.ssh/id_rsa_personal\ ("); then
       (umask 177
-      lpass show --field="Private Key" "Personal SSH Key" > ~/.ssh/id_rsa_personal
+      lpass show --field="Private Key" "id_rsa_personal" > ~/.ssh/id_rsa_personal
       )
-      lpass show --field=Passphrase --clip "Personal SSH Key"
+      lpass show --field=Passphrase --clip "id_rsa_personal"
       ssh-add -t 36000 -k ~/.ssh/id_rsa_personal
-      clear_clip
       rm -f ~/.ssh/id_rsa_personal
     fi
     private_repos="git@bitbucket.org:kr3cj/dotfiles_private.git"
@@ -159,9 +158,7 @@ if ${IS_OSX} && ! hash mas 2>/dev/null ; then
 
   # mas is a CLI for AppStore installs/updates
 if [[ ${TRAVIS_CI_RUN} != true ]]; then
-    lpass show --password --clip "Apple" && \
-      mas signin apple@${CUSTOM_HOME_DOMAIN}
-    clear_clip
+    lpass show --password --clip "Apple" && mas signin apple@${CUSTOM_HOME_DOMAIN}
     mas install 405843582 # Alfred
     mas install 497799835 # Xcode
     mas install 595191960 # CopyClip
@@ -188,13 +185,14 @@ if [[ ${TRAVIS_CI_RUN} != true ]]; then
   # TODO: disable updates in docker so brew update can manage it, disable experimental features
   brew cask install \
     atom slack spotify gimp github google-backup-and-sync iterm2 vagrant \
-    beyond-compare firefox keystore-explorer private-internet-access \
+    beyond-compare firefox keystore-explorer \
     wireshark visual-studio-code
+    # private-internet-access
 
   # broken up into separate commands to avoid 10 minute travis build timeout
   brew cask install docker
     # virtualbox
-  brew install docker-compose android-file-transfer
+  brew install android-file-transfer
 
     # android-platform-tools
     # google-
@@ -277,7 +275,7 @@ EOF
     "files.autoSave": "afterDelay",
     "workbench.startupEditor": "none"
   }
-  EOF
+EOF
 
   # gce and gke stuff (https://cloud.google.com/sdk/docs/quickstart-mac-os-x)
   brew install go
@@ -289,9 +287,18 @@ EOF
   # gcloud config list
 
   # must install helm after kubernetes?
+  # asdf
+  brew install asdf
+
+  # install helm via asdf
+  asdf plugin-add helm kops
+  asdf install helm 2.11.0
+  asdf global helm 2.11.0
+  asdf install kops 1.9.2
+  asdf global kops 1.9.2
   # this will install 2 kubernetes clients (gcloud's and brew's)
-  # brew install kubernetes-helm # disabling in favor of asdf installed helm
-  brew install kubernetes-cli kops kubectx
+  # brew install kubernetes-helm kops # disabling in favor of asdf installed helm/kops
+  brew install kubernetes-cli kubectx
 
   # install helm plugin for Visual Studio Code
   helm init

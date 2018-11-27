@@ -1,13 +1,13 @@
 [[ $- = *i* ]] || return
 
 # fix ssh directory permissions
-find -L ~/.ssh/ -type f -exec chmod 600 '{}' \;
-find -L ~/.ssh/ -type d -exec chmod 700 '{}' \;
+find -L ~/.ssh/ -type f -exec chmod -c 600 '{}' \;
+find -L ~/.ssh/ -type d -exec chmod -c 700 '{}' \;
 
 ${IS_OSX} || return
 ${HEALTHY_INTERNET} || return
 
-# ssh agent stuff
+# ssh agent startup (rarely works reliably; but utilizing the native launchd instead works fine)
 # TODO: convert to launchctl https://www.packetmischief.ca/2016/09/06/ssh-agent-on-os-x/
 if ! [[ -S ${SSH_AUTH_SOCK} ]]; then
   cat << EOF
@@ -33,22 +33,17 @@ EOF
   alias tmux='_ssh_auth_save ; $(which tmux)'
 fi
 
-for key2 in "" _personal; do
+# load keys
+for key2 in "" _personal _harness _k8s-prod _k8s-a _k8s-staging; do
   if ! $(ssh-add -l | grep -q "/.ssh/id_rsa${key2}\ ("); then
-    key_desc="Work"
-    [[ ${key2} == "_personal" ]] && key_desc="Personal"
-    if ${at_home}; then
-      ### temporarily load ssh keys, if necessary, from lastpass into agent ###
-      # TODO: better integrate passphrase from LastPass CLI? https://svkt.org/~simias/lpass/#ssh-agent
-      (umask 177
-      lpass show --field="Private Key" "${key_desc} SSH Key" > ~/.ssh/id_rsa${key2}
-      )
-      lpass show --field=Passphrase --clip "${key_desc} SSH Key"
-      ssh-add -t 36000 -k ~/.ssh/id_rsa${key2}
-      clear_clip
-      # rm -f ~/.ssh/id_rsa${key2}
-    fi
-    ssh-add -k ~/.ssh/id_rsa${key2}
+    ### temporarily load ssh keys, if necessary, from lastpass into agent ###
+    # TODO: better integrate passphrase from LastPass CLI? https://svkt.org/~simias/lpass/#ssh-agent
+    (umask 177
+    lpass show --field="Private Key" "id_rsa${key2}" > ~/.ssh/id_rsa${key2}
+    )
+    lpass show --field=Passphrase --clip "id_rsa${key2}"
+    ssh-add -t 36000 -k ~/.ssh/id_rsa${key2}
+    rm -f ~/.ssh/id_rsa${key2}
   fi
 done
 # remove next line if work gets vault

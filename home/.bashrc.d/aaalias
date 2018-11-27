@@ -57,7 +57,6 @@ function _create_socks_proxy {
     /usr/bin/ssh ${ssh_proxy_options} ${port1} "${username}@${host1}" \
       -o TCPKeepAlive=yes -o ConnectTimeout=1 -o ConnectionAttempts=1 2> \
       ${ssh_proxy_response_file}
-    clear_clip
   fi
   if [[ -s ${ssh_proxy_response_file} ]]; then
     echo "Unable to establish ssh connection to ${host1}."
@@ -106,6 +105,7 @@ function find-error() {
   sudo grep -riE 'DENIED|ERR|EXIST|FAIL|INVALID|SPECIFIED|SUCH|UNABLE|WARN|USAGE:|UNKNOWN' ${1}
 }
 
+# https://github.com/chubin/awesome-console-services
 function speedtest {
   curl -s https://raw.githubusercontent.com/sivel/speedtest-cli/master/speedtest.py \
   | python -
@@ -113,6 +113,10 @@ function speedtest {
 
 function whatismyip {
   curl ifconfig.me
+}
+
+function weather {
+  curl https://wttr.in
 }
 
 if [[ "${IS_OSX}" == "true" ]]; then
@@ -130,12 +134,7 @@ if [[ "${IS_OSX}" == "true" ]]; then
   function vc {
     lpass show --password --clip AD
     /opt/cisco/anyconnect/bin/vpn connect ${CUSTOM_WORK_DOMAINS[1]/\.*/}
-    clear_clip 5
     source ~/.bash_profile # to clean up work/home network connection configs
-  }
-  function lpw {
-    lpass show --password --clip "${CUSTOM_WORK_DOMAINS[0]/.com/} macbook"
-    clear_clip 8
   }
 
   function clear_clip {
@@ -149,15 +148,22 @@ if [[ "${IS_OSX}" == "true" ]]; then
     ) 2> /dev/null
   }
 
-#  unalias ssh 2> /dev/null
+  function aws-vault {
+    lpass show --password --clip "${CUSTOM_WORK_DOMAINS[0]/.com/} macbook" || echo "Unable to cache pw."
+    $(which aws-vault) ${@}
+  }
+
+  function lpass {
+    $(which lpass) ${@}
+    clear_clip 5
+  }
+
   eval "function ssh {
     local host1=\"\${@}\"
     case \"\${host1}\" in
-      wyninf13)
-        lpass show --password --clip wyninf13 ;;
       ${CUSTOM_WORK_SUBNET}.*|\
 $(echo ${CUSTOM_WORK_DOMAINS[@]/#/*.}|tr ' ' '|'))
-        lpass show --password --clip LDAP ;;
+        lpass show --password --clip \"${CUSTOM_WORK_DOMAINS[0]/.com/} main (one login)\";;
       home.${CUSTOM_HOME_DOMAIN})
         lpass show --password --clip \"proxy.${CUSTOM_NAS_HOST#*\.}\" ;;
       nas|nas.${CUSTOM_NAS_HOST#*\.})
@@ -173,7 +179,6 @@ $(echo ${CUSTOM_WORK_DOMAINS[@]/#/*.}|tr ' ' '|'))
       macbuild*)
         lpass show --password --clip AD ;;
     esac
-    clear_clip 8
     # using homebrew ssh $(which ssh) results in 'Bad configuration option: usekeychain'
     /usr/bin/ssh \${host1}
   }"

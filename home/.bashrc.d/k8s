@@ -3,20 +3,11 @@ ${IS_OSX} || return
 
 export KUBECONFIG=~/.kube/config
 source <(kubectl completion bash)
+# k8s auth
+[[ -f ~/.k8s_auth ]] && source ~/.k8s_auth
+alias kwatch="watch kubectl get no,ds,deploy,po,svc,ing,cm,pvc,secret"
 
 # The below functions are useful for calling one time kops commands on any env, regardless of current kubectx pointers
-# TODO: find out why calling the functions directly doesnt work (must paste output)
-function kops-prod() {
-  ${at_home} && lpass show --password --clip macbook
-  # clear_clip 8
-  aws-vault exec kops-admin -- kops \
-    --name k8s.${CUSTOM_WORK_DOMAINS[1]} \
-    --state=s3://kops-store.${CUSTOM_WORK_DOMAINS[1]} \
-    ${@}
-  # aws-vault exec kops-admin -- ${SHELL} -il --init-file <(echo "\
-  #   kops export kubecfg --name k8s.${CUSTOM_WORK_DOMAINS[1]} --state=s3://kops-store.${CUSTOM_WORK_DOMAINS[1]}\
-  # ")
-}
 function kops-cmd () {
   # this is useful for running one kops command without any prior configs for the cluster
   if [[ ${#} -lt 2 ]]; then
@@ -61,23 +52,34 @@ EOF
     # kubectl config set-context "" # https://github.com/kubernetes/kubectl/issues/483
   fi
 
-  kubectl config set-context $(kubectl config current-context) --namespace=default
-  ${at_home} && lpass show --password --clip macbook
+  # set namespace to default, if necessary
+  # if "default" != $(kubectl config view -o=jsonpath="{.contexts[?(@.name==\"$(kubectl config current-context)\")].context.namespace}"); then
+  #   kubectl config set-context $(kubectl config current-context) --namespace=default
+  # fi
+  lpass show --password --clip "${CUSTOM_WORK_DOMAINS[0]/.com/} macbook"
   aws-vault exec k8s-${cluster_letter} -- kops \
     ${kops_options} \
     ${kops_cmd}
 }
-# these should go away
+# TODO: collapse these into above function
+# TODO: find out why calling the functions directly doesnt work (must paste output)
+function kops-prod() {
+  lpass show --password --clip "${CUSTOM_WORK_DOMAINS[0]/.com/} macbook"
+  aws-vault exec kops-admin -- kops \
+    --name k8s.${CUSTOM_WORK_DOMAINS[1]} \
+    --state=s3://kops-store.${CUSTOM_WORK_DOMAINS[1]} \
+    ${@}
+  # aws-vault exec kops-admin -- ${SHELL} -il --init-file <(echo "\
+  #   kops export kubecfg --name k8s.${CUSTOM_WORK_DOMAINS[1]} --state=s3://kops-store.${CUSTOM_WORK_DOMAINS[1]}\
+  # ")
+}
 function kops-staging() {
-  ${at_home} && lpass show --password --clip macbook
-  aws-vault exec kops-staging -- kops \
+  lpass show --password --clip "${CUSTOM_WORK_DOMAINS[0]/.com/} macbook"
+  aws-vault exec staging-admin -- kops \
     --name k8s-staging.${CUSTOM_WORK_DOMAINS[1]} \
     --state=s3://kops-store-staging.${CUSTOM_WORK_DOMAINS[1]} \
     ${@}
 }
-
-# k8s auth
-[[ -f ~/.k8s_auth ]] && source ~/.k8s_auth
 
 function get_kube_versions()
 {
@@ -92,8 +94,8 @@ function get_kube_versions()
   local CURR_HELMS_V=$(helm version --server --short | awk '{print $2}')
   local L8ST_HELM_V=$(curl -s https://api.github.com/repos/helm/helm/releases/latest | jq -r '.tag_name')
   # TODO: GO_V=$(kubectl version --short --output=json | jq -r '.serverVersion.goVersion')
-  # TODO: Debian Version
-  # TODO: Docker version
+  # TODO: Versions of Debian, docker, etcd, kube-aws
+  # TODO: providers for dns and network layer
 
   cat << TABLE_EOF
   +------------+-----------------+----------------+
@@ -103,101 +105,14 @@ function get_kube_versions()
   +------------+-----------------+----------------+
   | Kops       | ${CURR_KOPS_V}          | ${L8ST_KOPS_V}         |
   +------------+-----------------+----------------+
-  | Kubernetes | ${CURR_K8S_V}          | ${L8ST_K8S_V}        |
+  | Kubernetes | ${CURR_K8S_V}          | ${L8ST_K8S_V}       |
   +------------+-----------------+----------------+
-  | Helm Client| ${CURR_HELMC_V} | ${L8ST_HELM_V}        |
+  | Helm Client| ${CURR_HELMC_V} | ${L8ST_HELM_V}       |
   +------------+-----------------+----------------+
-  | Helm Server| ${CURR_HELMS_V} | ${L8ST_HELM_V}        |
+  | Helm Server| ${CURR_HELMS_V} | ${L8ST_HELM_V}       |
   +------------+-----------------+----------------+
 TABLE_EOF
 }
-function set_kube_current_config()
-{
-  [[ -f ~/.k8s_auth ]] && source ~/.k8s_auth
-  # [[ -f ~/.aws_auth ]] && source ~/.aws_auth
-  env | grep AWS_
-  echo
-
-  KUBE_VAULT_DEPLOY_CONTAINER_NAME="readytalk/kube-vault-deploy:kube-auth"
-  # KUBE_VAULT_DEPLOY_CONTAINER_NAME="readytalk/kube-vault-deploy:latest"
-  if [[ ${VAULT_REACHABLE} != "true" ]]; then
-    (>&2 echo "Skipping set_kube_current_config as vault is unreachable...")
-    return 1
-  fi
-
-  local KOPS_NAME="${@}"
-  if [[ -z ${KOPS_NAME} ]]; then
-    (>&2 echo "You did not provide a default kops name argument.")
-    return 1
-  fi
-  if [[ ${KOPS_NAME} =~ "\." ]]; then
-    (>&2 echo "You did not provide a fully qualified kops name argument.")
-    return 1
-  fi
-  if [[ -z $(kubectl config current-context) ]];then
-    (>&2 echo "\"kubectl config current-context\" is blank!")
-    return 1
-  fi
-
-  get_kube_versions
-
-  echo -e "\n\${KOPS_NAME}=\"${KOPS_NAME}\"; \${KOPS_STATE_STORE}=\"${KOPS_STATE_STORE}\"; \
-    \${KOPS_STATE_STORE_REGION}=\"${KOPS_STATE_STORE_REGION}\""
-  echo -e "Using container:tag \"${KUBE_VAULT_DEPLOY_CONTAINER_NAME}\"; is this correct?\n"
-  read -p "Press any key to continue or CTRL+C to abort."
-
-  # open Docker if necessary
-  pgrep -qf "Docker.app" || open --hide --background -a Docker
-  # uses vault to auth to s3 bucket so you don't need AWS env variables
-  # should populate ~/.kube/config file with appropriate environment info
-  lpass show --password --clip LDAP
-  docker run --rm \
-    -it \
-    -e VAULT_ADDR=${VAULT_ADDR} \
-    -e VAULT_TOKEN=$(cat ~/.vault-token) \
-    -e CLUSTER_NAME=${KOPS_NAME} \
-    -e ACCOUNT_NAME=sre-sa \
-    -e CONTEXT_NAME=${KOPS_NAME} \
-    -v ~/.kube:/kube-config \
-    ${KUBE_VAULT_DEPLOY_CONTAINER_NAME}
-  clear_clip
-
-  # kops export kubecfg --name ${KOPS_NAME}
-}
-function set_kube_current_config_old()
-{
-  local KOPS_NAME="${@}"
-  if [[ -z ${KOPS_NAME} ]]; then
-    (>&2 echo "You did not provide a default kops name argument.")
-    return 1
-  fi
-  if [[ ${KOPS_NAME} =~ "\." ]]; then
-    (>&2 echo "You did not provide a fully qualified kops name argument.")
-    return 1
-  fi
-  if [[ -z ${KOPS_STATE_STORE} ]]; then
-    (>&2 echo "\${KOPS_STATE_STORE} is blank; unable to retrieve kubeconfig from s3.")
-    return 1
-  fi
-  if [[ -z $(kubectl config current-context) ]];then
-    (>&2 echo "\"kubectl config current-context\" is blank!")
-    return 1
-  fi
-  kops export kubecfg --name $(kubectl config current-context)
-  kubectl config use-context $(kubectl config current-context)
-}
-function set_kube_current_ns()
-{
-  if hash kubectl 2>/dev/null ; then
-    local ns="${1:-utilities}"
-    kubectl config set-context $(kubectl config current-context) --namespace=${ns}
-  fi
-}
-alias knc=set_kube_current_config
-alias kns=set_kube_current_ns
-alias kubedash="kubectl get po -n=kube-system | grep dashboard | awk '{print \$1}' | \
-  xargs -I % kubectl port-forward % 9090 -n=kube-system"
-alias kwatch="watch kubectl get no,ds,deploy,po,svc,ing,cm,pvc,secret"
 
 function helm_diff()
 {

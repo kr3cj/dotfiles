@@ -22,7 +22,6 @@ if [[ "${HEALTHY_INTERNET}" == "true" ]] && [[ "${VAULT_REACHABLE}" == "true" ]]
     else
       vault token renew -increment=10h > /dev/null
     fi
-    clear_clip
   fi
 else
   (>&2 echo "Skipping vault auth as it is unreachable.")

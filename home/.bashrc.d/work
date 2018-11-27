@@ -25,14 +25,15 @@ else
   echo "Could not determine location from ip_address ${ip_address}."
 fi
 
+function work_vpn {
+  lpass show --password --clip "${CUSTOM_WORK_DOMAINS[0]/.com/} main (one login)"
+  openit "Endpoint Security VPN"
+}
 if ${at_home} ; then
   # prompt for vpn connection to work
   if ! $(ping -c1 -W1 -i0.1 chef.${CUSTOM_WORK_DOMAINS[1]} &> /dev/null); then
-    (read -t 1 -s -p "To connect to work VPN, press Enter key within 1 second..." \
-      && lpass show --password --clip "OneLogin" && \
-      openit "Endpoint Security VPN" && pp
-      echo && clear_clip
-    )
+    read -t 1 -s -p "To connect to work VPN, press Enter key within 1 second..." && work_vpn
+    echo
   fi
   if $(ping -c1 -W1 -i0.1 ${CUSTOM_NAS_HOST} &> /dev/null) ; then
     mount | grep -q "Documents/share1" || mount -t nfs -o \
@@ -45,13 +46,10 @@ if ${at_home} ; then
   fi
 elif ${at_work} ; then
   # disconnect any VPN connection
-  # pkill -f "Endpoint_Security_VPN"
-  # pkill -f "TrGui"
-  # pkill -f "TrGUI"
-  # sudo launchctl unload /Library/LaunchDaemons/com.checkpoint.epc.service.plist &&\
-  #   sudo kextunload  /System/Library/Extensions/cpfw.kext
-  # establish SSH tunnel to home proxy
-  ## lpass show --password --clip "proxy.${CUSTOM_NAS_HOST#*\.}"
+  if pgrep -f "Endpoint_Security_VPN"; then
+    echo "Your VPN client is running at work, silly. Trying to shut it down..."
+    pkill -f "Endpoint_Security_VPN" || echo "Unable to shutdown VPN client"
+  fi
   _create_socks_proxy "home.${CUSTOM_HOME_DOMAIN}" "2000" "${LOGNAME:0:5}"
 
   while $(mount | grep -q "Documents/share1") ; do
@@ -64,6 +62,7 @@ elif ${at_work} ; then
   # open desktop apps (TODO: --background not working for Slack and Atom)
   openit Slack Spotify "Visual Studio Code"
 elif ${on_vpn} ; then
+  return
   # establish SSH tunnel to home proxy
   lpass show --password --clip "proxy.${CUSTOM_NAS_HOST#*\.}"
   # TODO: curl gets "000" response code when on VPN
@@ -71,18 +70,11 @@ elif ${on_vpn} ; then
 else
   echo
   if ! $(ping -c1 -W1 -i0.1 chef-server.i.${CUSTOM_WORK_DOMAINS[0]} &> /dev/null); then
-    (
-      read -t 2 -s -p "Not at home or work; to connect to work VPN, press Enter key within 2 seconds..." \
-        && lpass show --password --clip "${CUSTOM_WORK_DOMAINS[0]/.com/} main (one login)" \
-        # && sudo launchctl load /Library/LaunchDaemons/com.checkpoint.epc.service.plist \
-        # && sudo kextload /System/Library/Extensions/cpfw.kext \
-        # && /Applications/Endpoint\ Security\ VPN.app/Contents/MacOS/Endpoint_Security_VPN 2>1 > /dev/null &
-      echo && clear_clip
-    )
+    (read -t 3 -s -p "Not at home or work; to connect to work VPN, press Enter within 3 seconds..." \
+        && work_vpn)
   fi
-  echo
   # read -t 2 -p "If in public location and need P.I.A. VPN, press Enter key within 2 seconds..." \
     # && nohup ~/.pia_manager/pia_manager.app/Contents/MacOS/runner.sh >/dev/null 2>&1 &
-    # && open -a "Private Internet Access"
+    # && openit "Private Internet Access"
   echo
 fi

@@ -16,11 +16,11 @@ fi
 #bind '"\e[B": history-search-forward'
 
 ${IS_OSX} || return
-[[ -f $(brew --prefix)/etc/bash_completion ]] && \
-  source $(brew --prefix)/etc/bash_completion
+[[ -f /usr/local/etc/bash_completion ]] && \
+  source /usr/local/etc/bash_completion
 
-# if [[ -d $(brew --prefix)/etc/bash_completion.d ]]; then
-#   for file1 in $(find $(brew --prefix)/etc/bash_completion.d -follow -type f); do
+# if [[ -d /usr/local/etc/bash_completion.d ]]; then
+#   for file1 in $(find /usr/local/etc/bash_completion.d -follow -type f); do
     # echo "Sourcing ${file1}..."
     # source ${file1}
   # done

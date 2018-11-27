@@ -70,13 +70,5 @@ go get -u github.com/kcmerrill/alfred
 # misc
 brew install blackbox
 
-# asdf
-brew install asdf
-
-# install helm via asdf
-asdf plugin-add helm
-asdf install helm 2.11.0
-asdf global helm 2.11.0
-
 # cli
 echo "Setup cli https://github.com/${CUSTOM_WORK_DOMAINS[0]/.com/}/${CUSTOM_WORK_DOMAINS[0]/.com/}_cli"

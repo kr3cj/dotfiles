@@ -28,13 +28,21 @@ fi
 # lastpass stuff cannot be inside bashrc.d file due to tty req'ts
 export LPASS_AGENT_TIMEOUT=172800
 export LPASS_DISABLE_PINENTRY=0
+# https://github.com/lastpass/lastpass-cli/blob/master/log.h
+export LPASS_LOG_LEVEL=7
 # export LPASS_ASKPASS
 
 if [[ "${HEALTHY_INTERNET}" == "true" && "${IS_OSX}" == "true" ]]; then
   # TODO: lpass login rquires "stdin must be a tty"
   # else it returns "Error: Failed to enter correct password."
   # So it cannot be located inside ~/.bashrc.d/
-  lpass status > /dev/null || DISPLAY=${DISPLAY:-:0} lpass login --trust lastpass@${CUSTOM_HOME_DOMAIN}
+  if ! $(lpass status > /dev/null); then
+    echo "Will try to log into lastpass..."
+    DISPLAY=${DISPLAY:-0}
+    $(brew --prefix coreutils)/libexec/gnubin/timeout 2 \
+      "lpass login --trust lastpass@${CUSTOM_HOME_DOMAIN}" \
+      || echo "Timeout running lpass login"
+  fi
   # if lastpass extension becomes unresponse, delete .suid and .uid from and restart browser
   # srm -v ~/Library/Containers/com.lastpass.LastPass/Data/Library/Application Support/LastPass/{}
 fi

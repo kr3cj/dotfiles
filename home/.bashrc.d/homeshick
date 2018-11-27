@@ -12,7 +12,7 @@ if grep -q 'url = https.*\|url = ssh.*' ~/.homesick/repos/dotfiles_private/.git/
 fi
 
 # in case homeshick refresh asks for dotfiles_private repo password
-${at_home} && ${HEALTHY_INTERNET} && lpass show --password --clip bitbucket.org
+${HEALTHY_INTERNET} && lpass show --password --clip bitbucket.org
 homeshick --quiet refresh
 
 # expensive: ${IS_OSX} && homeshick link dotfiles dotfiles_private

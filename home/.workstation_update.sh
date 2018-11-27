@@ -86,7 +86,8 @@ if [[ $(uname) == "Darwin" ]] ; then
 
   # /usr/local/bin/brew cask cleanup
   /usr/local/bin/brew doctor
-  for problematic_brews in kubernetes-helm docker docker-machine docker-compose ; do
+  # docker docker-machine docker-compose
+  for problematic_brews in kubernetes-helm ; do
     /usr/local/bin/brew link ${problematic_brews} --overwrite
   done
   /usr/local/bin/brew missing
@@ -115,8 +116,12 @@ if [[ $(uname) == "Darwin" ]] ; then
   fi
 
   echo -e "\nPrint any dead links in home directory..."
-  /usr/local/opt/findutils/libexec/gnubin/find ${HOME} -xtype l ! -path "*/Library/*" ! -path "*/.virtualenvs/*" ! -path "*/build/*" \
-    -exec echo 'Broken symlink: {}' \;
+  $(brew --prefix findutils)/libexec/gnubin/find ${HOME} \
+    -xtype l \
+    ! -path "*/Library/*" \
+    ! -path "*/.virtualenvs/*" \
+    ! -path "*/build/*" \
+    -exec echo 'Broken symlink: {}' \; 2> /dev/null
     # -exec rm -v '{}' \;
 
   echo -e "\nPrint any repos with https auth..."
@@ -129,7 +134,6 @@ if [[ $(uname) == "Darwin" ]] ; then
   if [[ ${TRAVIS_CI_RUN} != true ]] && [[ ! $(/usr/local/bin/mas account) ]]; then
     /usr/local/bin/lpass show --password --clip "Apple" && \
       /usr/local/bin/mas signin apple@${CUSTOM_HOME_DOMAIN}
-    clear_clip
   fi
   /usr/local/bin/mas upgrade
 
@@ -139,14 +143,14 @@ if [[ $(uname) == "Darwin" ]] ; then
   if [[ ${TRAVIS_CI_RUN} != true ]]; then
     # TODO: Must reboot immediately else the Finder can get disk sync issues and error -43?
     echo -e "\nChecking macos disk health."
-    echo "Verifying disk health at $(/usr/local/opt/coreutils/libexec/gnubin/date --rfc-3339=seconds). \
+    echo "Verifying disk health at $($(brew --prefix coreutils)/libexec/gnubin/date --rfc-3339=seconds). \
     # This will freeze the system for a couple minutes." | /usr/bin/wall
     # for DEV in disk1 disk1s{1..4}; do
       # /usr/bin/sudo /usr/sbin/diskutil verifyVolume /dev/${DEV}
       # sudo diskutil repairVolume /dev/${DEV}
     # done
     /usr/bin/sudo /usr/sbin/diskutil verifyDisk /dev/disk0
-    echo "Finished verifying disk health at $(/usr/local/opt/coreutils/libexec/gnubin/date --rfc-3339=seconds)." | /usr/bin/wall
+    echo "Finished verifying disk health at $($(brew --prefix coreutils)/libexec/gnubin/date --rfc-3339=seconds)." | /usr/bin/wall
     # sudo diskutil repairDisk /dev/disk0
   fi
 

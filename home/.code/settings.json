@@ -14,4 +14,5 @@
         "suppressShowKeyBindingsNotice": true
     },
     "explorer.confirmDelete": false,
+    "window.title": "${activeEditorLong}${separator}${rootName}",
 }
