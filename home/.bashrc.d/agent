@@ -44,6 +44,7 @@ for key2 in "" _personal _harness _k8s-prod _k8s-a _k8s-staging; do
     lpass show --field=Passphrase --clip "id_rsa${key2}"
     ssh-add -t 36000 -k ~/.ssh/id_rsa${key2}
     rm -f ~/.ssh/id_rsa${key2}
+    lpass show --field="Public Key" "id_rsa${key2}" > ~/.ssh/id_rsa${key2}.pub
   fi
 done
 # remove next line if work gets vault

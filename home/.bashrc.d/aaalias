@@ -154,7 +154,8 @@ if [[ "${IS_OSX}" == "true" ]]; then
   }
 
   function lpass {
-    $(which lpass) ${@}
+    # echo "Running: $(which lpass) ${@}"
+    $(which lpass) "${@}"
     clear_clip 5
   }
 
