@@ -27,8 +27,7 @@ function pathadd() {
 function _create_socks_proxy {
   local host1=${1}
   local port1=${2}
-  local username=${3}
-  local test_url=${4:-"http://www.google.com"}
+  local test_url=${3:-"http://www.google.com"}
   local ssh_proxy_options="-f -N -D"
   local ssh_proxy_response_file="/var/tmp/ssh_proxy_response.txt"
   # clear contents of response file
@@ -47,18 +46,17 @@ function _create_socks_proxy {
     ${test_url})
   if [[ ${response} -ne 200 ]] ; then
     # first kill any old sessions
-    pgrep -f "ssh ${ssh_proxy_options} ${port1} ${username}@${host1}"
-    pkill -f "ssh ${ssh_proxy_options} ${port1} ${username}@${host1}"
+    pgrep -f "ssh ${ssh_proxy_options} ${port1} ${host1}"
+    pkill -f "ssh ${ssh_proxy_options} ${port1} ${host1}"
 
-    echo "Establishing ssh tunnel with ${username}@${host1}:${port1}..."
+    echo "Establishing ssh tunnel with ${host1}:${port1}..."
     if [[ ${host1} == "home.${CUSTOM_HOME_DOMAIN}" ]]; then
       lpass show --password --clip "proxy.${CUSTOM_NAS_HOST#*\.}"
     fi
-
-    /usr/bin/ssh ${ssh_proxy_options} ${port1} "${username}@${host1}" \
-      -o TCPKeepAlive=yes -o ConnectTimeout=1 -o ConnectionAttempts=1 \
-      -o ServerAliveInterval 120 -o ServerAliveCountMax 2 \
-      2> ${ssh_proxy_response_file}
+    # ssh options moved to ~/.ssh/config
+    #  -o TCPKeepAlive=yes -o ConnectTimeout=1 -o ConnectionAttempts=1 \
+    #  -o ServerAliveInterval=120 -o ServerAliveCountMax=2 \
+    /usr/bin/ssh ${ssh_proxy_options} ${port1} "${host1}" 2> ${ssh_proxy_response_file}
   fi
   if [[ -s ${ssh_proxy_response_file} ]]; then
     echo "Unable to establish ssh connection to ${host1}."

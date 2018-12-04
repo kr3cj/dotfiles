@@ -50,7 +50,7 @@ elif ${at_work} ; then
     echo "Your VPN client is running at work, silly. Trying to shut it down..."
     pkill -f "Endpoint_Security_VPN" || echo "Unable to shutdown VPN client"
   fi
-  _create_socks_proxy "home.${CUSTOM_HOME_DOMAIN}" "2000" "${LOGNAME:0:5}"
+  _create_socks_proxy "home.${CUSTOM_HOME_DOMAIN}" "2000"
 
   while $(mount | grep -q "Documents/share1") ; do
     sudo umount -fv -t nfs ${CUSTOM_NAS_HOST}:/share
@@ -66,7 +66,7 @@ elif ${on_vpn} ; then
   # establish SSH tunnel to home proxy
   lpass show --password --clip "proxy.${CUSTOM_NAS_HOST#*\.}"
   # TODO: curl gets "000" response code when on VPN
-  # _create_socks_proxy "home.${CUSTOM_HOME_DOMAIN}" "2000" "${LOGNAME:0:5}"
+  # _create_socks_proxy "home.${CUSTOM_HOME_DOMAIN}" "2000"
 else
   echo
   if ! $(ping -c1 -W1 -i0.1 chef-server.i.${CUSTOM_WORK_DOMAINS[0]} &> /dev/null); then

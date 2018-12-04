@@ -35,16 +35,15 @@ fi
 # reload ssh keys into agent daily from lastpass
 for key2 in "" _personal _harness _k8s-prod _k8s-a _k8s-staging; do
   if ! $(ssh-add -l | grep -q "/.ssh/id_rsa${key2}\ ("); then
-    ### temporarily load ssh keys, if necessary, from lastpass into agent ###
     # TODO: better integrate passphrase from LastPass CLI? https://svkt.org/~simias/lpass/#ssh-agent
     (umask 177
-    # TODO: figure out why this sometimes creates a directory
+    # workaround since this sometimes creates a directory
     touch ~/.ssh/id_rsa${key2}
     lpass show --field="Private Key" "id_rsa${key2}" > ~/.ssh/id_rsa${key2}
     )
     lpass show --field=Passphrase --clip "id_rsa${key2}"
     ssh-add -q -t 36000 -k ~/.ssh/id_rsa${key2}
-    rm -fv ~/.ssh/id_rsa${key2}
+    rm -f ~/.ssh/id_rsa${key2}
     (umask 177
     lpass show --field="Public Key" "id_rsa${key2}" > ~/.ssh/id_rsa${key2}.pub
     )
