@@ -5,11 +5,13 @@ ${IS_OSX} || return
 export DOCKER_REGISTRY="${CUSTOM_WORK_DEFAULT_AWS_ACCT}.dkr.ecr.us-east-1.amazonaws.com"
 
 function docker-login () {
-  $(aws-vault exec default -- \
-    aws ecr get-login \
-      --registry-ids ${CUSTOM_WORK_DEFAULT_AWS_ACCT} \
-      --region us-east-1 \
-      --no-include-email)
+  aws ecr get-login --no-include-email | bash
+  # lpass show --password --clip "${CUSTOM_WORK_DOMAINS[0]/.com/} macbook" || echo "Unable to get pw."
+  # $(aws-vault exec default -- \
+  #   aws ecr get-login \
+  #     --registry-ids ${CUSTOM_WORK_DEFAULT_AWS_ACCT} \
+  #     --region us-east-1 \
+  #     --no-include-email)
 }
 
 alias docker-clean="sudo docker system prune --all --force --volumes"

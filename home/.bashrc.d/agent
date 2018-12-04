@@ -13,7 +13,6 @@ if ! [[ -S ${SSH_AUTH_SOCK} ]]; then
   cat << EOF
   echo "Stupid unreliable ssh-agent ..."
   "declare -F | grep \ ssh_": $(declare -F | grep \ ssh_)
-  "cat ~/.ssh/known_hosts"
   SSH_AUTH_SOCK=${SSH_AUTH_SOCK}
   SSH_AGENT_PID=${SSH_AGENT_PID}
   "ps -ef | grep ssh-agent": $(ps -ef | grep ssh-agent)
@@ -33,23 +32,28 @@ EOF
   alias tmux='_ssh_auth_save ; $(which tmux)'
 fi
 
-# load keys
+# reload ssh keys into agent daily from lastpass
 for key2 in "" _personal _harness _k8s-prod _k8s-a _k8s-staging; do
   if ! $(ssh-add -l | grep -q "/.ssh/id_rsa${key2}\ ("); then
     ### temporarily load ssh keys, if necessary, from lastpass into agent ###
     # TODO: better integrate passphrase from LastPass CLI? https://svkt.org/~simias/lpass/#ssh-agent
     (umask 177
+    # TODO: figure out why this sometimes creates a directory
+    touch ~/.ssh/id_rsa${key2}
     lpass show --field="Private Key" "id_rsa${key2}" > ~/.ssh/id_rsa${key2}
     )
     lpass show --field=Passphrase --clip "id_rsa${key2}"
     ssh-add -q -t 36000 -k ~/.ssh/id_rsa${key2}
-    rm -f ~/.ssh/id_rsa${key2}
+    rm -fv ~/.ssh/id_rsa${key2}
+    (umask 177
     lpass show --field="Public Key" "id_rsa${key2}" > ~/.ssh/id_rsa${key2}.pub
+    )
   fi
 done
+
 # remove next line if work gets vault
 return
-# temporarily load ssh keys from vault into agent
+# reload ssh keys into agent  daily from vault into agent
 if [[ ${VAULT_REACHABLE} != "true" ]]; then
   echo "Skip loading of more ssh-keys as vault is unreachable."
   return

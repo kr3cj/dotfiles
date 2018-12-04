@@ -51,12 +51,14 @@ function _create_socks_proxy {
     pkill -f "ssh ${ssh_proxy_options} ${port1} ${username}@${host1}"
 
     echo "Establishing ssh tunnel with ${username}@${host1}:${port1}..."
-    [[ ${host1} == "home.${CUSTOM_HOME_DOMAIN}" ]] && \
+    if [[ ${host1} == "home.${CUSTOM_HOME_DOMAIN}" ]]; then
       lpass show --password --clip "proxy.${CUSTOM_NAS_HOST#*\.}"
+    fi
 
     /usr/bin/ssh ${ssh_proxy_options} ${port1} "${username}@${host1}" \
-      -o TCPKeepAlive=yes -o ConnectTimeout=1 -o ConnectionAttempts=1 2> \
-      ${ssh_proxy_response_file}
+      -o TCPKeepAlive=yes -o ConnectTimeout=1 -o ConnectionAttempts=1 \
+      -o ServerAliveInterval 120 -o ServerAliveCountMax 2 \
+      2> ${ssh_proxy_response_file}
   fi
   if [[ -s ${ssh_proxy_response_file} ]]; then
     echo "Unable to establish ssh connection to ${host1}."
@@ -146,11 +148,6 @@ if [[ "${IS_OSX}" == "true" ]]; then
         pbcopy < /dev/null
       } & disown
     ) 2> /dev/null
-  }
-
-  function aws-vault {
-    lpass show --password --clip "${CUSTOM_WORK_DOMAINS[0]/.com/} macbook" || echo "Unable to cache pw."
-    $(which aws-vault) ${@}
   }
 
   function lpass {

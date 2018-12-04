@@ -14,11 +14,15 @@ function awv()
   aws-vault exec ${profile} -- ${*}
 }
 
+function aws-vault {
+  lpass show --password --clip "${CUSTOM_WORK_DOMAINS[0]/.com/} macbook" || echo "Unable to cache pw."
+  $(which aws-vault) ${*}
+}
 # This allows for logging into the AWS console as a federated user via your IAM keys instead of the console password.
 ## Usage: `awslogin staging`
 function awslogin()
 {
-  aws-vault login ${@}
+  aws-vault login ${*}
 }
 
 # This creates a new shell session with the correct environment variables set so you can run SDK programs without issue.

@@ -36,7 +36,7 @@ if [[ "${HEALTHY_INTERNET}" == "true" && "${IS_OSX}" == "true" ]]; then
   # TODO: lpass login rquires "stdin must be a tty"
   # else it returns "Error: Failed to enter correct password."
   # So it cannot be located inside ~/.bashrc.d/
-  if ! $(lpass status > /dev/null); then
+  if ! lpass status > /dev/null; then
     echo "Will try to log into lastpass..."
     DISPLAY=${DISPLAY:-0}
     $(brew --prefix coreutils)/libexec/gnubin/timeout 2 \
