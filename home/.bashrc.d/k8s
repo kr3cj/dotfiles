@@ -94,7 +94,8 @@ function get_kube_versions()
   local CURR_HELMS_V=$(helm version --server --short | awk '{print $2}')
   local L8ST_HELM_V=$(curl -s https://api.github.com/repos/helm/helm/releases/latest | jq -r '.tag_name')
   # TODO: GO_V=$(kubectl version --short --output=json | jq -r '.serverVersion.goVersion')
-  # TODO: Versions of Debian, docker, etcd, kube-aws
+  # TODO: Versions of kernel, Debian/coreos/container-optimized-os-from-google, docker, etcd, kube-aws,
+  #  kiam-server, kernel, nginx ingress, dashboard, heapster/metrics-server, prometheus
   # TODO: providers for dns and network layer
 
   cat << TABLE_EOF

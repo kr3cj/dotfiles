@@ -32,22 +32,29 @@ EOF
   alias tmux='_ssh_auth_save ; $(which tmux)'
 fi
 
-# reload ssh keys into agent daily from lastpass
-for key2 in "" _personal _harness _k8s-prod _k8s-a _k8s-staging; do
-  if ! $(ssh-add -l | grep -q "/.ssh/id_rsa${key2}\ ("); then
+function _load_ssh_key_from_lpass () {
+  local key=${@}
+  # reload ssh keys into agent daily from lastpass
+  if ! $(ssh-add -l | grep -q "/.ssh/id_rsa${key}\ ("); then
     # TODO: better integrate passphrase from LastPass CLI? https://svkt.org/~simias/lpass/#ssh-agent
     (umask 177
     # workaround since this sometimes creates a directory
-    touch ~/.ssh/id_rsa${key2}
-    lpass show --field="Private Key" "id_rsa${key2}" > ~/.ssh/id_rsa${key2}
+    touch ~/.ssh/id_rsa${key}
+    lpass show --field="Private Key" "id_rsa${key}" > ~/.ssh/id_rsa${key}
     )
-    lpass show --field=Passphrase --clip "id_rsa${key2}"
-    ssh-add -q -t 36000 -k ~/.ssh/id_rsa${key2}
-    rm -f ~/.ssh/id_rsa${key2}
+    lpass show --field=Passphrase --clip "id_rsa${key}"
+    ssh-add -q -t 36000 -k ~/.ssh/id_rsa${key}
+    rm -f ~/.ssh/id_rsa${key}
     (umask 177
-    lpass show --field="Public Key" "id_rsa${key2}" > ~/.ssh/id_rsa${key2}.pub
+    lpass show --field="Public Key" "id_rsa${key}" > ~/.ssh/id_rsa${key}.pub
     )
   fi
+}
+for ssh_key in "" _personal ; do
+  _load_ssh_key_from_lpass ${ssh_key}
+done
+${at_work} && for ssh_key in _harness _k8s-prod _k8s-a _k8s-staging; do
+  _load_ssh_key_from_lpass ${ssh_key}
 done
 
 # remove next line if work gets vault

@@ -60,7 +60,7 @@ elif ${at_work} ; then
   done
 
   # open desktop apps (TODO: --background not working for Slack and Atom)
-  openit Slack Spotify "Visual Studio Code"
+  openit Slack "Visual Studio Code"
 elif ${on_vpn} ; then
   return
   # establish SSH tunnel to home proxy

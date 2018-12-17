@@ -11,9 +11,9 @@ if grep -q 'url = https.*\|url = ssh.*' ~/.homesick/repos/dotfiles_private/.git/
   cd -
 fi
 
-# in case homeshick refresh asks for dotfiles_private repo password
-${HEALTHY_INTERNET} && lpass show --password --clip bitbucket.org
-homeshick --quiet refresh
+# TODO: automate whether or not we need to retrieve bitbucket password (expect cmd?)
+# ${HEALTHY_INTERNET} && lpass show --password --clip bitbucket.org
+${HEALTHY_INTERNET} && homeshick --quiet refresh 7
 
 # expensive: ${IS_OSX} && homeshick link dotfiles dotfiles_private
 # can take a long time and requires tty?; TODO: try shallow symlinking?
