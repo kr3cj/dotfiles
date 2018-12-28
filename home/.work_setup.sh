@@ -2,7 +2,7 @@
 # for work specific installations and configuration
 # assumes you have already run ~/.workstation_setup.sh
 
-# fancy docker login
+# ecr login
 aws ecr get-login --no-include-email | bash
 
 brew cask install aws-vault
@@ -39,7 +39,7 @@ bundle install
 bundle exec gem install berkshelf
 gem install travis --no-rdoc
 
-# echo "configure chef client and virtualbox"
+# echo "Regretfully configure chef client and virtualbox"
 # brew cask install chef/chef/chefdk virtualbox
 
 echo "configure travis"
@@ -47,7 +47,7 @@ echo "configure travis"
 travis login --pro
 travis enable
 
-echo "Install Checkpoint Endpoint Security VPN"
+echo "Regretfully install Checkpoint Endpoint Security VPN"
 echo "download from https://supportcenter.checkpoint.com/supportcenter/portal/user/anon/page/default.psml/media-type/html?action=portlets.DCFileAction&eventSubmit_doGetdcdetails=&fileid=60048"
 echo "press any key when finished..."
 pause

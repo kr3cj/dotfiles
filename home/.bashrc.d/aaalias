@@ -93,7 +93,7 @@ function port {
   fi
 
   # echo "Checking host \"${host1}\" over port \"${port1}\"."
-  timeout 2 bash -c "echo >/dev/tcp/${host1}/${port1}" > /dev/null 2>&1 && echo success \
+  ${timeout_path} 2 bash -c "echo >/dev/tcp/${host1}/${port1}" > /dev/null 2>&1 && echo success \
     || (>&2 echo "failure"; return 1)
 }
 

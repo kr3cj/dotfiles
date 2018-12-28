@@ -4,7 +4,7 @@
 find -L ~/.ssh/ -type f -exec chmod -c 600 '{}' \;
 find -L ~/.ssh/ -type d -exec chmod -c 700 '{}' \;
 
-${IS_OSX} || return
+# ${IS_OSX} || return
 ${HEALTHY_INTERNET} || return
 
 # ssh agent startup (rarely works reliably; but utilizing the native launchd instead works fine)

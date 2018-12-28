@@ -84,18 +84,20 @@ function kops-staging() {
 function get_kube_versions()
 {
   local L8ST_COREOS_V=$(curl -s https://coreos.com/dist/aws/aws-stable.json \
-    | jq --raw-output '.release_info.version') \
+    | jq -r '.release_info.version') \
   local CURR_KOPS_V=$(kops version | awk '{print $2}') \
-  local L8ST_KOPS_V=$(curl -s https://api.github.com/repos/kubernetes/kops/releases/latest \
+  local L8ST_KOPS_V=$(curl -s -H "Authorization: Bearer ${GITHUB_API_TOKEN}" \
+    https://api.github.com/repos/kubernetes/kops/releases/latest \
     | jq -r '.tag_name') \
   local CURR_K8S_V=$(kubectl version --short --output=json | jq -r '.serverVersion.gitVersion')
   local L8ST_K8S_V=$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)
   local CURR_HELMC_V=$(helm version --client --short | awk '{print $2}')
   local CURR_HELMS_V=$(helm version --server --short | awk '{print $2}')
-  local L8ST_HELM_V=$(curl -s https://api.github.com/repos/helm/helm/releases/latest | jq -r '.tag_name')
+  local L8ST_HELM_V=$(curl -s -H "Authorization: Bearer ${GITHUB_API_TOKEN}" \
+    https://api.github.com/repos/helm/helm/releases/latest | jq -r '.tag_name')
   # TODO: GO_V=$(kubectl version --short --output=json | jq -r '.serverVersion.goVersion')
   # TODO: Versions of kernel, Debian/coreos/container-optimized-os-from-google, docker, etcd, kube-aws,
-  #  kiam-server, kernel, nginx ingress, dashboard, heapster/metrics-server, prometheus
+  #  kiam-server, kernel, nginx ingress, dashboard, heapster/metrics-server, kube-state-metrics, prometheus
   # TODO: providers for dns and network layer
 
   cat << TABLE_EOF

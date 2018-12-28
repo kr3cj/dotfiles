@@ -112,10 +112,10 @@ if ${IS_OSX} && ! hash mas 2>/dev/null ; then
   brew install dos2unix gnu-getopt jq pstree bash-completion
   echo "install extra tools that I like"
   brew install \
-    ack aria2 mas mtr nmap tmux reattach-to-user-namespace \
+    ack android-file-transfer aria2 mas mtr nmap tmux reattach-to-user-namespace \
     maven python3 ansible node rbenv ruby ruby-build \
     awscli hub packer siege tfenv travis vault
-    # openshift-cli fleetctl; aria2=torrent_client(aria2c)
+    # openshift-cli fleetctl; aria2=torrent_client(aria2c); android-platform-tools
 
   echo "install lastpass client"
   brew install lastpass-cli --with-pinentry
@@ -184,19 +184,16 @@ if [[ ${TRAVIS_CI_RUN} != true ]]; then
   HOMEBREW_CASK_OPTS="--appdir=/Applications"
   # TODO: disable updates in docker so brew update can manage it, disable experimental features
   brew cask install \
-    atom slack spotify gimp github google-backup-and-sync iterm2 vagrant \
+    atom slack spotify gimp github google-backup-and-sync google-chrome iterm2 vagrant \
     beyond-compare firefox keystore-explorer \
     wireshark visual-studio-code
     # private-internet-access
 
   # broken up into separate commands to avoid 10 minute travis build timeout
-  brew cask install docker
+  brew cask install docker minikube
+  # TODO: minikube also installs kubectl...
     # virtualbox
-  brew install android-file-transfer
 
-    # android-platform-tools
-    # google-
-    # visual-studio-code
   # TODO: use openvpn to connect to PIA via CLI
   #  https://helpdesk.privateinternetaccess.com/hc/en-us/articles/219437987-Installing-OpenVPN-PIA-on-MacOS
   # old google-photos-backup available at
@@ -303,12 +300,6 @@ EOF
   # install helm plugin for Visual Studio Code
   helm init
   helm plugin install https://github.com/technosophos/helm-template
-  # minikube client (all-in-one k8s)
-  # TODO: create function for installing minikube, kubectl etc (in linux) with curl+chmod+mv commands
-  # minikube_version=$(curl -s https://api.github.com/repos/kubernetes/minikube/releases/latest | jq -r '.tag_name')
-  # curl -Lo minikube https://storage.googleapis.com/minikube/releases/${minikube_version}/minikube-darwin-amd64
-  #   chmod -v +x minikube
-  #   sudo mv -v minikube /usr/local/bin/
 
   # prep for home nfs mount
   [[ -d ~/Documents/share1 ]] || mkdir ~/Documents/share1
@@ -365,6 +356,12 @@ if ${IS_LINUX} && ! hash packer 2>/dev/null ; then
     sudo mv -v ./kops /usr/local/bin/
     # helm (TODO: move to shared function)
     curl https://raw.githubusercontent.com/kubernetes/helm/master/scripts/get | bash
+
+    # TODO: create function for installing minikube, kubectl etc (in linux) with curl+chmod+mv commands
+    # minikube_version=$(curl -s https://api.github.com/repos/kubernetes/minikube/releases/latest | jq -r '.tag_name')
+    # curl -Lo minikube https://storage.googleapis.com/minikube/releases/${minikube_version}/minikube-darwin-amd64
+    #   chmod -v +x minikube
+    #   sudo mv -v minikube /usr/local/bin/
 
     # terraform (TODO: move to shared function)
     wget -O terraform.zip $(echo "https://releases.hashicorp.com/terraform/$(curl -s \
