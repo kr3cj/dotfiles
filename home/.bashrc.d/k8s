@@ -97,8 +97,9 @@ function get_kube_versions()
     https://api.github.com/repos/helm/helm/releases/latest | jq -r '.tag_name')
   # TODO: GO_V=$(kubectl version --short --output=json | jq -r '.serverVersion.goVersion')
   # TODO: Versions of kernel, Debian/coreos/container-optimized-os-from-google, docker, etcd, kube-aws,
-  #  kiam-server, kernel, nginx ingress, dashboard, heapster/metrics-server, kube-state-metrics, prometheus
+  #  kiam-server, kernel, nginx ingress, dashboard, heapster->metrics-server, kube-state-metrics, prometheus
   # TODO: providers for dns and network layer
+  # datadog agent+chart, sumologic-fluentd agent+chart
 
   cat << TABLE_EOF
   +------------+-----------------+----------------+

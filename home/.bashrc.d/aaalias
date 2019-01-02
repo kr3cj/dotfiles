@@ -51,6 +51,7 @@ function _create_socks_proxy {
 
     echo "Establishing ssh tunnel with ${host1}:${port1}..."
     if [[ ${host1} == "home.${CUSTOM_HOME_DOMAIN}" ]]; then
+      sleep 3 # reduce collisions between clear_clip and subsequent copies
       lpass show --password --clip "proxy.${CUSTOM_NAS_HOST#*\.}"
     fi
     # ssh options moved to ~/.ssh/config
@@ -102,7 +103,9 @@ function acp {
 }
 
 function find-error() {
-  sudo grep -riE 'DENIED|ERR|EXIST|FAIL|INVALID|SPECIFIED|SUCH|UNABLE|WARN|USAGE:|UNKNOWN' ${1}
+  sudo grep -riE 'DENIED|ERR|EXIST|FAIL|INVALID|SPECIFIED|SUCH|UNABLE|WARN|USAGE:|UNKNOWN' ${1} \
+  | grep -v ierra \
+  | grep -v erragrunt
 }
 
 # https://github.com/chubin/awesome-console-services
@@ -151,7 +154,7 @@ if [[ "${IS_OSX}" == "true" ]]; then
   function lpass {
     ${IS_OSX} || return
     $(which lpass) "${@}"
-    clear_clip 5
+    clear_clip 4
   }
 
   eval "function ssh {

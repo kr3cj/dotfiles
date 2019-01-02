@@ -11,7 +11,7 @@ echo "configure node"
 curl -u${NPM_REPO_LOGIN} "https://${CUSTOM_WORK_JFROG_SUBDOMAIN}.jfrog.io/${CUSTOM_WORK_JFROG_SUBDOMAIN}/api/npm/${CUSTOM_WORK_DOMAINS[0]/.com/}-npm/auth/${CUSTOM_WORK_DOMAINS[0]/.com/}" > .npmrc
 # npm login ${CUSTOM_WORK_JFROG_SUBDOMAIN}.jfrog.io
 # npm config set registry https://${CUSTOM_WORK_JFROG_SUBDOMAIN}.jfrog.io/${CUSTOM_WORK_JFROG_SUBDOMAIN}/api/npm/${CUSTOM_WORK_DOMAINS[0]/.com/}-npm/
-npm install --global yo yarn pajv
+npm install --global pajv
 npm install --global @${CUSTOM_WORK_DOMAINS[0]/.com/}/generator-aws-vault
 brew install ${CUSTOM_WORK_DOMAINS[0]/.com/}/public/sopstool
 yo @${CUSTOM_WORK_DOMAINS[0]/.com/}/aws-vault
