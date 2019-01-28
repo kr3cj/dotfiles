@@ -42,7 +42,7 @@ export LPASS_DISABLE_PINENTRY=0
 # export LPASS_LOG_LEVEL=7
 # export LPASS_ASKPASS
 
-if [[ "${HEALTHY_INTERNET}" == "true" && "${IS_OSX}" == "true" ]]; then
+if [[ "${HEALTHY_INTERNET}" == "true" ]]; then
   # TODO: lpass login rquires "stdin must be a tty"
   # else it returns "Error: Failed to enter correct password."
   # So it cannot be located inside ~/.bashrc.d/
@@ -50,10 +50,13 @@ if [[ "${HEALTHY_INTERNET}" == "true" && "${IS_OSX}" == "true" ]]; then
     # echo "Will try to log into lastpass..."
     DISPLAY=${DISPLAY:-0}
     if [[ "${IS_OSX}" == "true" ]]; then
-      lpass login --trust lastpass@${CUSTOM_HOME_DOMAIN} # || echo "Timeout running lpass login"
+      $(brew --prefix coreutils)/libexec/gnubin/timeout 2 \
+      "lpass login --trust lastpass@${CUSTOM_HOME_DOMAIN}"
+      # || echo "Timeout running lpass login"
     elif [[ "${IS_LINUX}" == "true" ]]; then
-      [[ -d ~/.local/share/lpass ]] || (umask 077; mkdir -pv ~/.local/share/lpass )
-      lpass login --trust lastpass@${CUSTOM_HOME_DOMAIN} # || echo "Timeout running lpass login"
+      [[ -d ~/.local/share/lpass ]] || (umask 077; mkdir -pv ~/.local/share/lpass)
+      timeout 2 "lpass login --trust lastpass@${CUSTOM_HOME_DOMAIN}"
+      # || echo "Timeout running lpass login"
     fi
   fi
   # if lastpass extension becomes unresponse, delete .suid and .uid from and restart browser

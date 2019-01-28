@@ -5,7 +5,7 @@ export KUBECONFIG=~/.kube/config
 source <(kubectl completion bash)
 # k8s auth
 [[ -f ~/.k8s_auth ]] && source ~/.k8s_auth
-alias kwatch="watch kubectl get no,ds,deploy,po,svc,ing,cm,pvc,secret"
+alias kwatch="watch kubectl get no,ds,deploy,po,svc,ing,cm,pvc,secret,pdb,rs,hpa"
 
 # The below functions are useful for calling one time kops commands on any env, regardless of current kubectx pointers
 function kops-cmd () {
@@ -81,40 +81,54 @@ function kops-staging() {
     ${@}
 }
 
+function _get_latest_version_from_github()
+{
+  local path=${@}
+  if ! [[ ${path} =~ [a-z]\/[a-z] ]]; then
+    echo "Invalid path provided to ${FUNCNAME[0]}. Must be like \"this/that\""
+    return 1
+  fi
+  local version=$(curl -s -H "Authorization: Bearer ${GITHUB_API_TOKEN}" \
+    https://api.github.com/repos/${path}/releases/latest | jq -r '.tag_name')
+  if [[ ${version} =~ ^v[0-9].* ]] || [[ ${version} =~ ^[0-9].* ]]; then
+    echo ${version/v}
+  else
+    echo "Invalid version returned for \"${FUNCNAME[0]} ${path}\""
+    return 1
+  fi
+}
 function get_kube_versions()
 {
   local L8ST_COREOS_V=$(curl -s https://coreos.com/dist/aws/aws-stable.json \
     | jq -r '.release_info.version') \
   local CURR_KOPS_V=$(kops version | awk '{print $2}') \
-  local L8ST_KOPS_V=$(curl -s -H "Authorization: Bearer ${GITHUB_API_TOKEN}" \
-    https://api.github.com/repos/kubernetes/kops/releases/latest \
-    | jq -r '.tag_name') \
+  local L8ST_KOPS_V=$(_get_latest_version_from_github "kubernetes/kops")
   local CURR_K8S_V=$(kubectl version --short --output=json | jq -r '.serverVersion.gitVersion')
   local L8ST_K8S_V=$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)
   local CURR_HELMC_V=$(helm version --client --short | awk '{print $2}')
   local CURR_HELMS_V=$(helm version --server --short | awk '{print $2}')
-  local L8ST_HELM_V=$(curl -s -H "Authorization: Bearer ${GITHUB_API_TOKEN}" \
-    https://api.github.com/repos/helm/helm/releases/latest | jq -r '.tag_name')
+  local L8ST_HELM_V=$(_get_latest_version_from_github "helm/helm")
   # TODO: GO_V=$(kubectl version --short --output=json | jq -r '.serverVersion.goVersion')
   # TODO: Versions of kernel, Debian/coreos/container-optimized-os-from-google, docker, etcd, kube-aws,
   #  kiam-server, kernel, nginx ingress, dashboard, heapster->metrics-server, kube-state-metrics, prometheus
   # TODO: providers for dns and network layer
   # datadog agent+chart, sumologic-fluentd agent+chart
 
+  # TODO: utilize column command?
   cat << TABLE_EOF
-  +------------+-----------------+----------------+
-  | SOFTWARE   | CURRENT VERSION | LATEST VERSION |
-  +------------+-----------------+----------------+
-  | CoreOS     | N/A             | ${L8ST_COREOS_V}       |
-  +------------+-----------------+----------------+
-  | Kops       | ${CURR_KOPS_V}          | ${L8ST_KOPS_V}         |
-  +------------+-----------------+----------------+
-  | Kubernetes | ${CURR_K8S_V}          | ${L8ST_K8S_V}       |
-  +------------+-----------------+----------------+
-  | Helm Client| ${CURR_HELMC_V} | ${L8ST_HELM_V}       |
-  +------------+-----------------+----------------+
-  | Helm Server| ${CURR_HELMS_V} | ${L8ST_HELM_V}       |
-  +------------+-----------------+----------------+
+  +------------+------------------+----------------+
+  | COMPONENT  | CURRENT VERSION  | LATEST VERSION |
+  +------------+------------------+----------------+
+  | CoreOS     | N/A              | ${L8ST_COREOS_V}       |
+  +------------+------------------+----------------+
+  | Kops       | ${CURR_KOPS_V}           | ${L8ST_KOPS_V}         |
+  +------------+------------------+----------------+
+  | Kubernetes | ${CURR_K8S_V}          | ${L8ST_K8S_V}        |
+  +------------+------------------+----------------+
+  | Helm Client| ${CURR_HELMC_V} | ${L8ST_HELM_V}        |
+  +------------+------------------+----------------+
+  | Helm Server| ${CURR_HELMS_V} | ${L8ST_HELM_V}        |
+  +------------+------------------+----------------+
 TABLE_EOF
 }
 

@@ -43,7 +43,7 @@ gem install travis --no-rdoc
 # brew cask install chef/chef/chefdk virtualbox
 
 echo "configure travis"
-# from an work github repo
+# from a work github repo
 travis login --pro
 travis enable
 

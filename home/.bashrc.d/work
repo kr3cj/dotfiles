@@ -62,6 +62,12 @@ elif ${at_work} ; then
   # open desktop apps (TODO: --background not working for Slack and Atom)
   openit Slack "Visual Studio Code"
 elif ${on_vpn} ; then
+  while $(mount | grep -q "Documents/share1") ; do
+    sudo umount -fv -t nfs ${CUSTOM_NAS_HOST}:/share
+  done
+  while $(mount | grep -q "Pictures/share1") ; do
+    sudo umount -fv -t nfs ${CUSTOM_NAS_HOST}:/share/pictures
+  done
   return
   # establish SSH tunnel to home proxy
   lpass show --password --clip "proxy.${CUSTOM_NAS_HOST#*\.}"

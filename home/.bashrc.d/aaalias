@@ -51,7 +51,7 @@ function _create_socks_proxy {
 
     echo "Establishing ssh tunnel with ${host1}:${port1}..."
     if [[ ${host1} == "home.${CUSTOM_HOME_DOMAIN}" ]]; then
-      sleep 3 # reduce collisions between clear_clip and subsequent copies
+      sleep 2 # reduce collisions between clear_clip and subsequent copies
       lpass show --password --clip "proxy.${CUSTOM_NAS_HOST#*\.}"
     fi
     # ssh options moved to ~/.ssh/config
@@ -112,6 +112,7 @@ function find-error() {
 function speedtest {
   curl -s https://raw.githubusercontent.com/sivel/speedtest-cli/master/speedtest.py \
   | python -
+  # includes bufferbloat score: http://www.dslreports.com/speedtest
 }
 
 function whatismyip {
@@ -175,6 +176,8 @@ $(echo ${CUSTOM_WORK_DOMAINS[@]/#/*.}|tr ' ' '|'))
         lpass show --password --clip \"plex.${CUSTOM_NAS_HOST#*\.}\" ;;
       proxy|proxy.${CUSTOM_NAS_HOST#*\.})
         lpass show --password --clip \"proxy.${CUSTOM_NAS_HOST#*\.}\" ;;
+      babycam|babycam.${CUSTOM_NAS_HOST#*\.})
+        lpass show --password --clip \"babycam.${CUSTOM_NAS_HOST#*\.}\" ;;
       macbuild*)
         lpass show --password --clip AD ;;
     esac
@@ -199,7 +202,7 @@ elif [[ "${IS_LINUX}" == "true" ]]; then
   alias list-services="systemctl list-unit-files --type=service | grep enabled | \
     cut -d. -f1 | sort"
   # enforce one use of clipboard memory
-  export LPASS_CLIPBOARD_COMMAND="xclip -selection clipboard -in -l 1"
+  # export LPASS_CLIPBOARD_COMMAND="xclip -selection clipboard -in -l 1"
 
   function aria() {
     $(which aria2c) \

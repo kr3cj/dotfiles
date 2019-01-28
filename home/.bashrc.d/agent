@@ -11,7 +11,7 @@ ${HEALTHY_INTERNET} || return
 # TODO: convert to launchctl https://www.packetmischief.ca/2016/09/06/ssh-agent-on-os-x/
 if ! [[ -S ${SSH_AUTH_SOCK} ]]; then
   cat << EOF
-  echo "Stupid unreliable ssh-agent ..."
+  echo "Silly ssh-agent ..."
   "declare -F | grep \ ssh_": $(declare -F | grep \ ssh_)
   SSH_AUTH_SOCK=${SSH_AUTH_SOCK}
   SSH_AGENT_PID=${SSH_AGENT_PID}

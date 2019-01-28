@@ -189,6 +189,15 @@ if [[ ${TRAVIS_CI_RUN} != true ]]; then
     wireshark visual-studio-code
     # private-internet-access
 
+  # dark mode in slack
+  sed -i.bak '/darkmode BEGIN/,/darkmode END/d' \
+    /Applications/Slack.app/Contents/Resources/app.asar.unpacked/src/static/ssb-interop.js \
+    && echo -e '//darkmode BEGIN\ndocument.addEventListener("DOMContentLoaded", function() {\n $.ajax({\n   url: "https://cdn.jsdelivr.net/gh/laCour/slack-night-mode/css/raw/black.css",\n   success: function(css) {\n     let overrides = `\n     code, pre { background-color: #535353; color: #ffffff; }\n     .c-mrkdwn__pre, .c-mrkdwn__quote, pre { background: #535353 !important; background-color: #535353 !important; }\n     #client_body:not(.onboarding):not(.feature_global_nav_layout):before {display: none;}\n     `\n     $("<style></style>").appendTo("head").html(css + overrides);\n   }\n })});\n//darkmode END' \
+    >> /Applications/Slack.app/Contents/Resources/app.asar.unpacked/src/static/ssb-interop.js
+
+  # brew cask install intellij-idea goland
+  # input license for intellij, then goland should detect it, then remove intellij?
+
   # broken up into separate commands to avoid 10 minute travis build timeout
   brew cask install docker minikube
   # TODO: minikube also installs kubectl...
@@ -283,7 +292,9 @@ EOF
   # gcloud auth list
   # gcloud config list
 
-  # must install helm after kubernetes?
+  # install helm client
+  # additional hackery for brew dependencies. also, must install helm after kubernetes?
+  brew install kubernetes-helm ; brew unlink kubernetes-helm #
   # asdf
   brew install asdf
 

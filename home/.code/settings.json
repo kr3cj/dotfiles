@@ -15,4 +15,9 @@
     },
     "explorer.confirmDelete": false,
     "window.title": "${activeEditorLong}${separator}${rootName}",
+    "window.zoomLevel": 0,
+    "editor.minimap.enabled": true,
+    "vs-kubernetes": {
+        "vs-kubernetes.minikube-path": "/Users/coreybar/.vs-kubernetes/tools/minikube/darwin-amd64/minikube"
+    },
 }

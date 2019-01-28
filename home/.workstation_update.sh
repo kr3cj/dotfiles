@@ -91,7 +91,6 @@ if [[ $(uname) == "Darwin" ]] ; then
     /usr/local/bin/brew link ${problematic_brews} --overwrite
   done
   /usr/local/bin/brew missing
-  /usr/local/bin/brew prune
 
   if hash asdf 2>/dev/null ; then
     echo -e "\nUpdating asdf plugins..."
