@@ -304,6 +304,7 @@ EOF
   asdf global helm 2.11.0
   asdf install kops 1.9.2
   asdf global kops 1.9.2
+  # helmfile, kubecfg kubectl, kubesec, minikue, python, ruby, trerraform, terragrunt, vault
   # this will install 2 kubernetes clients (gcloud's and brew's)
   # brew install kubernetes-helm kops # disabling in favor of asdf installed helm/kops
   brew install kubernetes-cli kubectx

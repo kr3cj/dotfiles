@@ -9,6 +9,7 @@ alias kwatch="watch kubectl get no,ds,deploy,po,svc,ing,cm,pvc,secret,pdb,rs,hpa
 
 # The below functions are useful for calling one time kops commands on any env, regardless of current kubectx pointers
 function kops-cmd () {
+  # TODO: integrate asdf kops versions, e.g. "asdf install kops ${version}"
   # this is useful for running one kops command without any prior configs for the cluster
   if [[ ${#} -lt 2 ]]; then
     echo "Invalid arguments. You must supply a cluster letter and a kops command: \"kops-cmd a get clusters\""

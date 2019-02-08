@@ -56,10 +56,10 @@ if [[ $(uname) == "Darwin" ]] ; then
   cp -av ~/Library/Application\ Support/Code/User/settings.json \
     ~/.homesick/repos/dotfiles/home/.code/settings.json
 
-  echo -e "\nUpdating work specific yeoman tools..."
-  for generator1 in $(yo --generators | grep /); do
-    npm install --global ${generator/\//\/generator-}
-  done
+  # echo -e "\nUpdating work specific yeoman tools..."
+  # for generator1 in $(yo --generators | grep /); do
+  #   npm install --global ${generator/\//\/generator-}
+  # done
 
   echo -e "\nUpdating brew..."
   /usr/local/bin/brew upgrade
@@ -80,9 +80,10 @@ if [[ $(uname) == "Darwin" ]] ; then
   echo -e "\nUpdating atom editor plugins."
   /usr/local/bin/apm upgrade --confirm false
 
-  echo -e "\nCleaning temporary files."
+  echo -e "\nCleaning temporary files and trash."
   PATH="/usr/local/bin:${PATH}"
   /usr/local/bin/brew cleanup -s
+  /bin/rm -vrf ~/.Trash/*
 
   # /usr/local/bin/brew cask cleanup
   /usr/local/bin/brew doctor

@@ -43,21 +43,12 @@ export LPASS_DISABLE_PINENTRY=0
 # export LPASS_ASKPASS
 
 if [[ "${HEALTHY_INTERNET}" == "true" ]]; then
-  # TODO: lpass login rquires "stdin must be a tty"
-  # else it returns "Error: Failed to enter correct password."
-  # So it cannot be located inside ~/.bashrc.d/
   if ! ${timeout_path} 1 lpass status > /dev/null; then
-    # echo "Will try to log into lastpass..."
     DISPLAY=${DISPLAY:-0}
-    if [[ "${IS_OSX}" == "true" ]]; then
-      $(brew --prefix coreutils)/libexec/gnubin/timeout 2 \
-      "lpass login --trust lastpass@${CUSTOM_HOME_DOMAIN}"
-      # || echo "Timeout running lpass login"
-    elif [[ "${IS_LINUX}" == "true" ]]; then
+    if [[ "${IS_LINUX}" == "true" ]]; then
       [[ -d ~/.local/share/lpass ]] || (umask 077; mkdir -pv ~/.local/share/lpass)
-      timeout 2 "lpass login --trust lastpass@${CUSTOM_HOME_DOMAIN}"
-      # || echo "Timeout running lpass login"
     fi
+    ${timeout_path} 2 "lpass login --trust lastpass@${CUSTOM_HOME_DOMAIN}"
   fi
   # if lastpass extension becomes unresponse, delete .suid and .uid from and restart browser
   # srm -v ~/Library/Containers/com.lastpass.LastPass/Data/Library/Application Support/LastPass/{}

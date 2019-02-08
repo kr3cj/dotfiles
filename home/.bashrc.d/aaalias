@@ -141,6 +141,10 @@ if [[ "${IS_OSX}" == "true" ]]; then
     source ~/.bash_profile # to clean up work/home network connection configs
   }
 
+  function ack {
+    $(which ack) "${@}" --ignore-dir=.terraform
+  }
+
   function clear_clip {
     # clear clipboard after N seconds
     local wait_time="${1:-0}"
@@ -153,7 +157,6 @@ if [[ "${IS_OSX}" == "true" ]]; then
   }
 
   function lpass {
-    ${IS_OSX} || return
     $(which lpass) "${@}"
     clear_clip 4
   }
