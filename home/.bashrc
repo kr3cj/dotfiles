@@ -48,7 +48,7 @@ if [[ "${HEALTHY_INTERNET}" == "true" ]]; then
     if [[ "${IS_LINUX}" == "true" ]]; then
       [[ -d ~/.local/share/lpass ]] || (umask 077; mkdir -pv ~/.local/share/lpass)
     fi
-    ${timeout_path} 2 "lpass login --trust lastpass@${CUSTOM_HOME_DOMAIN}"
+    ${timeout_path} 2 lpass login --trust lastpass@${CUSTOM_HOME_DOMAIN}
   fi
   # if lastpass extension becomes unresponse, delete .suid and .uid from and restart browser
   # srm -v ~/Library/Containers/com.lastpass.LastPass/Data/Library/Application Support/LastPass/{}

@@ -62,6 +62,8 @@ if [[ $(uname) == "Darwin" ]] ; then
   # done
 
   echo -e "\nUpdating brew..."
+  # hack for weird virt-manager dependency (or just remove spice-gtk, virt-manager and virt-viewer)
+  /usr/local/bin/brew uninstall --ignore-dependencies spice-protocol
   /usr/local/bin/brew upgrade
   echo -e "\nUpdating brew casks..."
   for cask1 in $(/usr/local/bin/brew cask outdated | awk '{print $1}') ; do
