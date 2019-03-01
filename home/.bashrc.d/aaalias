@@ -24,49 +24,6 @@ function pathadd() {
   fi
 }
 
-function _create_socks_proxy {
-  local host1=${1}
-  local port1=${2}
-  local test_url=${3:-"http://www.google.com"}
-  local ssh_proxy_options="-f -N -D"
-  local ssh_proxy_response_file="/var/tmp/ssh_proxy_response.txt"
-  # clear contents of response file
-  > ${ssh_proxy_response_file}
-  local response
-
-  # note: lsof still returns a row when port open but dead: lsof -nP -i4TCP:${port1} | grep -q LISTEN
-  # --socks5-hostname
-  response=$(curl \
-    --connect-timeout 1 \
-    --silent \
-    --output /dev/null \
-    --write-out "%{http_code}" \
-    --head \
-    --socks5 localhost:${port1} \
-    ${test_url})
-  if [[ ${response} -ne 200 ]] ; then
-    # first kill any old sessions
-    pgrep -f "ssh ${ssh_proxy_options} ${port1} ${host1}"
-    pkill -f "ssh ${ssh_proxy_options} ${port1} ${host1}"
-
-    echo "Establishing ssh tunnel with ${host1}:${port1}..."
-    if [[ ${host1} == "home.${CUSTOM_HOME_DOMAIN}" ]]; then
-      sleep 2 # reduce collisions between clear_clip and subsequent copies
-      lpass show --password --clip "proxy.${CUSTOM_NAS_HOST#*\.}"
-    fi
-    # ssh options moved to ~/.ssh/config
-    #  -o TCPKeepAlive=yes -o ConnectTimeout=1 -o ConnectionAttempts=1 \
-    #  -o ServerAliveInterval=120 -o ServerAliveCountMax=2 \
-    /usr/bin/ssh ${ssh_proxy_options} ${port1} "${host1}" 2> ${ssh_proxy_response_file}
-  fi
-  if [[ -s ${ssh_proxy_response_file} ]]; then
-    echo "Unable to establish ssh connection to ${host1}."
-    echo "  curl response: \"${response}\""
-    echo -e "  ssh proxy response:\n$(cat ${ssh_proxy_response_file})"
-    return 1
-  fi
-}
-
 function port {
   # strip http.* from parameter
   local host1=${1#*//}
@@ -96,6 +53,53 @@ function port {
   # echo "Checking host \"${host1}\" over port \"${port1}\"."
   ${timeout_path} 2 bash -c "echo >/dev/tcp/${host1}/${port1}" > /dev/null 2>&1 && echo success \
     || (>&2 echo "failure"; return 1)
+}
+
+function _create_socks_proxy {
+  local host1=${1}
+  local port1=${2}
+  local test_url=${3:-"http://www.google.com"}
+  local ssh_proxy_options="-f -N -D"
+  local ssh_proxy_response_file="/var/tmp/ssh_proxy_response.txt"
+  # clear contents of response file
+  > ${ssh_proxy_response_file}
+  local response
+
+  # note: lsof still returns a row when port open but dead: lsof -nP -i4TCP:${port1} | grep -q LISTEN
+  # --socks5-hostname
+  response=$(curl \
+    --connect-timeout 1 \
+    --silent \
+    --output /dev/null \
+    --write-out "%{http_code}" \
+    --head \
+    --socks5 localhost:${port1} \
+    ${test_url})
+  if [[ ${response} -ne 200 ]] ; then
+    # first kill any old sessions
+    pgrep -f "ssh ${ssh_proxy_options} ${port1} ${host1}"
+    pkill -f "ssh ${ssh_proxy_options} ${port1} ${host1}"
+
+    echo "Establishing ssh tunnel with ${host1}:${port1}..."
+    if ! $(port ${host1}:22 &> /dev/null); then
+      echo "ERROR: Skipping ${FUNCNAME[0]}; unable to connect to \"${host1}:22\"."
+      return 1
+    fi
+    if [[ ${host1} == "home.${CUSTOM_HOME_DOMAIN}" ]]; then
+      sleep 2 # reduce collisions between clear_clip and subsequent copies
+      lpass show --password --clip "proxy.${CUSTOM_NAS_HOST#*\.}"
+    fi
+    # ssh options moved to ~/.ssh/config
+    #  -o TCPKeepAlive=yes -o ConnectTimeout=1 -o ConnectionAttempts=1 \
+    #  -o ServerAliveInterval=120 -o ServerAliveCountMax=2 \
+    /usr/bin/ssh ${ssh_proxy_options} ${port1} "${host1}" 2> ${ssh_proxy_response_file}
+  fi
+  if [[ -s ${ssh_proxy_response_file} ]]; then
+    echo "Unable to establish ssh connection to ${host1}."
+    echo "  curl response: \"${response}\""
+    echo -e "  ssh proxy response:\n$(cat ${ssh_proxy_response_file})"
+    return 1
+  fi
 }
 
 function acp {
@@ -135,10 +139,10 @@ if [[ "${IS_OSX}" == "true" ]]; then
   # alias gphoto="open --background -a \"Google Photos Backup\""
   alias gphoto="open --background -a \"Backup and Sync\""
 
-  function vc {
-    lpass show --password --clip AD
-    /opt/cisco/anyconnect/bin/vpn connect ${CUSTOM_WORK_DOMAINS[1]/\.*/}
-    source ~/.bash_profile # to clean up work/home network connection configs
+  function alfred {
+    lpass show --password --clip "${CUSTOM_WORK_DOMAINS[0]/.com/} macbook" || echo "Unable to cache pw."
+    $(which alfred) ${*}
+    # $(which alfred) "${@}"
   }
 
   function ack {

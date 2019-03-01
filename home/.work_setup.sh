@@ -16,7 +16,7 @@ npm install --global @${CUSTOM_WORK_DOMAINS[0]/.com/}/generator-aws-vault
 brew install ${CUSTOM_WORK_DOMAINS[0]/.com/}/public/sopstool
 yo @${CUSTOM_WORK_DOMAINS[0]/.com/}/aws-vault
 echo "Add the aws-vault keychain into keychain access and change timeout from 5m to 60m"
-brew cask install caskroom/cask/intellij-idea-ce
+# brew cask install caskroom/cask/intellij-idea-ce
 
 # repo specific stuff
 if [[ -d ~/build/github/infrastructure ]]; then
@@ -62,13 +62,9 @@ else
   cd microservice_infrastructure
 fi
 ./setup.sh
-helm plugin install https://github.com/lrills/helm-unittest --version 0.1.2
 # helm unittest <chart_name>
 go get -u github.com/kcmerrill/alfred
 )
-
-# misc
-brew install blackbox
 
 # cli
 echo "Setup cli https://github.com/${CUSTOM_WORK_DOMAINS[0]/.com/}/${CUSTOM_WORK_DOMAINS[0]/.com/}_cli"

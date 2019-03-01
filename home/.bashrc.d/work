@@ -25,9 +25,25 @@ else
   echo "Could not determine location from ip_address ${ip_address}."
 fi
 
+function unmount_nfs {
+  while $(mount | grep -q "Documents/share1") ; do
+    sudo umount -fv -t nfs ${CUSTOM_NAS_HOST}:/share
+  done
+  while $(mount | grep -q "Pictures/share1") ; do
+    sudo umount -fv -t nfs ${CUSTOM_NAS_HOST}:/share/pictures
+  done
+}
+function mount_nfs {
+    mount | grep -q "Documents/share1" || mount -t nfs -o \
+      vers=4,rw,soft,intr,bg,rwsize=32768,dsize=32768 \
+      ${CUSTOM_NAS_HOST}:/share ~/Documents/share1
+    mount | grep -q "Pictures/share1" || mount -t nfs -o \
+      vers=4,rw,soft,intr,bg,rwsize=32768,dsize=32768 \
+      ${CUSTOM_NAS_HOST}:/share/pictures ~/Pictures/share1
+}
 function work_vpn {
-  lpass show --password --clip "${CUSTOM_WORK_DOMAINS[0]/.com/} main (one login)"
   openit "Endpoint Security VPN"
+  lpass show --password --clip "${CUSTOM_WORK_DOMAINS[0]/.com/} main (one login)"
 }
 if ${at_home} ; then
   # prompt for vpn connection to work
@@ -36,12 +52,7 @@ if ${at_home} ; then
     echo
   fi
   if $(ping -c1 -W1 -i0.1 ${CUSTOM_NAS_HOST} &> /dev/null) ; then
-    mount | grep -q "Documents/share1" || mount -t nfs -o \
-      vers=4,rw,soft,intr,bg,rwsize=32768,dsize=32768 \
-      ${CUSTOM_NAS_HOST}:/share ~/Documents/share1
-    mount | grep -q "Pictures/share1" || mount -t nfs -o \
-      vers=4,rw,soft,intr,bg,rwsize=32768,dsize=32768 \
-      ${CUSTOM_NAS_HOST}:/share/pictures ~/Pictures/share1
+    mount_nfs
     openit "Backup and Sync"
   fi
 elif ${at_work} ; then
@@ -52,29 +63,18 @@ elif ${at_work} ; then
   fi
   _create_socks_proxy "home.${CUSTOM_HOME_DOMAIN}" "2000"
 
-  while $(mount | grep -q "Documents/share1") ; do
-    sudo umount -fv -t nfs ${CUSTOM_NAS_HOST}:/share
-  done
-  while $(mount | grep -q "Pictures/share1") ; do
-    sudo umount -fv -t nfs ${CUSTOM_NAS_HOST}:/share/pictures
-  done
-
+  unmount_nfs
   # open desktop apps (TODO: --background not working for Slack and Atom)
   openit Slack "Visual Studio Code"
 elif ${on_vpn} ; then
-  while $(mount | grep -q "Documents/share1") ; do
-    sudo umount -fv -t nfs ${CUSTOM_NAS_HOST}:/share
-  done
-  while $(mount | grep -q "Pictures/share1") ; do
-    sudo umount -fv -t nfs ${CUSTOM_NAS_HOST}:/share/pictures
-  done
+  unmount_nfs
   return
   # establish SSH tunnel to home proxy
   lpass show --password --clip "proxy.${CUSTOM_NAS_HOST#*\.}"
   # TODO: curl gets "000" response code when on VPN
   # _create_socks_proxy "home.${CUSTOM_HOME_DOMAIN}" "2000"
 else
-  echo
+  unmount_nfs
   if ! $(ping -c1 -W1 -i0.1 chef-server.i.${CUSTOM_WORK_DOMAINS[0]} &> /dev/null); then
     (read -t 3 -s -p "Not at home or work; to connect to work VPN, press Enter within 3 seconds..." \
         && work_vpn)

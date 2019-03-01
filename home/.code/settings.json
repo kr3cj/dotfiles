@@ -20,4 +20,5 @@
     "vs-kubernetes": {
         "vs-kubernetes.minikube-path": "/Users/coreybar/.vs-kubernetes/tools/minikube/darwin-amd64/minikube"
     },
+    "explorer.autoReveal": false,
 }

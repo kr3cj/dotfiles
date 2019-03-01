@@ -182,10 +182,9 @@ if [[ ${TRAVIS_CI_RUN} != true ]]; then
 
   # install main apps into Applications
   HOMEBREW_CASK_OPTS="--appdir=/Applications"
-  # TODO: disable updates in docker so brew update can manage it, disable experimental features
   brew cask install \
     atom slack spotify gimp github google-backup-and-sync google-chrome iterm2 vagrant \
-    beyond-compare firefox keystore-explorer \
+    beyond-compare firefox keystore-explorer keybase \
     wireshark visual-studio-code
     # private-internet-access
 
@@ -199,6 +198,7 @@ if [[ ${TRAVIS_CI_RUN} != true ]]; then
   # input license for intellij, then goland should detect it, then remove intellij?
 
   # broken up into separate commands to avoid 10 minute travis build timeout
+    # TODO: disable updates in docker so brew update can manage it, disable experimental features
   brew cask install docker minikube
   # TODO: minikube also installs kubectl...
     # virtualbox
@@ -294,7 +294,7 @@ EOF
 
   # install helm client
   # additional hackery for brew dependencies. also, must install helm after kubernetes?
-  brew install kubernetes-helm ; brew unlink kubernetes-helm #
+  # brew install kubernetes-helm ; brew unlink kubernetes-helm #
   # asdf
   brew install asdf
 
@@ -312,6 +312,8 @@ EOF
   # install helm plugin for Visual Studio Code
   helm init
   helm plugin install https://github.com/technosophos/helm-template
+  helm plugin install https://github.com/lrills/helm-unittest
+  helm plugin install https://github.com/databus23/helm-diff
 
   # prep for home nfs mount
   [[ -d ~/Documents/share1 ]] || mkdir ~/Documents/share1

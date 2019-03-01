@@ -82,6 +82,12 @@ if [[ $(uname) == "Darwin" ]] ; then
   echo -e "\nUpdating atom editor plugins."
   /usr/local/bin/apm upgrade --confirm false
 
+  # echo -e "\nUpdating helm plugins."
+  # for hplug in $(helm plugin list | grep -v ^NAME | awk '{print $1}') ; do
+  #   # how to qualify path to asdf helm...
+  #   su - coreybar -c "${helm plugin update ${hplug}"
+  # done
+
   echo -e "\nCleaning temporary files and trash."
   PATH="/usr/local/bin:${PATH}"
   /usr/local/bin/brew cleanup -s
