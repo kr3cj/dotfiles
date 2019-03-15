@@ -96,9 +96,9 @@ if [[ $(uname) == "Darwin" ]] ; then
   # /usr/local/bin/brew cask cleanup
   /usr/local/bin/brew doctor
   # docker docker-machine docker-compose
-  for problematic_brews in kubernetes-helm ; do
-    /usr/local/bin/brew link ${problematic_brews} --overwrite
-  done
+  # for problematic_brews in kubernetes-helm ; do
+    # /usr/local/bin/brew link ${problematic_brews} --overwrite
+  # done
   /usr/local/bin/brew missing
 
   if hash asdf 2>/dev/null ; then

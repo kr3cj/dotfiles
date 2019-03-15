@@ -145,6 +145,11 @@ if [[ "${IS_OSX}" == "true" ]]; then
     # $(which alfred) "${@}"
   }
 
+  function keybase {
+    lpass show --password --clip "Keybase" || echo "Unable to cache pw."
+    $(which keybase) ${*}
+  }
+
   function ack {
     $(which ack) "${@}" --ignore-dir=.terraform
   }

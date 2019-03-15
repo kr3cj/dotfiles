@@ -64,9 +64,9 @@ EOF
 }
 # TODO: collapse these into above function
 # TODO: find out why calling the functions directly doesnt work (must paste output)
-function kops-prod() {
+function kops-cmd-prod() {
   lpass show --password --clip "${CUSTOM_WORK_DOMAINS[0]/.com/} macbook"
-  aws-vault exec kops-admin -- kops \
+  aws-vault exec k8s-prod-kops -- kops \
     --name k8s.${CUSTOM_WORK_DOMAINS[1]} \
     --state=s3://kops-store.${CUSTOM_WORK_DOMAINS[1]} \
     ${@}
@@ -74,9 +74,9 @@ function kops-prod() {
   #   kops export kubecfg --name k8s.${CUSTOM_WORK_DOMAINS[1]} --state=s3://kops-store.${CUSTOM_WORK_DOMAINS[1]}\
   # ")
 }
-function kops-staging() {
+function kops-cmd-staging() {
   lpass show --password --clip "${CUSTOM_WORK_DOMAINS[0]/.com/} macbook"
-  aws-vault exec staging-admin -- kops \
+  aws-vault exec k8s-staging-kops -- kops \
     --name k8s-staging.${CUSTOM_WORK_DOMAINS[1]} \
     --state=s3://kops-store-staging.${CUSTOM_WORK_DOMAINS[1]} \
     ${@}

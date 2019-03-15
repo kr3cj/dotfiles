@@ -34,7 +34,6 @@ fi
 if hash curl 2>/dev/null && ${timeout_path} 1 curl github.com; then
   HEALTHY_INTERNET=true
 fi
-
 # lastpass stuff cannot be inside bashrc.d file due to tty req'ts
 export LPASS_AGENT_TIMEOUT=172800
 export LPASS_DISABLE_PINENTRY=0
@@ -61,8 +60,12 @@ fi
 
 if [[ -d ${HOME}/.bashrc.d ]]; then
   for dotd in $(find ${HOME}/.bashrc.d -follow -type f -not -name '*.disabled' | sort); do
-    # echo "Sourcing ${dotd}..."
-    source "${dotd}"
+    if [[ ${VERBOSE} -gt 0 ]]; then
+      echo "Sourcing ${dotd}..."
+      time -p source "${dotd}"
+    else
+      source "${dotd}"
+    fi
   done
   unset dotd
 fi

@@ -45,6 +45,7 @@ function _load_ssh_key_from_lpass () {
     )
     lpass show --field=Passphrase --clip "id_rsa${key}"
     ssh-add -q -t 36000 -k ~/.ssh/id_rsa${key}
+    [[ ${?} -ne 0 ]] && echo "Failed to load \"~/.ssh/id_rsa${key}\"!"
     rm -f ~/.ssh/id_rsa${key}
     (umask 177
     lpass show --field="Public Key" "id_rsa${key}" > ~/.ssh/id_rsa${key}.pub
