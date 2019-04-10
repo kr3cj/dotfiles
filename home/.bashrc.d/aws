@@ -33,12 +33,6 @@ function awsshell()
   aws-vault exec ${1} -- ${SHELL} -il
 }
 
-# This allows for an easy check of which profiles are configured
-function aws-profiles()
-{
-  cat ~/.aws/config | grep -o "profile [a-zA-Z0-9\-]\+"
-}
-
 alias ec2="aws-vault login default"
 
 # aws creds

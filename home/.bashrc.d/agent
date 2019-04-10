@@ -28,8 +28,8 @@ EOF
   function _ssh_auth_save() {
     ln -sf "${SSH_AUTH_SOCK}" "${HOME}/.ssh/ssh-auth-sock.${HOSTNAME}"
   }
-  alias screen='_ssh_auth_save ; $(which screen)'
-  alias tmux='_ssh_auth_save ; $(which tmux)'
+  # alias screen='_ssh_auth_save ; $(which screen)'
+  # alias tmux='_ssh_auth_save ; $(which tmux)'
 fi
 
 function _load_ssh_key_from_lpass () {

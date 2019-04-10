@@ -2,7 +2,11 @@
 ${IS_OSX} || return
 
 export KUBECONFIG=~/.kube/config
+
 source <(kubectl completion bash)
+alias k=kubectl
+source <(kubectl completion bash | sed 's/kubectl/k/g' )
+
 # k8s auth
 [[ -f ~/.k8s_auth ]] && source ~/.k8s_auth
 alias kwatch="watch kubectl get no,ds,deploy,po,svc,ing,cm,pvc,secret,pdb,rs,hpa"
@@ -113,7 +117,7 @@ function get_kube_versions()
   # TODO: Versions of kernel, Debian/coreos/container-optimized-os-from-google, docker, etcd, kube-aws,
   #  kiam-server, kernel, nginx ingress, dashboard, heapster->metrics-server, kube-state-metrics, prometheus
   # TODO: providers for dns and network layer
-  # datadog agent+chart, sumologic-fluentd agent+chart
+  # datadog agent+chart, sumologic-fluentd agent+chart, runatlantis/atlantis
 
   # TODO: utilize column command?
   cat << TABLE_EOF

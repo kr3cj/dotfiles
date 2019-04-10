@@ -109,7 +109,7 @@ if ${IS_OSX} && ! hash mas 2>/dev/null ; then
   pip install pylint virtualenv yq==2.2.0
 
   echo "install some extra utility packages for me"
-  brew install dos2unix gnu-getopt jq pstree bash-completion
+  brew install dos2unix gnu-getopt jq pstree bash-completion certigo
   echo "install extra tools that I like"
   brew install \
     ack android-file-transfer aria2 mas mtr nmap tmux reattach-to-user-namespace \
@@ -299,7 +299,9 @@ EOF
   brew install asdf
 
   # install helm via asdf
-  asdf plugin-add helm kops
+  asdf plugin-add helm kops kubectl
+  asdf install kubectl 1.9.2
+  asdf global kubectl 1.9.2
   asdf install helm 2.11.0
   asdf global helm 2.11.0
   asdf install kops 1.9.2

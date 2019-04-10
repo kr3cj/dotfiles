@@ -132,6 +132,11 @@ if [[ $(uname) == "Darwin" ]] ; then
     -exec echo 'Broken symlink: {}' \; 2> /dev/null
     # -exec rm -v '{}' \;
 
+  echo -e "\nPrint any unmanaged dotfiles..."
+  $(brew --prefix findutils)/libexec/gnubin/find ${HOME} -type f \
+    -exec echo 'Unmanaged dotfile: {}; Track with \"homeshick track dotfiles <name>\"?' \;
+
+
   echo -e "\nPrint any repos with https auth..."
   for dir1 in ~/build/ ~/.homesick/repos/ ; do
     find ${dir1} -maxdepth 6 -path "*/.git/config" -exec grep https '{}' \;
