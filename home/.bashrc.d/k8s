@@ -3,9 +3,9 @@ ${IS_OSX} || return
 
 export KUBECONFIG=~/.kube/config
 
-source <(kubectl completion bash)
-alias k=kubectl
-source <(kubectl completion bash | sed 's/kubectl/k/g' )
+# source <(kubectl completion bash) # slow
+# alias k=kubectl
+# source <(kubectl completion bash | sed 's/kubectl/k/g' )
 
 # k8s auth
 [[ -f ~/.k8s_auth ]] && source ~/.k8s_auth

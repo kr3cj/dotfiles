@@ -88,10 +88,10 @@ if [[ $(uname) == "Darwin" ]] ; then
   #   su - coreybar -c "${helm plugin update ${hplug}"
   # done
 
-  echo -e "\nCleaning temporary files and trash."
+  echo -e "\nCleaning temporary files and securely delete trash."
   PATH="/usr/local/bin:${PATH}"
   /usr/local/bin/brew cleanup -s
-  /bin/rm -vrf ~/.Trash/*
+  /bin/rm -vP ~/.Trash/*
 
   # /usr/local/bin/brew cask cleanup
   /usr/local/bin/brew doctor
@@ -133,7 +133,7 @@ if [[ $(uname) == "Darwin" ]] ; then
     # -exec rm -v '{}' \;
 
   echo -e "\nPrint any unmanaged dotfiles..."
-  $(brew --prefix findutils)/libexec/gnubin/find ${HOME} -type f \
+  $(brew --prefix findutils)/libexec/gnubin/find ${HOME} -mindepth 1 -maxdepth 2 -type f \
     -exec echo 'Unmanaged dotfile: {}; Track with \"homeshick track dotfiles <name>\"?' \;
 
 

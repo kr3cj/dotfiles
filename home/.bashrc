@@ -18,6 +18,7 @@ if [[ -n "${PS1}" ]]; then
 fi
 
 export TRAVIS_CI_RUN="${TRAVIS_CI_RUN:-false}"
+[[ -f ~/.base_homeshick_vars ]] && source ~/.base_homeshick_vars
 
 # impatiently detect healthy internet connectivity; prereq for LPASS stuff
 export HEALTHY_INTERNET=false
@@ -41,13 +42,14 @@ export LPASS_DISABLE_PINENTRY=0
 # export LPASS_LOG_LEVEL=7
 # export LPASS_ASKPASS
 
-if [[ "${HEALTHY_INTERNET}" == "true" ]]; then
+if [[ "${HEALTHY_INTERNET}" == "true" ]] ; then
   if ! ${timeout_path} 1 lpass status > /dev/null; then
     DISPLAY=${DISPLAY:-0}
     if [[ "${IS_LINUX}" == "true" ]]; then
       [[ -d ~/.local/share/lpass ]] || (umask 077; mkdir -pv ~/.local/share/lpass)
     fi
-    ${timeout_path} 2 lpass login --trust lastpass@${CUSTOM_HOME_DOMAIN}
+    # using timeout stunts the TUI: ${timeout_path} 10
+    lpass login --trust lastpass@${CUSTOM_HOME_DOMAIN}
   fi
   # if lastpass extension becomes unresponse, delete .suid and .uid from and restart browser
   # srm -v ~/Library/Containers/com.lastpass.LastPass/Data/Library/Application Support/LastPass/{}

@@ -10,3 +10,23 @@ $include /usr/share/readline/inputrc
 
 # "\e[5D": backward-word
 # "\e[5C": forward-word
+
+# disable visible bell in macos
+# set bell-style off
+
+$if Bash
+  # Completed dir names have a slash appended
+  set mark-directories on
+  # Completed names which are symlinks to dirs have a slash appended
+  set mark-symlinked-directories on
+  # colored completions
+  set colored-stats on
+
+  # ls -F for completion
+  set visible-stats on
+
+  # show completions instead of ringing bell
+  set show-all-if-ambiguous on
+$endif
+
+# to reload .inputrc: Ctrl+x Ctrl+r
