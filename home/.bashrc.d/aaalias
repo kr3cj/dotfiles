@@ -83,7 +83,7 @@ function _create_socks_proxy {
   # note: lsof still returns a row when port open but dead: lsof -nP -i4TCP:${port1} | grep -q LISTEN
   # --socks5-hostname
   response=$(curl \
-    --connect-timeout 1 \
+    --connect-timeout 2 \
     --silent \
     --output /dev/null \
     --write-out "%{http_code}" \
@@ -186,7 +186,8 @@ if [[ "${IS_OSX}" == "true" ]]; then
   }
 
   eval "function ssh {
-    local host1=\"\${@}\"
+    # us-east-2 is non-default at current work, so hostnames include that, so filter it
+    local host1=\"\${@/us-east-2.compute/ec2}\"
     case \"\${host1}\" in
       ${CUSTOM_WORK_SUBNET}.*|\
 $(echo ${CUSTOM_WORK_DOMAINS[@]/#/*.}|tr ' ' '|'))

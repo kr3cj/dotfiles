@@ -62,3 +62,32 @@ alias ec2="aws-vault login default"
 #     esac
 #   }
 # fi
+
+function get-ec2-id-from-pod ()
+{
+  kubectl exec -it ${@} -- curl http://169.254.169.254/latest/meta-data/instance-id ; echo
+}
+function get-ec2-hostname-from-pod ()
+{
+  kubectl exec -it ${@} -- curl http://169.254.169.254/latest/meta-data/hostname ; echo
+}
+function get-ec2-id-from-hostname ()
+{
+  # takes in one parameter: host to ssh to
+
+  # force dns over VPN in case its configured correctly?
+  # dig @${CUSTOM_WORK_VPN_SERVER} ${@/us-east-2.compute/ec2} +short +time=1
+
+  # rely on ~/.ssh/config for filling in correct keys and username
+  # for k8s-a which is in us-east-2, hostnames include the region, so filter those
+  ssh ${@/us-east-2.compute/ec2} "curl --silent http://169.254.169.254/latest/meta-data/instance-id" ; echo
+}
+function get-ec2-hostname-from-id ()
+{
+  # takes in two paramters: aws-vault-instance-name-env (prod|staging|a) instance-id
+  aws-vault exec k8s-${1}-kops -- \
+    aws ec2 describe-instances \
+      --instance-ids ${2} \
+      --query Reservations[].Instances[].PrivateDnsName \
+      --output text
+}

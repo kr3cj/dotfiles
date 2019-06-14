@@ -2,6 +2,13 @@
 # for work specific installations and configuration
 # assumes you have already run ~/.workstation_setup.sh
 
+# custom dns per domain
+[[ -d /etc/resolver ]] || sudo mkdir -pv /etc/resolver
+for domain in amazonaws.com ec2.internal i.${CUSTOM_WORK_DOMAINS[0]} ${CUSTOM_WORK_DOMAINS}; do
+  [[ -f /etc/resolver/${domain} ]] || \
+    echo "nameserver ${CUSTOM_WORK_VPN_SERVER}" | sudo tee -a /etc/resolver/${domain}
+done
+
 # ecr login
 aws ecr get-login --no-include-email | bash
 

@@ -172,8 +172,8 @@ if [[ ${TRAVIS_CI_RUN} != true ]]; then
     sudo rm -rf /Applications/{iMovie.app,GarageBand.app,Pages.app,Numbers.app}
   fi
 
-  # finish xcode install?
-  # xcode-select --install
+  # finish xcode install
+  xcode-select --install
 
   # puppet testing shtuff
   if [[ ${TRAVIS_CI_RUN} != true ]]; then
@@ -299,7 +299,7 @@ EOF
   brew install asdf
 
   # install helm via asdf
-  asdf plugin-add helm kops kubectl
+  asdf plugin-add helm kops kubectl eksctl # https://github.com/elementalvoid/asdf-eksctl.git
   asdf install kubectl 1.9.2
   asdf global kubectl 1.9.2
   asdf install helm 2.11.0
