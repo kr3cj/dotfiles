@@ -66,7 +66,7 @@ alias ec2="aws-vault login default"
 function get-ec2-id-from-pod ()
 {
   # only requires kube config with correct context and namespace set
-  kubectl get no $(kubectl get po/${@} -ojsonpath='{.spec.nodeName}') \
+  kubectl get no/$(kubectl get po/${@} -ojsonpath='{.spec.nodeName}') \
     -ojsonpath='{.spec.externalID}' ; echo
 
   # alternative requires exec'ing into container and the curl binary
@@ -77,32 +77,41 @@ function get-ec2-hostname-from-pod ()
   # only requires kube config with correct context set
   kubectl get po/${@} -ojsonpath='{.spec.nodeName}' ; echo # '{.status.hostIP}'
 
-  # alternative requires exec'ing into container and the curl binary
+  # fall back requires exec'ing into container and the curl binary
   # kubectl exec -it ${@} -- curl http://169.254.169.254/latest/meta-data/hostname ; echo
 }
 function get-ec2-id-from-hostname ()
 {
   # takes in one parameter: ec2 hostname
-  # for k8s-a which is in us-east-2, hostnames include the region, so filter those
+  # (k8s-a which is in us-east-2 so hostnames include the region which should be filtered)
   # only requires kube config with correct context set
-  kubectl get no/${@/us-east-2.compute/ec2} -ojsonpath="{.spec.externalID}" \
-    ; echo
+  local result=$(kubectl get no/${@/us-east-2.compute/ec2} -ojsonpath="{.spec.externalID}" \
+    ; echo)
 
-  # alternative requires ssh access
-  # ssh ${@/us-east-2.compute/ec2} "curl --silent http://169.254.169.254/latest/meta-data/instance-id" ; echo
+  if [[ -n ${result} ]]; then
+    echo ${result}
+  else
+    # fall back requires ssh access
+    ssh ${@/us-east-2.compute/ec2} "curl --silent http://169.254.169.254/latest/meta-data/instance-id" ; echo
+  fi
 }
 function get-ec2-hostname-from-id ()
 {
   # takes in one parameter: ec2 instance id
-  # only requires kube config with correct context set
-  kubectl get no -o=jsonpath="{.items[?(@.spec.externalID==\"${@}\")].metadata.name}" \
-    ; echo
+  # if a k8s node, only requires kube config with correct context set
+  local result=$(kubectl get no \
+    -o=jsonpath="{.items[?(@.spec.externalID==\"\${1}\")].metadata.name}" \
+    ; echo)
 
-  # alternative requires aws-vault, MFA token, and aws-cli
-  # takes in two paramters: aws-vault-instance-name-env (prod|staging|a) instance-id
-  # aws-vault exec k8s-${1}-kops -- \
-  #   aws ec2 describe-instances \
-  #     --instance-ids ${2} \
-  #     --query Reservations[].Instances[].PrivateDnsName \
-  #     --output text
+  if [[ -n ${result} ]]; then
+    echo ${result}
+  else
+    echo "Falling back for non-k8s nodes (requires aws-vault, MFA token, aws-cli)"
+    # takes in two paramters: instance-id and aws-vault profile
+    aws-vault exec ${2} -- \
+      aws ec2 describe-instances \
+      --instance-ids ${1} \
+      --query Reservations[].Instances[].PrivateDnsName \
+      --output text
+  fi
 }

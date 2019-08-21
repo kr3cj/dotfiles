@@ -3,7 +3,7 @@
 
 # first, make sure xcode is installed
 # TODO: automated way without needing mas?
-    
+
 # second , make sure git is installed
 if ! hash git 2>/dev/null ; then
   if [[ $(uname) == "Darwin" ]] ; then

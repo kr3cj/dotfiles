@@ -63,7 +63,7 @@ if [[ $(uname) == "Darwin" ]] ; then
 
   echo -e "\nUpdating brew..."
   # hack for weird virt-manager dependency (or just remove spice-gtk, virt-manager and virt-viewer)
-  /usr/local/bin/brew uninstall --ignore-dependencies spice-protocol
+  # /usr/local/bin/brew uninstall --ignore-dependencies spice-protocol
   /usr/local/bin/brew upgrade
   echo -e "\nUpdating brew casks..."
   for cask1 in $(/usr/local/bin/brew cask outdated | awk '{print $1}') ; do
@@ -91,7 +91,7 @@ if [[ $(uname) == "Darwin" ]] ; then
   echo -e "\nCleaning temporary files and securely delete trash."
   PATH="/usr/local/bin:${PATH}"
   /usr/local/bin/brew cleanup -s
-  /bin/rm -vP ~/.Trash/*
+  [[ -w ~/.Trash/ ]] && /bin/rm -vP ~/.Trash/*
 
   # /usr/local/bin/brew cask cleanup
   /usr/local/bin/brew doctor
@@ -134,8 +134,10 @@ if [[ $(uname) == "Darwin" ]] ; then
 
   echo -e "\nPrint any unmanaged dotfiles..."
   $(brew --prefix findutils)/libexec/gnubin/find ${HOME} -mindepth 1 -maxdepth 2 -type f \
+    -name ".[^.]*" -not \( -name ".DS_Store" -or -name ".localized" \
+    -or -name "*_history" -or -name "*hst" -or -name "*hist" \
+    -or -name ".osx_*.json" -or -name .gitignore -or -name .yarnrc \) \
     -exec echo 'Unmanaged dotfile: {}; Track with \"homeshick track dotfiles <name>\"?' \;
-
 
   echo -e "\nPrint any repos with https auth..."
   for dir1 in ~/build/ ~/.homesick/repos/ ; do

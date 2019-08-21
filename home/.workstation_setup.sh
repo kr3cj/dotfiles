@@ -110,6 +110,7 @@ if ${IS_OSX} && ! hash mas 2>/dev/null ; then
 
   echo "install some extra utility packages for me"
   brew install dos2unix gnu-getopt jq pstree bash-completion certigo
+  brew tap wallix/awless; brew install awless
   echo "install extra tools that I like"
   brew install \
     ack android-file-transfer aria2 mas mtr nmap tmux reattach-to-user-namespace \
@@ -283,33 +284,28 @@ EOF
   }
 EOF
 
-  # gce and gke stuff (https://cloud.google.com/sdk/docs/quickstart-mac-os-x)
-  brew install go
-  go get golang.org/x/tools/cmd/godoc
-  # brew cask install google-cloud-sdk
-  # gcloud components install kubectl -q
-  # gcloud init
-  # gcloud auth list
-  # gcloud config list
-
   # install helm client
   # additional hackery for brew dependencies. also, must install helm after kubernetes?
   # brew install kubernetes-helm ; brew unlink kubernetes-helm #
   # asdf
   brew install asdf
 
-  # install helm via asdf
-  asdf plugin-add helm kops kubectl eksctl # https://github.com/elementalvoid/asdf-eksctl.git
-  asdf install kubectl 1.9.2
-  asdf global kubectl 1.9.2
-  asdf install helm 2.11.0
-  asdf global helm 2.11.0
-  asdf install kops 1.9.2
-  asdf global kops 1.9.2
-  # helmfile, kubecfg kubectl, kubesec, minikue, python, ruby, trerraform, terragrunt, vault
-  # this will install 2 kubernetes clients (gcloud's and brew's)
-  # brew install kubernetes-helm kops # disabling in favor of asdf installed helm/kops
-  brew install kubernetes-cli kubectx
+  # install asdf tools
+  for plugin in eksctl golang helm helmfile kubectl terraform ; do
+    asdf plugin-add ${plugin}
+  done
+  asdf install
+  # aws-iam-authenticator, kubectl, kubesec, minikube, python, ruby, trerraform, terragrunt, vault
+  brew install kubectx
+
+  # gce and gke stuff (https://cloud.google.com/sdk/docs/quickstart-mac-os-x)
+  # brew install go
+  go get golang.org/x/tools/cmd/godoc
+  # brew cask install google-cloud-sdk
+  # gcloud components install kubectl -q
+  # gcloud init
+  # gcloud auth list
+  # gcloud config list
 
   # install helm plugin for Visual Studio Code
   helm init

@@ -122,9 +122,9 @@ function acp {
 }
 
 function find-error() {
-  sudo grep -riE 'DENIED|ERR|EXIST|FAIL|INVALID|SPECIFIED|SUCH|UNABLE|WARN|USAGE:|UNKNOWN' ${1} \
+  sudo grep -A2 -B2 -riE 'DENIED|ERR|EXIST|FAIL|INVALID|SPECIFIED|SUCH|UNABLE|WARN|USAGE:|UNKNOWN' ${1} \
   | grep -v ierra \
-  | grep -v erragrunt
+  | grep -v erra
 }
 
 # https://github.com/chubin/awesome-console-services
@@ -132,6 +132,15 @@ function speedtest {
   curl -s https://raw.githubusercontent.com/sivel/speedtest-cli/master/speedtest.py \
   | python -
   # includes bufferbloat score: http://www.dslreports.com/speedtest
+}
+
+function update-all-repos {
+  for repo1 in $(find ~/build/github -mindepth 1 -maxdepth 6 -path "*/.git/config") ; do echo -e "\n${repo1%.git/config}" ; \
+    cd ${repo1%.git/config} \
+    && git clean -xfd \
+    && gitp \
+    && cd - ; \
+  done
 }
 
 function whatismyip {
