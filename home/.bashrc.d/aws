@@ -3,7 +3,7 @@
 
 export AWS_SESSION_TTL=12h
 export AWS_FEDERATION_TOKEN_TTL=12h
-export AWS_ASSUME_ROLE_TTL=1h
+export AWS_ASSUME_ROLE_TTL=1h # 4h for devtoolsSandboxAccountAccessRole
 
 # This allows for running aws-cli commands securely
 ## Usage: `awv stage-admin aws s3 ls`
@@ -17,6 +17,7 @@ function awv()
 function aws-vault {
   lpass show --password --clip "${CUSTOM_WORK_DOMAINS[0]/.com/} macbook" || echo "Unable to cache pw."
   $(which aws-vault) ${*}
+  # --session-ttl=12h --assume-role-ttl=8h
 }
 # This allows for logging into the AWS console as a federated user via your IAM keys instead of the console password.
 ## Usage: `awslogin staging`

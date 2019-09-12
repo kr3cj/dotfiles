@@ -18,7 +18,11 @@
     "window.zoomLevel": 0,
     "editor.minimap.enabled": true,
     "vs-kubernetes": {
-        "vs-kubernetes.minikube-path": "/Users/coreybar/.vs-kubernetes/tools/minikube/darwin-amd64/minikube"
+        "vs-kubernetes.minikube-path": "/Users/coreybar/.vs-kubernetes/tools/minikube/darwin-amd64/minikube",
+        "kubectl-path": "/Users/coreybar/.asdf/shims/kubectl",
+        "vs-kubernetes.helm-path": "/Users/coreybar/.vs-kubernetes/tools/helm/darwin-amd64/helm",
+        "vs-kubernetes.kubectl-path": "/Users/coreybar/.vs-kubernetes/tools/kubectl/kubectl",
+        "vs-kubernetes.draft-path": "/Users/coreybar/.vs-kubernetes/tools/draft/darwin-amd64/draft"
     },
-    "explorer.autoReveal": false,
+    "explorer.autoReveal": false
 }

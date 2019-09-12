@@ -18,8 +18,11 @@ alias fgrep='fgrep --color=auto'
 alias grep='grep --color=auto'
 alias ducks="sudo du -cshx ./ | sort -h"
 alias cdd="homeshick cd dotfiles"
-alias cb="cd ~/build/github"
 alias pp="source ~/.bash_profile"
+
+function cb() {
+  cd ~/build/github/${@}
+}
 
 function pathadd() {
   unset newpath
@@ -68,6 +71,42 @@ function port {
   # echo "Checking host \"${host1}\" over port \"${port1}\"."
   ${timeout_path} 2 bash -c "echo >/dev/tcp/${host1}/${port1}" > /dev/null 2>&1 && echo success \
     || (>&2 echo "failure"; return 1)
+}
+
+function bashcurl {
+  # utilizes https://stackoverflow.com/questions/5951029/read-http-output-using-shell-bash-script
+  : ${DEBUG:=0}
+  local URL=${1}
+  local tag="Connection: close"
+  local mark=0
+
+  if [[ -z "${URL}" ]]; then
+    printf "Usage: %s \"URL\" [e.g.: %s http://www.google.com/]" \
+      "${FUNCNAME[0]}" "${FUNCNAME[0]} \
+      "
+    return 1;
+  elif ! [[ "${URL}" =~ "https://" ]]; then
+    URL="https://${URL}"
+    echo "Updated \${URL} to \"${URL}\""
+  fi
+  read proto server path <<<$(echo ${URL//// })
+  DOC=/${path// //}
+  HOST=${server//:*}
+  PORT=${server//*:}
+  [[ x"${HOST}" == x"${PORT}" ]] && PORT=80
+  [[ ${DEBUG} -eq 1 ]] && echo "HOST=${HOST}"
+  [[ ${DEBUG} -eq 1 ]] && echo "PORT=${PORT}"
+  [[ ${DEBUG} -eq 1 ]] && echo "DOC =${DOC}"
+
+  exec 5<>/dev/tcp/${HOST}/${PORT}
+  echo -en "GET ${DOC} HTTP/1.1\r\nHost: ${HOST}\r\n${tag}\r\n\r\n" >&5
+  while read line; do
+    [[ $mark -eq 1 ]] && echo ${line}
+    if [[ "${line}" =~ "${tag}" ]]; then
+      mark=1
+    fi
+  done <&5
+  exec 5>&-
 }
 
 function _create_socks_proxy {
@@ -122,7 +161,7 @@ function acp {
 }
 
 function find-error() {
-  sudo grep -A2 -B2 -riE 'DENIED|ERR|EXIST|FAIL|INVALID|SPECIFIED|SUCH|UNABLE|WARN|USAGE:|UNKNOWN' ${1} \
+  sudo grep -A2 -B2 -riE 'DENIED|ERR|EXIST|FAIL|INVALID|SPECIFIED|SUCH|UNABLE|WARN|USAGE:|UNKNOWN|:\ LINE\ [0-9]' ${1} \
   | grep -v ierra \
   | grep -v erra
 }

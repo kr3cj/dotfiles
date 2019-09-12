@@ -85,8 +85,11 @@ if [[ $(uname) == "Darwin" ]] ; then
   # echo -e "\nUpdating helm plugins."
   # for hplug in $(helm plugin list | grep -v ^NAME | awk '{print $1}') ; do
   #   # how to qualify path to asdf helm...
-  #   su - coreybar -c "${helm plugin update ${hplug}"
+  #   su - ${LOGNAME} -c "${helm plugin update ${hplug}"
   # done
+
+  echo -e "\nUpdating kubectl krew plugins."
+  ~/.asdf/shims/kubectl krew upgrade
 
   echo -e "\nCleaning temporary files and securely delete trash."
   PATH="/usr/local/bin:${PATH}"
@@ -104,6 +107,7 @@ if [[ $(uname) == "Darwin" ]] ; then
   if hash asdf 2>/dev/null ; then
     echo -e "\nUpdating asdf plugins..."
     $(brew --prefix asdf)/bin/asdf plugin-update --all
+    # TODO: overwrite ~/.tool-versions with new releases
   fi
 
   /bin/rm -vr ~/.gradle/caches/* 2> /dev/null || echo

@@ -200,9 +200,8 @@ if [[ ${TRAVIS_CI_RUN} != true ]]; then
 
   # broken up into separate commands to avoid 10 minute travis build timeout
     # TODO: disable updates in docker so brew update can manage it, disable experimental features
-  brew cask install docker minikube
-  # TODO: minikube also installs kubectl...
-    # virtualbox
+  brew cask install docker
+  # virtualbox
 
   # TODO: use openvpn to connect to PIA via CLI
   #  https://helpdesk.privateinternetaccess.com/hc/en-us/articles/219437987-Installing-OpenVPN-PIA-on-MacOS
@@ -291,12 +290,23 @@ EOF
   brew install asdf
 
   # install asdf tools
-  for plugin in eksctl golang helm helmfile kubectl terraform ; do
-    asdf plugin-add ${plugin}
+  for asdf_plugin in eksctl golang helm helmfile kubectl minikube terraform; do
+    asdf plugin-add ${asdf_plugin}
   done
   asdf install
-  # aws-iam-authenticator, kubectl, kubesec, minikube, python, ruby, trerraform, terragrunt, vault
+  # heptio-authenticator-aws, aws-iam-authenticator, kubesec, minikube, python, ruby, trerraform, terragrunt, vault
   brew install kubectx
+  # kubectl plugins: krew
+  (
+    set -x; cd "$(mktemp -d)" &&
+    curl -fsSLO "https://storage.googleapis.com/krew/v0.2.1/krew.{tar.gz,yaml}" &&
+    tar zxvf krew.tar.gz &&
+    ./krew-"$(uname | tr '[:upper:]' '[:lower:]')_amd64" install \
+      --manifest=krew.yaml --archive=krew.tar.gz
+  )
+  for krew_plugin in node-admin outdated ; do
+    kubectl krew install ${krew_plugin}
+  done
 
   # gce and gke stuff (https://cloud.google.com/sdk/docs/quickstart-mac-os-x)
   # brew install go

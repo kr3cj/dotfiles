@@ -20,6 +20,8 @@ curl -u${NPM_REPO_LOGIN} "https://${CUSTOM_WORK_JFROG_SUBDOMAIN}.jfrog.io/${CUST
 # npm config set registry https://${CUSTOM_WORK_JFROG_SUBDOMAIN}.jfrog.io/${CUSTOM_WORK_JFROG_SUBDOMAIN}/api/npm/${CUSTOM_WORK_DOMAINS[0]/.com/}-npm/
 npm install --global pajv
 npm install --global @${CUSTOM_WORK_DOMAINS[0]/.com/}/generator-aws-vault
+npm install --global @${CUSTOM_WORK_DOMAINS[0]/.com/}/generator-master-generator
+npm install --global @${CUSTOM_WORK_DOMAINS[0]/.com/}/generator-infra-pipeline
 brew install ${CUSTOM_WORK_DOMAINS[0]/.com/}/public/sopstool
 yo @${CUSTOM_WORK_DOMAINS[0]/.com/}/aws-vault
 echo "Add the aws-vault keychain into keychain access and change timeout from 5m to 60m"

@@ -11,6 +11,10 @@ export KUBECONFIG=~/.kube/config
 [[ -f ~/.k8s_auth ]] && source ~/.k8s_auth
 alias kwatch="watch kubectl get no,ds,deploy,po,svc,ing,cm,pvc,secret,pdb,rs,hpa"
 
+# kubectl plugins: krew
+export KREW_ROOT=${HOME}/.krew
+pathadd ${KREW_ROOT}/bin
+
 # The below functions are useful for calling one time kops commands on any env, regardless of current kubectx pointers
 function kops-cmd () {
   # TODO: integrate asdf kops versions, e.g. "asdf install kops ${version}"
@@ -156,3 +160,22 @@ function helm_diff()
 
   # or https://github.com/databus23/helm-diff
 }
+
+# function doit () {
+#   local aws-vault-profile=${1}
+#   shift
+#   local nodes=${@}
+#   for node1 in ${nodes} ; do
+#     echo -e "\n starting on ${node1} at $(date)"
+#     kubectl drain ${node1} --ignore-daemonsets --force --delete-local-data
+#     aws-vault exec ${aws-vault-profile} -- \
+#       aws ec2 terminate-instances --instance-ids \
+#         kubectl get nodes -o go-template --template=\'{{.spec.externalID}}\' ${nodeid}
+#   done
+# }
+
+# kubectl get node \
+  # -l kubernetes.io/role=node,failure-domain.beta.kubernetes.io/zone=us-east-${az} \
+  # --label-columns function
+  # --no-headers \
+  # --sort-by metadata.creationTimestamp
