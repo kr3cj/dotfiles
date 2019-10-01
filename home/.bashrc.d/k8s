@@ -1,97 +1,49 @@
 [[ $- = *i* ]] || return
 ${IS_OSX} || return
 
-export KUBECONFIG=~/.kube/config
+export KUBECONFIG=~/.kube/bar
 
 # source <(kubectl completion bash) # slow
 # alias k=kubectl
 # source <(kubectl completion bash | sed 's/kubectl/k/g' )
 
-# k8s auth
-[[ -f ~/.k8s_auth ]] && source ~/.k8s_auth
-alias kwatch="watch kubectl get no,ds,deploy,po,svc,ing,cm,pvc,secret,pdb,rs,hpa"
+# useful wrapper to point to a specific eks cluster taken in as an argument
+function eks() {
+  # usage: "eks bar get po -n operations | grep datadog"
+  local cluster=${1}
+  if ! [[ -r ~/.kube/${cluster} ]]; then
+    echo "No kubeconfig found for \"${cluster}\"!"
+    return 1
+  fi
+  shift
+  local action=${@} # ex: "get pod"
+
+  local aws_profile # dynamically determine
+  case ${cluster} in
+    bar|*prod*) aws_profile="k8s-prod-sudo" ;;
+    bar|*stage*) aws_profile="k8s-stage-sudo" ;;
+    *) echo "Unable to determine \"aws_profile\" from \"${cluster}\"; using staging..." ;;
+  esac
+
+  local kube_config="--kubeconfig ${HOME}/.kube/${cluster}"
+  # some kubectl plugin commands won't work with "--kubeconfig"
+  if [[ ${action} =~ "outdated" ]] || [[ ${action} =~ "node-admin" ]]; then
+    kube_config=""
+  fi
+  [[ ${VERBOSE} -ge 1 ]] && echo "Running: \"kubectl ${kube_config} ${action}\""
+  KUBECONFIG=~/.kube/${cluster} aws-vault exec ${aws_profile} -- kubectl \
+    ${kube_config} \
+    ${action}
+    # --kubecontext ${cluster.us-east-1.eksctl.io} \
+}
 
 # kubectl plugins: krew
 export KREW_ROOT=${HOME}/.krew
 pathadd ${KREW_ROOT}/bin
 
-# The below functions are useful for calling one time kops commands on any env, regardless of current kubectx pointers
-function kops-cmd () {
-  # TODO: integrate asdf kops versions, e.g. "asdf install kops ${version}"
-  # this is useful for running one kops command without any prior configs for the cluster
-  if [[ ${#} -lt 2 ]]; then
-    echo "Invalid arguments. You must supply a cluster letter and a kops command: \"kops-cmd a get clusters\""
-    return 1
-  fi
-  local cluster_letter="${1}"
-  shift
-  local kops_cmd="${@}"
-  if [[ "${cluster_letter}" != [a-z] ]]; then
-    echo "Not a valid cluster name. Quitting."
-    return 1
-  fi
-  if ! $(aws-vault list | grep ^k8s-${cluster_letter}\  > /dev/null); then
-    echo "Setting up an aws profile for \"k8s-${cluster_letter}\" in ~/.aws/config ..."
-    local default_aws_acct target_aws_acct aws_region username
-    read -p "Please enter the target aws account number: " target_aws_acct
-    read -p "Please enter the region (default: us-east-1): " aws_region
-    aws_region=${aws_region:-us-east-1}
-    username=$(git config --global user.email)
-    cat << EOF >> ~/.aws/config
-
-[profile k8s-${cluster_letter}]
-role_arn=arn:aws:iam::${target_aws_acct}:role/k8s-${cluster_letter}.${CUSTOM_WORK_DOMAINS[1]}-AdminRole
-source_profile = default
-region = ${aws_region}
-mfa_serial = arn:aws:iam::${CUSTOM_WORK_DEFAULT_AWS_ACCT}:mfa/${username/@${CUSTOM_WORK_DOMAINS[0]}/}
-EOF
-  # aws-vault remove k8s-${cluster_name} # doesn't work
-  fi
-
-  local kops_options="--name k8s-${cluster_letter}.${CUSTOM_WORK_DOMAINS[1]} \
-    --state=s3://${CUSTOM_WORK_DOMAINS[0]/.com/}-kops-store-k8s-${cluster_letter}.${CUSTOM_WORK_DOMAINS[1]}"
-
-  if ! $(kubectx | grep ^k8s-${cluster_letter}.${CUSTOM_WORK_DOMAINS[1]}$ > /dev/null); then
-    echo "Creating kubectl context for cluster \"k8s-${cluster_letter}\"..."
-    aws-vault exec k8s-${cluster_letter} -- kops ${kops_options} export kubecfg
-    # deleting from kubeconfig
-    # kubectx -d k8s-${cluster_letter}.${CUSTOM_WORK_DOMAINS[1]}
-    #   OR kubectl config delete-context k8s-${cluster_letter}.${CUSTOM_WORK_DOMAINS[1]}
-    # kubectl config delete-cluster k8s-${cluster_letter}.${CUSTOM_WORK_DOMAINS[1]}
-    # kubectl config set-context "" # https://github.com/kubernetes/kubectl/issues/483
-  fi
-
-  # set namespace to default, if necessary
-  # if "default" != $(kubectl config view -o=jsonpath="{.contexts[?(@.name==\"$(kubectl config current-context)\")].context.namespace}"); then
-  #   kubectl config set-context $(kubectl config current-context) --namespace=default
-  # fi
-  lpass show --password --clip "${CUSTOM_WORK_DOMAINS[0]/.com/} macbook"
-  aws-vault exec k8s-${cluster_letter} -- kops \
-    ${kops_options} \
-    ${kops_cmd}
-}
-# TODO: collapse these into above function
-# TODO: find out why calling the functions directly doesnt work (must paste output)
-function kops-cmd-prod() {
-  lpass show --password --clip "${CUSTOM_WORK_DOMAINS[0]/.com/} macbook"
-  aws-vault exec k8s-prod-kops -- kops \
-    --name k8s.${CUSTOM_WORK_DOMAINS[1]} \
-    --state=s3://kops-store.${CUSTOM_WORK_DOMAINS[1]} \
-    ${@}
-  # aws-vault exec kops-admin -- ${SHELL} -il --init-file <(echo "\
-  #   kops export kubecfg --name k8s.${CUSTOM_WORK_DOMAINS[1]} --state=s3://kops-store.${CUSTOM_WORK_DOMAINS[1]}\
-  # ")
-}
-function kops-cmd-staging() {
-  lpass show --password --clip "${CUSTOM_WORK_DOMAINS[0]/.com/} macbook"
-  aws-vault exec k8s-staging-kops -- kops \
-    --name k8s-staging.${CUSTOM_WORK_DOMAINS[1]} \
-    --state=s3://kops-store-staging.${CUSTOM_WORK_DOMAINS[1]} \
-    ${@}
-}
-
 function _get_latest_version_from_github()
 {
+  # mostly replaced by kubectl/krew outdated
   local path=${@}
   if ! [[ ${path} =~ [a-z]\/[a-z] ]]; then
     echo "Invalid path provided to ${FUNCNAME[0]}. Must be like \"this/that\""
@@ -108,6 +60,7 @@ function _get_latest_version_from_github()
 }
 function get_kube_versions()
 {
+  # mostly replaced by kubectl/krew outdated
   local L8ST_COREOS_V=$(curl -s https://coreos.com/dist/aws/aws-stable.json \
     | jq -r '.release_info.version') \
   local CURR_KOPS_V=$(kops version | awk '{print $2}') \
@@ -145,20 +98,6 @@ function get_kube_versions()
   | Helm Server| ${CURR_HELMS_V} | ${L8ST_HELM_V}        |
   +------------+------------------+----------------+
 TABLE_EOF
-}
-
-function helm_diff()
-{
-  local release=${1}
-  helm get values -a ${release} > before.yaml
-  helm upgrade name-of-service path-to-chart/ --dry-run --debug --wait --reuse-values --timeout 600 \
-    -f values.yaml \
-    -f "${release}-values.yaml" \
-    sed -n '/COMPUTED VALUES:/,/HOOKS:/{/COMPUTED VALUES:/b;/HOOKS:/b;p}' > after.yaml
-  diff before.yaml after.yaml
-  rm before.yaml after.yaml
-
-  # or https://github.com/databus23/helm-diff
 }
 
 # function doit () {

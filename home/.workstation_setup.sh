@@ -295,7 +295,7 @@ EOF
   done
   asdf install
   # heptio-authenticator-aws, aws-iam-authenticator, kubesec, minikube, python, ruby, trerraform, terragrunt, vault
-  brew install kubectx
+  # brew install kubectx # depends on kubernetes-cli
   # kubectl plugins: krew
   (
     set -x; cd "$(mktemp -d)" &&

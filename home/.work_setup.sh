@@ -12,7 +12,10 @@ done
 # ecr login
 aws ecr get-login --no-include-email | bash
 
-brew cask install aws-vault
+# brew cask install aws-vault
+brew tap versent/homebrew-taps
+brew install saml2aws
+brew install remind101/formulae/assume-role
 
 echo "configure node"
 curl -u${NPM_REPO_LOGIN} "https://${CUSTOM_WORK_JFROG_SUBDOMAIN}.jfrog.io/${CUSTOM_WORK_JFROG_SUBDOMAIN}/api/npm/${CUSTOM_WORK_DOMAINS[0]/.com/}-npm/auth/${CUSTOM_WORK_DOMAINS[0]/.com/}" > .npmrc
@@ -63,14 +66,15 @@ pause
 
 echo "configure extra kubernetes/helm tools"
 (
-if [[ -d ~/build/github/microservice_infrastructure ]]; then
-  cd ~/build/github/microservice_infrastructure
+if [[ -d ~/build/github/ibex ]]; then
+  cd ~/build/github/ibex
 else
   cd ~/build/github
-  git clone git@github.com:${CUSTOM_WORK_DOMAINS[0]/.com/}/microservice_infrastructure.git
-  cd microservice_infrastructure
+  git clone git@github.com:${CUSTOM_WORK_DOMAINS[0]/.com/}/ibex.git
+  cd ibex
 fi
-./setup.sh
+asdf install
+brew install octant
 # helm unittest <chart_name>
 go get -u github.com/kcmerrill/alfred
 )

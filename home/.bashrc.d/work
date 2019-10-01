@@ -47,8 +47,8 @@ function work_vpn {
 }
 if ${at_home} ; then
   # prompt for vpn connection to work
-  if ! $(ping -c1 -W1 -i0.1 chef.${CUSTOM_WORK_DOMAINS[1]} &> /dev/null); then
-    read -t 1 -s -p "To connect to work VPN, press Enter key within 1 second..." && work_vpn
+  if ! $(ping -c1 -W1 -i0.1 tools.${CUSTOM_WORK_DOMAINS[0]} &> /dev/null); then
+    read -t 2 -s -p "To connect to work VPN, press Enter key within 2 seconds..." && work_vpn
     echo
   fi
   if $(ping -c1 -W1 -i0.1 ${CUSTOM_NAS_HOST} &> /dev/null) ; then
@@ -56,16 +56,22 @@ if ${at_home} ; then
     openit "Backup and Sync"
   fi
 elif ${at_work} ; then
-  # disconnect any VPN connection
-  if pgrep -f "Endpoint_Security_VPN"; then
-    echo "Your VPN client is running at work, silly. Trying to shut it down..."
-    pkill -f "Endpoint_Security_VPN" || echo "Unable to shutdown VPN client"
-  fi
   _create_socks_proxy "home.${CUSTOM_HOME_DOMAIN}" "2000"
 
   unmount_nfs
   # open desktop apps (TODO: --background not working for Slack and Atom)
   openit Slack "Visual Studio Code"
+
+  # work dropped tunnel to aws, need to be on vpn all the time now :(
+  if ! $(ping -c1 -W1 -i0.1 tools.${CUSTOM_WORK_DOMAINS[0]} &> /dev/null); then
+    read -t 2 -s -p "To connect to work VPN, press Enter key within 2 second..." && work_vpn
+    echo
+  fi
+  # disconnect any VPN connection
+  # if pgrep -f "Endpoint_Security_VPN"; then
+  #   echo "Your VPN client is running at work, silly. Trying to shut it down..."
+  #   pkill -f "Endpoint_Security_VPN" || echo "Unable to shutdown VPN client"
+  # fi
 elif ${on_vpn} ; then
   unmount_nfs
   return
@@ -75,8 +81,8 @@ elif ${on_vpn} ; then
   # _create_socks_proxy "home.${CUSTOM_HOME_DOMAIN}" "2000"
 else
   unmount_nfs
-  if ! $(ping -c1 -W1 -i0.1 chef-server.i.${CUSTOM_WORK_DOMAINS[0]} &> /dev/null); then
-    (read -t 3 -s -p "Not at home or work; to connect to work VPN, press Enter within 3 seconds..." \
+  if ! $(ping -c1 -W1 -i0.1 tools.${CUSTOM_WORK_DOMAINS[0]} &> /dev/null); then
+    (read -t 2 -s -p "Not at home or work; to connect to work VPN, press Enter within 2 seconds..." \
         && work_vpn)
   fi
   # read -t 2 -p "If in public location and need P.I.A. VPN, press Enter key within 2 seconds..." \

@@ -40,13 +40,14 @@ function _load_ssh_key_from_lpass () {
     (umask 177
     # workaround since this sometimes creates a directory
     [[ -d ~/.ssh/id_rsa${key} ]] && rmdir ~/.ssh/id_rsa${key}
-    touch ~/.ssh/id_rsa${key}
+    [[ -f ~/.ssh/id_rsa${key} ]] || touch ~/.ssh/id_rsa${key}
     lpass show --field="Private Key" "id_rsa${key}" > ~/.ssh/id_rsa${key}
     )
     lpass show --field=Passphrase --clip "id_rsa${key}"
     ssh-add -q -t 36000 -k ~/.ssh/id_rsa${key}
     [[ ${?} -ne 0 ]] && echo "Failed to load \"~/.ssh/id_rsa${key}\"!"
-    rm -f ~/.ssh/id_rsa${key}
+    # so I can mount my private keys into containers for k8s automation docker tools
+    # rm -f ~/.ssh/id_rsa${key}
     (umask 177
     lpass show --field="Public Key" "id_rsa${key}" > ~/.ssh/id_rsa${key}.pub
     )

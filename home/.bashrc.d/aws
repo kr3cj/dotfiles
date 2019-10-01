@@ -5,13 +5,8 @@ export AWS_SESSION_TTL=12h
 export AWS_FEDERATION_TOKEN_TTL=12h
 export AWS_ASSUME_ROLE_TTL=1h # 4h for devtoolsSandboxAccountAccessRole
 
-# This allows for running aws-cli commands securely
-## Usage: `awv stage-admin aws s3 ls`
-function awv()
-{
-  local profile=${1}
-  shift
-  aws-vault exec ${profile} -- ${*}
+function saml2aws {
+  $(which saml2aws) --session-duration=43200 --skip-prompt ${*}
 }
 
 function aws-vault {
@@ -25,19 +20,6 @@ function awslogin()
 {
   aws-vault login ${*}
 }
-
-# This creates a new shell session with the correct environment variables set so you can run SDK programs without issue.
-# Note `-il` will run all your normal Login and BashRC files. (interactive, login flags)
-## Usage: `awsshell staging`
-function awsshell()
-{
-  aws-vault exec ${1} -- ${SHELL} -il
-}
-
-alias ec2="aws-vault login default"
-
-# aws creds
-# aws-vault exec default --env | grep AWS
 
 # if [[ -f ~/.aws_auth ]] ; then
 #   source ~/.aws_auth
@@ -101,18 +83,18 @@ function get-ec2-hostname-from-id ()
   # takes in one parameter: ec2 instance id
   # if a k8s node, only requires kube config with correct context set
   local result=$(kubectl get no \
-    -o=jsonpath="{.items[?(@.spec.externalID==\"\${1}\")].metadata.name}" \
+    -o=jsonpath="{.items[?(@.metadata.labels.alpha\.eksctl\.io/instance-id==\"${1}\")].metadata.name}" \
     ; echo)
 
-  if [[ -n ${result} ]]; then
-    echo ${result}
-  else
-    echo "Falling back for non-k8s nodes (requires aws-vault, MFA token, aws-cli)"
-    # takes in two paramters: instance-id and aws-vault profile
-    aws-vault exec ${2} -- \
-      aws ec2 describe-instances \
-      --instance-ids ${1} \
-      --query Reservations[].Instances[].PrivateDnsName \
-      --output text
-  fi
+  # if [[ -n ${result} ]]; then
+     echo ${result}
+  # else
+  #   echo "Falling back for non-k8s nodes (requires aws-vault, MFA token, aws-cli)"
+  #   # takes in two paramters: instance-id and aws-vault profile
+  #   aws-vault exec ${2} -- \
+  #     aws ec2 describe-instances \
+  #     --instance-ids ${1} \
+  #     --query Reservations[].Instances[].PrivateDnsName \
+  #     --output text
+  # fi
 }

@@ -52,7 +52,7 @@ if [[ $(uname) == "Darwin" ]] ; then
   echo -e "Updating stubborn config files to homesick repo"
   cp -av ~/.kube/config ~/.homesick/repos/dotfiles_private/home/.kube/
   cp -av ~/.docker/*.json ~/.homesick/repos/dotfiles_private/home/.docker/
-  [[ -d ~/.homesick/repos/dotfiles/home/.code ]] || mkdir ~/.homesick/repos/dotfiles/home/.code
+  [[ -d ~/.homesick/repos/dotfiles_private/home/.code ]] || mkdir ~/.homesick/repos/dotfiles_private/home/.code
   cp -av ~/Library/Application\ Support/Code/User/settings.json \
     ~/.homesick/repos/dotfiles/home/.code/settings.json
 
@@ -89,7 +89,12 @@ if [[ $(uname) == "Darwin" ]] ; then
   # done
 
   echo -e "\nUpdating kubectl krew plugins."
-  ~/.asdf/shims/kubectl krew upgrade
+  (
+    # change to home dir to pick up .tool-versions for asdf
+    cd ~
+    # ~/.asdf/shims/kubectl krew system receipts-upgrade
+    ~/.asdf/shims/kubectl krew upgrade
+  )
 
   echo -e "\nCleaning temporary files and securely delete trash."
   PATH="/usr/local/bin:${PATH}"
@@ -123,7 +128,7 @@ if [[ $(uname) == "Darwin" ]] ; then
     # ensure credential files for development are locked down
     for item1 in ~/.ivy2 ~/.docker ~/.ant ~/.m2 ~/.pgpass ~/.vnc/passwd ~/.jspm/config ~/.code/settings.json; do
       [[ -f ${item1} ]] && chmod -v 600 ${item1}
-      [[ -d ${item1} ]] && chmod -vR 700 ${item1}
+      [[ -d ${item1} ]] && find ${item1} -type d -exec chmod -v 700 '{}' \;
     done
   fi
 
@@ -159,6 +164,7 @@ if [[ $(uname) == "Darwin" ]] ; then
   echo -e "\nUpdating OSX system..."
   /usr/sbin/softwareupdate --install --all
   # /usr/sbin/softwareupdate --restart
+  sudo xcodebuild -license accept
   if [[ ${TRAVIS_CI_RUN} != true ]]; then
     # TODO: Must reboot immediately else the Finder can get disk sync issues and error -43?
     echo -e "\nChecking macos disk health."
