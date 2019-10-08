@@ -1,7 +1,7 @@
 [[ $- = *i* ]] || return
 ${IS_OSX} || return
 
-export KUBECONFIG=~/.kube/bar
+export KUBECONFIG=~/.kube/bar:~/.kube/bar:~/.kube/k8s:~/.kube/k8s-staging:~/.kube/k8s-a
 
 # source <(kubectl completion bash) # slow
 # alias k=kubectl
@@ -18,26 +18,62 @@ function eks() {
   shift
   local action=${@} # ex: "get pod"
 
-  local aws_profile # dynamically determine
+  local aws_profile="" # dynamically determine
   case ${cluster} in
-    bar|*prod*) aws_profile="k8s-prod-sudo" ;;
-    bar|*stage*) aws_profile="k8s-stage-sudo" ;;
-    *) echo "Unable to determine \"aws_profile\" from \"${cluster}\"; using staging..." ;;
+    bar|*prod*) aws_profile="saml-prod-sudo" ;;
+    bar|*stage*) aws_profile="saml-stage-sudo" ;;
+    *)  ;;
   esac
+  [[ "${aws_profile}" == "" ]] && return 1
 
   local kube_config="--kubeconfig ${HOME}/.kube/${cluster}"
   # some kubectl plugin commands won't work with "--kubeconfig"
   if [[ ${action} =~ "outdated" ]] || [[ ${action} =~ "node-admin" ]]; then
     kube_config=""
   fi
-  [[ ${VERBOSE} -ge 1 ]] && echo "Running: \"kubectl ${kube_config} ${action}\""
-  KUBECONFIG=~/.kube/${cluster} aws-vault exec ${aws_profile} -- kubectl \
-    ${kube_config} \
-    ${action}
-    # --kubecontext ${cluster.us-east-1.eksctl.io} \
+  # [[ ${VERBOSE} -ge 0 ]] && \
+  echo "Running: \"kubectl ${kube_config} ${action}\""
+  kubectl ${kube_config} ${action} #--context admin@${cluster}
 }
 
-# kubectl plugins: krew
+function helms() {
+  # usage: "helms bar ls | grep gift-card-service"
+  local cluster=${1}
+  if ! [[ -r ~/.kube/${cluster} ]]; then
+    echo "No kubeconfig found for \"${cluster}\"!"
+    return 1
+  fi
+  shift
+  local action=${@} # ex: "get pod"
+
+  local aws_profile="" # dynamically determine
+  case ${cluster} in
+    bar|*prod*) aws_profile="saml-prod-sudo" ;;
+    bar|*stage*) aws_profile="saml-stage-sudo" ;;
+    *)  ;;
+  esac
+  # verify that eks clusters mapped to an aws_profile
+  if [[ ! ${cluster} =~ k8s ]] && [[ "${aws_profile}" == "" ]]; then
+    return 1
+  fi
+
+  local kube_config="--kubeconfig ${HOME}/.kube/${cluster}"
+
+  # old kops clusters dont need saml2aws wrapper
+  local wrapper="saml2aws exec --exec-profile=${aws_profile} --"
+  local helm_path="/Users/coreybar/.asdf/shims/helm"
+  if [[ ${cluster} =~ "k8s-" ]]; then
+    wrapper=""
+    # k8s-a and k8s-staging are 2.11
+    helm_path="$(asdf where helm 2.11.0)/bin/helm"
+  fi
+
+  # [[ ${VERBOSE} -ge 0 ]] && \
+  echo "Running: \"${wrapper} ${helm_path} ${kube_config} ${action}\""
+  ${wrapper} ${helm_path} ${kube_config} ${action} #--kube-context admin@${cluster}
+}
+
+# kubectl plugin manager: krew
 export KREW_ROOT=${HOME}/.krew
 pathadd ${KREW_ROOT}/bin
 

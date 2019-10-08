@@ -33,7 +33,7 @@ LP_ENABLE_SHORTEN_PATH=1
 # The maximum percentage of the screen width used to display the path before
 # removing the center portion of the path and replacing with '...'.
 # Recommended value is 35
-LP_PATH_LENGTH=25
+LP_PATH_LENGTH=35
 
 # The number of directories (including '/') to keep at the beginning of a
 # shortened path.
@@ -136,7 +136,9 @@ LP_ENABLE_SCLS=0
 
 # Display the kubernetes context and namespace, if any
 # Recommened value is 1
-LP_ENABLE_KUBERNETES=0
+LP_ENABLE_KUBERNETES=1
+LP_ENABLE_AWSVAULT=0
+LP_ENABLE_ASSUMEROLE=1
 
 # Show average system temperature
 LP_ENABLE_TEMP=0

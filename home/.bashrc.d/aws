@@ -4,52 +4,27 @@
 export AWS_SESSION_TTL=12h
 export AWS_FEDERATION_TOKEN_TTL=12h
 export AWS_ASSUME_ROLE_TTL=1h # 4h for devtoolsSandboxAccountAccessRole
+export SAML2AWS_SESSION_DURATION=43200
 
 function saml2aws {
+  lpass show --password --clip "${CUSTOM_WORK_DOMAINS[0]/.com/} main (one login)" || echo "Unable to cache pw."
   $(which saml2aws) --session-duration=43200 --skip-prompt ${*}
 }
-
-function aws-vault {
-  lpass show --password --clip "${CUSTOM_WORK_DOMAINS[0]/.com/} macbook" || echo "Unable to cache pw."
-  $(which aws-vault) ${*}
-  # --session-ttl=12h --assume-role-ttl=8h
+function assume-role {
+  export AWS_PROFILE=${1}
+  $(which assume-role) ${*}
 }
-# This allows for logging into the AWS console as a federated user via your IAM keys instead of the console password.
-## Usage: `awslogin staging`
-function awslogin()
-{
-  aws-vault login ${*}
-}
-
-# if [[ -f ~/.aws_auth ]] ; then
-#   source ~/.aws_auth
-#   export AWS_CREDENTIAL_FILE=~/.aws_auth
-#   # export AWS_IAM_HOME=~/bin/amazon/iam
-#   # pathadd ${AWS_IAM_HOME}/bin
-#
-#   # use env variables over cli profiles for friendlier k8s integration
-#   function set-aws()
-#   {
-#     # TODO: convert to vault provisioning
-#     local acct=${1}
-#     case ${acct} in
-#       ${CUSTOM_WORK_DOMAINS[0]/\.*/})
-#         echo "Setting AWS credentials to ${CUSTOM_WORK_DOMAINS[0]/\.*/}"
-#         export AWS_ACCESS_KEY=${} AWS_SECRET_ACCESS_KEY=${} ;;
-#       *ops*)
-#         echo "Setting AWS credentials to ${CUSTOM_WORK_DOMAINS[0]/\.*/}-ops"
-#         export AWS_ACCESS_KEY=${} AWS_SECRET_ACCESS_KEY=${} ;;
-#       *)
-#         echo "Unable to set AWS credentials; Unknown account"
-#         unset AWS_ACCESS_KEY AWS_SECRET_ACCESS_KEY ;;
-#     esac
-#   }
-# fi
+# function aws-vault {
+#   saml2aws ${*}
+# }
 
 function get-ec2-id-from-pod ()
 {
   # only requires kube config with correct context and namespace set
-  kubectl get no/$(kubectl get po/${@} -ojsonpath='{.spec.nodeName}') \
+  local cluster=${1}
+  shift
+  eks ${cluster}
+   get no/$(kubectl get po/${2} -ojsonpath='{.spec.nodeName}') \
     -ojsonpath='{.spec.externalID}' ; echo
 
   # alternative requires exec'ing into container and the curl binary
@@ -58,7 +33,9 @@ function get-ec2-id-from-pod ()
 function get-ec2-hostname-from-pod ()
 {
   # only requires kube config with correct context set
-  kubectl get po/${@} -ojsonpath='{.spec.nodeName}' ; echo # '{.status.hostIP}'
+  local cluster=${1}
+  shift
+  eks ${cluster} get po/${2} -ojsonpath='{.spec.nodeName}' ; echo # '{.status.hostIP}'
 
   # fall back requires exec'ing into container and the curl binary
   # kubectl exec -it ${@} -- curl http://169.254.169.254/latest/meta-data/hostname ; echo
@@ -68,7 +45,9 @@ function get-ec2-id-from-hostname ()
   # takes in one parameter: ec2 hostname
   # (k8s-a which is in us-east-2 so hostnames include the region which should be filtered)
   # only requires kube config with correct context set
-  local result=$(kubectl get no/${@/us-east-2.compute/ec2} -ojsonpath="{.spec.externalID}" \
+  local cluster=${1}
+  shift
+  local result=$(eks ${cluster} get no/${2/us-east-2.compute/ec2} -ojsonpath="{.spec.externalID}" \
     ; echo)
 
   if [[ -n ${result} ]]; then
@@ -82,8 +61,10 @@ function get-ec2-hostname-from-id ()
 {
   # takes in one parameter: ec2 instance id
   # if a k8s node, only requires kube config with correct context set
-  local result=$(kubectl get no \
-    -o=jsonpath="{.items[?(@.metadata.labels.alpha\.eksctl\.io/instance-id==\"${1}\")].metadata.name}" \
+  local cluster=${1}
+  shift
+  local result=$(eks ${cluster} get no \
+    -o=jsonpath="{.items[?(@.metadata.labels.alpha\.eksctl\.io/instance-id==\"${2}\")].metadata.name}" \
     ; echo)
 
   # if [[ -n ${result} ]]; then
