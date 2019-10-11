@@ -56,6 +56,7 @@ if ${at_home} ; then
     openit "Backup and Sync"
   fi
 elif ${at_work} ; then
+  saml2aws login # outputs "credentials are not expired skipping" when auth'd
   _create_socks_proxy "home.${CUSTOM_HOME_DOMAIN}" "2000"
 
   unmount_nfs
@@ -64,7 +65,7 @@ elif ${at_work} ; then
 
   # work dropped tunnel to aws, need to be on vpn all the time now :(
   if ! $(ping -c1 -W1 -i0.1 tools.${CUSTOM_WORK_DOMAINS[0]} &> /dev/null); then
-    read -t 2 -s -p "To connect to work VPN, press Enter key within 2 second..." && work_vpn
+    read -t 5 -s -p "You must connect to work VPN! Press Enter to launch the dashboard icon." && work_vpn
     echo
   fi
   # disconnect any VPN connection

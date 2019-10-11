@@ -50,7 +50,7 @@ if [[ $(uname) == "Darwin" ]] ; then
   # echo -e "\nUpdating code..."
   # cd ~/build/all-repos
   echo -e "Updating stubborn config files to homesick repo"
-  cp -av ~/.kube/config ~/.homesick/repos/dotfiles_private/home/.kube/
+  # cp -av ~/.kube/config ~/.homesick/repos/dotfiles_private/home/.kube/
   cp -av ~/.docker/*.json ~/.homesick/repos/dotfiles_private/home/.docker/
   [[ -d ~/.homesick/repos/dotfiles_private/home/.code ]] || mkdir ~/.homesick/repos/dotfiles_private/home/.code
   cp -av ~/Library/Application\ Support/Code/User/settings.json \
@@ -195,7 +195,7 @@ fi
 
 if [[ ${TRAVIS_CI_RUN} != true ]]; then
    echo -e "\nClear old log files."
-  /usr/bin/find /var/tmp -type f -name "workstation_update_*.log" -user $(whoami) -mtime +60 -print -delete
+  /usr/bin/find /var/tmp -type f -name "workstation_update_*.log" -user $(whoami) -mtime +90 -print -delete
 fi
 # close out logging
 ) 2>&1 | tee -a ${LOG}

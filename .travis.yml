@@ -8,7 +8,7 @@ sudo: required
 matrix:
   include:
     - os: linux
-      dist: trusty
+      dist: xenial
       sudo: required
       # services: docker
     - os: osx

@@ -24,7 +24,10 @@ function eks() {
     bar|*stage*) aws_profile="saml-stage-sudo" ;;
     *)  ;;
   esac
-  [[ "${aws_profile}" == "" ]] && return 1
+  # verify that eks clusters mapped to an aws_profile
+  if [[ ! ${cluster} =~ k8s ]] && [[ "${aws_profile}" == "" ]]; then
+    return 1
+  fi
 
   local kube_config="--kubeconfig ${HOME}/.kube/${cluster}"
   # some kubectl plugin commands won't work with "--kubeconfig"

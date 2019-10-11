@@ -7,16 +7,27 @@ export AWS_ASSUME_ROLE_TTL=1h # 4h for devtoolsSandboxAccountAccessRole
 export SAML2AWS_SESSION_DURATION=43200
 
 function saml2aws {
+  if [[ "$(readlink -- "${path}")" =~ "config-saml2aws" ]]; then
+    rm ~/.aws/config && ln -s ~/.aws/config-saml2aws ~/.aws/config
+  fi
   lpass show --password --clip "${CUSTOM_WORK_DOMAINS[0]/.com/} main (one login)" || echo "Unable to cache pw."
   $(which saml2aws) --session-duration=43200 --skip-prompt ${*}
 }
 function assume-role {
+  if [[ "$(readlink -- "${path}")" =~ "config-saml2aws" ]]; then
+    rm ~/.aws/config && ln -s ~/.aws/config-saml2aws ~/.aws/config
+  fi
+
   export AWS_PROFILE=${1}
   $(which assume-role) ${*}
 }
-# function aws-vault {
-#   saml2aws ${*}
-# }
+function aws-vault {
+  if [[ "$(readlink -- "${path}")" =~ "config-aws-vault" ]]; then
+    rm ~/.aws/config && ln -s ~/.aws/config-aws-vault
+  fi
+  lpass show --password --clip "${CUSTOM_WORK_DOMAINS[0]/.com/} macbook" || echo "Unable to cache pw."
+  $(which aws-vault) ${*}
+}
 
 function get-ec2-id-from-pod ()
 {
@@ -24,7 +35,7 @@ function get-ec2-id-from-pod ()
   local cluster=${1}
   shift
   eks ${cluster}
-   get no/$(kubectl get po/${2} -ojsonpath='{.spec.nodeName}') \
+   get no/$(eks ${cluster} get po/${2} -ojsonpath='{.spec.nodeName}') \
     -ojsonpath='{.spec.externalID}' ; echo
 
   # alternative requires exec'ing into container and the curl binary
