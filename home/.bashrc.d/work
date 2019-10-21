@@ -10,6 +10,7 @@ ip_address=""
 at_work="false"
 at_home="false"
 on_vpn="false"
+ping -c1 -W1 -i0.1 tools.${CUSTOM_WORK_DOMAINS[0]} &> /dev/null && on_vpn="true"
 
 # grab all ip addresses
 ip_address=$(/sbin/ifconfig 2> /dev/null | grep 'inet ' | grep -v '127.0.0.1' | awk '{print $2}')
@@ -17,8 +18,8 @@ ip_address=$(/sbin/ifconfig 2> /dev/null | grep 'inet ' | grep -v '127.0.0.1' | 
 # figure out location
 if [[ ${ip_address} =~ ${CUSTOM_WORK_SUBNET}.*.* ]]; then
   at_work="true"
-elif [[ ${ip_address} =~ ${CUSTOM_VPN_SUBNET}.* ]]; then
-  on_vpn="true"
+# elif [[ ${ip_address} =~ ${CUSTOM_VPN_SUBNET}.* ]]; then
+  # on_vpn="true"
 elif [[ ${ip_address} =~ ${CUSTOM_HOME_SUBNET}* ]]; then
   at_home="true"
 else
@@ -45,18 +46,18 @@ function work_vpn {
   openit "Endpoint Security VPN"
   lpass show --password --clip "${CUSTOM_WORK_DOMAINS[0]/.com/} main (one login)"
 }
+function work_saml2aws {
+  saml2aws login # outputs "credentials are not expired skipping" when auth'd
+}
 if ${at_home} ; then
   # prompt for vpn connection to work
-  if ! $(ping -c1 -W1 -i0.1 tools.${CUSTOM_WORK_DOMAINS[0]} &> /dev/null); then
-    read -t 2 -s -p "To connect to work VPN, press Enter key within 2 seconds..." && work_vpn
-    echo
-  fi
+
   if $(ping -c1 -W1 -i0.1 ${CUSTOM_NAS_HOST} &> /dev/null) ; then
     mount_nfs
     openit "Backup and Sync"
   fi
 elif ${at_work} ; then
-  saml2aws login # outputs "credentials are not expired skipping" when auth'd
+  work_saml2aws
   _create_socks_proxy "home.${CUSTOM_HOME_DOMAIN}" "2000"
 
   unmount_nfs

@@ -17,6 +17,9 @@ brew tap versent/homebrew-taps
 brew install saml2aws
 brew install remind101/formulae/assume-role
 
+brew install go-jira
+# get jira api token from https://id.atlassian.com/manage/api-tokens
+
 echo "configure node"
 curl -u${NPM_REPO_LOGIN} "https://${CUSTOM_WORK_JFROG_SUBDOMAIN}.jfrog.io/${CUSTOM_WORK_JFROG_SUBDOMAIN}/api/npm/${CUSTOM_WORK_DOMAINS[0]/.com/}-npm/auth/${CUSTOM_WORK_DOMAINS[0]/.com/}" > .npmrc
 # npm login ${CUSTOM_WORK_JFROG_SUBDOMAIN}.jfrog.io

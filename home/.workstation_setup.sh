@@ -186,8 +186,9 @@ if [[ ${TRAVIS_CI_RUN} != true ]]; then
   brew cask install \
     atom slack spotify gimp github google-backup-and-sync google-chrome iterm2 vagrant \
     beyond-compare firefox keystore-explorer keybase \
+    balenaetcher \
     wireshark visual-studio-code
-    # private-internet-access
+    # private-internet-access; etcher is a usb flash utility
 
   # dark mode in slack
   sed -i.bak '/darkmode BEGIN/,/darkmode END/d' \
@@ -429,5 +430,5 @@ fi
 
 # upgrade software Fridays at 10am
 if ! $(crontab -l | grep -q workstation_update) ; then
-  (crontab -l 2>/dev/null; echo "0 10 * * 5 ~/.workstation_update.sh") | crontab -
+  (crontab -l 2>/dev/null; echo "0 10 * * 5 source ${HOME}/.bashrc ; ~/.workstation_update.sh") | crontab -
 fi

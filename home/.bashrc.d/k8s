@@ -16,7 +16,7 @@ function eks() {
     return 1
   fi
   shift
-  local action=${@} # ex: "get pod"
+  local action="${@}" # ex: "get pod"
 
   local aws_profile="" # dynamically determine
   case ${cluster} in
@@ -28,14 +28,18 @@ function eks() {
   if [[ ! ${cluster} =~ k8s ]] && [[ "${aws_profile}" == "" ]]; then
     return 1
   fi
+  if [[ ${cluster} =~ k8s ]] && \
+   ! $(ping -c1 -W1 -i0.1 tools.${CUSTOM_WORK_DOMAINS[0]} &> /dev/null); then
+    read -t 2 -s -p "You must connect to work VPN, press Enter..." && work_vpn
+    echo
+  fi
 
   local kube_config="--kubeconfig ${HOME}/.kube/${cluster}"
   # some kubectl plugin commands won't work with "--kubeconfig"
   if [[ ${action} =~ "outdated" ]] || [[ ${action} =~ "node-admin" ]]; then
     kube_config=""
   fi
-  # [[ ${VERBOSE} -ge 0 ]] && \
-  echo "Running: \"kubectl ${kube_config} ${action}\""
+  [[ ${VERBOSE} -ge 1 ]] && echo "Running: \"kubectl ${kube_config} ${action}\""
   kubectl ${kube_config} ${action} #--context admin@${cluster}
 }
 
@@ -59,6 +63,11 @@ function helms() {
   if [[ ! ${cluster} =~ k8s ]] && [[ "${aws_profile}" == "" ]]; then
     return 1
   fi
+  if [[ ${cluster} =~ k8s ]] && \
+   ! $(ping -c1 -W1 -i0.1 tools.${CUSTOM_WORK_DOMAINS[0]} &> /dev/null); then
+    read -t 2 -s -p "You must connect to work VPN, press Enter..." && work_vpn
+    echo
+  fi
 
   local kube_config="--kubeconfig ${HOME}/.kube/${cluster}"
 
@@ -71,8 +80,7 @@ function helms() {
     helm_path="$(asdf where helm 2.11.0)/bin/helm"
   fi
 
-  # [[ ${VERBOSE} -ge 0 ]] && \
-  echo "Running: \"${wrapper} ${helm_path} ${kube_config} ${action}\""
+  [[ ${VERBOSE} -ge 1 ]] && echo "Running: \"${wrapper} ${helm_path} ${kube_config} ${action}\""
   ${wrapper} ${helm_path} ${kube_config} ${action} #--kube-context admin@${cluster}
 }
 
@@ -157,3 +165,5 @@ TABLE_EOF
   # --label-columns function
   # --no-headers \
   # --sort-by metadata.creationTimestamp
+
+  # -o name
