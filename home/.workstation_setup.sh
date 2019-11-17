@@ -173,8 +173,7 @@ if [[ ${TRAVIS_CI_RUN} != true ]]; then
     sudo rm -rf /Applications/{iMovie.app,GarageBand.app,Pages.app,Numbers.app}
   fi
 
-  # xcode install
-  xcode-select --install
+  # xcode install moved to .boostrap.sh
 
   # puppet testing shtuff
   if [[ ${TRAVIS_CI_RUN} != true ]]; then
