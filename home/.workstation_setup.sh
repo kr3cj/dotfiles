@@ -173,7 +173,7 @@ if [[ ${TRAVIS_CI_RUN} != true ]]; then
     sudo rm -rf /Applications/{iMovie.app,GarageBand.app,Pages.app,Numbers.app}
   fi
 
-  # finish xcode install
+  # xcode install
   xcode-select --install
 
   # puppet testing shtuff
@@ -323,6 +323,7 @@ EOF
   helm plugin install https://github.com/technosophos/helm-template
   helm plugin install https://github.com/lrills/helm-unittest
   helm plugin install https://github.com/databus23/helm-diff
+  helm plugin install https://github.com/futuresimple/helm-secrets
 
   # prep for home nfs mount
   [[ -d ~/Documents/share1 ]] || mkdir ~/Documents/share1
@@ -430,5 +431,5 @@ fi
 
 # upgrade software Fridays at 10am
 if ! $(crontab -l | grep -q workstation_update) ; then
-  (crontab -l 2>/dev/null; echo "0 10 * * 5 source ${HOME}/.bashrc ; ~/.workstation_update.sh") | crontab -
+  (crontab -l 2>/dev/null; echo "0 10 * * 5 ~/.workstation_update.sh") | crontab -
 fi

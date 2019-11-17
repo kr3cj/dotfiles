@@ -1,7 +1,7 @@
 [[ $- = *i* ]] || return
 
 source "${HOME}/.homesick/repos/homeshick/homeshick.sh"
-source "${HOME}/.homesick/repos/homeshick/completions/homeshick-completion.bash"
+# source "${HOME}/.homesick/repos/homeshick/completions/homeshick-completion.bash"
 
 # TODO: remove after awhile; check if dotfiles_private is using correct url
 if grep -q 'url = https.*\|url = ssh.*' ~/.homesick/repos/dotfiles_private/.git/config ; then

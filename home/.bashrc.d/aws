@@ -11,16 +11,11 @@ function saml2aws {
   if ! [[ "$(greadlink -f ~/.aws/config)" =~ "config-saml2aws" ]]; then
     rm ~/.aws/config && ln -s ~/.aws/config-saml2aws ~/.aws/config
   fi
-  lpass show --password --clip "${CUSTOM_WORK_DOMAINS[0]/.com/} main (one login)" || echo "Unable to cache pw."
+  [[ ${@} =~ "--exec-profile" ]] && \
+    export AWS_PROFILE=$(echo ${@} | sed -r 's/.*--exec-profile[=,\ ]([^ ]+).*/\1/')
+  # lpass show --password --clip "${CUSTOM_WORK_DOMAINS[0]/.com/} main (one login)" || echo "Unable to cache pw."
+  lpass show --password --clip "${CUSTOM_WORK_DOMAINS[0]/.com/} macbook" || echo "Unable to cache pw."
   $(which saml2aws) --session-duration=43200 --skip-prompt ${*}
-}
-function assume-role {
-  if ! [[ "$(greadlink -f ~/.aws/config)" =~ "config-saml2aws" ]]; then
-    rm ~/.aws/config && ln -s ~/.aws/config-saml2aws ~/.aws/config
-  fi
-
-  export AWS_PROFILE=${1}
-  $(which assume-role) ${*}
 }
 function aws-vault {
   if ! [[ "$(greadlink -f ~/.aws/config)" =~ "config-aws-vault" ]]; then
@@ -29,18 +24,13 @@ function aws-vault {
   lpass show --password --clip "${CUSTOM_WORK_DOMAINS[0]/.com/} macbook" || echo "Unable to cache pw."
   $(which aws-vault) ${*}
 }
-function awslogin {
-  aws-vault login ${@}
-}
 
 function get-ec2-id-from-pod ()
 {
   # only requires kube config with correct context and namespace set
-  local cluster=${1}
-  shift
-  eks ${cluster}
-   get no/$(eks ${cluster} get po/${2} -ojsonpath='{.spec.nodeName}') \
-    -ojsonpath='{.spec.externalID}' ; echo
+  kubectl --kubeconfig ~/.kube/${1} \
+   get no/$(kubectl --kubeconfig ~/.kube/${1} get po/${2} -ojsonpath='{.spec.nodeName}') \
+    -ojsonpath='{.metadata.labels.alpha\.eksctl\.io/instance-id}' ; echo
 
   # alternative requires exec'ing into container and the curl binary
   # kubectl exec -it ${@} -- curl http://169.254.169.254/latest/meta-data/instance-id ; echo
@@ -48,42 +38,36 @@ function get-ec2-id-from-pod ()
 function get-ec2-hostname-from-pod ()
 {
   # only requires kube config with correct context set
-  local cluster=${1}
-  shift
-  eks ${cluster} get po/${2} -ojsonpath='{.spec.nodeName}' ; echo # '{.status.hostIP}'
+  kubectl --kubeconfig ~/.kube/${1} get po/${2} -ojsonpath='{.spec.nodeName}' ; echo # '{.status.hostIP}'
 
   # fall back requires exec'ing into container and the curl binary
   # kubectl exec -it ${@} -- curl http://169.254.169.254/latest/meta-data/hostname ; echo
 }
 function get-ec2-id-from-hostname ()
 {
-  # takes in one parameter: ec2 hostname
+  # takes in two parameters: kube config name (assumes one cluster per config) and ec2 hostname
   # (k8s-a which is in us-east-2 so hostnames include the region which should be filtered)
   # only requires kube config with correct context set
-  local cluster=${1}
-  shift
-  local result=$(eks ${cluster} get no/${2/us-east-2.compute/ec2} -ojsonpath="{.spec.externalID}" \
-    ; echo)
+  kubectl --kubeconfig ~/.kube/${1} get no/${2/us-east-2.compute/ec2} -ojsonpath="{.metadata.labels.alpha\.eksctl\.io/instance-id}" \
+    ; echo
 
-  if [[ -n ${result} ]]; then
-    echo ${result}
-  else
-    # fall back requires ssh access
-    ssh ${@/us-east-2.compute/ec2} "curl --silent http://169.254.169.254/latest/meta-data/instance-id" ; echo
-  fi
+  # if [[ -n ${result} ]]; then
+  #   echo ${result}
+  # else
+  #   # echo "Falling back for non-k8s nodes (requires ssh access)""
+  #   ssh ${@/us-east-2.compute/ec2} "curl --silent http://169.254.169.254/latest/meta-data/instance-id" ; echo
+  # fi
 }
 function get-ec2-hostname-from-id ()
 {
-  # takes in one parameter: ec2 instance id
+  # takes in two parameters: kube config name (assumes one cluster per config) and ec2 instance id
   # if a k8s node, only requires kube config with correct context set
-  local cluster=${1}
-  shift
-  local result=$(eks ${cluster} get no \
-    -o=jsonpath="{.items[?(@.metadata.labels.alpha\.eksctl\.io/instance-id==\"${2}\")].metadata.name}" \
-    ; echo)
+  kubectl --kubeconfig ~/.kube/${1} get no \
+    -o=jsonpath="{.items[?(@.metadata.labels.alpha\.eksctl\.io/instance-id=='${2}')].metadata.name}" \
+    ; echo
 
   # if [[ -n ${result} ]]; then
-     echo ${result}
+     # echo ${result}
   # else
   #   echo "Falling back for non-k8s nodes (requires aws-vault, MFA token, aws-cli)"
   #   # takes in two paramters: instance-id and aws-vault profile

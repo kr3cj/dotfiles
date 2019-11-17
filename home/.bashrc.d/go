@@ -2,9 +2,9 @@
 ${IS_OSX} || return
 
 export GOPATH=${HOME}/.asdf/shims/go
-GOV=$(asdf current golang | sed  's/ (set by .*)//g')
+# GOV=$(asdf current golang | sed  's/ (set by .*)//g')
 # export GOROOT=/usr/local/opt/go/libexec
-export GOROOT=${HOME}/.asdf/installs/golang/${GOV//[[:space:]]/}/go/
+# export GOROOT=${HOME}/.asdf/installs/golang/${GOV//[[:space:]]/}/go/
 # TODO: GOBIN?
 
 pathadd ${GOPATH}/bin

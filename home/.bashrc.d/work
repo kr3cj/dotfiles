@@ -18,12 +18,14 @@ ip_address=$(/sbin/ifconfig 2> /dev/null | grep 'inet ' | grep -v '127.0.0.1' | 
 # figure out location
 if [[ ${ip_address} =~ ${CUSTOM_WORK_SUBNET}.*.* ]]; then
   at_work="true"
-# elif [[ ${ip_address} =~ ${CUSTOM_VPN_SUBNET}.* ]]; then
-  # on_vpn="true"
 elif [[ ${ip_address} =~ ${CUSTOM_HOME_SUBNET}* ]]; then
   at_home="true"
 else
   echo "Could not determine location from ip_address ${ip_address}."
+fi
+
+if [[ ${ip_address} =~ ${CUSTOM_VPN_SUBNET}.* ]]; then
+  on_vpn="true"
 fi
 
 function unmount_nfs {
@@ -49,15 +51,15 @@ function work_vpn {
 function work_saml2aws {
   saml2aws login # outputs "credentials are not expired skipping" when auth'd
 }
-if ${at_home} ; then
+if ${at_home}; then
   # prompt for vpn connection to work
 
-  if $(ping -c1 -W1 -i0.1 ${CUSTOM_NAS_HOST} &> /dev/null) ; then
+  if $(ping -c1 -W1 -i0.1 ${CUSTOM_NAS_HOST} &> /dev/null); then
     mount_nfs
     openit "Backup and Sync"
   fi
-elif ${at_work} ; then
-  work_saml2aws
+elif ${at_work}; then
+  work_saml2aws && on_vpn="true"
   _create_socks_proxy "home.${CUSTOM_HOME_DOMAIN}" "2000"
 
   unmount_nfs
@@ -74,21 +76,22 @@ elif ${at_work} ; then
   #   echo "Your VPN client is running at work, silly. Trying to shut it down..."
   #   pkill -f "Endpoint_Security_VPN" || echo "Unable to shutdown VPN client"
   # fi
-elif ${on_vpn} ; then
-  unmount_nfs
-  return
-  # establish SSH tunnel to home proxy
-  lpass show --password --clip "proxy.${CUSTOM_NAS_HOST#*\.}"
-  # TODO: curl gets "000" response code when on VPN
-  # _create_socks_proxy "home.${CUSTOM_HOME_DOMAIN}" "2000"
 else
   unmount_nfs
   if ! $(ping -c1 -W1 -i0.1 tools.${CUSTOM_WORK_DOMAINS[0]} &> /dev/null); then
     (read -t 2 -s -p "Not at home or work; to connect to work VPN, press Enter within 2 seconds..." \
         && work_vpn)
   fi
-  # read -t 2 -p "If in public location and need P.I.A. VPN, press Enter key within 2 seconds..." \
-    # && nohup ~/.pia_manager/pia_manager.app/Contents/MacOS/runner.sh >/dev/null 2>&1 &
-    # && openit "Private Internet Access"
-  echo
+  # establish SSH tunnel to home proxy
+  lpass show --password --clip "proxy.${CUSTOM_NAS_HOST#*\.}"
+  _create_socks_proxy "home.${CUSTOM_HOME_DOMAIN}" "2000"
+fi
+if ${on_vpn}; then
+  unmount_nfs
+  ${at_work} || work_saml2aws
+  return
+
+  # establish SSH tunnel to home proxy
+  lpass show --password --clip "proxy.${CUSTOM_NAS_HOST#*\.}"
+  _create_socks_proxy "home.${CUSTOM_HOME_DOMAIN}" "2000"
 fi

@@ -1,13 +1,22 @@
 [[ $- = *i* ]] || return
 ${IS_OSX} || return
 
-export KUBECONFIG=~/.kube/bar:~/.kube/bar:~/.kube/k8s:~/.kube/k8s-staging:~/.kube/k8s-a
+export KUBECONFIG=~/.kube/bar:~/.kube/bar:~/.kube/bar:~/.kube/k8s:~/.kube/k8s-staging:~/.kube/k8s-a
 
 # source <(kubectl completion bash) # slow
 # alias k=kubectl
 # source <(kubectl completion bash | sed 's/kubectl/k/g' )
 
-# useful wrapper to point to a specific eks cluster taken in as an argument
+function kubectl() {
+  case ${@} in
+    *get?no*)
+      $(which kubectl) --label-columns=nodegroup_name,function --sort-by=.metadata.creationTimestamp ${*} ;;
+    *get*)
+      $(which kubectl) --sort-by=.metadata.creationTimestamp ${*} ;;
+    *)
+      $(which kubectl) ${*} ;;
+  esac
+}
 function eks() {
   # usage: "eks bar get po -n operations | grep datadog"
   local cluster=${1}
@@ -18,10 +27,14 @@ function eks() {
   shift
   local action="${@}" # ex: "get pod"
 
+  if ! [[ "$(greadlink -f ~/.aws/config)" =~ "config-saml2aws" ]]; then
+    rm ~/.aws/config && ln -s ~/.aws/config-saml2aws ~/.aws/config
+  fi
+
   local aws_profile="" # dynamically determine
   case ${cluster} in
     bar|*prod*) aws_profile="saml-prod-sudo" ;;
-    bar|*stage*) aws_profile="saml-stage-sudo" ;;
+    bar|c[0-9][0-9]|*stag*) aws_profile="k8s-stage-sudo" ;;
     *)  ;;
   esac
   # verify that eks clusters mapped to an aws_profile
@@ -39,7 +52,8 @@ function eks() {
   if [[ ${action} =~ "outdated" ]] || [[ ${action} =~ "node-admin" ]]; then
     kube_config=""
   fi
-  [[ ${VERBOSE} -ge 1 ]] && echo "Running: \"kubectl ${kube_config} ${action}\""
+  # [[ ${VERBOSE} -ge 1 ]] &&
+  echo "Running: \"kubectl ${kube_config} ${action}\""
   kubectl ${kube_config} ${action} #--context admin@${cluster}
 }
 
@@ -53,10 +67,14 @@ function helms() {
   shift
   local action=${@} # ex: "get pod"
 
+  if ! [[ "$(greadlink -f ~/.aws/config)" =~ "config-saml2aws" ]]; then
+    rm ~/.aws/config && ln -s ~/.aws/config-saml2aws ~/.aws/config
+  fi
+
   local aws_profile="" # dynamically determine
   case ${cluster} in
     bar|*prod*) aws_profile="saml-prod-sudo" ;;
-    bar|*stage*) aws_profile="saml-stage-sudo" ;;
+    bar|c[0-9][0-9]|*stag*) aws_profile="k8s-stage-sudo" ;;
     *)  ;;
   esac
   # verify that eks clusters mapped to an aws_profile
@@ -72,7 +90,7 @@ function helms() {
   local kube_config="--kubeconfig ${HOME}/.kube/${cluster}"
 
   # old kops clusters dont need saml2aws wrapper
-  local wrapper="saml2aws exec --exec-profile=${aws_profile} --"
+  # local wrapper="saml2aws exec --exec-profile=${aws_profile} --"
   local helm_path="/Users/coreybar/.asdf/shims/helm"
   if [[ ${cluster} =~ "k8s-" ]]; then
     wrapper=""
@@ -80,8 +98,9 @@ function helms() {
     helm_path="$(asdf where helm 2.11.0)/bin/helm"
   fi
 
-  [[ ${VERBOSE} -ge 1 ]] && echo "Running: \"${wrapper} ${helm_path} ${kube_config} ${action}\""
-  ${wrapper} ${helm_path} ${kube_config} ${action} #--kube-context admin@${cluster}
+  #[[ ${VERBOSE} -ge 1 ]] &&
+  echo "Running: \"${helm_path} ${kube_config} ${action}\""
+   ${helm_path} ${kube_config} ${action} #--kube-context admin@${cluster}
 }
 
 # kubectl plugin manager: krew
@@ -167,3 +186,7 @@ TABLE_EOF
   # --sort-by metadata.creationTimestamp
 
   # -o name
+
+# I can get a list of pods sorted by the node its on using the below.
+# But how can I show *node* labels by pod?
+# kubectl get pods -o wide --sort-by="{.spec.nodeName}"

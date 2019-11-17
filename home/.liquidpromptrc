@@ -82,7 +82,7 @@ LP_ENABLE_LOAD=0
 
 # Enable the battery feature.
 # Recommended value is 1
-LP_ENABLE_BATT=0
+LP_ENABLE_BATT=1
 
 # Enable the 'sudo credentials' feature.
 # Be warned that this may pollute the syslog if you don't have sudo
@@ -138,7 +138,7 @@ LP_ENABLE_SCLS=0
 # Recommened value is 1
 LP_ENABLE_KUBERNETES=1
 LP_ENABLE_AWSVAULT=0
-LP_ENABLE_ASSUMEROLE=1
+LP_ENABLE_SAML2AWS=1
 
 # Show average system temperature
 LP_ENABLE_TEMP=0
