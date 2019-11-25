@@ -55,11 +55,6 @@ if [[ "${HEALTHY_INTERNET}" == "true" ]] ; then
   # srm -v ~/Library/Containers/com.lastpass.LastPass/Data/Library/Application Support/LastPass/{}
 fi
 
-if [[ ${TRAVIS_CI_RUN} != true ]]; then
-  # this prevents workstation update from running before workstation setup in travis builds
-  hash git 2>/dev/null || bash ~/.workstation_setup.sh
-fi
-
 if [[ -d ${HOME}/.bashrc.d ]]; then
   for dotd in $(find ${HOME}/.bashrc.d -follow -type f -not -name '*.disabled' | sort); do
     if [[ ${VERBOSE} -gt 0 ]]; then
