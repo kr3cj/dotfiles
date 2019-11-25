@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 # the purpose of this script is to install my homeshick dotfiles from github
 
+# install git
 if [[ $(uname) == "Darwin" ]] ; then
   xcode-select --install
   /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
-  # make sure git is installed
-  hash git 2>/dev/null || brew install git
+  brew install git
 elif [[ $(uname) == "Linux" ]] ; then
   if [[ -f /etc/redhat-release ]] ; then
     sudo yum install git -y
