@@ -1,22 +1,20 @@
 #!/usr/bin/env bash
 # the purpose of this script is to install my homeshick dotfiles from github
 
-# make sure git is installed
-if ! hash git 2>/dev/null ; then
-  if [[ $(uname) == "Darwin" ]] ; then
-    xcode-select --install
-    /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
-    brew install git
-  elif [[ $(uname) == "Linux" ]] ; then
-    if [[ -f /etc/redhat-release ]] ; then
-      sudo yum install git -y
-    elif [[ -f /etc/os-release ]] ; then
-      sudo apt-get update && sudo apt-get install git -y
-    fi
-  else
-    echo "Unknown distro."
-    exit 0
+if [[ $(uname) == "Darwin" ]] ; then
+  xcode-select --install
+  /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+  # make sure git is installed
+  hash git 2>/dev/null || brew install git
+elif [[ $(uname) == "Linux" ]] ; then
+  if [[ -f /etc/redhat-release ]] ; then
+    sudo yum install git -y
+  elif [[ -f /etc/os-release ]] ; then
+    sudo apt-get update && sudo apt-get install git -y
   fi
+else
+  echo "Unknown distro."
+  exit 0
 fi
 
 # set up homeshick repos
