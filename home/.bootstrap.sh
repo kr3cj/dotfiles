@@ -37,4 +37,8 @@ for public_repo in kr3cj/dotfiles kr3cj/liquidprompt ; do
 done
 homeshick --force link
 
+if [[ ${TRAVIS_CI_RUN} != true ]]; then
+  # this prevents workstation update from running before workstation setup in travis builds
+  grep -q local /etc/shells || bash ~/.workstation_setup.sh
+fi
 [[ -f ~/.bash_profile ]] && source ~/.bash_profile
