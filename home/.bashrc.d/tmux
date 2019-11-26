@@ -3,7 +3,7 @@ ${IS_OSX} || return
 
 function tma() {
   local host1=${1}
-  lpass show --password --clip "${CUSTOM_WORK_DOMAINS[0]/.com/} main (one login)"
+  lpass show --password --clip "${CUSTOM_WORK_DOMAINS[0]/.com/} OneLogin"
   /usr/bin/ssh -tt -o TCPKeepAlive=yes -o ServerAliveInterval=120 \
     ${host1} tmux -CC attach
     # ${host1} tmux new-session -A

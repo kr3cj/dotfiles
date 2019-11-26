@@ -150,7 +150,7 @@ if [[ $(uname) == "Darwin" ]] ; then
 
   echo -e "\nPrint any repos with https auth..."
   for dir1 in ~/build/ ~/.homesick/repos/ ; do
-    find ${dir1} -maxdepth 6 -path "*/.git/config" -exec grep https '{}' \;
+    find ${dir1} -maxdepth 6 -path "*/.git/config" -exec grep -H https '{}' \;
   done
 
   echo -e "\nUpdating OSX App Store apps..."

@@ -1,7 +1,7 @@
 [[ $- = *i* ]] || return
 ${IS_OSX} || return
 
-export KUBECONFIG=~/.kube/bar:~/.kube/bar:~/.kube/bar:~/.kube/k8s:~/.kube/k8s-staging:~/.kube/k8s-a
+export KUBECONFIG=~/.kube/bar:~/.kube/bar:~/.kube/bar:~/.kube/test1:~/.kube/k8s:~/.kube/k8s-staging:~/.kube/k8s-a
 
 # source <(kubectl completion bash) # slow
 # alias k=kubectl
@@ -9,6 +9,8 @@ export KUBECONFIG=~/.kube/bar:~/.kube/bar:~/.kube/bar:~/.kube/k8s:~/.kube/k8s-st
 
 function kubectl() {
   case ${@} in
+    *get?componentstatus)
+      $(which kubectl) ${*} ;;
     *get?no*)
       $(which kubectl) --label-columns=nodegroup_name,function --sort-by=.metadata.creationTimestamp ${*} ;;
     *get*)
@@ -167,13 +169,13 @@ TABLE_EOF
 }
 
 # function doit () {
-#   local aws-vault-profile=${1}
+#   local saml2aws-profile=${1}
 #   shift
 #   local nodes=${@}
 #   for node1 in ${nodes} ; do
 #     echo -e "\n starting on ${node1} at $(date)"
 #     kubectl drain ${node1} --ignore-daemonsets --force --delete-local-data
-#     aws-vault exec ${aws-vault-profile} -- \
+#     saml2aws exec --exec-profile=${saml2aws-profile} -- \
 #       aws ec2 terminate-instances --instance-ids \
 #         kubectl get nodes -o go-template --template=\'{{.spec.externalID}}\' ${nodeid}
 #   done

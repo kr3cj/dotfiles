@@ -239,7 +239,7 @@ if [[ "${IS_OSX}" == "true" ]]; then
     case \"\${host1}\" in
       ${CUSTOM_WORK_SUBNET}.*|\
 $(echo ${CUSTOM_WORK_DOMAINS[@]/#/*.}|tr ' ' '|'))
-        lpass show --password --clip \"${CUSTOM_WORK_DOMAINS[0]/.com/} main (one login)\";;
+        lpass show --password --clip \"${CUSTOM_WORK_DOMAINS[0]/.com/} OneLogin\";;
       home.${CUSTOM_HOME_DOMAIN})
         lpass show --password --clip \"proxy.${CUSTOM_NAS_HOST#*\.}\" ;;
       nas|nas.${CUSTOM_NAS_HOST#*\.})

@@ -46,9 +46,10 @@ function mount_nfs {
 }
 function work_vpn {
   openit "Endpoint Security VPN"
-  lpass show --password --clip "${CUSTOM_WORK_DOMAINS[0]/.com/} main (one login)"
+  lpass show --password --clip "${CUSTOM_WORK_DOMAINS[0]/.com/} OneLogin" || echo "Unable to cache OneLogin pw."
 }
 function work_saml2aws {
+  # lpass show --password --clip "${CUSTOM_WORK_DOMAINS[0]/.com/} macbook" || echo "Unable to cache macbook pw."
   saml2aws login # outputs "credentials are not expired skipping" when auth'd
 }
 if ${at_home}; then
@@ -81,10 +82,11 @@ else
   if ! $(ping -c1 -W1 -i0.1 tools.${CUSTOM_WORK_DOMAINS[0]} &> /dev/null); then
     (read -t 2 -s -p "Not at home or work; to connect to work VPN, press Enter within 2 seconds..." \
         && work_vpn)
+    echo
   fi
-  # establish SSH tunnel to home proxy
-  lpass show --password --clip "proxy.${CUSTOM_NAS_HOST#*\.}"
-  _create_socks_proxy "home.${CUSTOM_HOME_DOMAIN}" "2000"
+  # # establish SSH tunnel to home proxy
+  # lpass show --password --clip "proxy.${CUSTOM_NAS_HOST#*\.}"
+  # _create_socks_proxy "home.${CUSTOM_HOME_DOMAIN}" "2000"
 fi
 if ${on_vpn}; then
   unmount_nfs

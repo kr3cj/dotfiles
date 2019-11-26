@@ -8,21 +8,10 @@ export AWS_ASSUME_ROLE_TTL=1h # 4h for devtoolsSandboxAccountAccessRole
 export SAML2AWS_SESSION_DURATION=43200
 
 function saml2aws {
-  if ! [[ "$(greadlink -f ~/.aws/config)" =~ "config-saml2aws" ]]; then
-    rm ~/.aws/config && ln -s ~/.aws/config-saml2aws ~/.aws/config
-  fi
   [[ ${@} =~ "--exec-profile" ]] && \
     export AWS_PROFILE=$(echo ${@} | sed -r 's/.*--exec-profile[=,\ ]([^ ]+).*/\1/')
-  # lpass show --password --clip "${CUSTOM_WORK_DOMAINS[0]/.com/} main (one login)" || echo "Unable to cache pw."
   lpass show --password --clip "${CUSTOM_WORK_DOMAINS[0]/.com/} macbook" || echo "Unable to cache pw."
   $(which saml2aws) --session-duration=43200 --skip-prompt ${*}
-}
-function aws-vault {
-  if ! [[ "$(greadlink -f ~/.aws/config)" =~ "config-aws-vault" ]]; then
-    rm ~/.aws/config && ln -s ~/.aws/config-aws-vault ~/.aws/config
-  fi
-  lpass show --password --clip "${CUSTOM_WORK_DOMAINS[0]/.com/} macbook" || echo "Unable to cache pw."
-  $(which aws-vault) ${*}
 }
 
 function get-ec2-id-from-pod ()
@@ -69,9 +58,9 @@ function get-ec2-hostname-from-id ()
   # if [[ -n ${result} ]]; then
      # echo ${result}
   # else
-  #   echo "Falling back for non-k8s nodes (requires aws-vault, MFA token, aws-cli)"
-  #   # takes in two paramters: instance-id and aws-vault profile
-  #   aws-vault exec ${2} -- \
+  #   echo "Falling back for non-k8s nodes (requires saml2aws, aws-cli)"
+  #   # takes in two paramters: instance-id and saml2aws profile
+  #   saml2aws exec --exec-profile=${2} -- \
   #     aws ec2 describe-instances \
   #     --instance-ids ${1} \
   #     --query Reservations[].Instances[].PrivateDnsName \

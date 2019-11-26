@@ -5,7 +5,8 @@ ${IS_OSX} || return
 export DOCKER_REGISTRY="${CUSTOM_WORK_DEFAULT_AWS_ACCT}.dkr.ecr.us-east-1.amazonaws.com"
 
 function docker-login () {
-  aws ecr get-login --no-include-email --region us-east-1 | bash
+  saml2aws exec --exec-profile=saml-mono-prod -- aws ecr --no-include-email get-login --region us-east-1 | bash
+  # aws ecr get-login --no-include-email --region us-east-1 | bash
 }
 
 alias docker-clean="sudo docker system prune --all --force --volumes"
@@ -13,7 +14,7 @@ alias docker-clean="sudo docker system prune --all --force --volumes"
 function docker-reset () {
   [[ -f docker-compose.yml || -f docker-compose.yaml ]] && docker-compose down --remove-orphans
   sudo docker stop $(sudo docker container ls -a -q)
-  sudo docker system prune -a -f --volumes
+  sudo docker system prune --all --force --volumes
 
   ${IS_LINUX} && sudo systemctl restart docker.service
   # ${IS_OSX} && (echo -e "\nRestarting docker... (wait 1 min)" && killall Docker && open /Applications/Docker.app && sleep 60)
@@ -21,8 +22,8 @@ function docker-reset () {
   sudo docker ps -a
 }
 
-# when connected to aws-vault using certain rolearns, auth to ECR if necessary
-# if [[ -n ${AWS_VAULT} ]]; then
+# when connected to saml2aws using certain rolearns, auth to ECR if necessary
+# if [[ -n ${AWS_PROFILE} ]]; then
 #   docker ps -a > /dev/null || return 1
 #   $(docker login | grep -q 'Username (AWS):') && "aws ecr get-login --no-include-email | bash"
 #   # check_ecr_auth="curl \
