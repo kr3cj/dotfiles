@@ -1,22 +1,21 @@
 #!/usr/bin/env bash
 # the purpose of this script is to install my homeshick dotfiles from github
 
-# make sure git is installed
-if ! hash git 2>/dev/null ; then
-  if [[ $(uname) == "Darwin" ]] ; then
-    xcode-select --install
-    /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
-    brew install git
-  elif [[ $(uname) == "Linux" ]] ; then
-    if [[ -f /etc/redhat-release ]] ; then
-      sudo yum install git -y
-    elif [[ -f /etc/os-release ]] ; then
-      sudo apt-get update && sudo apt-get install git -y
-    fi
-  else
-    echo "Unknown distro."
-    exit 0
+# install git
+if [[ $(uname) == "Darwin" ]] ; then
+  xcode-select --install # TODO: make non-interactive
+  # TODO: move passwdless sudoers to before this step
+  /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)" # TODO: make non-interactive
+  brew install git
+elif [[ $(uname) == "Linux" ]] ; then
+  if [[ -f /etc/redhat-release ]] ; then
+    sudo yum install git -y
+  elif [[ -f /etc/os-release ]] ; then
+    sudo apt-get update && sudo apt-get install git -y
   fi
+else
+  echo "Unknown distro."
+  exit 0
 fi
 
 # set up homeshick repos
@@ -27,10 +26,8 @@ else
 fi
 hash homeshick 2> /dev/null || source ${HOME}/.homesick/repos/homeshick/homeshick.sh
 
-public_repos="kr3cj/dotfiles \
- kr3cj/liquidprompt \
- sudermanjr/tmux-kube"
-for public_repo in ${public_repos}; do
+# sudermanjr/tmux-kube
+for public_repo in kr3cj/dotfiles kr3cj/liquidprompt ; do
   if homeshick list | grep -q ${public_repo}; then
     # must trim long git URIs to just repo name
     homeshick --batch pull $(echo ${public_repo/*\//} | sed -e "s/\.git$//")
@@ -40,4 +37,8 @@ for public_repo in ${public_repos}; do
 done
 homeshick --force link
 
+if [[ ${TRAVIS_CI_RUN} != true ]]; then
+  # this prevents workstation update from running before workstation setup in travis builds
+  grep -q local /etc/shells || bash ~/.workstation_setup.sh
+fi
 [[ -f ~/.bash_profile ]] && source ~/.bash_profile
