@@ -5,13 +5,18 @@ ${IS_OSX} || return
 export AWS_SESSION_TTL=12h
 export AWS_FEDERATION_TOKEN_TTL=12h
 export AWS_ASSUME_ROLE_TTL=1h # 4h for devtoolsSandboxAccountAccessRole
-export SAML2AWS_SESSION_DURATION=43200
+export SAML2AWS_SESSION_DURATION=43200 # 12 hour max for "saml2aws login"
 
 function saml2aws {
-  [[ ${@} =~ "--exec-profile" ]] && \
-    export AWS_PROFILE=$(echo ${@} | sed -r 's/.*--exec-profile[=,\ ]([^ ]+).*/\1/')
+  # saml2aws logins can have a max session duration of 12h, but role chaining can only have a max session duration of 1h
+  local session_dur="--session-duration=${SAML2AWS_SESSION_DURATION}"
+  if [[ ${@} =~ "--exec-profile" ]] ; then
+    export MY_AWS_PROFILE=$(echo ${@} | sed -r 's/.*--exec-profile[=,\ ]([^ ]+).*/\1/')
+    session_dur="--session-duration=3600"
+  fi
   lpass show --password --clip "${CUSTOM_WORK_DOMAINS[0]/.com/} macbook" || echo "Unable to cache pw."
-  $(which saml2aws) --session-duration=43200 --skip-prompt ${*}
+  echo "Running \"saml2aws ${session_dur} --skip-prompt ${*}\""
+  $(which saml2aws) ${session_dur} --skip-prompt ${*}
 }
 
 function get-ec2-id-from-pod ()

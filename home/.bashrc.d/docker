@@ -23,7 +23,7 @@ function docker-reset () {
 }
 
 # when connected to saml2aws using certain rolearns, auth to ECR if necessary
-# if [[ -n ${AWS_PROFILE} ]]; then
+# if [[ -n ${MY_AWS_PROFILE} ]]; then
 #   docker ps -a > /dev/null || return 1
 #   $(docker login | grep -q 'Username (AWS):') && "aws ecr get-login --no-include-email | bash"
 #   # check_ecr_auth="curl \

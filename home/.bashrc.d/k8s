@@ -29,18 +29,14 @@ function eks() {
   shift
   local action="${@}" # ex: "get pod"
 
-  if ! [[ "$(greadlink -f ~/.aws/config)" =~ "config-saml2aws" ]]; then
-    rm ~/.aws/config && ln -s ~/.aws/config-saml2aws ~/.aws/config
-  fi
-
-  local aws_profile="" # dynamically determine
+  local my_aws_profile="" # dynamically determine
   case ${cluster} in
-    bar|*prod*) aws_profile="saml-prod-sudo" ;;
-    bar|c[0-9][0-9]|*stag*) aws_profile="k8s-stage-sudo" ;;
+    bar|*prod*) my_aws_profile="saml-prod-sudo" ;;
+    bar|c[0-9][0-9]|*stag*) my_aws_profile="k8s-stage-sudo" ;;
     *)  ;;
   esac
-  # verify that eks clusters mapped to an aws_profile
-  if [[ ! ${cluster} =~ k8s ]] && [[ "${aws_profile}" == "" ]]; then
+  # verify that eks clusters mapped to a my_aws_profile
+  if [[ ! ${cluster} =~ k8s ]] && [[ "${my_aws_profile}" == "" ]]; then
     return 1
   fi
   if [[ ${cluster} =~ k8s ]] && \
@@ -69,18 +65,14 @@ function helms() {
   shift
   local action=${@} # ex: "get pod"
 
-  if ! [[ "$(greadlink -f ~/.aws/config)" =~ "config-saml2aws" ]]; then
-    rm ~/.aws/config && ln -s ~/.aws/config-saml2aws ~/.aws/config
-  fi
-
-  local aws_profile="" # dynamically determine
+  local my_aws_profile="" # dynamically determine
   case ${cluster} in
-    bar|*prod*) aws_profile="saml-prod-sudo" ;;
-    bar|c[0-9][0-9]|*stag*) aws_profile="k8s-stage-sudo" ;;
+    bar|*prod*) my_aws_profile="saml-prod-sudo" ;;
+    bar|c[0-9][0-9]|*stag*) my_aws_profile="k8s-stage-sudo" ;;
     *)  ;;
   esac
-  # verify that eks clusters mapped to an aws_profile
-  if [[ ! ${cluster} =~ k8s ]] && [[ "${aws_profile}" == "" ]]; then
+  # verify that eks clusters mapped to an my_aws_profile
+  if [[ ! ${cluster} =~ k8s ]] && [[ "${my_aws_profile}" == "" ]]; then
     return 1
   fi
   if [[ ${cluster} =~ k8s ]] && \
@@ -92,7 +84,7 @@ function helms() {
   local kube_config="--kubeconfig ${HOME}/.kube/${cluster}"
 
   # old kops clusters dont need saml2aws wrapper
-  # local wrapper="saml2aws exec --exec-profile=${aws_profile} --"
+  # local wrapper="saml2aws exec --exec-profile=${my_aws_profile} --"
   local helm_path="/Users/coreybar/.asdf/shims/helm"
   if [[ ${cluster} =~ "k8s-" ]]; then
     wrapper=""

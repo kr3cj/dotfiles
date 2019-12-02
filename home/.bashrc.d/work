@@ -49,7 +49,6 @@ function work_vpn {
   lpass show --password --clip "${CUSTOM_WORK_DOMAINS[0]/.com/} OneLogin" || echo "Unable to cache OneLogin pw."
 }
 function work_saml2aws {
-  # lpass show --password --clip "${CUSTOM_WORK_DOMAINS[0]/.com/} macbook" || echo "Unable to cache macbook pw."
   saml2aws login # outputs "credentials are not expired skipping" when auth'd
 }
 if ${at_home}; then
