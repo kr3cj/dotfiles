@@ -33,6 +33,7 @@ function eks() {
   case ${cluster} in
     bar|*prod*) my_aws_profile="saml-prod-sudo" ;;
     bar|c[0-9][0-9]|*stag*) my_aws_profile="k8s-stage-sudo" ;;
+    test1) my_aws_profile="saml-pmts-prod" ;;
     *)  ;;
   esac
   # verify that eks clusters mapped to a my_aws_profile
@@ -69,6 +70,7 @@ function helms() {
   case ${cluster} in
     bar|*prod*) my_aws_profile="saml-prod-sudo" ;;
     bar|c[0-9][0-9]|*stag*) my_aws_profile="k8s-stage-sudo" ;;
+    test1) my_aws_profile="saml-pmts-prod" ;;
     *)  ;;
   esac
   # verify that eks clusters mapped to an my_aws_profile

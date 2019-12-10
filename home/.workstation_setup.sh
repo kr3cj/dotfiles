@@ -183,7 +183,7 @@ if [[ ${TRAVIS_CI_RUN} != true ]]; then
   # install main apps into Applications
   HOMEBREW_CASK_OPTS="--appdir=/Applications"
   brew cask install \
-    atom slack spotify gimp github google-backup-and-sync google-chrome iterm2 vagrant \
+    atom slack spotify gimp github google-backup-and-sync brave-browser iterm2 vagrant \
     beyond-compare firefox keystore-explorer keybase \
     balenaetcher \
     wireshark visual-studio-code
