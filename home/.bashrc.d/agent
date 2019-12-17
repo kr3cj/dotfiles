@@ -56,7 +56,7 @@ function _load_ssh_key_from_lpass () {
 for ssh_key in "" _personal ; do
   _load_ssh_key_from_lpass ${ssh_key}
 done
-${at_work} && for ssh_key in _harness _k8s-prod _k8s-a _k8s-staging; do
+${at_work} && for ssh_key in _harness _k8s-prod _k8s-staging; do
   _load_ssh_key_from_lpass ${ssh_key}
 done
 

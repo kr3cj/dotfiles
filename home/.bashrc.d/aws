@@ -15,7 +15,7 @@ function saml2aws {
     session_dur="--session-duration=3600"
   fi
   lpass show --password --clip "${CUSTOM_WORK_DOMAINS[0]/.com/} macbook" || echo "Unable to cache pw."
-  echo "Running \"saml2aws ${session_dur} --skip-prompt ${*}\""
+  # echo "Running \"saml2aws ${session_dur} --skip-prompt ${*}\""
   $(which saml2aws) ${session_dur} --skip-prompt ${*}
 }
 

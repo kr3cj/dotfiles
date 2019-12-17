@@ -1,7 +1,7 @@
 [[ $- = *i* ]] || return
 ${IS_OSX} || return
 
-export KUBECONFIG=~/.kube/bar:~/.kube/bar:~/.kube/bar:~/.kube/test1:~/.kube/k8s:~/.kube/k8s-staging:~/.kube/k8s-a
+export KUBECONFIG=~/.kube/bar:~/.kube/bar:~/.kube/bar:~/.kube/test1:~/.kube/k8s:~/.kube/k8s-staging
 
 # source <(kubectl completion bash) # slow
 # alias k=kubectl
@@ -9,7 +9,7 @@ export KUBECONFIG=~/.kube/bar:~/.kube/bar:~/.kube/bar:~/.kube/test1:~/.kube/k8s:
 
 function kubectl() {
   case ${@} in
-    *get?componentstatus)
+    *get?componentstatus|*get?all)
       $(which kubectl) ${*} ;;
     *get?no*)
       $(which kubectl) --label-columns=nodegroup_name,function --sort-by=.metadata.creationTimestamp ${*} ;;
@@ -90,7 +90,7 @@ function helms() {
   local helm_path="/Users/coreybar/.asdf/shims/helm"
   if [[ ${cluster} =~ "k8s-" ]]; then
     wrapper=""
-    # k8s-a and k8s-staging are 2.11
+    # k8s-staging is 2.11
     helm_path="$(asdf where helm 2.11.0)/bin/helm"
   fi
 
