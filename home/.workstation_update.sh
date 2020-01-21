@@ -99,7 +99,8 @@ if [[ $(uname) == "Darwin" ]] ; then
   echo -e "\nCleaning temporary files and securely delete trash."
   PATH="/usr/local/bin:${PATH}"
   /usr/local/bin/brew cleanup -s
-  [[ -w ~/.Trash/ ]] && /bin/rm -vP ~/.Trash/*
+  $(brew --prefix findutils)/libexec/gnubin/find ~/.Trash/ -type f -delete
+  $(brew --prefix findutils)/libexec/gnubin/find ~/.Trash/ -type d -delete
 
   # /usr/local/bin/brew cask cleanup
   /usr/local/bin/brew doctor
@@ -159,7 +160,7 @@ if [[ $(uname) == "Darwin" ]] ; then
     /usr/local/bin/lpass show --password --clip "Apple" && \
       /usr/local/bin/mas signin apple@${CUSTOM_HOME_DOMAIN}
   fi
-  /usr/local/bin/mas upgrade
+  /usr/local/bin/mas upgrade # '/usr/local/bin/mas list' finds more with sudo prefix
 
   echo -e "\nUpdating OSX system..."
   /usr/sbin/softwareupdate --install --all

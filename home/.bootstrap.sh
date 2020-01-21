@@ -3,6 +3,8 @@
 
 # install git
 if [[ $(uname) == "Darwin" ]] ; then
+  # TODO: use app store instead?
+  # https://apple.stackexchange.com/questions/341706/cant-update-developer-tools-on-mojavehttps://apple.stackexchange.com/questions/341706/cant-update-developer-tools-on-mojave
   xcode-select --install # TODO: make non-interactive
   # TODO: move passwdless sudoers to before this step
   /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)" # TODO: make non-interactive

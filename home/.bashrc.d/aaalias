@@ -186,6 +186,12 @@ function whatismyip {
   curl ifconfig.me
 }
 
+function netshoot {
+  # spin up a throwaway container in k8s for debugging
+  kubectl --kubeconfig ~/.kube/${1} run --generator=run-pod/v1 \
+    tmp-shell --rm -i --tty --image nicolaka/netshoot -- /bin/bash
+}
+
 function weather {
   curl https://wttr.in/Denver
 }

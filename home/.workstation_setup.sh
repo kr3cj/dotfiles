@@ -67,8 +67,9 @@ if ${IS_OSX} && ! hash mas 2>/dev/null ; then
   # brew link --overwrite bash # OR #
   # prepend new shell to /etc/shells
   if [[ ${TRAVIS_CI_RUN} != true ]]; then # remove once osx images allow passwdless sudo
-    sudo sed -i '/^\/bin\/bash$/i \/usr\/local\/bin\/bash' /etc/shells
+    sudo sed -i.bak '/^\/bin\/bash$/\/usr\/local\/bin\/bash/' /etc/shells
     chsh -s /usr/local/bin/bash
+    bash
   fi
 
   # brew install emacs
@@ -115,11 +116,13 @@ if ${IS_OSX} && ! hash mas 2>/dev/null ; then
   brew install \
     ack android-file-transfer aria2 mas mtr nmap tmux reattach-to-user-namespace \
     maven python3 ansible node rbenv ruby ruby-build \
-    awscli hub packer siege tfenv travis vault
+    awscli hub packer hey siege tfenv travis vault
     # openshift-cli fleetctl; aria2=torrent_client(aria2c); android-platform-tools
+    # load testing clients: hey siege artillery gauntlet
 
   echo "install lastpass client"
-  brew install lastpass-cli --with-pinentry
+  read -p "Enter custom home domain" CUSTOM_HOME_DOMAIN
+  brew install lastpass-cli
   lpass status > /dev/null || \
     DISPLAY=${DISPLAY:-:0} lpass login --trust lastpass@${CUSTOM_HOME_DOMAIN}
 
@@ -319,10 +322,14 @@ EOF
 
   # install helm plugin for Visual Studio Code
   helm init
-  helm plugin install https://github.com/technosophos/helm-template
-  helm plugin install https://github.com/lrills/helm-unittest
-  helm plugin install https://github.com/databus23/helm-diff
-  helm plugin install https://github.com/futuresimple/helm-secrets
+  for plugin1 in \
+   technosophos/helm-template \
+   lrills/helm-unittest \
+   databus23/helm-diff \
+   futuresimple/helm-secrets \
+   aslafy-z/helm-git ; do
+     helm plugin install https://github.com/${plugin1}
+  done
 
   # prep for home nfs mount
   [[ -d ~/Documents/share1 ]] || mkdir ~/Documents/share1

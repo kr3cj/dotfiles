@@ -9,8 +9,6 @@ ${HEALTHY_INTERNET} || return
 ip_address=""
 at_work="false"
 at_home="false"
-on_vpn="false"
-ping -c1 -W1 -i0.1 tools.${CUSTOM_WORK_DOMAINS[0]} &> /dev/null && on_vpn="true"
 
 # grab all ip addresses
 ip_address=$(/sbin/ifconfig 2> /dev/null | grep 'inet ' | grep -v '127.0.0.1' | awk '{print $2}')
@@ -24,9 +22,23 @@ else
   echo "Could not determine location from ip_address ${ip_address}."
 fi
 
-if [[ ${ip_address} =~ ${CUSTOM_VPN_SUBNET}.* ]]; then
-  on_vpn="true"
-fi
+function on_vpn {
+  if [[ ${ip_address} =~ ${CUSTOM_VPN_SUBNET}.* ]]; then
+    # ping -c1 -W1 -i0.1 tools.${CUSTOM_WORK_DOMAINS[0]} &> /dev/null
+    # local response=$(curl https://${CUSTOM_WORK_K8S_DOMAIN}/version?timeout=2s \
+    #   --insecure \
+    #   --silent \
+    #   --show-error \
+    #   --write-out "%{http_code}" \
+    #   --output /dev/null \
+    #   --connect-timeout 2 \
+    #   --max-time 5)
+    # if [[ ${response} -eq 200 ]]; then
+    return $(port ${CUSTOM_WORK_K8S_DOMAIN}:443 >/dev/null)
+  else
+    return false
+  fi
+}
 
 function unmount_nfs {
   while $(mount | grep -q "Documents/share1") ; do
@@ -59,40 +71,32 @@ if ${at_home}; then
     openit "Backup and Sync"
   fi
 elif ${at_work}; then
-  work_saml2aws && on_vpn="true"
+  work_saml2aws
   _create_socks_proxy "home.${CUSTOM_HOME_DOMAIN}" "2000"
 
   unmount_nfs
   # open desktop apps (TODO: --background not working for Slack and Atom)
-  openit Slack "Visual Studio Code"
+  # openit Slack "Visual Studio Code"
 
   # work dropped tunnel to aws, need to be on vpn all the time now :(
-  if ! $(ping -c1 -W1 -i0.1 tools.${CUSTOM_WORK_DOMAINS[0]} &> /dev/null); then
-    read -t 5 -s -p "You must connect to work VPN! Press Enter to launch the dashboard icon." && work_vpn
+  if ! $(on_vpn); then
+    read -t 5 -s -p "You must connect to work VPN! Press Enter to launch the dashboard icon." \
+      && work_vpn
     echo
   fi
-  # disconnect any VPN connection
-  # if pgrep -f "Endpoint_Security_VPN"; then
-  #   echo "Your VPN client is running at work, silly. Trying to shut it down..."
-  #   pkill -f "Endpoint_Security_VPN" || echo "Unable to shutdown VPN client"
-  # fi
 else
   unmount_nfs
-  if ! $(ping -c1 -W1 -i0.1 tools.${CUSTOM_WORK_DOMAINS[0]} &> /dev/null); then
-    (read -t 2 -s -p "Not at home or work; to connect to work VPN, press Enter within 2 seconds..." \
-        && work_vpn)
+  if ! $(on_vpn); then
+    read -t 2 -s -p "Not at home or work; to connect to work VPN, press Enter within 2 seconds..." \
+      && work_vpn
     echo
   fi
   # # establish SSH tunnel to home proxy
   # lpass show --password --clip "proxy.${CUSTOM_NAS_HOST#*\.}"
   # _create_socks_proxy "home.${CUSTOM_HOME_DOMAIN}" "2000"
 fi
-if ${on_vpn}; then
-  unmount_nfs
-  ${at_work} || work_saml2aws
-  return
-
-  # establish SSH tunnel to home proxy
-  lpass show --password --clip "proxy.${CUSTOM_NAS_HOST#*\.}"
-  _create_socks_proxy "home.${CUSTOM_HOME_DOMAIN}" "2000"
-fi
+# if [[ $(on_vpn) ]]; then
+#   unmount_nfs
+#   ${at_work} || work_saml2aws
+#   return
+# fi

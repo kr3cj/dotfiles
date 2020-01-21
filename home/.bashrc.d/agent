@@ -46,8 +46,8 @@ function _load_ssh_key_from_lpass () {
     lpass show --field=Passphrase --clip "id_rsa${key}"
     ssh-add -q -t 36000 -k ~/.ssh/id_rsa${key}
     [[ ${?} -ne 0 ]] && echo "Failed to load \"~/.ssh/id_rsa${key}\"!"
-    # so I can mount my private keys into containers for k8s automation docker tools
-    # rm -f ~/.ssh/id_rsa${key}
+    # keep only work private key on filesystem so container mounts have it
+    [[ -z ${key} ]] || rm -f ~/.ssh/id_rsa${key}
     (umask 177
     lpass show --field="Public Key" "id_rsa${key}" > ~/.ssh/id_rsa${key}.pub
     )
@@ -56,7 +56,7 @@ function _load_ssh_key_from_lpass () {
 for ssh_key in "" _personal ; do
   _load_ssh_key_from_lpass ${ssh_key}
 done
-${at_work} && for ssh_key in _harness _k8s-prod _k8s-staging; do
+[[ ${at_work} || $(port ${CUSTOM_WORK_K8S_DOMAIN}:443 >/dev/null) ]] && for ssh_key in _harness _k8s-prod _k8s-staging; do
   _load_ssh_key_from_lpass ${ssh_key}
 done
 
