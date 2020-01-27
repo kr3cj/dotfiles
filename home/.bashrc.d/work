@@ -34,7 +34,7 @@ function on_vpn {
     #   --connect-timeout 2 \
     #   --max-time 5)
     # if [[ ${response} -eq 200 ]]; then
-    return $(port ${CUSTOM_WORK_K8S_DOMAIN}:443 >/dev/null)
+    return $(port ${CUSTOM_WORK_K8S_DOMAIN}:443 &>/dev/null)
   else
     return false
   fi

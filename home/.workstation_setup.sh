@@ -69,6 +69,7 @@ if ${IS_OSX} && ! hash mas 2>/dev/null ; then
   if [[ ${TRAVIS_CI_RUN} != true ]]; then # remove once osx images allow passwdless sudo
     sudo sed -i.bak '/^\/bin\/bash$/\/usr\/local\/bin\/bash/' /etc/shells
     chsh -s /usr/local/bin/bash
+    sudo chsh -s /usr/local/bin/bash
     bash
   fi
 
@@ -163,7 +164,7 @@ if ${IS_OSX} && ! hash mas 2>/dev/null ; then
   # mas is a CLI for AppStore installs/updates
 if [[ ${TRAVIS_CI_RUN} != true ]]; then
     lpass show --password --clip "Apple" && mas signin apple@${CUSTOM_HOME_DOMAIN}
-    mas install 405843582 # Alfred
+    # mas install 405843582 # Alfred v1.2 :(
     mas install 497799835 # Xcode
     mas install 595191960 # CopyClip
     mas install 1295203466 # Microsoft Remote Desktop 10.x
@@ -186,7 +187,7 @@ if [[ ${TRAVIS_CI_RUN} != true ]]; then
   # install main apps into Applications
   HOMEBREW_CASK_OPTS="--appdir=/Applications"
   brew cask install \
-    atom slack spotify gimp github google-backup-and-sync brave-browser iterm2 vagrant \
+    alfred atom slack spotify gimp github google-backup-and-sync brave-browser iterm2 vagrant \
     beyond-compare firefox keystore-explorer keybase \
     balenaetcher \
     wireshark visual-studio-code
