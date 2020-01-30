@@ -99,7 +99,8 @@ if [[ $(uname) == "Darwin" ]] ; then
   echo -e "\nCleaning temporary files and securely delete trash."
   PATH="/usr/local/bin:${PATH}"
   /usr/local/bin/brew cleanup -s
-  $(brew --prefix findutils)/libexec/gnubin/find ~/.Trash/ -type f -delete
+  $(brew --prefix findutils)/libexec/gnubin/find ~/.Trash/ -type f -exec /bin/rm -vP '{}' \; || \
+    echo "open System Preferences->Privacy & Security->Full Disk Access->Check iTerm.app"
   $(brew --prefix findutils)/libexec/gnubin/find ~/.Trash/ -type d -delete
 
   # /usr/local/bin/brew cask cleanup

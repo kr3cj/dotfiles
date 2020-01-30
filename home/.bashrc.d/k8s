@@ -1,7 +1,14 @@
 [[ $- = *i* ]] || return
 ${IS_OSX} || return
 
-export KUBECONFIG=~/.kube/bar:~/.kube/bar:~/.kube/bar:~/.kube/test1:~/.kube/k8s:~/.kube/k8s-staging
+export KUBECONFIG=$(find ~/.kube/ \
+  -mindepth 1 \
+  -maxdepth 1 \
+  -type l \
+  ! -name minikube \
+  | sort \
+  | tr '\n' ':')
+  #   -printf "%p:" \
 
 # source <(kubectl completion bash) # slow
 # alias k=kubectl
@@ -189,3 +196,9 @@ TABLE_EOF
 
 # get list of running pods on the node
 # kubectl get po --field-selector=spec.nodeName=<ec2_hostname> | grep -v event-observer
+
+# get events by specific pod/node
+# kubectl get events -n operations --sort-by='{.lastTimestamp}' --field-selector involvedObject.kind=Pod,involvedObject.name=datadog-worker-bv9nk
+
+# force pod deletion (only removes from etcd, doesn't force kill container on node)
+# kubectl -n operations delete pod/host-agent-datadog-l22qs --grace-period=0 --force
