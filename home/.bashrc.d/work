@@ -36,7 +36,7 @@ function on_vpn {
     # if [[ ${response} -eq 200 ]]; then
     return $(port ${CUSTOM_WORK_K8S_DOMAIN}:443 &>/dev/null)
   else
-    return false
+    return 1
   fi
 }
 
@@ -57,6 +57,7 @@ function mount_nfs {
       ${CUSTOM_NAS_HOST}:/share/pictures ~/Pictures/share1
 }
 function work_vpn {
+  unmount_nfs
   openit "Endpoint Security VPN"
   lpass show --password --clip "${CUSTOM_WORK_DOMAINS[0]/.com/} OneLogin" || echo "Unable to cache OneLogin pw."
 }
@@ -95,7 +96,7 @@ else
   # lpass show --password --clip "proxy.${CUSTOM_NAS_HOST#*\.}"
   # _create_socks_proxy "home.${CUSTOM_HOME_DOMAIN}" "2000"
 fi
-# if [[ $(on_vpn) ]]; then
+# if $(on_vpn) ]]; then
 #   unmount_nfs
 #   ${at_work} || work_saml2aws
 #   return
