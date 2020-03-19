@@ -244,9 +244,9 @@ if ${IS_OSX} && ! hash mas 2>/dev/null ; then
 
     ### general osx customizations ###
     # first, backup the current defaults
-    defaults read > ~/.osx_defaults_original_$(date --rfc-3339=date).json
+    defaults read > ~/.osx_defaults_original_$(hostname)_$(date --rfc-3339=date).json
     source "${HOME}/.homesick/repos/homeshick/homeshick.sh"
-    homeshick track dotfiles_private ~/.osx_defaults_original_$(date --rfc-3339=date).json
+    homeshick track dotfiles_private ~/.osx_defaults_original_$(hostname)_$(date --rfc-3339=date).json
     # second, load customizations https://github.com/mathiasbynens/dotfiles/blob/master/.macos
     bash ~/.osx_customizations.json
   fi
