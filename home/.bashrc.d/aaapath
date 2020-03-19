@@ -1,13 +1,17 @@
 # add admin paths, replace osx utilities with GNU core utilities (should already include /usr/sbin/ and /sbin )
-# /usr/local/Cellar/findutils/4.6.0/bin \
-# /usr/local/opt/gnu-sed/libexec/gnubin \
-# /usr/local/opt/gnu-tar/libexec/gnubin \
 
+# libexec paths because brew removed --with-default-names ... \
 for path2 in \
   /usr/sbin \
   /usr/local/sbin \
   /usr/local/opt/coreutils/libexec/gnubin \
+  /usr/local/opt/ed/libexec/gnubin \
   /usr/local/opt/findutils/libexec/gnubin \
+  /usr/local/opt/gnu-indent/libexec/gnubin \
+  /usr/local/opt/gnu-sed/libexec/gnubin \
+  /usr/local/opt/gnu-tar/libexec/gnubin \
+  /usr/local/opt/gnu-which/libexec/gnubin \
+  /usr/local/opt/grep/libexec/gnubin \
   /usr/local/opt/curl/bin \
   /usr/local/opt/openssl/bin \
   /usr/local/opt/gnu-sed/libexec/gnubin \
