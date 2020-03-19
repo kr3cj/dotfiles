@@ -4,6 +4,8 @@
 for path2 in \
   /usr/sbin \
   /usr/local/sbin \
+  /Applications/Visual\ Studio\ Code.app/Contents/Resources/app/bin \
+  ${KREW_ROOT:-$HOME/.krew}/bin \
   /usr/local/opt/coreutils/libexec/gnubin \
   /usr/local/opt/ed/libexec/gnubin \
   /usr/local/opt/findutils/libexec/gnubin \
@@ -14,8 +16,6 @@ for path2 in \
   /usr/local/opt/grep/libexec/gnubin \
   /usr/local/opt/curl/bin \
   /usr/local/opt/openssl/bin \
-  /usr/local/opt/gnu-sed/libexec/gnubin \
-  /Applications/Visual\ Studio\ Code.app/Contents/Resources/app/bin \
   ; do
   pathadd ${path2}
 done
