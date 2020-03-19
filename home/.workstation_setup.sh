@@ -45,16 +45,15 @@ if ${IS_OSX} && ! hash mas 2>/dev/null ; then
   echo "install utilities"
   brew install binutils
   brew install diffutils
-  brew install ed --with-default-names
-  # brew install findutils --with-default-names ## This will cause 'brew doctor' to issue warning: "Putting non-prefixed findutils in your path can cause python builds to fail."
+  brew install ed
   brew install findutils
   brew install gawk
-  brew install gnu-indent --with-default-names
-  brew install gnu-sed --with-default-names
-  brew install gnu-tar --with-default-names
-  brew install gnu-which --with-default-names
+  brew install gnu-indent
+  brew install gnu-sed
+  brew install gnu-tar
+  brew install gnu-which
   brew install gnutls
-  brew install grep --with-default-names
+  brew install grep
   brew install gzip
   brew install screen
   brew install watch
@@ -66,7 +65,8 @@ if ${IS_OSX} && ! hash mas 2>/dev/null ; then
   brew install bash
   # brew link --overwrite bash # OR #
   # prepend new shell to /etc/shells
-  if [[ ${TRAVIS_CI_RUN} != true ]]; then # remove once osx images allow passwdless sudo
+  if [[ ${TRAVIS_CI_RUN} != true ]]; then
+    # remove once osx images allow passwdless sudo
     sudo sed -i.bak '/^\/bin\/bash$/\/usr\/local\/bin\/bash/' /etc/shells
     chsh -s /usr/local/bin/bash
     sudo chsh -s /usr/local/bin/bash
@@ -162,7 +162,7 @@ if ${IS_OSX} && ! hash mas 2>/dev/null ; then
   # standard customizations already tracked by dotfiles via ~/.liquidpromptrc
 
   # mas is a CLI for AppStore installs/updates
-if [[ ${TRAVIS_CI_RUN} != true ]]; then
+  if [[ ${TRAVIS_CI_RUN} != true ]]; then
     lpass show --password --clip "Apple" && mas signin apple@${CUSTOM_HOME_DOMAIN}
     # mas install 405843582 # Alfred v1.2 :(
     mas install 497799835 # Xcode
@@ -194,10 +194,10 @@ if [[ ${TRAVIS_CI_RUN} != true ]]; then
     # private-internet-access; etcher is a usb flash utility
 
   # dark mode in slack
-  sed -i.bak '/darkmode BEGIN/,/darkmode END/d' \
-    /Applications/Slack.app/Contents/Resources/app.asar.unpacked/src/static/ssb-interop.js \
-    && echo -e '//darkmode BEGIN\ndocument.addEventListener("DOMContentLoaded", function() {\n $.ajax({\n   url: "https://cdn.jsdelivr.net/gh/laCour/slack-night-mode/css/raw/black.css",\n   success: function(css) {\n     let overrides = `\n     code, pre { background-color: #535353; color: #ffffff; }\n     .c-mrkdwn__pre, .c-mrkdwn__quote, pre { background: #535353 !important; background-color: #535353 !important; }\n     #client_body:not(.onboarding):not(.feature_global_nav_layout):before {display: none;}\n     `\n     $("<style></style>").appendTo("head").html(css + overrides);\n   }\n })});\n//darkmode END' \
-    >> /Applications/Slack.app/Contents/Resources/app.asar.unpacked/src/static/ssb-interop.js
+  # sed -i.bak '/darkmode BEGIN/,/darkmode END/d' \
+  #   /Applications/Slack.app/Contents/Resources/app.asar.unpacked/src/static/ssb-interop.js \
+  #   && echo -e '//darkmode BEGIN\ndocument.addEventListener("DOMContentLoaded", function() {\n $.ajax({\n   url: "https://cdn.jsdelivr.net/gh/laCour/slack-night-mode/css/raw/black.css",\n   success: function(css) {\n     let overrides = `\n     code, pre { background-color: #535353; color: #ffffff; }\n     .c-mrkdwn__pre, .c-mrkdwn__quote, pre { background: #535353 !important; background-color: #535353 !important; }\n     #client_body:not(.onboarding):not(.feature_global_nav_layout):before {display: none;}\n     `\n     $("<style></style>").appendTo("head").html(css + overrides);\n   }\n })});\n//darkmode END' \
+  #   >> /Applications/Slack.app/Contents/Resources/app.asar.unpacked/src/static/ssb-interop.js
 
   # brew cask install intellij-idea goland
   # input license for intellij, then goland should detect it, then remove intellij?
@@ -336,15 +336,13 @@ EOF
   [[ -d ~/Documents/share1 ]] || mkdir ~/Documents/share1
   [[ -d ~/Pictures/share1 ]] || mkdir ~/Pictures/share1
 
-if [[ ${TRAVIS_CI_RUN} != true ]]; then
-
-  # Run python code to checkout all repositories
-  [[ -d ~/build ]] || mkdir ~/build
-  cd ~/build
-  # git clone asottile/all-repos
-  # cd all-repos
-
-
+  if [[ ${TRAVIS_CI_RUN} != true ]]; then
+    # Run python code to checkout all repositories
+    [[ -d ~/build ]] || mkdir ~/build
+    cd ~/build
+    # git clone asottile/all-repos
+    # cd all-repos
+  fi
 fi
 
 # install software on linux
