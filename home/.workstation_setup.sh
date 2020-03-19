@@ -115,10 +115,10 @@ if ${IS_OSX} && ! hash mas 2>/dev/null ; then
   brew tap wallix/awless; brew install awless
   echo "install extra tools that I like"
   brew install \
-    ack android-file-transfer aria2 mas mtr nmap tmux reattach-to-user-namespace \
+    ack aria2 mas mtr nmap tmux reattach-to-user-namespace \
     maven python3 ansible node rbenv ruby ruby-build \
     awscli hub packer hey siege tfenv travis vault
-    # openshift-cli fleetctl; aria2=torrent_client(aria2c); android-platform-tools
+    # openshift-cli fleetctl; aria2=torrent_client(aria2c); android-platform-tools; android-file-transfer
     # load testing clients: hey siege artillery gauntlet
 
   echo "install lastpass client"
@@ -163,9 +163,13 @@ if ${IS_OSX} && ! hash mas 2>/dev/null ; then
 
   # mas is a CLI for AppStore installs/updates
   if [[ ${TRAVIS_CI_RUN} != true ]]; then
-    lpass show --password --clip "Apple" && mas signin apple@${CUSTOM_HOME_DOMAIN}
-    # mas install 405843582 # Alfred v1.2 :(
-    mas install 497799835 # Xcode
+    echo "Prepare to sign into \"App Store.app\" manually..."
+    lpass show --password --clip "Apple"
+    # mas signin apple@${CUSTOM_HOME_DOMAIN} # disabled on macos 10.15.x+
+    openit "App Store.app"
+    
+    # mas install 405843582 # Alfred v1.2 :( ; moved to brew cask installs below
+    # mas install 497799835 # Xcode
     mas install 595191960 # CopyClip
     mas install 1295203466 # Microsoft Remote Desktop 10.x
     mas install 441258766 # Magnet
@@ -190,7 +194,7 @@ if ${IS_OSX} && ! hash mas 2>/dev/null ; then
     alfred atom slack spotify gimp github google-backup-and-sync brave-browser iterm2 vagrant \
     beyond-compare firefox keystore-explorer keybase \
     balenaetcher \
-    wireshark visual-studio-code
+    visual-studio-code
     # private-internet-access; etcher is a usb flash utility
 
   # dark mode in slack
@@ -203,9 +207,10 @@ if ${IS_OSX} && ! hash mas 2>/dev/null ; then
   # input license for intellij, then goland should detect it, then remove intellij?
 
   # broken up into separate commands to avoid 10 minute travis build timeout
+  brew cask install wireshark
     # TODO: disable updates in docker so brew update can manage it, disable experimental features
   brew cask install docker
-  # virtualbox
+  #w virtualbox
 
   # TODO: use openvpn to connect to PIA via CLI
   #  https://helpdesk.privateinternetaccess.com/hc/en-us/articles/219437987-Installing-OpenVPN-PIA-on-MacOS
@@ -231,27 +236,27 @@ if ${IS_OSX} && ! hash mas 2>/dev/null ; then
     # Tell iTerm2 to use the custom preferences in the directory
     defaults write com.googlecode.iterm2.plist LoadPrefsFromCustomFolder -bool true
 
-    # install java8
-    brew tap caskroom/versions
-    brew cask install java8
-    # setup build system credentials
+    # install java; TODO: move to work_setup.sh
+    # brew tap homebrew/cask-versions
+    # brew cask install java11
+    # setup build system credentials; TODO: cash username/password?
     docker login ${CUSTOM_WORK_JFROG_SUBDOMAIN}.jfrog.io
 
     ### general osx customizations ###
     # first, backup the current defaults
-    defaults read > ~/.osx_defaults_original_$(date --rfc-3339=seconds).json
+    defaults read > ~/.osx_defaults_original_$(date --rfc-3339=date).json
     source "${HOME}/.homesick/repos/homeshick/homeshick.sh"
-    homeshick track dotfiles_private ~/osx_defaults_original_$(date --rfc-3339=seconds).json
+    homeshick track dotfiles_private ~/.osx_defaults_original_$(date --rfc-3339=date).json
     # second, load customizations https://github.com/mathiasbynens/dotfiles/blob/master/.macos
     bash ~/.osx_customizations.json
   fi
 
   # install atom editor plugins
-  apm install auto-update-packages open-terminal-here minimap language-hcl \
-    markdown-toc terraform-fmt \
-    language-groovy file-icons tree-view-git-status highlight-selected git-plus \
-    linter linter-ui-default intentions busy-signal \
-    linter-checkbashisms linter-terraform-syntax language-terraform
+  # apm install auto-update-packages open-terminal-here minimap language-hcl \
+  #   markdown-toc terraform-fmt \
+  #   language-groovy file-icons tree-view-git-status highlight-selected git-plus \
+  #   linter linter-ui-default intentions busy-signal \
+  #   linter-checkbashisms linter-terraform-syntax language-terraform
   # language-terraform autocomplete-bash-builtins terminal-plus
 
   # install visual studio code extensions (weird hack required)
@@ -280,7 +285,7 @@ EOF
   done
   bash /var/tmp/vscode_installs.sh && rm -v /var/tmp/vscode_installs.sh
   echo "Grab Personal Access Token from GitHub; put into vscode"
-  cat << EOF >> ${HOME}/Library/Application Support/Code/User/settings.json
+  cat << EOF >> ${HOME}/Library/Application\ Support/Code/User/settings.json
   {
     "files.autoSave": "afterDelay",
     "workbench.startupEditor": "none"
@@ -322,6 +327,7 @@ EOF
   # gcloud config list
 
   # install helm plugin for Visual Studio Code
+  # TODO: fix reliance on saml2aws via function name override?
   helm init
   for plugin1 in \
    technosophos/helm-template \
