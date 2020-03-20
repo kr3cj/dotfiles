@@ -38,8 +38,8 @@ function eks() {
 
   local my_aws_profile="" # dynamically determine
   case ${cluster} in
-    bar|*prod*) my_aws_profile="saml-prod-sudo" ;;
-    bar|c[0-9][0-9]|*stag*) my_aws_profile="k8s-stage-sudo" ;;
+    bar|*prod*) my_aws_profile="saml-k8s-prod" ;; # saml-prod-sudo
+    bar|c[0-9][0-9]|*stag*) my_aws_profile="saml-k8s-stage" ;; # k8s-stage-sudo
     bar) my_aws_profile="saml-pmts-stage" ;;
     test1|bar) my_aws_profile="saml-pmts-prod" ;;
     *)  ;;
@@ -76,9 +76,10 @@ function helms() {
 
   local my_aws_profile="" # dynamically determine
   case ${cluster} in
-    bar|*prod*) my_aws_profile="saml-prod-sudo" ;;
-    bar|c[0-9][0-9]|*stag*) my_aws_profile="k8s-stage-sudo" ;;
-    test1) my_aws_profile="saml-pmts-prod" ;;
+    bar|*prod*) my_aws_profile="saml-k8s-prod" ;; # saml-prod-sudo
+    bar|c[0-9][0-9]|*stag*) my_aws_profile="saml-k8s-stage" ;; # k8s-stage-sudo
+    bar) my_aws_profile="saml-pmts-stage" ;;
+    test1|bar) my_aws_profile="saml-pmts-prod" ;;
     *)  ;;
   esac
   # verify that eks clusters mapped to an my_aws_profile

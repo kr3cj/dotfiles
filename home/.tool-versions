@@ -5,7 +5,7 @@ helm 2.14.3
 helmfile 0.98.2
 # heptio-authenticator-aws 0.4.0 # use one built into eksctl instead
 kops 1.9.2
-kubectl 1.15.6
+kubectl 1.15.10
 minikube 1.6.2
 terraform 0.12.20
 tfenv 1.0.2

@@ -140,7 +140,7 @@ function _create_socks_proxy {
       return 1
     fi
     if [[ ${host1} == "home.${CUSTOM_HOME_DOMAIN}" ]]; then
-      sleep 2 # reduce collisions between clear_clip and subsequent copies
+      # sleep 2 # reduce collisions between clear_clip and subsequent copies
       lpass show --password --clip "proxy.${CUSTOM_NAS_HOST#*\.}"
     fi
     # ssh options moved to ~/.ssh/config
@@ -187,9 +187,20 @@ function whatismyip {
 }
 
 function netshoot {
-  # spin up a throwaway container in k8s for debugging
+  # spin up a throwaway container in k8s for network debugging
   kubectl --kubeconfig ~/.kube/${1} run --generator=run-pod/v1 \
     tmp-shell --rm -i --tty --image nicolaka/netshoot -- /bin/bash
+}
+
+function mysql-client {
+  # spin up a throwaway container in k8s for querying RDS
+  kubectl --kubeconfig ~/.kube/${1} run --generator=run-pod/v1 \
+    tmp-shell --rm -i --tty --image arey/mysql-client -- \
+      mysql -P3306 -h"${2}.us-east-1.rds.amazonaws.com" -u"user1" -p"SeeLastPass"
+  # docker run --rm -it alpine:latest sh
+  #   apk add bash mysql-client
+  #   mysql -h"something.us-east-1.rds.amazonaws.com" -P"3306" -u"user1" -p"SeeLastPass"
+
 }
 
 function weather {
@@ -236,6 +247,7 @@ if [[ "${IS_OSX}" == "true" ]]; then
 
   function lpass {
     $(which lpass) "${@}"
+    # TODO: only clear the clipboard when run directly, not through sourcing dotfiles
     clear_clip 4
   }
 

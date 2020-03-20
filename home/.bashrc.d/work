@@ -58,8 +58,10 @@ function mount_nfs {
 }
 function work_vpn {
   unmount_nfs
-  openit "Endpoint Security VPN"
+  # see https://gist.github.com/p120ph37/10999344 for cisco automation
   lpass show --password --clip "${CUSTOM_WORK_DOMAINS[0]/.com/} OneLogin" || echo "Unable to cache OneLogin pw."
+  # nohup open --hide --background -a "Cisco AnyConnect Secure Mobility Client" > /dev/null 2>&1 &
+  openit "Cisco AnyConnect Secure Mobility Client"
 }
 function work_saml2aws {
   saml2aws login # outputs "credentials are not expired skipping" when auth'd

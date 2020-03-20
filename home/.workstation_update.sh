@@ -79,8 +79,10 @@ if [[ $(uname) == "Darwin" ]] ; then
     /usr/local/bin/brew cask reinstall ${cask1}
   done
 
-  echo -e "\nUpdating atom editor plugins."
-  /usr/local/bin/apm upgrade --confirm false
+  if [[ -e /usr/local/bin/apm ]] ; then
+    echo -e "\nUpdating atom editor plugins."
+    /usr/local/bin/apm upgrade --confirm false
+  fi
 
   # echo -e "\nUpdating helm plugins."
   # for hplug in $(helm plugin list | grep -v ^NAME | awk '{print $1}') ; do
@@ -99,9 +101,9 @@ if [[ $(uname) == "Darwin" ]] ; then
   echo -e "\nCleaning temporary files and securely delete trash."
   PATH="/usr/local/bin:${PATH}"
   /usr/local/bin/brew cleanup -s
-  $(brew --prefix findutils)/libexec/gnubin/find ~/.Trash/ -type f -exec /bin/rm -vP '{}' \; || \
+  /usr/bin/sudo $(brew --prefix findutils)/libexec/gnubin/find ~/.Trash/ -type f -exec /bin/rm -vP '{}' \; || \
     echo "open System Preferences->Privacy & Security->Full Disk Access->Check iTerm.app"
-  $(brew --prefix findutils)/libexec/gnubin/find ~/.Trash/ -type d -delete
+  /usr/bin/sudo $(brew --prefix findutils)/libexec/gnubin/find ~/.Trash/ -type d -delete
 
   # /usr/local/bin/brew cask cleanup
   /usr/local/bin/brew doctor

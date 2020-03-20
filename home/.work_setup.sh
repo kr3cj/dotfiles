@@ -60,8 +60,8 @@ echo "configure travis"
 travis login --pro
 travis enable
 
-echo "Regretfully install Checkpoint Endpoint Security VPN"
-echo "download from https://supportcenter.checkpoint.com/supportcenter/portal/user/anon/page/default.psml/media-type/html?action=portlets.DCFileAction&eventSubmit_doGetdcdetails=&fileid=60048"
+echo "Install Cisco AnyConnect Secure Mobility Client (VPN)"
+echo " from https://vpn.bar.com/"
 echo "press any key when finished..."
 pause
 

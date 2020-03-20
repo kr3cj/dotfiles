@@ -5,8 +5,9 @@ ${IS_OSX} || return
 export DOCKER_REGISTRY="${CUSTOM_WORK_DEFAULT_AWS_ACCT}.dkr.ecr.us-east-1.amazonaws.com"
 
 function docker-login () {
-  saml2aws exec --exec-profile=saml-mono-prod -- aws ecr --no-include-email get-login --region us-east-1 | bash
-  # aws ecr get-login --no-include-email --region us-east-1 | bash
+  # saml2aws exec --exec-profile=saml-mono-prod -- aws ecr get-login-password --region us-east-1 | bash
+  saml2aws exec --exec-profile=saml-mono-prod -- aws ecr get-login-password --region us-east-1 | \
+    docker login --username AWS --password-stdin 264606497040.dkr.ecr.us-east-1.amazonaws.com
 }
 
 alias docker-clean="sudo docker system prune --all --force --volumes"

@@ -1,0 +1,4 @@
+[[ $- = *i* ]] || return
+${IS_OSX} || return
+
+clear_clip 1

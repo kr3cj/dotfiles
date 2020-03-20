@@ -5,7 +5,9 @@ ${IS_OSX} || return
 export AWS_SESSION_TTL=12h
 export AWS_FEDERATION_TOKEN_TTL=12h
 export AWS_ASSUME_ROLE_TTL=1h # 4h for devtoolsSandboxAccountAccessRole
+export AWS_DEFAULT_REGION=us-east-1
 export SAML2AWS_SESSION_DURATION=43200 # 12 hour max for "saml2aws login"
+# export SAML2AWS_PROFILE=
 
 function saml2aws {
   # saml2aws logins can have a max session duration of 12h, but role chaining can only have a max session duration of 1h
