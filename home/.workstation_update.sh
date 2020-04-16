@@ -64,6 +64,7 @@ if [[ $(uname) == "Darwin" ]] ; then
   echo -e "\nUpdating brew..."
   # hack for weird virt-manager dependency (or just remove spice-gtk, virt-manager and virt-viewer)
   # /usr/local/bin/brew uninstall --ignore-dependencies spice-protocol
+  /usr/local/bin/brew update
   /usr/local/bin/brew upgrade
   echo -e "\nUpdating brew casks..."
   for cask1 in $(/usr/local/bin/brew cask outdated | awk '{print $1}') ; do
@@ -79,10 +80,10 @@ if [[ $(uname) == "Darwin" ]] ; then
     /usr/local/bin/brew cask reinstall ${cask1}
   done
 
-  if [[ -e /usr/local/bin/apm ]] ; then
-    echo -e "\nUpdating atom editor plugins."
-    /usr/local/bin/apm upgrade --confirm false
-  fi
+  # if [[ -e /usr/local/bin/apm ]] ; then
+    # echo -e "\nUpdating atom editor plugins."
+    # /usr/local/bin/apm upgrade --confirm false
+  # fi
 
   # echo -e "\nUpdating helm plugins."
   # for hplug in $(helm plugin list | grep -v ^NAME | awk '{print $1}') ; do

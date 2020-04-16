@@ -111,7 +111,7 @@ if ${IS_OSX} && ! hash mas 2>/dev/null ; then
   pip install pylint virtualenv yq==2.2.0
 
   echo "install some extra utility packages for me"
-  brew install dos2unix gnu-getopt jq pstree bash-completion certigo
+  brew install dos2unix gnu-getopt jq jid pstree bash-completion certigo
   brew tap wallix/awless; brew install awless
   echo "install extra tools that I like"
   brew install \
@@ -138,7 +138,7 @@ if ${IS_OSX} && ! hash mas 2>/dev/null ; then
       ssh-add -t 36000 -k ~/.ssh/id_rsa_personal
       rm -f ~/.ssh/id_rsa_personal
     fi
-    private_repos="git@bitbucket.org:kr3cj/dotfiles_private.git"
+    private_repos="git@github.com:kr3cj/dotfiles_private.git"
     for private_repo in ${private_repos}; do
       if homeshick list | grep -q ${private_repo}; then
         # must trim long git URIs to just repo name
@@ -167,7 +167,7 @@ if ${IS_OSX} && ! hash mas 2>/dev/null ; then
     lpass show --password --clip "Apple"
     # mas signin apple@${CUSTOM_HOME_DOMAIN} # disabled on macos 10.15.x+
     openit "App Store.app"
-    
+
     # mas install 405843582 # Alfred v1.2 :( ; moved to brew cask installs below
     # mas install 497799835 # Xcode
     mas install 595191960 # CopyClip
@@ -191,7 +191,7 @@ if ${IS_OSX} && ! hash mas 2>/dev/null ; then
   # install main apps into Applications
   HOMEBREW_CASK_OPTS="--appdir=/Applications"
   brew cask install \
-    alfred atom slack spotify gimp github google-backup-and-sync brave-browser iterm2 vagrant \
+    alfred slack spotify gimp github google-backup-and-sync brave-browser iterm2 vagrant \
     beyond-compare firefox keystore-explorer keybase \
     balenaetcher \
     visual-studio-code

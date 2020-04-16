@@ -169,7 +169,7 @@ function find-error() {
 # https://github.com/chubin/awesome-console-services
 function speedtest {
   curl -s https://raw.githubusercontent.com/sivel/speedtest-cli/master/speedtest.py \
-  | python -
+  | python - --secure --simple --single
   # includes bufferbloat score: http://www.dslreports.com/speedtest
 }
 
@@ -217,7 +217,7 @@ if [[ "${IS_OSX}" == "true" ]]; then
   alias spotify="open -a Spotify"
   # alias pia="nohup ~/.pia_manager/pia_manager.app/Contents/MacOS/runner.sh >/dev/null 2>&1 &"
   # alias gphoto="open --background -a \"Google Photos Backup\""
-  alias gphoto="open --background -a \"Backup and Sync\""
+  # alias gphoto="open --background -a \"Backup and Sync\""
 
   function alfred {
     lpass show --password --clip "${CUSTOM_WORK_DOMAINS[0]/.com/} macbook" || echo "Unable to cache pw."

@@ -1,14 +1,15 @@
 [[ $- = *i* ]] || return
 ${IS_OSX} || return
 
-export KUBECONFIG=$(find ~/.kube/ \
-  -mindepth 1 \
-  -maxdepth 1 \
-  -type l \
-  ! -name minikube \
-  | sort \
-  | tr '\n' ':')
-  #   -printf "%p:" \
+export KUBECONFIG=~/.kube/k3sa
+# export KUBECONFIG=$(find ~/.kube/ \
+#   -mindepth 1 \
+#   -maxdepth 1 \
+#   -type l \
+#   ! -name minikube \
+#   | sort \
+#   | tr '\n' ':')
+  # -printf "%p:" \
 
 # source <(kubectl completion bash) # slow
 # alias k=kubectl
@@ -42,6 +43,7 @@ function eks() {
     bar|c[0-9][0-9]|*stag*) my_aws_profile="saml-k8s-stage" ;; # k8s-stage-sudo
     bar) my_aws_profile="saml-pmts-stage" ;;
     test1|bar) my_aws_profile="saml-pmts-prod" ;;
+    bar) my_aws_profile="saml-ops-prod" ;;
     *)  ;;
   esac
   # verify that eks clusters mapped to a my_aws_profile
@@ -59,8 +61,8 @@ function eks() {
   if [[ ${action} =~ "outdated" ]] || [[ ${action} =~ "node-admin" ]]; then
     kube_config=""
   fi
-  # [[ ${VERBOSE} -ge 1 ]] &&
-  echo "Running: \"kubectl ${kube_config} ${action}\""
+  [[ ${VERBOSE} -ge 1 ]] && \
+    echo "Running: \"kubectl ${kube_config} ${action}\""
   kubectl ${kube_config} ${action} #--context admin@${cluster}
 }
 
@@ -80,6 +82,7 @@ function helms() {
     bar|c[0-9][0-9]|*stag*) my_aws_profile="saml-k8s-stage" ;; # k8s-stage-sudo
     bar) my_aws_profile="saml-pmts-stage" ;;
     test1|bar) my_aws_profile="saml-pmts-prod" ;;
+    bar) my_aws_profile="saml-ops-prod" ;;
     *)  ;;
   esac
   # verify that eks clusters mapped to an my_aws_profile
@@ -103,9 +106,9 @@ function helms() {
     helm_path="$(asdf where helm 2.11.0)/bin/helm"
   fi
 
-  #[[ ${VERBOSE} -ge 1 ]] &&
-  echo "Running: \"${helm_path} ${kube_config} ${action}\""
-   ${helm_path} ${kube_config} ${action} #--kube-context admin@${cluster}
+  [[ ${VERBOSE} -ge 1 ]] && \
+    echo "Running: \"${helm_path} ${kube_config} ${action}\""
+  ${helm_path} ${kube_config} ${action} #--kube-context admin@${cluster}
 }
 
 # kubectl plugin manager: krew

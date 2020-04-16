@@ -60,8 +60,8 @@ function work_vpn {
   unmount_nfs
   # see https://gist.github.com/p120ph37/10999344 for cisco automation
   lpass show --password --clip "${CUSTOM_WORK_DOMAINS[0]/.com/} OneLogin" || echo "Unable to cache OneLogin pw."
-  # nohup open --hide --background -a "Cisco AnyConnect Secure Mobility Client" > /dev/null 2>&1 &
-  openit "Cisco AnyConnect Secure Mobility Client"
+  nohup open -a "Cisco AnyConnect Secure Mobility Client" > /dev/null 2>&1 &
+  # openit "Cisco AnyConnect Secure Mobility Client"
 }
 function work_saml2aws {
   saml2aws login # outputs "credentials are not expired skipping" when auth'd
@@ -71,7 +71,7 @@ if ${at_home}; then
 
   if $(ping -c1 -W1 -i0.1 ${CUSTOM_NAS_HOST} &> /dev/null); then
     mount_nfs
-    openit "Backup and Sync"
+    # openit "Backup and Sync"
   fi
 elif ${at_work}; then
   work_saml2aws

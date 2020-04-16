@@ -28,7 +28,6 @@ umount: unmount(/Users/${LOGNAME}/Pictures/share1): Invalid argument
 attempting to unmount /Users/${LOGNAME}/Pictures/share1 by fsid
       refresh The castles dotfiles,homeshick are outdated.
         pull? [yN] y
-      symlink .atom/config.cson
       symlink .bash_profile
       symlink .bash_profile_osx
       symlink .bashrc
@@ -89,84 +88,20 @@ bowtie2                 dvanalyzer              libbitcoin-blockchain   ssh-vaul
 
 Skipping reinstall of brew cask "virtualbox" (known issues with non-root installs at time of coding).
 
-Updating atom editor plugins.
-Package Updates Available (0)
-└── (empty)
+Updating gems...
+Updating rubygems-update
+
+Skipping reinstall of brew cask "virtualbox" (known issues with non-root installs at time of coding).
 
 Updating gems...
 Updating rubygems-update
 
 Skipping reinstall of brew cask "virtualbox" (known issues with non-root installs at time of coding).
 
-Updating atom editor plugins.
-Package Updates Available (0)
-└── (empty)
-
 Updating gems...
 Updating rubygems-update
 
 Skipping reinstall of brew cask "virtualbox" (known issues with non-root installs at time of coding).
-
-Updating atom editor plugins.
-Package Updates Available (0)
-└── (empty)
-
-Updating gems...
-Updating rubygems-update
-
-Skipping reinstall of brew cask "virtualbox" (known issues with non-root installs at time of coding).
-
-Updating atom editor plugins.
-Package Updates Available (0)
-└── (empty)
-
-Updating gems...
-Updating rubygems-update
-
-Skipping reinstall of brew cask "virtualbox" (known issues with non-root installs at time of coding).
-
-Updating atom editor plugins.
-Package Updates Available (0)
-└── (empty)
-
-Updating gems...
-Updating rubygems-update
-
-Skipping reinstall of brew cask "virtualbox" (known issues with non-root installs at time of coding).
-
-Updating atom editor plugins.
-Package Updates Available (0)
-└── (empty)
-
-Updating gems...
-Updating rubygems-update
-
-Skipping reinstall of brew cask "virtualbox" (known issues with non-root installs at time of coding).
-
-Updating atom editor plugins.
-Package Updates Available (0)
-└── (empty)
-
-Updating gems...
-Updating rubygems-update
-
-Skipping reinstall of brew cask "virtualbox" (known issues with non-root installs at time of coding).
-
-Updating atom editor plugins.
-Package Updates Available (0)
-└── (empty)
-
-Updating gems...
-Updating rubygems-update
-
-Skipping reinstall of brew cask "virtualbox" (known issues with non-root installs at time of coding).
-
-Updating atom editor plugins.
-Package Updates Available (0)
-└── (empty)
-
-Updating gems...
-Updating rubygems-update
 ...
 
 Updating installed gems

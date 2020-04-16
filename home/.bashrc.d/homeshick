@@ -7,13 +7,11 @@ source "${HOME}/.homesick/repos/homeshick/homeshick.sh"
 if grep -q 'url = https.*\|url = ssh.*' ~/.homesick/repos/dotfiles_private/.git/config ; then
   echo "Updating dotfiles_private to use correct url"
   homeshick cd dotfiles_private
-  git remote set-url origin git@bitbucket.org:kr3cj/dotfiles_private.git
+  git remote set-url origin git@github.com:kr3cj/dotfiles_private.git
   cd -
 fi
 
-# TODO: automate whether or not we need to retrieve bitbucket password (expect cmd?)
-# ${HEALTHY_INTERNET} && lpass show --password --clip bitbucket.org
-${HEALTHY_INTERNET} && homeshick --quiet refresh 7
+${HEALTHY_INTERNET} && yes | homeshick --quiet refresh 7
 
 # expensive: ${IS_OSX} && homeshick link dotfiles dotfiles_private
 # can take a long time and requires tty?; TODO: try shallow symlinking?
