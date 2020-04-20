@@ -150,6 +150,13 @@ if ${IS_OSX} && ! hash mas 2>/dev/null ; then
     done
   fi
 
+  # install otp client for mfa
+  brew install oath-toolkit
+  (
+    cd ~/.homesick/repos/otp-cli/
+    sudo ln -s $( echo "$( pwd )/otp-cli" ) /usr/local/bin/otp-cli
+  )
+
   # tmux plugins
   git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
   tmux source ~/.tmux.conf

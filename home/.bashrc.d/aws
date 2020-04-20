@@ -13,7 +13,7 @@ export SAML2AWS_MFA="TOTP"
 function saml2aws {
   # saml2aws logins can have a max session duration of 12h, but role chaining can only have a max session duration of 1h
   local args="--session-duration=${SAML2AWS_SESSION_DURATION} \
-    --role=${CUSTOM_WORK_IAM_ROLE}
+    --role=${CUSTOM_WORK_IAM_ROLE} \
     --mfa=${SAML2AWS_MFA}"
   if [[ ${@} =~ "--exec-profile" ]] ; then
     export MY_AWS_PROFILE=$(echo ${@} | sed -r 's/.*--exec-profile[=,\ ]([^ ]+).*/\1/')

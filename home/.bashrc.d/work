@@ -55,16 +55,21 @@ function mount_nfs {
     mount | grep -q "Pictures/share1" || mount -t nfs -o \
       vers=4,rw,soft,intr,bg,rwsize=32768,dsize=32768 \
       ${CUSTOM_NAS_HOST}:/share/pictures ~/Pictures/share1
+    # add printer
+    # see https://www.jamf.com/jamf-nation/discussions/31099/adding-printer-to-mac-via-terminal-command-line-for-airprint
+    # lpadmin -p canon_mg5220 -L "canon_mg5220" -E -v lpd://printer.${CUSTOM_NAS_HOST#*\.} -m everywhere
 }
 function work_vpn {
   unmount_nfs
   # see https://gist.github.com/p120ph37/10999344 for cisco automation
-  lpass show --password --clip "${CUSTOM_WORK_DOMAINS[0]/.com/} OneLogin" || echo "Unable to cache OneLogin pw."
+  lpass show --password --clip "${CUSTOM_WORK_DOMAINS[0]/.com/} ${CUSTOM_WORK_SSO_PROVIDER}" || echo "Unable to cache ${CUSTOM_WORK_SSO_PROVIDER} pw."
   nohup open -a "Cisco AnyConnect Secure Mobility Client" > /dev/null 2>&1 &
+  otp
   # openit "Cisco AnyConnect Secure Mobility Client"
 }
 function work_saml2aws {
-  saml2aws login # outputs "credentials are not expired skipping" when auth'd
+  otp
+  saml2aws login --force #--mfa-token=$(otp-cli show -1 ${CUSTOM_WORK_SSO_PROVIDER} | awk '/[0-9].*/{print $2}') # outputs "credentials are not expired skipping" when auth'd
 }
 if ${at_home}; then
   # prompt for vpn connection to work

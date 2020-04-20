@@ -29,7 +29,7 @@ fi
 hash homeshick 2> /dev/null || source ${HOME}/.homesick/repos/homeshick/homeshick.sh
 
 # sudermanjr/tmux-kube
-for public_repo in kr3cj/dotfiles kr3cj/liquidprompt ; do
+for public_repo in kr3cj/dotfiles kr3cj/liquidprompt rfocosi/otp-cli; do
   if homeshick list | grep -q ${public_repo}; then
     # must trim long git URIs to just repo name
     homeshick --batch pull $(echo ${public_repo/*\//} | sed -e "s/\.git$//")

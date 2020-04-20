@@ -11,11 +11,12 @@ if [[ -n "${PS1}" ]]; then
   fi
 
   # STTY doesn't like being sourced
-  # control characters
-  stty -echoctl
   # flow control
   stty -ixon
 fi
+
+# control characters
+stty -echoctl
 
 export TRAVIS_CI_RUN="${TRAVIS_CI_RUN:-false}"
 [[ -f ~/.base_homeshick_vars ]] && source ~/.base_homeshick_vars
