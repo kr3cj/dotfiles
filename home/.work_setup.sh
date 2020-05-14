@@ -12,7 +12,7 @@ done
 # ecr login
 aws ecr get-login --no-include-email | bash
 
-# brew cask install aws-vault
+# brew cask install aws-vault goland intellij-idea intellij-idea-ce java8 vagrant
 brew tap versent/homebrew-taps
 brew install saml2aws
 

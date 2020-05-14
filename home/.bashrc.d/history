@@ -12,7 +12,7 @@ shopt -s cmdhist
 shopt -s histappend
 
 # save history immediately
-# export PROMPT_COMMAND="history -a"
+export PROMPT_COMMAND="history -a"
 
 # for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
 export HISTSIZE=1000000

@@ -1,13 +1,13 @@
 # aws-iam-authenticator 0.4.0
-eksctl 0.17.0
+# eksctl 0.19.0
 golang 1.14.1
 # helm 2.14.3
-helm 3.1.2
-helmfile 0.108.1
+# helm 3.1.2
+# helmfile 0.116.0
 # heptio-authenticator-aws 0.4.0 # use one built into eksctl instead
 kops 1.9.2
 kubectl 1.15.11
 # minikube 1.6.2
-pluto 0.2.1
+# pluto 0.2.1
 terraform 0.12.24
-tfenv 1.0.2
+# tfenv 1.0.2

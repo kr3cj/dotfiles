@@ -19,10 +19,10 @@ function saml2aws {
     export MY_AWS_PROFILE=$(echo ${@} | sed -r 's/.*--exec-profile[=,\ ]([^ ]+).*/\1/')
     args="--session-duration=3600"
   fi
-  # if [[ ${@} =~ "helmfile" || ${@} =~ "tf-" ]] ; then
-  #   # "need to cache work private ssh key"
-  #   lpass show --field=Passphrase --clip "id_rsa"
-  # fi
+  if [[ ${@} =~ "helmfile" || ${@} =~ "tf-" ]] ; then
+    # "need to cache work private ssh key"
+    lpass show --field=Passphrase --clip "id_rsa"
+  fi
   # lpass show --password --clip "${CUSTOM_WORK_DOMAINS[0]/.com/} macbook" || echo "Unable to cache pw."
   # echo "Running \"saml2aws ${args} --skip-prompt ${*}\""
   $(which saml2aws) ${args} --skip-prompt ${*}

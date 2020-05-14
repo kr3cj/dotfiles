@@ -11,7 +11,7 @@ if grep -q 'url = https.*\|url = ssh.*' ~/.homesick/repos/dotfiles_private/.git/
   cd -
 fi
 
-${HEALTHY_INTERNET} && yes | homeshick --quiet refresh 7
+${HEALTHY_INTERNET} && homeshick --quiet refresh 7
 
 # expensive: ${IS_OSX} && homeshick link dotfiles dotfiles_private
 # can take a long time and requires tty?; TODO: try shallow symlinking?
@@ -20,5 +20,8 @@ ${HEALTHY_INTERNET} && yes | homeshick --quiet refresh 7
 ${IS_LINUX} || return
 homeshick --force link dotfiles dotfiles_private
 # print any dead links in home directory
-find ${HOME} -mindepth 1 -maxdepth 2 -xtype l ! -path "*/Library/*" ! -path "*/.virtualenvs/*" ! -path "*/build/*" \
+find ${HOME} -mindepth 1 -maxdepth 2 -xtype l \
+  ! -path "*/Library/*" \
+  ! -path "*/.virtualenvs/*" \
+  ! -path "*/build/*" \
   -exec echo 'Broken symlink: {}' \;

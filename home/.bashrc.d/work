@@ -40,7 +40,56 @@ function on_vpn {
   fi
 }
 
-function unmount_nfs {
+function _create_socks_proxy {
+  local host1=${1}
+  local port1=${2}
+  local test_url=${3:-"http://www.google.com"}
+  local ssh_proxy_options="-f -N -D"
+  [[ ${VERBOSE} -ge 1 ]] && ssh_proxy_options="-vvv ${ssh_proxy_options}"
+  local ssh_proxy_response_file="/var/tmp/ssh_proxy_response.txt"
+  # clear contents of response file
+  > ${ssh_proxy_response_file}
+  local response
+
+  # note: lsof still returns a row when port open but dead: lsof -nP -i4TCP:${port1} | grep -q LISTEN
+  # --socks5-hostname
+  response=$(curl \
+    --connect-timeout 2 \
+    --silent \
+    --output /dev/null \
+    --write-out "%{http_code}" \
+    --head \
+    --socks5 localhost:${port1} \
+    ${test_url})
+  if [[ ${response} -ne 200 ]] ; then
+    # first kill any old sessions
+    pgrep -f "ssh ${ssh_proxy_options} ${port1} ${host1}"
+    pkill -f "ssh ${ssh_proxy_options} ${port1} ${host1}"
+
+    echo "Establishing ssh tunnel with ${host1}:${port1}..."
+    if ! $(port ${host1}:22 &> /dev/null); then
+      echo "ERROR: Skipping ${FUNCNAME[0]}; unable to connect to \"${host1}:22\"."
+      return 1
+    fi
+    if [[ ${host1} == "home.${CUSTOM_HOME_DOMAIN}" || \
+          ${host1} == "proxy.${CUSTOM_NAS_HOST#*\.}" ]]; then
+      # sleep 2 # reduce collisions between clear_clip and subsequent copies
+      lpass show --password --clip "proxy.${CUSTOM_NAS_HOST#*\.}"
+    fi
+    # ssh options moved to ~/.ssh/config
+    #  -o TCPKeepAlive=yes -o ConnectTimeout=1 -o ConnectionAttempts=1 \
+    #  -o ServerAliveInterval=120 -o ServerAliveCountMax=2 \
+    /usr/bin/ssh ${ssh_proxy_options} ${port1} "${host1}" 2> ${ssh_proxy_response_file}
+  fi
+  if [[ -s ${ssh_proxy_response_file} ]]; then
+    echo "Unable to establish ssh connection to ${host1}."
+    echo "  curl response: \"${response}\""
+    echo -e "  ssh proxy response:\n$(cat ${ssh_proxy_response_file})"
+    return 1
+  fi
+}
+
+function unmount_home_nfs {
   while $(mount | grep -q "Documents/share1") ; do
     sudo umount -fv -t nfs ${CUSTOM_NAS_HOST}:/share
   done
@@ -48,7 +97,7 @@ function unmount_nfs {
     sudo umount -fv -t nfs ${CUSTOM_NAS_HOST}:/share/pictures
   done
 }
-function mount_nfs {
+function mount_home_nfs {
     mount | grep -q "Documents/share1" || mount -t nfs -o \
       vers=4,rw,soft,intr,bg,rwsize=32768,dsize=32768 \
       ${CUSTOM_NAS_HOST}:/share ~/Documents/share1
@@ -59,52 +108,53 @@ function mount_nfs {
     # see https://www.jamf.com/jamf-nation/discussions/31099/adding-printer-to-mac-via-terminal-command-line-for-airprint
     # lpadmin -p canon_mg5220 -L "canon_mg5220" -E -v lpd://printer.${CUSTOM_NAS_HOST#*\.} -m everywhere
 }
-function work_vpn {
-  unmount_nfs
-  # see https://gist.github.com/p120ph37/10999344 for cisco automation
-  lpass show --password --clip "${CUSTOM_WORK_DOMAINS[0]/.com/} ${CUSTOM_WORK_SSO_PROVIDER}" || echo "Unable to cache ${CUSTOM_WORK_SSO_PROVIDER} pw."
-  nohup open -a "Cisco AnyConnect Secure Mobility Client" > /dev/null 2>&1 &
-  otp
-  # openit "Cisco AnyConnect Secure Mobility Client"
-}
 function work_saml2aws {
   otp
-  saml2aws login --force #--mfa-token=$(otp-cli show -1 ${CUSTOM_WORK_SSO_PROVIDER} | awk '/[0-9].*/{print $2}') # outputs "credentials are not expired skipping" when auth'd
+  saml2aws login #--mfa-token=$(otp-cli show -1 ${CUSTOM_WORK_SSO_PROVIDER} | awk '/[0-9].*/{print $2}') # outputs "credentials are not expired skipping" when auth'd
 }
-if ${at_home}; then
-  # prompt for vpn connection to work
-
-  if $(ping -c1 -W1 -i0.1 ${CUSTOM_NAS_HOST} &> /dev/null); then
-    mount_nfs
-    # openit "Backup and Sync"
-  fi
-elif ${at_work}; then
-  work_saml2aws
-  _create_socks_proxy "home.${CUSTOM_HOME_DOMAIN}" "2000"
-
-  unmount_nfs
-  # open desktop apps (TODO: --background not working for Slack and Atom)
-  # openit Slack "Visual Studio Code"
-
-  # work dropped tunnel to aws, need to be on vpn all the time now :(
+function work_vpn {
+  # see https://gist.github.com/p120ph37/10999344 for cisco automation
   if ! $(on_vpn); then
-    read -t 5 -s -p "You must connect to work VPN! Press Enter to launch the dashboard icon." \
-      && work_vpn
-    echo
+    if read -t 2 -s -p "To connect to work VPN, press any key within 2 seconds..."; then
+      unmount_home_nfs
+      lpass show --password --clip "${CUSTOM_WORK_DOMAINS[0]/.com/} ${CUSTOM_WORK_SSO_PROVIDER}" || echo "Unable to cache ${CUSTOM_WORK_SSO_PROVIDER} pw."
+      # openit "Cisco AnyConnect Secure Mobility Client"
+      nohup open -a "Cisco AnyConnect Secure Mobility Client" > /dev/null &
+      sleep 6
+      otp
+      # pre-authentication
+      # "/Applications/Brave Browser.app/Contents/MacOS/Brave Browser" https://${CUSTOM_WORK_DOMAINS[0]/.com/}.onelogin.com
+      # "/Applications/Brave Browser.app/Contents/MacOS/Brave Browser" https://github.com/${CUSTOM_WORK_DOMAINS[0]/.com/}
+    else
+      echo
+      mount_home_nfs
+      _create_socks_proxy "proxy.${CUSTOM_NAS_HOST#*\.}" "2000"
+    fi
+  else
+    echo "Already connected to work vpn; skipping"
+    # _create_socks_proxy "home.${CUSTOM_HOME_DOMAIN}" "2000"
   fi
-else
-  unmount_nfs
-  if ! $(on_vpn); then
-    read -t 2 -s -p "Not at home or work; to connect to work VPN, press Enter within 2 seconds..." \
-      && work_vpn
-    echo
-  fi
-  # # establish SSH tunnel to home proxy
-  # lpass show --password --clip "proxy.${CUSTOM_NAS_HOST#*\.}"
-  # _create_socks_proxy "home.${CUSTOM_HOME_DOMAIN}" "2000"
-fi
-# if $(on_vpn) ]]; then
-#   unmount_nfs
-#   ${at_work} || work_saml2aws
-#   return
+}
+
+work_saml2aws
+work_vpn
+
+# if ${at_home}; then
+#   if $(ping -c1 -W1 -i0.1 ${CUSTOM_NAS_HOST} &> /dev/null); then
+#     mount_home_nfs
+#     # openit "Backup and Sync"
+#   fi
+# elif ${at_work}; then
+#   work_saml2aws
+#   _create_socks_proxy "home.${CUSTOM_HOME_DOMAIN}" "2000"
+
+#   # open desktop apps (TODO: --background not working for Slack and Atom)
+#   # openit Slack "Visual Studio Code"
+#   unmount_home_nfs
+#   work_vpn
+# else
+#   unmount_home_nfs
+#   work_vpn
+#   # # establish SSH tunnel to home proxy
+#   # _create_socks_proxy "home.${CUSTOM_HOME_DOMAIN}" "2000"
 # fi

@@ -67,18 +67,19 @@ if [[ $(uname) == "Darwin" ]] ; then
   /usr/local/bin/brew update
   /usr/local/bin/brew upgrade
   echo -e "\nUpdating brew casks..."
-  for cask1 in $(/usr/local/bin/brew cask outdated | awk '{print $1}') ; do
-    if [[ ${cask1} =~ virtualbox ]] ; then
-      echo -e "\nSkipping reinstall of brew cask \"virtualbox\" (known issues with non-root installs at time of coding)."
-      continue
-    elif [[ ${cask1} =~ gcloud ]] ; then
-      /usr/local/bin/brew cask reinstall ${cask1}
-      echo -e "\nUpgrading gcloud cask requires reinstall of kubectl client..."
-      sudo gcloud components install kubectl -q
-      continue
-    fi
-    /usr/local/bin/brew cask reinstall ${cask1}
-  done
+  /usr/local/bin/brew cask upgrade
+  # for cask1 in $(/usr/local/bin/brew cask outdated | awk '{print $1}') ; do
+  #   if [[ ${cask1} =~ virtualbox ]] ; then
+  #     echo -e "\nSkipping reinstall of brew cask \"virtualbox\" (known issues with non-root installs at time of coding)."
+  #     continue
+  #   elif [[ ${cask1} =~ gcloud ]] ; then
+  #     /usr/local/bin/brew cask reinstall ${cask1}
+  #     echo -e "\nUpgrading gcloud cask requires reinstall of kubectl client..."
+  #     sudo gcloud components install kubectl -q
+  #     continue
+  #   fi
+  #   /usr/local/bin/brew cask reinstall ${cask1}
+  # done
 
   # if [[ -e /usr/local/bin/apm ]] ; then
     # echo -e "\nUpdating atom editor plugins."

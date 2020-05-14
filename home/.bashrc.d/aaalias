@@ -109,53 +109,6 @@ function bashcurl {
   exec 5>&-
 }
 
-function _create_socks_proxy {
-  local host1=${1}
-  local port1=${2}
-  local test_url=${3:-"http://www.google.com"}
-  local ssh_proxy_options="-f -N -D"
-  local ssh_proxy_response_file="/var/tmp/ssh_proxy_response.txt"
-  # clear contents of response file
-  > ${ssh_proxy_response_file}
-  local response
-
-  # note: lsof still returns a row when port open but dead: lsof -nP -i4TCP:${port1} | grep -q LISTEN
-  # --socks5-hostname
-  response=$(curl \
-    --connect-timeout 2 \
-    --silent \
-    --output /dev/null \
-    --write-out "%{http_code}" \
-    --head \
-    --socks5 localhost:${port1} \
-    ${test_url})
-  if [[ ${response} -ne 200 ]] ; then
-    # first kill any old sessions
-    pgrep -f "ssh ${ssh_proxy_options} ${port1} ${host1}"
-    pkill -f "ssh ${ssh_proxy_options} ${port1} ${host1}"
-
-    echo "Establishing ssh tunnel with ${host1}:${port1}..."
-    if ! $(port ${host1}:22 &> /dev/null); then
-      echo "ERROR: Skipping ${FUNCNAME[0]}; unable to connect to \"${host1}:22\"."
-      return 1
-    fi
-    if [[ ${host1} == "home.${CUSTOM_HOME_DOMAIN}" ]]; then
-      # sleep 2 # reduce collisions between clear_clip and subsequent copies
-      lpass show --password --clip "proxy.${CUSTOM_NAS_HOST#*\.}"
-    fi
-    # ssh options moved to ~/.ssh/config
-    #  -o TCPKeepAlive=yes -o ConnectTimeout=1 -o ConnectionAttempts=1 \
-    #  -o ServerAliveInterval=120 -o ServerAliveCountMax=2 \
-    /usr/bin/ssh ${ssh_proxy_options} ${port1} "${host1}" 2> ${ssh_proxy_response_file}
-  fi
-  if [[ -s ${ssh_proxy_response_file} ]]; then
-    echo "Unable to establish ssh connection to ${host1}."
-    echo "  curl response: \"${response}\""
-    echo -e "  ssh proxy response:\n$(cat ${ssh_proxy_response_file})"
-    return 1
-  fi
-}
-
 function acp {
   cp -av ${1} ${1}.$(date --rfc-3339=date)
 }
@@ -246,9 +199,16 @@ if [[ "${IS_OSX}" == "true" ]]; then
   }
 
   function lpass {
+    # # if the first variable is an integer, then clear clipboard
+    # local clear_clip_delay
+    # if [[ ${1} =~ ^-?[0-9]+$ ]] ; then
+    #   clear_clip_delay=${1}
+    # fi
     $(which lpass) "${@}"
-    # TODO: only clear the clipboard when run directly, not through sourcing dotfiles
-    clear_clip 4
+
+    # if [[ ${clear_clip_delay} -gt 0 ]]; then
+    #   clear_clip ${1}
+    # fi
   }
 
   function otp {

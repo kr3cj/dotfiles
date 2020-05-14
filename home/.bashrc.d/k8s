@@ -15,6 +15,8 @@ ${IS_OSX} || return
 # alias k=kubectl
 # source <(kubectl completion bash | sed 's/kubectl/k/g' )
 
+source ~/.private-utils.sh
+
 function kubectl() {
   case ${@} in
     *get?componentstatus|*get?all)
@@ -28,30 +30,20 @@ function kubectl() {
   esac
 }
 function eks() {
-  # usage: "eks bar get po -n operations | grep datadog"
   local cluster=${1}
   if ! [[ -r ~/.kube/${cluster} ]]; then
     echo "No kubeconfig found for \"${cluster}\"!"
     return 1
   fi
   shift
-  local action="${@}" # ex: "get pod"
+  local action="${@}"
 
-  local my_aws_profile="" # dynamically determine
-  case ${cluster} in
-    bar|*prod*) my_aws_profile="bar" ;;
-    bar|c[0-9][0-9]|*stag*) my_aws_profile="bar" ;;
-    bar) my_aws_profile="bar" ;;
-    test1|bar) my_aws_profile="bar" ;;
-    bar) my_aws_profile="bar" ;;
-    *)  ;;
-  esac
+  local my_aws_profile="$(map-cluster-to-profile ${cluster})"
   # verify that eks clusters mapped to a my_aws_profile
   if [[ ! ${cluster} =~ k8s ]] && [[ "${my_aws_profile}" == "" ]]; then
     return 1
   fi
-  if [[ ${cluster} =~ k8s ]] && \
-   ! $(ping -c1 -W1 -i0.1 tools.${CUSTOM_WORK_DOMAINS[0]} &> /dev/null); then
+  if ! $(on_vpn); then
     read -t 2 -s -p "You must connect to work VPN, press Enter..." && work_vpn
     echo
   fi
@@ -67,7 +59,6 @@ function eks() {
 }
 
 function helms() {
-  # usage: "helms bar ls | grep gift-card-service"
   local cluster=${1}
   if ! [[ -r ~/.kube/${cluster} ]]; then
     echo "No kubeconfig found for \"${cluster}\"!"
@@ -76,21 +67,13 @@ function helms() {
   shift
   local action=${@} # ex: "get pod"
 
-  local my_aws_profile="" # dynamically determine
-  case ${cluster} in
-    bar|*prod*) my_aws_profile="bar" ;;
-    bar|c[0-9][0-9]|*stag*) my_aws_profile="bar" ;;
-    bar) my_aws_profile="bar" ;;
-    test1|bar) my_aws_profile="bar" ;;
-    bar) my_aws_profile="bar" ;;
-    *)  ;;
-  esac
+  local my_aws_profile="$(map-cluster-to-profile)" # dynamically determine
+
   # verify that eks clusters mapped to an my_aws_profile
   if [[ ! ${cluster} =~ k8s ]] && [[ "${my_aws_profile}" == "" ]]; then
     return 1
   fi
-  if [[ ${cluster} =~ k8s ]] && \
-   ! $(ping -c1 -W1 -i0.1 tools.${CUSTOM_WORK_DOMAINS[0]} &> /dev/null); then
+  if ! $(on_vpn); then
     read -t 2 -s -p "You must connect to work VPN, press Enter..." && work_vpn
     echo
   fi
@@ -99,7 +82,7 @@ function helms() {
 
   # old kops clusters dont need saml2aws wrapper
   # local wrapper="saml2aws exec --exec-profile=${my_aws_profile} --"
-  local helm_path="/Users/coreybar/.asdf/shims/helm"
+  local helm_path="/Users/${LOGNAME}/.asdf/shims/helm"
   if [[ ${cluster} =~ "k8s-" ]]; then
     wrapper=""
     # k8s-staging is 2.11
