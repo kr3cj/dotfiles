@@ -1,4 +1,6 @@
-#!/usr/bin/env bash
+#!/usr/bin/env bash +x
+LOG2=/var/tmp/workstation_setup_$(date +%Y-%m-%d).log
+(
 # the purpose of this script is to house all initial workstation customizations in linux or osx
 
 if [[ ${TRAVIS_CI_RUN} != true ]]; then
@@ -116,7 +118,7 @@ if ${IS_OSX} && ! hash mas 2>/dev/null ; then
   echo "install extra tools that I like"
   brew install \
     ack aria2 mas mtr nmap tmux reattach-to-user-namespace \
-    maven python3 ansible node rbenv ruby ruby-build \
+    maven python3 ansible octant node rbenv ruby ruby-build \
     awscli hub packer hey siege tfenv travis vault
     # openshift-cli fleetctl; aria2=torrent_client(aria2c); android-platform-tools; android-file-transfer
     # load testing clients: hey siege artillery gauntlet
@@ -162,6 +164,16 @@ if ${IS_OSX} && ! hash mas 2>/dev/null ; then
   tmux source ~/.tmux.conf
   ~/.tmux/plugins/tpm/bin/install_plugins
 
+  # clone other github repos
+  cd ~/build/github
+  for repo1 in \
+   cleanbrowsing/dnsperftest \
+   DataDog/Miscellany \
+   helm/charts \
+   ; do
+    git clone ssh://git@github.com/${repo1}.git
+  done
+
   # liquidprompt customizations deferred until merges are made for:
   #  bschwedler:feature/kubernetes-context and pull/476
   # brew install [--HEAD] liquidprompt
@@ -203,12 +215,6 @@ if ${IS_OSX} && ! hash mas 2>/dev/null ; then
     balenaetcher \
     visual-studio-code
     # private-internet-access; etcher is a usb flash utility
-
-  # dark mode in slack
-  # sed -i.bak '/darkmode BEGIN/,/darkmode END/d' \
-  #   /Applications/Slack.app/Contents/Resources/app.asar.unpacked/src/static/ssb-interop.js \
-  #   && echo -e '//darkmode BEGIN\ndocument.addEventListener("DOMContentLoaded", function() {\n $.ajax({\n   url: "https://cdn.jsdelivr.net/gh/laCour/slack-night-mode/css/raw/black.css",\n   success: function(css) {\n     let overrides = `\n     code, pre { background-color: #535353; color: #ffffff; }\n     .c-mrkdwn__pre, .c-mrkdwn__quote, pre { background: #535353 !important; background-color: #535353 !important; }\n     #client_body:not(.onboarding):not(.feature_global_nav_layout):before {display: none;}\n     `\n     $("<style></style>").appendTo("head").html(css + overrides);\n   }\n })});\n//darkmode END' \
-  #   >> /Applications/Slack.app/Contents/Resources/app.asar.unpacked/src/static/ssb-interop.js
 
   # brew cask install intellij-idea goland
   # input license for intellij, then goland should detect it, then remove intellij?
@@ -306,7 +312,7 @@ EOF
   brew install asdf
 
   # install asdf tools
-  for asdf_plugin in eksctl golang helm helmfile kubectl minikube terraform; do
+  for asdf_plugin in eksctl golang helm helmfile kubectl minikube saml2aws sopstool terraform; do
     asdf plugin-add ${asdf_plugin}
   done
   asdf install
@@ -451,3 +457,6 @@ fi
 if ! $(crontab -l | grep -q workstation_update) ; then
   (crontab -l 2>/dev/null; echo "0 10 * * 5 ~/.workstation_update.sh") | crontab -
 fi
+
+# close out logging
+) 2>&1 | tee -a ${LOG2}

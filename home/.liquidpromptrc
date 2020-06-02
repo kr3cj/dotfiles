@@ -136,7 +136,7 @@ LP_ENABLE_SCLS=0
 
 # Display the kubernetes context and namespace, if any
 # Recommened value is 1
-LP_ENABLE_KUBERNETES=1
+LP_ENABLE_KUBERNETES=0
 LP_ENABLE_AWSVAULT=0
 LP_ENABLE_SAML2AWS=1
 

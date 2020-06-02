@@ -43,10 +43,10 @@ function eks() {
   if [[ ! ${cluster} =~ k8s ]] && [[ "${my_aws_profile}" == "" ]]; then
     return 1
   fi
-  if ! $(on_vpn); then
-    read -t 2 -s -p "You must connect to work VPN, press Enter..." && work_vpn
-    echo
-  fi
+  # if ! $(on_vpn); then
+  #   work_vpn
+  #   echo
+  # fi
 
   local kube_config="--kubeconfig ${HOME}/.kube/${cluster}"
   # some kubectl plugin commands won't work with "--kubeconfig"
@@ -67,14 +67,15 @@ function helms() {
   shift
   local action=${@} # ex: "get pod"
 
-  local my_aws_profile="$(map-cluster-to-profile)" # dynamically determine
+  local my_aws_profile="$(map-cluster-to-profile ${cluster})" # dynamically determine
 
   # verify that eks clusters mapped to an my_aws_profile
   if [[ ! ${cluster} =~ k8s ]] && [[ "${my_aws_profile}" == "" ]]; then
+    echo "Could not map the cluster name to an aws profile."
     return 1
   fi
   if ! $(on_vpn); then
-    read -t 2 -s -p "You must connect to work VPN, press Enter..." && work_vpn
+    work_vpn
     echo
   fi
 

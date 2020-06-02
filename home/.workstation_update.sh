@@ -67,19 +67,21 @@ if [[ $(uname) == "Darwin" ]] ; then
   /usr/local/bin/brew update
   /usr/local/bin/brew upgrade
   echo -e "\nUpdating brew casks..."
-  /usr/local/bin/brew cask upgrade
+  # dont rely on "brew cask outdated", "brew cask upgrade" as they miss stuff. Loop over each and upgrade.
+  # /usr/local/bin/brew cask upgrade
   # for cask1 in $(/usr/local/bin/brew cask outdated | awk '{print $1}') ; do
+  for cask1 in $(/usr/local/bin/brew cask list) ; do
   #   if [[ ${cask1} =~ virtualbox ]] ; then
   #     echo -e "\nSkipping reinstall of brew cask \"virtualbox\" (known issues with non-root installs at time of coding)."
   #     continue
   #   elif [[ ${cask1} =~ gcloud ]] ; then
-  #     /usr/local/bin/brew cask reinstall ${cask1}
+      /usr/local/bin/brew cask upgrade ${cask1}
   #     echo -e "\nUpgrading gcloud cask requires reinstall of kubectl client..."
   #     sudo gcloud components install kubectl -q
   #     continue
   #   fi
   #   /usr/local/bin/brew cask reinstall ${cask1}
-  # done
+  done
 
   # if [[ -e /usr/local/bin/apm ]] ; then
     # echo -e "\nUpdating atom editor plugins."
@@ -132,7 +134,7 @@ if [[ $(uname) == "Darwin" ]] ; then
     # /usr/bin/sudo rm -vr ~/Library/Caches/*
 
     # ensure credential files for development are locked down
-    for item1 in ~/.ivy2 ~/.docker ~/.ant ~/.m2 ~/.pgpass ~/.vnc/passwd ~/.jspm/config ~/.code/settings.json; do
+    for item1 in ~/.ivy2 ~/.docker ~/.ant ~/.m2 ~/.pgpass ~/.vnc/passwd ~/.jspm/config; do
       [[ -f ${item1} ]] && chmod -v 600 ${item1}
       [[ -d ${item1} ]] && find ${item1} -type d -exec chmod -v 700 '{}' \;
     done

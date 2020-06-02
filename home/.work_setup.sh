@@ -1,22 +1,24 @@
-#!/usr/bin/env bash
+#!/usr/bin/env bash +x
+LOG3=/var/tmp/work_setup_$(date +%Y-%m-%d).log
+(
 # for work specific installations and configuration
 # assumes you have already run ~/.workstation_setup.sh
 
 # custom dns per domain
-[[ -d /etc/resolver ]] || sudo mkdir -pv /etc/resolver
-for domain in amazonaws.com ec2.internal i.${CUSTOM_WORK_DOMAINS[0]} ${CUSTOM_WORK_DOMAINS}; do
-  [[ -f /etc/resolver/${domain} ]] || \
-    echo "nameserver ${CUSTOM_WORK_VPN_SERVER}" | sudo tee -a /etc/resolver/${domain}
-done
+# [[ -d /etc/resolver ]] || sudo mkdir -pv /etc/resolver
+# for domain in amazonaws.com ec2.internal i.${CUSTOM_WORK_DOMAINS[0]} ${CUSTOM_WORK_DOMAINS}; do
+#   [[ -f /etc/resolver/${domain} ]] || \
+#     echo "nameserver ${CUSTOM_WORK_VPN_SERVER}" | sudo tee -a /etc/resolver/${domain}
+# done
 
 # ecr login
 aws ecr get-login --no-include-email | bash
 
 # brew cask install aws-vault goland intellij-idea intellij-idea-ce java8 vagrant
 brew tap versent/homebrew-taps
-brew install saml2aws
+# install saml2aws via asdf
 
-brew install go-jira
+# brew install go-jira
 # get jira api token from https://id.atlassian.com/manage/api-tokens
 
 echo "configure node"
@@ -27,7 +29,7 @@ npm install --global pajv
 # npm install --global @${CUSTOM_WORK_DOMAINS[0]/.com/}/generator-saml2aws
 npm install --global @${CUSTOM_WORK_DOMAINS[0]/.com/}/generator-master-generator
 npm install --global @${CUSTOM_WORK_DOMAINS[0]/.com/}/generator-infra-pipeline
-brew install ${CUSTOM_WORK_DOMAINS[0]/.com/}/public/sopstool
+# brew install ${CUSTOM_WORK_DOMAINS[0]/.com/}/public/sopstool # moved to asdf
 echo "Add the saml2aws keychain into keychain access and change timeout from 5m to 60m"
 # brew cask install caskroom/cask/intellij-idea-ce
 
@@ -55,15 +57,22 @@ gem install travis --no-rdoc
 # echo "Regretfully configure chef client and virtualbox"
 # brew cask install chef/chef/chefdk virtualbox
 
-echo "configure travis"
-# from a work github repo
-travis login --pro
-travis enable
-
 echo "Install Cisco AnyConnect Secure Mobility Client (VPN)"
-echo " from https://vpn.bar.com/"
-echo "press any key when finished..."
-pause
+echo " from https://vpn.${CUSTOM_WORK_DOMAINS[0]}/"
+if [[ ${TRAVIS_CI_RUN} != true ]]; then
+  echo "press any key when finished..."
+  pause
+fi
+
+# clone other github repos
+cd ~/build/github
+for repo1 in \
+ ${CUSTOM_WORK_DOMAINS[0]/.com/}/alternate-domain-names \
+ ${CUSTOM_WORK_DOMAINS[0]/.com/}/autobahn \
+ ${CUSTOM_WORK_DOMAINS[0]/.com/}/ibex \
+ ; do
+  git clone ssh://git@github.com/${repo1}.git
+done
 
 echo "configure extra kubernetes/helm tools"
 (
@@ -73,12 +82,19 @@ else
   cd ~/build/github
   git clone git@github.com:${CUSTOM_WORK_DOMAINS[0]/.com/}/ibex.git
   cd ibex
+  asdf install
+
+  echo "configure travis"
+  # from a work github repo
+  travis login --pro
+  travis enable
 fi
-asdf install
-brew install octant
 # helm unittest <chart_name>
-go get -u github.com/kcmerrill/alfred
+# go get -u github.com/kcmerrill/alfred
 )
 
 # cli
 echo "Setup cli https://github.com/${CUSTOM_WORK_DOMAINS[0]/.com/}/${CUSTOM_WORK_DOMAINS[0]/.com/}_cli"
+
+# close out logging
+) 2>&1 | tee -a ${LOG3}
