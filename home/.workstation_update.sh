@@ -76,12 +76,15 @@ if [[ $(uname) == "Darwin" ]] ; then
   #     continue
   #   elif [[ ${cask1} =~ gcloud ]] ; then
       /usr/local/bin/brew cask upgrade ${cask1}
+      # TODO: open each new cask to get past the "downloaded from internet" warning
+      # openit "${cask1}"
   #     echo -e "\nUpgrading gcloud cask requires reinstall of kubectl client..."
   #     sudo gcloud components install kubectl -q
   #     continue
   #   fi
   #   /usr/local/bin/brew cask reinstall ${cask1}
   done
+
 
   # if [[ -e /usr/local/bin/apm ]] ; then
     # echo -e "\nUpdating atom editor plugins."

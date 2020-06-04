@@ -3,14 +3,6 @@
 source "${HOME}/.homesick/repos/homeshick/homeshick.sh"
 # source "${HOME}/.homesick/repos/homeshick/completions/homeshick-completion.bash"
 
-# TODO: remove after awhile; check if dotfiles_private is using correct url
-if grep -q 'url = https.*\|url = ssh.*' ~/.homesick/repos/dotfiles_private/.git/config ; then
-  echo "Updating dotfiles_private to use correct url"
-  homeshick cd dotfiles_private
-  git remote set-url origin git@github.com:kr3cj/dotfiles_private.git
-  cd -
-fi
-
 ${HEALTHY_INTERNET} && homeshick --quiet refresh 7
 
 # expensive: ${IS_OSX} && homeshick link dotfiles dotfiles_private

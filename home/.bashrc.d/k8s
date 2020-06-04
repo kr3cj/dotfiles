@@ -74,10 +74,10 @@ function helms() {
     echo "Could not map the cluster name to an aws profile."
     return 1
   fi
-  if ! $(on_vpn); then
-    work_vpn
-    echo
-  fi
+  # if ! $(on_vpn); then
+  #   work_vpn
+  #   echo
+  # fi
 
   local kube_config="--kubeconfig ${HOME}/.kube/${cluster}"
 

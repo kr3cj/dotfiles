@@ -167,7 +167,9 @@ if ${IS_OSX} && ! hash mas 2>/dev/null ; then
   # clone other github repos
   cd ~/build/github
   for repo1 in \
+   helm/charts \
    cleanbrowsing/dnsperftest \
+   DataDog/datadog-serverless-functions \
    DataDog/Miscellany \
    helm/charts \
    ; do
@@ -203,9 +205,9 @@ if ${IS_OSX} && ! hash mas 2>/dev/null ; then
   # xcode install moved to .boostrap.sh
 
   # puppet testing shtuff
-  if [[ ${TRAVIS_CI_RUN} != true ]]; then
-    sudo gem install bundler
-  fi
+  # if [[ ${TRAVIS_CI_RUN} != true ]]; then
+  #   sudo gem install bundler
+  # fi
 
   # install main apps into Applications
   HOMEBREW_CASK_OPTS="--appdir=/Applications"
@@ -321,10 +323,11 @@ EOF
   # kubectl plugins: krew
   (
     set -x; cd "$(mktemp -d)" &&
-    curl -fsSLO "https://storage.googleapis.com/krew/v0.2.1/krew.{tar.gz,yaml}" &&
+    curl -fsSLO "https://github.com/kubernetes-sigs/krew/releases/latest/download/krew.{tar.gz,yaml}" &&
     tar zxvf krew.tar.gz &&
-    ./krew-"$(uname | tr '[:upper:]' '[:lower:]')_amd64" install \
-      --manifest=krew.yaml --archive=krew.tar.gz
+    KREW=./krew-"$(uname | tr '[:upper:]' '[:lower:]')_amd64" &&
+    "$KREW" install --manifest=krew.yaml --archive=krew.tar.gz &&
+    "$KREW" update
   )
   for krew_plugin in node-admin outdated ; do
     kubectl krew install ${krew_plugin}
@@ -432,6 +435,8 @@ if ${IS_LINUX} && ! hash packer 2>/dev/null ; then
       /usr/local/bin/docker-compose
     chmod +x /usr/local/bin/docker-compose
     docker-compose --version
+
+    [[ -x ~/.work_setup.sh ]] && ~/.work_setup.sh
 
   elif ${is_rhel} ; then
     echo "Configuring RHEL. This will take a few minutes."
