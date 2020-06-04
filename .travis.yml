@@ -34,4 +34,4 @@ notifications:
   # slack: https://docs.travis-ci.com/user/notifications/#Configuring-Slack-notifications
     # secure: a;lsdkjf;lasdkfj
 
-# sudo: required
+sudo: required
