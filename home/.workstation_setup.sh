@@ -129,6 +129,9 @@ if ${IS_OSX} && ! hash mas 2>/dev/null ; then
   lpass status > /dev/null || \
     DISPLAY=${DISPLAY:-:0} lpass login --trust lastpass@${CUSTOM_HOME_DOMAIN}
 
+  # create folder for repos before checking out private repo
+  [[ -d ~/build ]] || mkdir ~/build
+
   # now we can install any private repos with private ssh key
   if [[ ${TRAVIS_CI_RUN} != true ]]; then
     # load personal ssh key if necessary
@@ -360,7 +363,6 @@ EOF
 
   if [[ ${TRAVIS_CI_RUN} != true ]]; then
     # Run python code to checkout all repositories
-    [[ -d ~/build ]] || mkdir ~/build
     cd ~/build
     # git clone asottile/all-repos
     # cd all-repos
