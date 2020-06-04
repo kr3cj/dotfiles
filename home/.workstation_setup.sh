@@ -27,8 +27,8 @@ if [[ ${TRAVIS_CI_RUN} != true ]]; then
   fi
 fi
 
+echo "Need sudo password to setup passwdless sudo"
 if ! sudo grep -q $(whoami) /etc/sudoers && [[ ${TRAVIS_CI_RUN} != true ]]; then
-  echo "Need sudo password to setup passwdless sudo"
   sudo bash -c "echo \"$(whoami) ALL=(ALL) NOPASSWD: ALL\" >> /etc/sudoers"
 fi
 
@@ -59,7 +59,7 @@ if ${IS_OSX} && ! hash mas 2>/dev/null ; then
   brew install gzip
   brew install screen
   brew install watch
-  brew install wdiff --with-gettext
+  brew install wdiff
   brew install wget
   brew install gnupg
   brew install gnupg2
@@ -69,7 +69,7 @@ if ${IS_OSX} && ! hash mas 2>/dev/null ; then
   # prepend new shell to /etc/shells
   if [[ ${TRAVIS_CI_RUN} != true ]]; then
     # remove once osx images allow passwdless sudo
-    sudo sed -i.bak '/^\/bin\/bash$/\/usr\/local\/bin\/bash/' /etc/shells
+    sudo /usr/local/opt/gnu-sed/libexec/gnubin/sed -i.bak "s#/bin/bash#/usr/local/bin/bash\n/bin/bash#/g" /etc/shells
     chsh -s /usr/local/bin/bash
     sudo chsh -s /usr/local/bin/bash
     bash
@@ -92,7 +92,7 @@ if ${IS_OSX} && ! hash mas 2>/dev/null ; then
   brew install rsync
   brew install svn
   brew install unzip
-  brew install vim --override-system-vi
+  brew install vim
   brew install tcpdump
   # brew install macvim --with-override-system-vim --custom-system-icons
   # brew link --overwrite macvim
@@ -108,8 +108,8 @@ if ${IS_OSX} && ! hash mas 2>/dev/null ; then
   echo "override python binaries"
   alias python="python3"
   alias pip="pip3"
-  pip3 install --upgrade distribute
-  pip3 install --upgrade pip
+  pip install --upgrade distribute
+  pip install --upgrade pip
   pip install pylint virtualenv yq==2.2.0
 
   echo "install some extra utility packages for me"

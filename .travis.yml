@@ -12,7 +12,7 @@ matrix:
       sudo: required
       # services: docker
     - os: osx
-      osx_image: xcode9.3
+      osx_image: xcode11.5
       # currently not working with travis :(
       # sudo: required
 

@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 # the purpose of this script is to install my homeshick dotfiles from github
 
+echo "Need sudo password to setup passwdless sudo"
+if ! sudo grep -q $(whoami) /etc/sudoers && [[ ${TRAVIS_CI_RUN} != true ]]; then
+  sudo bash -c "echo \"$(whoami) ALL=(ALL) NOPASSWD: ALL\" >> /etc/sudoers"
+fi
+
 # install git
 if [[ $(uname) == "Darwin" ]] ; then
   # TODO: use app store instead?

@@ -219,8 +219,7 @@ if [[ "${IS_OSX}" == "true" ]]; then
     # us-east-2 is non-default at current work, so hostnames include that, so filter it
     local host1=\"\${@/us-east-2.compute/ec2}\"
     case \"\${host1}\" in
-      ${CUSTOM_WORK_SUBNET}.*|\
-$(echo ${CUSTOM_WORK_DOMAINS[@]/#/*.}|tr ' ' '|'))
+      ${CUSTOM_WORK_SUBNET}.*|$(echo ${CUSTOM_WORK_DOMAINS[@]/#/*.}|tr ' ' '|'))
         lpass show --password --clip \"${CUSTOM_WORK_DOMAINS[0]/.com/} ${CUSTOM_WORK_SSO_PROVIDER}\";;
       home.${CUSTOM_HOME_DOMAIN})
         lpass show --password --clip \"proxy.${CUSTOM_NAS_HOST#*\.}\" ;;
