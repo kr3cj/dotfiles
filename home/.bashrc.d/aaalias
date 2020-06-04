@@ -215,32 +215,35 @@ if [[ "${IS_OSX}" == "true" ]]; then
     otp-cli show -1 -c -s ${CUSTOM_WORK_SSO_PROVIDER} | awk '/[0-9].*/{print $2}'
   }
 
-  eval "function ssh {
-    # us-east-2 is non-default at current work, so hostnames include that, so filter it
-    local host1=\"\${@/us-east-2.compute/ec2}\"
-    case \"\${host1}\" in
-      ${CUSTOM_WORK_SUBNET}.*|$(echo ${CUSTOM_WORK_DOMAINS[@]/#/*.}|tr ' ' '|'))
-        lpass show --password --clip \"${CUSTOM_WORK_DOMAINS[0]/.com/} ${CUSTOM_WORK_SSO_PROVIDER}\";;
-      home.${CUSTOM_HOME_DOMAIN})
-        lpass show --password --clip \"proxy.${CUSTOM_NAS_HOST#*\.}\" ;;
-      nas|nas.${CUSTOM_NAS_HOST#*\.})
-        lpass show --password --clip \"nas.${CUSTOM_NAS_HOST#*\.}\" ;;
-      web|web.${CUSTOM_NAS_HOST#*\.})
-        lpass show --password --clip \"web.${CUSTOM_NAS_HOST#*\.}\" ;;
-      ship|ship.${CUSTOM_NAS_HOST#*\.})
-        lpass show --password --clip \"ship.${CUSTOM_NAS_HOST#*\.}\" ;;
-      plex|plex.${CUSTOM_NAS_HOST#*\.})
-        lpass show --password --clip \"plex.${CUSTOM_NAS_HOST#*\.}\" ;;
-      proxy|proxy.${CUSTOM_NAS_HOST#*\.})
-        lpass show --password --clip \"proxy.${CUSTOM_NAS_HOST#*\.}\" ;;
-      babycam|babycam.${CUSTOM_NAS_HOST#*\.})
-        lpass show --password --clip \"babycam.${CUSTOM_NAS_HOST#*\.}\" ;;
-      macbuild*)
-        lpass show --password --clip AD ;;
-    esac
-    # using homebrew ssh $(which ssh) results in 'Bad configuration option: usekeychain'
-    /usr/bin/ssh \${host1}
-  }"
+  if [[ ${TRAVIS_CI_RUN} != true ]]; then
+  # travis build barf on the matching syntax
+    eval "function ssh {
+      # us-east-2 is non-default at current work, so hostnames include that, so filter it
+      local host1=\"\${@/us-east-2.compute/ec2}\"
+      case \"\${host1}\" in
+        ${CUSTOM_WORK_SUBNET}.*|$(echo ${CUSTOM_WORK_DOMAINS[@]/#/*.}|tr ' ' '|'))
+          lpass show --password --clip \"${CUSTOM_WORK_DOMAINS[0]/.com/} ${CUSTOM_WORK_SSO_PROVIDER}\";;
+        home.${CUSTOM_HOME_DOMAIN})
+          lpass show --password --clip \"proxy.${CUSTOM_NAS_HOST#*\.}\" ;;
+        nas|nas.${CUSTOM_NAS_HOST#*\.})
+          lpass show --password --clip \"nas.${CUSTOM_NAS_HOST#*\.}\" ;;
+        web|web.${CUSTOM_NAS_HOST#*\.})
+          lpass show --password --clip \"web.${CUSTOM_NAS_HOST#*\.}\" ;;
+        ship|ship.${CUSTOM_NAS_HOST#*\.})
+          lpass show --password --clip \"ship.${CUSTOM_NAS_HOST#*\.}\" ;;
+        plex|plex.${CUSTOM_NAS_HOST#*\.})
+          lpass show --password --clip \"plex.${CUSTOM_NAS_HOST#*\.}\" ;;
+        proxy|proxy.${CUSTOM_NAS_HOST#*\.})
+          lpass show --password --clip \"proxy.${CUSTOM_NAS_HOST#*\.}\" ;;
+        babycam|babycam.${CUSTOM_NAS_HOST#*\.})
+          lpass show --password --clip \"babycam.${CUSTOM_NAS_HOST#*\.}\" ;;
+        macbuild*)
+          lpass show --password --clip AD ;;
+      esac
+      # using homebrew ssh $(which ssh) results in 'Bad configuration option: usekeychain'
+      /usr/bin/ssh \${host1}
+    }"
+  fi
 
   function openit {
     # quickly opens macos programs in the background if not already running

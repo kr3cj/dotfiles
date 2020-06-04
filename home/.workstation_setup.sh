@@ -124,7 +124,11 @@ if ${IS_OSX} && ! hash mas 2>/dev/null ; then
     # load testing clients: hey siege artillery gauntlet
 
   echo "install lastpass client"
-  read -p "Enter custom home domain" CUSTOM_HOME_DOMAIN
+  if [[ ${TRAVIS_CI_RUN} != true ]]; then
+    read -p "Enter custom home domain" CUSTOM_HOME_DOMAIN
+  else
+    CUSTOM_HOME_DOMAIN=acme.com
+  fi
   brew install lastpass-cli
   lpass status > /dev/null || \
     DISPLAY=${DISPLAY:-:0} lpass login --trust lastpass@${CUSTOM_HOME_DOMAIN}
