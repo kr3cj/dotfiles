@@ -134,7 +134,7 @@ if ${IS_OSX} && ! hash mas 2>/dev/null ; then
     DISPLAY=${DISPLAY:-:0} lpass login --trust lastpass@${CUSTOM_HOME_DOMAIN}
 
   # create folder for repos before checking out private repo
-  [[ -d ~/build ]] || mkdir ~/build
+  [[ -d ~/build/github ]] || mkdir -pv ~/build/github
 
   # now we can install any private repos with private ssh key
   if [[ ${TRAVIS_CI_RUN} != true ]]; then
@@ -168,6 +168,7 @@ if ${IS_OSX} && ! hash mas 2>/dev/null ; then
 
   # tmux plugins
   git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
+  # FIX: error connecting to /tmp//tmux-501/default (No such file or directory)
   tmux source ~/.tmux.conf
   ~/.tmux/plugins/tpm/bin/install_plugins
 
@@ -218,11 +219,10 @@ if ${IS_OSX} && ! hash mas 2>/dev/null ; then
 
   # install main apps into Applications
   HOMEBREW_CASK_OPTS="--appdir=/Applications"
+  # FIX: failed to download beyond-compare due to cert problem with curl
   brew cask install \
     alfred slack spotify gimp github google-backup-and-sync brave-browser iterm2 \
-    beyond-compare firefox keystore-explorer keybase \
-    balenaetcher \
-    visual-studio-code
+    firefox keystore-explorer keybase balenaetcher visual-studio-code beyond-compare
     # private-internet-access; etcher is a usb flash utility
 
   # brew cask install intellij-idea goland
@@ -466,6 +466,7 @@ fi
 
 # upgrade software Fridays at 10am
 if ! $(crontab -l | grep -q workstation_update) ; then
+  # FIX: crontab: tmp/tmp.55269: Operation not permitted
   (crontab -l 2>/dev/null; echo "0 10 * * 5 ~/.workstation_update.sh") | crontab -
 fi
 
