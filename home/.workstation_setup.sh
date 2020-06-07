@@ -69,11 +69,13 @@ if ${IS_OSX} && ! hash mas 2>/dev/null ; then
   # prepend new shell to /etc/shells
   if [[ ${TRAVIS_CI_RUN} != true ]]; then
     # remove once osx images allow passwdless sudo
-    sudo /usr/local/opt/gnu-sed/libexec/gnubin/sed -i.bak "s#/bin/bash#/usr/local/bin/bash\n/bin/bash#/g" /etc/shells
-    chsh -s /usr/local/bin/bash
+    sudo /usr/local/opt/gnu-sed/libexec/gnubin/sed -i.bak "s/\/bin\/bash/\/usr\/local\/bin\/bash\\n\/bin\/bash/g" /etc/shells
+    # chsh -s /usr/local/bin/bash
     sudo chsh -s /usr/local/bin/bash
     bash
   fi
+  echo "Verifying that SHELL now is bash..."
+  [[ $(echo ${SHELL} | grep -q "/usr/local/bin/bash") ]] || return 1
 
   # brew install emacs
   # brew install --cocoa --srgb emacs ##
@@ -108,9 +110,9 @@ if ${IS_OSX} && ! hash mas 2>/dev/null ; then
   echo "override python binaries"
   alias python="python3"
   alias pip="pip3"
-  pip install --upgrade distribute
-  pip install --upgrade pip
-  pip install pylint virtualenv yq==2.2.0
+  pip3 install --upgrade distribute
+  pip3 install --upgrade pip
+  pip3 install pylint virtualenv yq==2.2.0
 
   echo "install some extra utility packages for me"
   brew install dos2unix gnu-getopt jq jid pstree bash-completion certigo
@@ -130,8 +132,8 @@ if ${IS_OSX} && ! hash mas 2>/dev/null ; then
     CUSTOM_HOME_DOMAIN=acme.com
   fi
   brew install lastpass-cli
-  lpass status > /dev/null || \
-    DISPLAY=${DISPLAY:-:0} lpass login --trust lastpass@${CUSTOM_HOME_DOMAIN}
+  echo "Attempting to log into lastpass."
+  lpass login --trust lastpass@${CUSTOM_HOME_DOMAIN} || return 1
 
   # create folder for repos before checking out private repo
   [[ -d ~/build/github ]] || mkdir -pv ~/build/github
@@ -149,6 +151,7 @@ if ${IS_OSX} && ! hash mas 2>/dev/null ; then
     fi
     private_repos="git@github.com:kr3cj/dotfiles_private.git"
     for private_repo in ${private_repos}; do
+      source "${HOME}/.homesick/repos/homeshick/homeshick.sh"
       if homeshick list | grep -q ${private_repo}; then
         # must trim long git URIs to just repo name
         homeshick --batch pull $(echo ${private_repo/*\//} | sed -e "s/\.git$//")
@@ -181,7 +184,7 @@ if ${IS_OSX} && ! hash mas 2>/dev/null ; then
    DataDog/Miscellany \
    helm/charts \
    ; do
-    git clone ssh://git@github.com/${repo1}.git
+    git clone https://github.com/${repo1}.git
   done
 
   # liquidprompt customizations deferred until merges are made for:
@@ -195,13 +198,18 @@ if ${IS_OSX} && ! hash mas 2>/dev/null ; then
     echo "Prepare to sign into \"App Store.app\" manually..."
     lpass show --password --clip "Apple"
     # mas signin apple@${CUSTOM_HOME_DOMAIN} # disabled on macos 10.15.x+
-    openit "App Store.app"
+    open -a "App Store"
 
-    # mas install 405843582 # Alfred v1.2 :( ; moved to brew cask installs below
-    # mas install 497799835 # Xcode
-    mas install 595191960 # CopyClip
-    mas install 1295203466 # Microsoft Remote Desktop 10.x
-    mas install 441258766 # Magnet
+    # Alfred v1.2 :( ; moved to brew cask installs below
+    # mas install 405843582
+    # Xcode
+    # mas install 497799835
+    # CopyClip
+    mas install 595191960
+    # Microsoft Remote Desktop 10.x
+    mas install 1295203466
+    # Magnet
+    mas install 441258766
   fi
   # TODO: Create Dock shortcut to "/System/Library/CoreServices/Screen Sharing.app"
   # TODO: give magnet accessibility privileges in system prefs, sec and privacy, privacy tab
@@ -222,7 +230,7 @@ if ${IS_OSX} && ! hash mas 2>/dev/null ; then
   # FIX: failed to download beyond-compare due to cert problem with curl
   brew cask install \
     alfred slack spotify gimp github google-backup-and-sync brave-browser iterm2 \
-    firefox keystore-explorer keybase balenaetcher visual-studio-code beyond-compare
+    firefox keystore-explorer keybase balenaetcher visual-studio-code
     # private-internet-access; etcher is a usb flash utility
 
   # brew cask install intellij-idea goland
@@ -262,15 +270,15 @@ if ${IS_OSX} && ! hash mas 2>/dev/null ; then
     # brew tap homebrew/cask-versions
     # brew cask install java11
     # setup build system credentials; TODO: cash username/password?
-    docker login ${CUSTOM_WORK_JFROG_SUBDOMAIN}.jfrog.io
+    /usr/local/bin/docker login ${CUSTOM_WORK_JFROG_SUBDOMAIN}.jfrog.io
 
     ### general osx customizations ###
     # first, backup the current defaults
-    defaults read > ~/.osx_defaults_original_$(hostname)_$(date --rfc-3339=date).json
+    defaults read > ~/.osx_defaults_original_$(hostname)_$(/usr/local/opt/coreutils/libexec/gnubin/date --rfc-3339=date).json
     source "${HOME}/.homesick/repos/homeshick/homeshick.sh"
-    homeshick track dotfiles_private ~/.osx_defaults_original_$(hostname)_$(date --rfc-3339=date).json
-    # second, load customizations https://github.com/mathiasbynens/dotfiles/blob/master/.macos
-    bash ~/.osx_customizations.json
+    homeshick track dotfiles_private ~/.osx_defaults_original_$(hostname)_$(/usr/local/opt/coreutils/libexec/gnubin/date --rfc-3339=date).json
+    # FIX: second, load customizations https://github.com/mathiasbynens/dotfiles/blob/master/.macos
+    bash ~/.osx_current.json
   fi
 
   # install atom editor plugins
@@ -331,10 +339,10 @@ EOF
   (
     set -x; cd "$(mktemp -d)" &&
     curl -fsSLO "https://github.com/kubernetes-sigs/krew/releases/latest/download/krew.{tar.gz,yaml}" &&
-    tar zxvf krew.tar.gz &&
-    KREW=./krew-"$(uname | tr '[:upper:]' '[:lower:]')_amd64" &&
-    "$KREW" install --manifest=krew.yaml --archive=krew.tar.gz &&
-    "$KREW" update
+    tar zxvf krew.tar.gz
+    KREW=./krew-"$(uname | tr '[:upper:]' '[:lower:]')_amd64"
+    ${KREW} install --manifest=krew.yaml --archive=krew.tar.gz
+    ${KREW} update
   )
   for krew_plugin in node-admin outdated ; do
     kubectl krew install ${krew_plugin}
