@@ -278,7 +278,7 @@ if ${IS_MACOS} && ! hash mas 2>/dev/null ; then
     source "${HOME}/.homesick/repos/homeshick/homeshick.sh"
     homeshick track dotfiles_private ~/.macos_defaults_original_$(hostname)_$(/usr/local/opt/coreutils/libexec/gnubin/date --rfc-3339=date).json
     # FIX: second, load customizations https://github.com/mathiasbynens/dotfiles/blob/master/.macos
-    bash ~/.macos_current.json
+    ~/.macos_customizations.json
   fi
 
   # install atom editor plugins
@@ -477,6 +477,8 @@ if ! $(crontab -l | grep -q workstation_update) ; then
   # FIX: crontab: tmp/tmp.55269: Operation not permitted
   (crontab -l 2>/dev/null; echo "0 10 * * 5 ~/.workstation_update.sh") | crontab -
 fi
+
+${IS_MACOS} && /usr/sbin/softwareupdate --restart
 
 # close out logging
 ) 2>&1 | tee -a ${LOG2}
