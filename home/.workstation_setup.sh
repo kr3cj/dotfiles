@@ -70,8 +70,6 @@ if ${IS_MACOS} && ! hash mas 2>/dev/null ; then
     chsh -s /usr/local/bin/bash
     bash
   fi
-  echo "Verifying that SHELL now is bash..."
-  $(echo ${SHELL} | grep -q 'bash') || exit 1
 
   # brew install emacs
   # brew install --cocoa --srgb emacs ##
@@ -116,6 +114,9 @@ if ${IS_MACOS} && ! hash mas 2>/dev/null ; then
     awscli hub packer hey siege tfenv travis vault
     # openshift-cli fleetctl; aria2=torrent_client(aria2c); android-platform-tools; android-file-transfer
     # load testing clients: hey siege artillery gauntlet
+
+  echo "Verifying that SHELL is bash..."
+  $(echo ${SHELL} | grep -q 'bash') || exit 1
 
   echo "install lastpass client"
   brew install lastpass-cli
