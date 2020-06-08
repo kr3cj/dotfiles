@@ -6,9 +6,9 @@ LOG=/var/tmp/workstation_update_$(date +%Y-%m-%d).log
 
 if [[ ${TRAVIS_CI_RUN} != true ]]; then
   echo -e "Backup current osx configs..."
-  defaults read > ~/.homesick/repos/dotfiles_private/.osx_current.json
-  # [[ -l ~/.osx_current.json ]] ||   \
-  #  ln -s ~/.homesick/repos/dotfiles_private/.osx_current.json ~/.osx_current.json
+  defaults read > ~/.homesick/repos/dotfiles_private/home/.macos_current.json
+  # [[ -l ~/.macos_current.json ]] ||   \
+  #  ln -s ~/.homesick/repos/dotfiles_private/home/.macos_current.json ~/.macos_current.json
 fi
 
 # 3rd party package management
@@ -156,7 +156,7 @@ if [[ $(uname) == "Darwin" ]] ; then
   $(brew --prefix findutils)/libexec/gnubin/find ${HOME} -mindepth 1 -maxdepth 2 -type f \
     -name ".[^.]*" -not \( -name ".DS_Store" -or -name ".localized" \
     -or -name "*_history" -or -name "*hst" -or -name "*hist" \
-    -or -name ".osx_*.json" -or -name .gitignore -or -name .yarnrc \) \
+    -or -name ".macos_*.json" -or -name .gitignore -or -name .yarnrc \) \
     -exec echo 'Unmanaged dotfile: {}; Track with \"homeshick track dotfiles <name>\"?' \;
 
   echo -e "\nPrint any repos with https auth..."

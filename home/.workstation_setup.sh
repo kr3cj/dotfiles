@@ -274,11 +274,11 @@ if ${IS_OSX} && ! hash mas 2>/dev/null ; then
 
     ### general osx customizations ###
     # first, backup the current defaults
-    defaults read > ~/.osx_defaults_original_$(hostname)_$(/usr/local/opt/coreutils/libexec/gnubin/date --rfc-3339=date).json
+    defaults read > ~/.macos_defaults_original_$(hostname)_$(/usr/local/opt/coreutils/libexec/gnubin/date --rfc-3339=date).json
     source "${HOME}/.homesick/repos/homeshick/homeshick.sh"
-    homeshick track dotfiles_private ~/.osx_defaults_original_$(hostname)_$(/usr/local/opt/coreutils/libexec/gnubin/date --rfc-3339=date).json
+    homeshick track dotfiles_private ~/.macos_defaults_original_$(hostname)_$(/usr/local/opt/coreutils/libexec/gnubin/date --rfc-3339=date).json
     # FIX: second, load customizations https://github.com/mathiasbynens/dotfiles/blob/master/.macos
-    bash ~/.osx_current.json
+    bash ~/.macos_current.json
   fi
 
   # install atom editor plugins
