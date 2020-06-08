@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 # the purpose of this script is to install my homeshick dotfiles from github
 
+# change from zsh to bash
+chsh -s /bin/bash
+bash
 echo "Need sudo password to setup passwdless sudo"
 if ! sudo grep -q $(whoami) /etc/sudoers && [[ ${TRAVIS_CI_RUN} != true ]]; then
   sudo bash -c "echo \"$(whoami) ALL=(ALL) NOPASSWD: ALL\" >> /etc/sudoers"

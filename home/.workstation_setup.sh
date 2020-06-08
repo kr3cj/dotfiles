@@ -65,17 +65,13 @@ if ${IS_MACOS} && ! hash mas 2>/dev/null ; then
   brew install gnupg2
   echo "install newer utilities than macos provides"
   brew install bash
-  # brew link --overwrite bash # OR #
-  # prepend new shell to /etc/shells
   if [[ ${TRAVIS_CI_RUN} != true ]]; then
-    # remove once macos images allow passwdless sudo
     sudo /usr/local/opt/gnu-sed/libexec/gnubin/sed -i.bak "s/\/bin\/bash/\/usr\/local\/bin\/bash\\n\/bin\/bash/g" /etc/shells
-    # chsh -s /usr/local/bin/bash
-    sudo chsh -s /usr/local/bin/bash
+    chsh -s /usr/local/bin/bash
     bash
   fi
   echo "Verifying that SHELL now is bash..."
-  [[ $(echo ${SHELL} | grep -q "/usr/local/bin/bash") ]] || return 1
+  $(echo ${SHELL} | grep -q 'bash') || exit 1
 
   # brew install emacs
   # brew install --cocoa --srgb emacs ##
@@ -104,15 +100,11 @@ if ${IS_MACOS} && ! hash mas 2>/dev/null ; then
   # brew tap homebrew/versions
   # brew install perl518
   echo "install python"
-  # http://docs.python-guide.org/en/latest/starting/install3/osx/
-  brew install python3
-  # brew linkapps python
-  echo "override python binaries"
-  alias python="python3"
-  alias pip="pip3"
-  pip3 install --upgrade distribute
-  pip3 install --upgrade pip
-  pip3 install pylint virtualenv yq==2.2.0
+  # https://docs.python-guide.org/starting/install3/osx/
+  brew install python
+  # pip3 install --upgrade distribute
+  # pip3 install --upgrade pip
+  # pip3 install pylint virtualenv yq==2.2.0
 
   echo "install some extra utility packages for me"
   brew install dos2unix gnu-getopt jq jid pstree bash-completion certigo
@@ -120,20 +112,18 @@ if ${IS_MACOS} && ! hash mas 2>/dev/null ; then
   echo "install extra tools that I like"
   brew install \
     ack aria2 mas mtr nmap tmux reattach-to-user-namespace \
-    maven python3 ansible octant node rbenv ruby ruby-build \
+    maven ansible octant node rbenv ruby ruby-build \
     awscli hub packer hey siege tfenv travis vault
     # openshift-cli fleetctl; aria2=torrent_client(aria2c); android-platform-tools; android-file-transfer
     # load testing clients: hey siege artillery gauntlet
 
   echo "install lastpass client"
-  if [[ ${TRAVIS_CI_RUN} != true ]]; then
-    read -p "Enter custom home domain" CUSTOM_HOME_DOMAIN
-  else
-    CUSTOM_HOME_DOMAIN=acme.com
-  fi
   brew install lastpass-cli
-  echo "Attempting to log into lastpass."
-  lpass login --trust lastpass@${CUSTOM_HOME_DOMAIN} || return 1
+  if [[ ${TRAVIS_CI_RUN} != true ]]; then
+    echo "Attempting to log into lastpass."
+    read -p "Enter custom home domain" CUSTOM_HOME_DOMAIN
+    DISPLAY=${DISPLAY:-:0} lpass login --trust lastpass@${CUSTOM_HOME_DOMAIN} || exit 1
+  fi
 
   # create folder for repos before checking out private repo
   [[ -d ~/build/github ]] || mkdir -pv ~/build/github
