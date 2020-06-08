@@ -65,11 +65,9 @@ if ${IS_MACOS} && ! hash mas 2>/dev/null ; then
   brew install gnupg2
   echo "install newer utilities than macos provides"
   brew install bash
-  if [[ ${TRAVIS_CI_RUN} != true ]]; then
-    sudo /usr/local/opt/gnu-sed/libexec/gnubin/sed -i.bak "s/\/bin\/bash/\/usr\/local\/bin\/bash\\n\/bin\/bash/g" /etc/shells
-    chsh -s /usr/local/bin/bash
-    bash
-  fi
+  sudo /usr/local/opt/gnu-sed/libexec/gnubin/sed -i.bak "s/\/bin\/bash/\/usr\/local\/bin\/bash\\n\/bin\/bash/g" /etc/shells
+  chsh -s /usr/local/bin/bash
+  /usr/local/bin/bash
 
   # brew install emacs
   # brew install --cocoa --srgb emacs ##
@@ -110,13 +108,20 @@ if ${IS_MACOS} && ! hash mas 2>/dev/null ; then
   echo "install extra tools that I like"
   brew install \
     ack aria2 mas mtr nmap tmux reattach-to-user-namespace \
-    maven ansible octant node rbenv ruby ruby-build \
-    awscli hub packer hey siege tfenv travis vault
+    ansible octant node rbenv ruby ruby-build \
+    awscli hub packer hey siege tfenv travis vault maven
     # openshift-cli fleetctl; aria2=torrent_client(aria2c); android-platform-tools; android-file-transfer
     # load testing clients: hey siege artillery gauntlet
 
-  echo "Verifying that SHELL is bash..."
-  $(echo ${SHELL} | grep -q 'bash') || exit 1
+  if [[ ${TRAVIS_CI_RUN} != true ]]; then
+    echo "Verifying that SHELL is bash v5+"
+    if ! $(bash --version | grep -q 'version 5'); then
+    # if ! $(echo ${SHELL} | grep -q '/usr/local/bin/bash'); then
+      echo "You now need to change default shell to \"/usr/local/bin/bash\":"
+      echo " \"chsh -s /usr/local/bin/bash && /usr/local/bin/bash\""
+      exit 1
+    fi
+  fi
 
   echo "install lastpass client"
   brew install lastpass-cli
