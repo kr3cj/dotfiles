@@ -478,7 +478,5 @@ if ! $(crontab -l | grep -q workstation_update) ; then
   (crontab -l 2>/dev/null; echo "0 10 * * 5 ~/.workstation_update.sh") | crontab -
 fi
 
-${IS_MACOS} && /usr/sbin/softwareupdate --restart
-
 # close out logging
 ) 2>&1 | tee -a ${LOG2}
