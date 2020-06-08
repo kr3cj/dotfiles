@@ -5,6 +5,8 @@ ${IS_MACOS} || return
 [[ $(sysctl -n net.link.ether.inet.arp_unicast_lim) -ne 1 ]] && \
   sudo sysctl -w net.link.ether.inet.arp_unicast_lim=1
 
+export BASH_SILENCE_DEPRECATION_WARNING=1
+
 export HOMEBREW_CASK_OPTS="--appdir=/Applications"
 
 MANPATH="/usr/local/opt/findutils/libexec/gnuman:${MANPATH-/usr/share/man}"
