@@ -1,4 +1,4 @@
 [[ $- = *i* ]] || return
-${IS_OSX} || return
+${IS_MACOS} || return
 
 export GEM_REPO_LOGIN="deployer:${CUSTOM_NPM_MVN_AUTH}"

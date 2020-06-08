@@ -1,5 +1,5 @@
 [[ $- = *i* ]] || return
-${IS_OSX} || return
+${IS_MACOS} || return
 
 # export KUBECONFIG=~/.kube/k3sa
  export KUBECONFIG=$(find ~/.kube/ \

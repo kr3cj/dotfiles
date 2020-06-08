@@ -1,5 +1,5 @@
 [[ $- = *i* ]] || return
-${IS_OSX} || return
+${IS_MACOS} || return
 
 # added by travis gem
 [[ -f ~/.travis/travis.sh ]] && source ~/.travis/travis.sh

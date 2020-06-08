@@ -21,7 +21,7 @@ fi
 #bind '"\e[A": history-search-backward'
 #bind '"\e[B": history-search-forward'
 
-${IS_OSX} || return
+${IS_MACOS} || return
 [[ -f /usr/local/etc/bash_completion ]] && \
   source /usr/local/etc/bash_completion
 

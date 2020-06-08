@@ -1,5 +1,5 @@
 [[ $- = *i* ]] || return
-${IS_OSX} || return
+${IS_MACOS} || return
 # http://docs.aws.amazon.com/cli/latest/userguide/cli-install-macos.html
 
 export AWS_SESSION_TTL=12h

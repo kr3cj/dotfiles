@@ -1,25 +1,25 @@
 #!/usr/bin/env bash +x
 LOG2=/var/tmp/workstation_setup_$(date +%Y-%m-%d).log
 (
-# the purpose of this script is to house all initial workstation customizations in linux or osx
+# the purpose of this script is to house all initial workstation customizations in linux or macos
 
 if [[ ${TRAVIS_CI_RUN} != true ]]; then
   echo -e "\nSystem looks new. Press any key to start installing workstation software."
   read -n 1 -s
 fi
 
-export IS_OSX="false"
+export IS_MACOS="false"
 export IS_LINUX="false"
 case "$(uname)" in
   Darwin)
-    IS_OSX="true" ;;
+    IS_MACOS="true" ;;
   Linux)
     IS_LINUX="true" ;;
   *)
-    echo "Unable to determine Linux or OSX" ;;
+    echo "Unable to determine linux or macos" ;;
 esac
 
-# only proceed for Linux workstations, not servers
+# only proceed for linux workstations, not servers
 if [[ ${TRAVIS_CI_RUN} != true ]]; then
   if [[ ${IS_LINUX} == true ]] && [[ ! -d /usr/share/xsessions ]]; then
     echo "Quitting workfstation setup on what appears to be a linux server"
@@ -32,9 +32,9 @@ if ! sudo grep -q $(whoami) /etc/sudoers && [[ ${TRAVIS_CI_RUN} != true ]]; then
   sudo bash -c "echo \"$(whoami) ALL=(ALL) NOPASSWD: ALL\" >> /etc/sudoers"
 fi
 
-# install software on osx
-if ${IS_OSX} && ! hash mas 2>/dev/null ; then
-  echo "Configuring OSX. This will take an hour or so."
+# install software on macos
+if ${IS_MACOS} && ! hash mas 2>/dev/null ; then
+  echo "Configuring macos. This will take an hour or so."
   # see http://meng6.net/pages/computing/installing_and_configuring/installing_and_configuring_command-line_utilities/
   if ! hash brew 2>/dev/null ; then
     echo "Installing brew"
@@ -63,12 +63,12 @@ if ${IS_OSX} && ! hash mas 2>/dev/null ; then
   brew install wget
   brew install gnupg
   brew install gnupg2
-  echo "install newer utilities than OSX provides"
+  echo "install newer utilities than macos provides"
   brew install bash
   # brew link --overwrite bash # OR #
   # prepend new shell to /etc/shells
   if [[ ${TRAVIS_CI_RUN} != true ]]; then
-    # remove once osx images allow passwdless sudo
+    # remove once macos images allow passwdless sudo
     sudo /usr/local/opt/gnu-sed/libexec/gnubin/sed -i.bak "s/\/bin\/bash/\/usr\/local\/bin\/bash\\n\/bin\/bash/g" /etc/shells
     # chsh -s /usr/local/bin/bash
     sudo chsh -s /usr/local/bin/bash
@@ -272,7 +272,7 @@ if ${IS_OSX} && ! hash mas 2>/dev/null ; then
     # setup build system credentials; TODO: cash username/password?
     /usr/local/bin/docker login ${CUSTOM_WORK_JFROG_SUBDOMAIN}.jfrog.io
 
-    ### general osx customizations ###
+    ### general macos customizations ###
     # first, backup the current defaults
     defaults read > ~/.macos_defaults_original_$(hostname)_$(/usr/local/opt/coreutils/libexec/gnubin/date --rfc-3339=date).json
     source "${HOME}/.homesick/repos/homeshick/homeshick.sh"

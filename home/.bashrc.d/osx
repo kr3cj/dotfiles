@@ -1,7 +1,7 @@
 [[ $- = *i* ]] || return
-${IS_OSX} || return
+${IS_MACOS} || return
 
-# Workaround for OSX incompatibility with commercial routers
+# Workaround for macos incompatibility with commercial routers
 [[ $(sysctl -n net.link.ether.inet.arp_unicast_lim) -ne 1 ]] && \
   sudo sysctl -w net.link.ether.inet.arp_unicast_lim=1
 

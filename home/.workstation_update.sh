@@ -5,7 +5,7 @@ LOG=/var/tmp/workstation_update_$(date +%Y-%m-%d).log
 # child of ~/.workstation_setup
 
 if [[ ${TRAVIS_CI_RUN} != true ]]; then
-  echo -e "Backup current osx configs..."
+  echo -e "Backup current macos configs..."
   defaults read > ~/.homesick/repos/dotfiles_private/home/.macos_current.json
   # [[ -l ~/.macos_current.json ]] ||   \
   #  ln -s ~/.homesick/repos/dotfiles_private/home/.macos_current.json ~/.macos_current.json
@@ -164,7 +164,7 @@ if [[ $(uname) == "Darwin" ]] ; then
     find ${dir1} -maxdepth 6 -path "*/.git/config" -exec grep -H https '{}' \;
   done
 
-  echo -e "\nUpdating OSX App Store apps..."
+  echo -e "\nUpdating macos App Store apps..."
   # authenticate to apple account if necessary
   if [[ ${TRAVIS_CI_RUN} != true ]] && [[ ! $(/usr/local/bin/mas account) ]]; then
     /usr/local/bin/lpass show --password --clip "Apple" && \
@@ -172,7 +172,7 @@ if [[ $(uname) == "Darwin" ]] ; then
   fi
   /usr/local/bin/mas upgrade # '/usr/local/bin/mas list' finds more with sudo prefix
 
-  echo -e "\nUpdating OSX system..."
+  echo -e "\nUpdating macos system..."
   /usr/sbin/softwareupdate --install --all
   # /usr/sbin/softwareupdate --restart
   sudo xcodebuild -license accept

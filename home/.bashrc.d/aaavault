@@ -1,4 +1,4 @@
-${IS_OSX} || return
+${IS_MACOS} || return
 # uncomment next line if work gets vault
 return
 

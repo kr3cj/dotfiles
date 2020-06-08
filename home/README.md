@@ -29,7 +29,6 @@ attempting to unmount /Users/${LOGNAME}/Pictures/share1 by fsid
       refresh The castles dotfiles,homeshick are outdated.
         pull? [yN] y
       symlink .bash_profile
-      symlink .bash_profile_osx
       symlink .bashrc
       symlink .bashrc.d/alias
       symlink .bashrc.d/aws
@@ -57,13 +56,13 @@ attempting to unmount /Users/${LOGNAME}/Pictures/share1 by fsid
 ```
 ${LOGNAME}@MC02RR283FVH6 ~ () $ ~/.workstation_update.sh
 
-Updating OSX system...
+Updating macos system...
 Software Update Tool
 
 Finding available software
 No updates are available.
 
-Updating OSX App Store apps...
+Updating macos App Store apps...
 Upgrading 3 outdated applications:
 Xcode (9.0), Keynote (7.3), Microsoft Remote Desktop 8.0 (8.0.43)
 #############################------------------------------- 49.0% Downloading

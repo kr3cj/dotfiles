@@ -1,4 +1,4 @@
-# add admin paths, replace osx utilities with GNU core utilities (should already include /usr/sbin/ and /sbin )
+# add admin paths, replace macos utilities with GNU core utilities (should already include /usr/sbin/ and /sbin )
 
 # libexec paths because brew removed --with-default-names ... \
 for path2 in \

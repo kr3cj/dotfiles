@@ -1,5 +1,5 @@
 [[ $- = *i* ]] || return
-${IS_OSX} || return
+${IS_MACOS} || return
 
 # remote host for container tools (https://docs.docker.com/engine/security/https/)
 export DOCKER_REGISTRY="${CUSTOM_WORK_DEFAULT_AWS_ACCT}.dkr.ecr.us-east-1.amazonaws.com"
@@ -18,7 +18,7 @@ function docker-reset () {
   sudo docker system prune --all --force --volumes
 
   ${IS_LINUX} && sudo systemctl restart docker.service
-  # ${IS_OSX} && (echo -e "\nRestarting docker... (wait 1 min)" && killall Docker && open /Applications/Docker.app && sleep 60)
+  # ${IS_MACOS} && (echo -e "\nRestarting docker... (wait 1 min)" && killall Docker && open /Applications/Docker.app && sleep 60)
 
   sudo docker ps -a
 }

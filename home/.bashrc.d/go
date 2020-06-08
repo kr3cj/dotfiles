@@ -1,5 +1,5 @@
 [[ $- = *i* ]] || return
-${IS_OSX} || return
+${IS_MACOS} || return
 
 export GOPATH=${HOME}/.asdf/shims/go
 # GOV=$(asdf current golang | sed  's/ (set by .*)//g')

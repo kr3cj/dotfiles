@@ -14,7 +14,7 @@ set ruler
 au BufReadPost Jenkinsfile setlocal filetype=groovy
 
 "Clipboard settings{{{
-  "Ensure vim uses system clipboard (tested on OSX)
+  "Ensure vim uses system clipboard (tested on macos)
   "Note that linux needs +xterm_clipboard feature compiled in
   "Should also work on Windows
   if has('nvim')

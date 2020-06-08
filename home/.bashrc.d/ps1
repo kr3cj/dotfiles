@@ -4,7 +4,7 @@ if [[ -f ~/.homesick/repos/liquidprompt/liquidprompt ]]; then
   # echo "Detected forked nojhan/liquidprompt"
   source ~/.homesick/repos/liquidprompt/liquidprompt
 elif [[ -f /usr/local/share/liquidprompt ]]; then
-  source /usr/local/share/liquidprompt # osx standard install
+  source /usr/local/share/liquidprompt # macos standard install
 elif [[ -f ~/liquidprompt/liquidprompt ]]; then
   source ~/liquidprompt/liquidprompt # linux standard install
 else

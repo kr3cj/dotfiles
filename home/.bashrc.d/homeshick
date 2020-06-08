@@ -5,7 +5,7 @@ source "${HOME}/.homesick/repos/homeshick/homeshick.sh"
 
 ${HEALTHY_INTERNET} && homeshick --quiet refresh 7
 
-# expensive: ${IS_OSX} && homeshick link dotfiles dotfiles_private
+# expensive: ${IS_MACOS} && homeshick link dotfiles dotfiles_private
 # can take a long time and requires tty?; TODO: try shallow symlinking?
 # https://github.com/andsens/homeshick/wiki/Symlinking#shallow-symlinking
 

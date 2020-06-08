@@ -1,5 +1,5 @@
 # setup git
-if ${IS_OSX} ; then
+if ${IS_MACOS} ; then
   export GIT_SSH="/usr/bin/ssh"
 #   git config --global user.name "${CUSTOM_FULL_NAME}"
 #   git config --global user.email "${CUSTOM_WORK_EMAIL}"

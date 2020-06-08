@@ -1,5 +1,5 @@
 [[ $- = *i* ]] || return
-${IS_OSX} || return
+${IS_MACOS} || return
 
 # Setting PATH to use Homebrew Python 3 (instead of system python3)
 # TODO: platform specific pathing
