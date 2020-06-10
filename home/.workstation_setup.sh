@@ -32,6 +32,13 @@ if ! sudo grep -q $(whoami) /etc/sudoers && [[ ${TRAVIS_CI_RUN} != true ]]; then
   sudo bash -c "echo \"$(whoami) ALL=(ALL) NOPASSWD: ALL\" >> /etc/sudoers"
 fi
 
+# TODO: requires macos permission
+# upgrade software Fridays at 10am
+if ! $(crontab -l | grep -q workstation_update) ; then
+  # FIX: crontab: tmp/tmp.55269: Operation not permitted
+  (crontab -l 2>/dev/null; echo "0 10 * * 5 ~/.workstation_update.sh") | crontab -
+fi
+
 # install software on macos
 if ${IS_MACOS} && ! hash mas 2>/dev/null ; then
   echo "Configuring macos. This will take an hour or so."
@@ -113,11 +120,25 @@ if ${IS_MACOS} && ! hash mas 2>/dev/null ; then
     # openshift-cli fleetctl; aria2=torrent_client(aria2c); android-platform-tools; android-file-transfer
     # load testing clients: hey siege artillery gauntlet
 
+
+  # create folder for repos before checking out private repo
+  [[ -d ~/build/github ]] || mkdir -pv ~/build/github
+
+  # tmux plugins
+  git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
+  # FIX: error connecting to /tmp//tmux-501/default (No such file or directory)
+  tmux source ~/.tmux.conf
+  ~/.tmux/plugins/tpm/bin/install_plugins
+
+  sudo rm -rf /Applications/{iMovie.app,GarageBand.app,Pages.app,Numbers.app}
+
+
+  ### Rest requires bash v5+ and authenticated lpass cli for dotfiles_private ###
+
   if [[ ${TRAVIS_CI_RUN} != true ]]; then
     echo "Verifying that SHELL is bash v5+"
     if ! $(bash --version | grep -q 'version 5'); then
-    # if ! $(echo ${SHELL} | grep -q '/usr/local/bin/bash'); then
-      echo "You now need to change default shell to \"/usr/local/bin/bash\":"
+      echo "Change default shell to \"/usr/local/bin/bash\":"
       echo " \"chsh -s /usr/local/bin/bash && /usr/local/bin/bash\""
       exit 1
     fi
@@ -125,14 +146,14 @@ if ${IS_MACOS} && ! hash mas 2>/dev/null ; then
 
   echo "install lastpass client"
   brew install lastpass-cli
+
   if [[ ${TRAVIS_CI_RUN} != true ]]; then
     echo "Attempting to log into lastpass."
     read -p "Enter custom home domain" CUSTOM_HOME_DOMAIN
-    DISPLAY=${DISPLAY:-:0} lpass login --trust lastpass@${CUSTOM_HOME_DOMAIN} || exit 1
+    read -p "Enter password" env_var1
+    DISPLAY=${DISPLAY:-:0} LPASS_DISABLE_PINENTRY=1 \
+      lpass login --trust lastpass@${CUSTOM_HOME_DOMAIN} || exit 1
   fi
-
-  # create folder for repos before checking out private repo
-  [[ -d ~/build/github ]] || mkdir -pv ~/build/github
 
   # now we can install any private repos with private ssh key
   if [[ ${TRAVIS_CI_RUN} != true ]]; then
@@ -164,12 +185,6 @@ if ${IS_MACOS} && ! hash mas 2>/dev/null ; then
     cd ~/.homesick/repos/otp-cli/
     sudo ln -s $( echo "$( pwd )/otp-cli" ) /usr/local/bin/otp-cli
   )
-
-  # tmux plugins
-  git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
-  # FIX: error connecting to /tmp//tmux-501/default (No such file or directory)
-  tmux source ~/.tmux.conf
-  ~/.tmux/plugins/tpm/bin/install_plugins
 
   # clone other github repos
   cd ~/build/github
@@ -206,13 +221,13 @@ if ${IS_MACOS} && ! hash mas 2>/dev/null ; then
     mas install 1295203466
     # Magnet
     mas install 441258766
+    # manual
+    echo "give magnet accessibility privileges in system prefs, sec and privacy, privacy tab"
   fi
   # TODO: Create Dock shortcut to "/System/Library/CoreServices/Screen Sharing.app"
-  # TODO: give magnet accessibility privileges in system prefs, sec and privacy, privacy tab
-  echo "Remove the following apps from showing in menu bar: Alfred, ?"
-  if [[ ${TRAVIS_CI_RUN} != true ]]; then
-    sudo rm -rf /Applications/{iMovie.app,GarageBand.app,Pages.app,Numbers.app}
-  fi
+
+
+
 
   # xcode install moved to .boostrap.sh
 
@@ -226,7 +241,7 @@ if ${IS_MACOS} && ! hash mas 2>/dev/null ; then
   # FIX: failed to download beyond-compare due to cert problem with curl
   brew cask install \
     alfred slack spotify gimp github google-backup-and-sync brave-browser iterm2 \
-    firefox keystore-explorer keybase balenaetcher visual-studio-code
+    firefox keystore-explorer keybase balenaetcher visual-studio-code zoomus
     # private-internet-access; etcher is a usb flash utility
 
   # brew cask install intellij-idea goland
@@ -466,12 +481,6 @@ if ${IS_LINUX} && ! hash packer 2>/dev/null ; then
   # vagrant, packer, python2+3, ansible, ruby, virtualbox?, gems, docker-ce, fleetctl, java, dos2unix
   # aws and gce/gke CLIs will be installed via ~/.bashrc.d/*
   sudo pip install PyYAML jinja2 paramiko ansible packer vagrant markupsafe
-fi
-
-# upgrade software Fridays at 10am
-if ! $(crontab -l | grep -q workstation_update) ; then
-  # FIX: crontab: tmp/tmp.55269: Operation not permitted
-  (crontab -l 2>/dev/null; echo "0 10 * * 5 ~/.workstation_update.sh") | crontab -
 fi
 
 # close out logging

@@ -2,7 +2,7 @@
 # the purpose of this script is to install my homeshick dotfiles from github
 
 if $(echo ${SHELL} | grep -q 'zsh'); then
-  echo "You first need to change from zsh to bash: \"chsh -s /bin/bash && /bin/bash\""
+  echo "Change from zsh to bash: \"chsh -s /bin/bash && /bin/bash\""
   exit 1
 fi
 
