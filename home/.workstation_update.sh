@@ -75,6 +75,8 @@ if [[ $(uname) == "Darwin" ]] ; then
   #     echo -e "\nSkipping reinstall of brew cask \"virtualbox\" (known issues with non-root installs at time of coding)."
   #     continue
   #   elif [[ ${cask1} =~ gcloud ]] ; then
+      echo "Upgrading cask \"${cask1}\"..."
+      # spotify and google-backup-and-sync always reinstall, unfortunately
       /usr/local/bin/brew cask upgrade ${cask1}
       # TODO: open each new cask to get past the "downloaded from internet" warning
       # openit "${cask1}"

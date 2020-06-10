@@ -1,7 +1,7 @@
 # aws-iam-authenticator 0.4.0
 # eksctl 0.20.0
 golang 1.14.1
-helm 2.14.3
+helm 2.16.7
 # helmfile 0.116.0
 kops 1.9.2
 kubectl 1.15.11
