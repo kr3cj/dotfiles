@@ -110,7 +110,7 @@ if ${IS_MACOS} && ! hash mas 2>/dev/null ; then
   # pip3 install pylint virtualenv yq==2.2.0
 
   echo "install some extra utility packages for me"
-  brew install dos2unix gnu-getopt jq jid pstree bash-completion certigo
+  brew install bash-completion certigo cfssl dos2unix gnu-getopt jq jid pstree tree
   brew tap wallix/awless; brew install awless
   echo "install extra tools that I like"
   brew install \
@@ -132,68 +132,15 @@ if ${IS_MACOS} && ! hash mas 2>/dev/null ; then
 
   sudo rm -rf /Applications/{iMovie.app,GarageBand.app,Pages.app,Numbers.app}
 
+  # git stuff
+  git config --global pull.ff only
 
-  ### Rest requires bash v5+ and authenticated lpass cli for dotfiles_private ###
-
-  if [[ ${TRAVIS_CI_RUN} != true ]]; then
-    echo "Verifying that SHELL is bash v5+"
-    if ! $(bash --version | grep -q 'version 5'); then
-      echo "Change default shell to \"/usr/local/bin/bash\":"
-      echo " \"chsh -s /usr/local/bin/bash && /usr/local/bin/bash\""
-      exit 1
-    fi
-  fi
-
-  echo "install lastpass client"
-  brew install lastpass-cli
-
-  if [[ ${TRAVIS_CI_RUN} != true ]]; then
-    echo "Attempting to log into lastpass."
-    read -p "Enter custom home domain" CUSTOM_HOME_DOMAIN
-    read -p "Enter password" env_var1
-    DISPLAY=${DISPLAY:-:0} LPASS_DISABLE_PINENTRY=1 \
-      lpass login --trust lastpass@${CUSTOM_HOME_DOMAIN} || exit 1
-  fi
-
-  # now we can install any private repos with private ssh key
-  if [[ ${TRAVIS_CI_RUN} != true ]]; then
-    # load personal ssh key if necessary
-    if ! $(ssh-add -l | grep -q "/.ssh/id_rsa_personal\ ("); then
-      (umask 177
-      lpass show --field="Private Key" "id_rsa_personal" > ~/.ssh/id_rsa_personal
-      )
-      lpass show --field=Passphrase --clip "id_rsa_personal"
-      ssh-add -t 36000 -k ~/.ssh/id_rsa_personal
-      rm -f ~/.ssh/id_rsa_personal
-    fi
-    private_repos="git@github.com:kr3cj/dotfiles_private.git"
-    for private_repo in ${private_repos}; do
-      source "${HOME}/.homesick/repos/homeshick/homeshick.sh"
-      if homeshick list | grep -q ${private_repo}; then
-        # must trim long git URIs to just repo name
-        homeshick --batch pull $(echo ${private_repo/*\//} | sed -e "s/\.git$//")
-      else
-        homeshick --batch clone ${private_repo}
-      fi
-      homeshick --force link
-    done
-  fi
-
-  # install otp client for mfa
-  brew install oath-toolkit
-  (
-    cd ~/.homesick/repos/otp-cli/
-    sudo ln -s $( echo "$( pwd )/otp-cli" ) /usr/local/bin/otp-cli
-  )
-
-  # clone other github repos
   cd ~/build/github
   for repo1 in \
    helm/charts \
    cleanbrowsing/dnsperftest \
    DataDog/datadog-serverless-functions \
    DataDog/Miscellany \
-   helm/charts \
    ; do
     git clone https://github.com/${repo1}.git
   done
@@ -203,38 +150,6 @@ if ${IS_MACOS} && ! hash mas 2>/dev/null ; then
   # brew install [--HEAD] liquidprompt
   brew install liquidprompt
   # standard customizations already tracked by dotfiles via ~/.liquidpromptrc
-
-  # mas is a CLI for AppStore installs/updates
-  if [[ ${TRAVIS_CI_RUN} != true ]]; then
-    echo "Prepare to sign into \"App Store.app\" manually..."
-    lpass show --password --clip "Apple"
-    # mas signin apple@${CUSTOM_HOME_DOMAIN} # disabled on macos 10.15.x+
-    open -a "App Store"
-
-    # Alfred v1.2 :( ; moved to brew cask installs below
-    # mas install 405843582
-    # Xcode
-    # mas install 497799835
-    # CopyClip
-    mas install 595191960
-    # Microsoft Remote Desktop 10.x
-    mas install 1295203466
-    # Magnet
-    mas install 441258766
-    # manual
-    echo "give magnet accessibility privileges in system prefs, sec and privacy, privacy tab"
-  fi
-  # TODO: Create Dock shortcut to "/System/Library/CoreServices/Screen Sharing.app"
-
-
-
-
-  # xcode install moved to .boostrap.sh
-
-  # puppet testing shtuff
-  # if [[ ${TRAVIS_CI_RUN} != true ]]; then
-  #   sudo gem install bundler
-  # fi
 
   # install main apps into Applications
   HOMEBREW_CASK_OPTS="--appdir=/Applications"
@@ -249,8 +164,9 @@ if ${IS_MACOS} && ! hash mas 2>/dev/null ; then
 
   # broken up into separate commands to avoid 10 minute travis build timeout
   brew cask install wireshark
-    # TODO: disable updates in docker so brew update can manage it, disable experimental features
+  # TODO: disable updates in docker so brew update can manage it, disable experimental features
   brew cask install docker
+  open -a "Docker"
   #w virtualbox
 
   # TODO: use openvpn to connect to PIA via CLI
@@ -264,35 +180,10 @@ if ${IS_MACOS} && ! hash mas 2>/dev/null ; then
 
   # https://developer.mozilla.org/en-US/docs/Mozilla/Command_Line_Options
   echo "Lock down firefox about:config
-    network.trr.mode=2
-    network.trr.uri=https://mozilla.cloudflare-dns.com/dns-query
     browser.search.defaultenginename
   "
 
-  if [[ ${TRAVIS_CI_RUN} != true ]]; then
-    # iterm2 customizations
-    # Specify the preferences directory
-    defaults write com.googlecode.iterm2.plist PrefsCustomFolder -string \
-      "~/.homesick/repos/dotfiles_private/iterm2/"
-    # Tell iTerm2 to use the custom preferences in the directory
-    defaults write com.googlecode.iterm2.plist LoadPrefsFromCustomFolder -bool true
-
-    # install java; TODO: move to work_setup.sh
-    # brew tap homebrew/cask-versions
-    # brew cask install java11
-    # setup build system credentials; TODO: cash username/password?
-    /usr/local/bin/docker login ${CUSTOM_WORK_JFROG_SUBDOMAIN}.jfrog.io
-
-    ### general macos customizations ###
-    # first, backup the current defaults
-    defaults read > ~/.macos_defaults_original_$(hostname)_$(/usr/local/opt/coreutils/libexec/gnubin/date --rfc-3339=date).json
-    source "${HOME}/.homesick/repos/homeshick/homeshick.sh"
-    homeshick track dotfiles_private ~/.macos_defaults_original_$(hostname)_$(/usr/local/opt/coreutils/libexec/gnubin/date --rfc-3339=date).json
-    # FIX: second, load customizations https://github.com/mathiasbynens/dotfiles/blob/master/.macos
-    ~/.macos_customizations.json
-  fi
-
-  # install atom editor plugins
+    # install atom editor plugins
   # apm install auto-update-packages open-terminal-here minimap language-hcl \
   #   markdown-toc terraform-fmt \
   #   language-groovy file-icons tree-view-git-status highlight-selected git-plus \
@@ -301,26 +192,27 @@ if ${IS_MACOS} && ! hash mas 2>/dev/null ; then
   # language-terraform autocomplete-bash-builtins terminal-plus
 
   # install visual studio code extensions (weird hack required)
+    # bierner.markdown-preview-github-styles \
+    # brendandburns.vs-kubernetes \
+    # codezombiech.gitignore \
+    # CoenraadS.bracket-pair-colorizer \
+    # donjayamanne.git-extension-pack \
+    # donjayamanne.githist\ory \
+    # eamodio.gitlens \
+    # erd0s.terraform-autocomplete \
+    # felixrieseberg.vsc-travis-ci-status \
+    # ipedrazas.kubernetes-snippets \
+    # KnisterPeter.vscode-github \
+    # mauve.terraform \
+    # ms-python.python \
+    # ms-vscode.go \
+    # PeterJausovec.vscode-docker \
+    # technosophos.vscode-helm \
   cat << EOF > /var/tmp/vscode_installs.sh
 #!$(which bash)
 EOF
   for extension1 in \
-    bierner.markdown-preview-github-styles \
-    brendandburns.vs-kubernetes \
-    codezombiech.gitignore \
-    CoenraadS.bracket-pair-colorizer \
-    donjayamanne.git-extension-pack \
-    donjayamanne.githistory \
-    eamodio.gitlens \
-    erd0s.terraform-autocomplete \
-    felixrieseberg.vsc-travis-ci-status \
-    ipedrazas.kubernetes-snippets \
-    KnisterPeter.vscode-github \
-    mauve.terraform \
-    ms-python.python \
-    ms-vscode.go \
-    PeterJausovec.vscode-docker \
-    technosophos.vscode-helm \
+    hashicorp.terraform \
     ; do
     echo "code --install-extension ${extension1} --verbose" >> /var/tmp/vscode_installs.sh
   done
@@ -340,27 +232,13 @@ EOF
   brew install asdf
 
   # install asdf tools
+  # golang
   for asdf_plugin in eksctl golang helm helmfile kubectl minikube saml2aws sopstool terraform; do
     asdf plugin-add ${asdf_plugin}
   done
-  asdf install
-  # heptio-authenticator-aws, aws-iam-authenticator, kubesec, minikube, python, ruby, trerraform, terragrunt, vault
-  # brew install kubectx # depends on kubernetes-cli
-  # kubectl plugins: krew
-  (
-    set -x; cd "$(mktemp -d)" &&
-    curl -fsSLO "https://github.com/kubernetes-sigs/krew/releases/latest/download/krew.{tar.gz,yaml}" &&
-    tar zxvf krew.tar.gz
-    KREW=./krew-"$(uname | tr '[:upper:]' '[:lower:]')_amd64"
-    ${KREW} install --manifest=krew.yaml --archive=krew.tar.gz
-    ${KREW} update
-  )
-  for krew_plugin in node-admin outdated ; do
-    kubectl krew install ${krew_plugin}
-  done
 
   # gce and gke stuff (https://cloud.google.com/sdk/docs/quickstart-mac-os-x)
-  # brew install go
+  brew install golang
   go get golang.org/x/tools/cmd/godoc
   # brew cask install google-cloud-sdk
   # gcloud components install kubectl -q
@@ -368,27 +246,21 @@ EOF
   # gcloud auth list
   # gcloud config list
 
-  # install helm plugin for Visual Studio Code
-  # TODO: fix reliance on saml2aws via function name override?
-  helm init
-  for plugin1 in \
-   technosophos/helm-template \
-   lrills/helm-unittest \
-   databus23/helm-diff \
-   futuresimple/helm-secrets \
-   aslafy-z/helm-git ; do
-     helm plugin install https://github.com/${plugin1}
-  done
-
   # prep for home nfs mount
   [[ -d ~/Documents/share1 ]] || mkdir ~/Documents/share1
   [[ -d ~/Pictures/share1 ]] || mkdir ~/Pictures/share1
 
+  ### Rest requires bash v5+ and authenticated lpass cli for private dotfiles ###
+  brew install lastpass-cli
   if [[ ${TRAVIS_CI_RUN} != true ]]; then
-    # Run python code to checkout all repositories
-    cd ~/build
-    # git clone asottile/all-repos
-    # cd all-repos
+    echo -e "\nTo continue, you must be logged into lastpass cli: \
+    lpass login --trust lastpass@${CUSTOM_HOME_DOMAIN} \
+    Press any key to start \"~/.workstation_setup_private\"."
+    read -n 1 -s
+    [[ -r ~/.workstation_setup_private.sh ]] && \
+      /usr/local/bin/bash ~/.workstation_setup_private.sh
+  else
+    echo -e "\nInitial macos System setup completed."
   fi
 fi
 

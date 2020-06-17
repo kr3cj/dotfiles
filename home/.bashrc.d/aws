@@ -14,7 +14,8 @@ function saml2aws {
   # saml2aws logins can have a max session duration of 12h, but role chaining can only have a max session duration of 1h
   local args="--session-duration=${SAML2AWS_SESSION_DURATION} \
     --role=${CUSTOM_WORK_IAM_ROLE} \
-    --mfa=${SAML2AWS_MFA}"
+    --mfa=${SAML2AWS_MFA} \
+    --skip-prompt"
   if [[ ${@} =~ "--exec-profile" ]] ; then
     export MY_AWS_PROFILE=$(echo ${@} | sed -r 's/.*--exec-profile[=,\ ]([^ ]+).*/\1/')
     args="--session-duration=3600"
@@ -25,11 +26,7 @@ function saml2aws {
   fi
   # lpass show --password --clip "${CUSTOM_WORK_DOMAINS[0]/.com/} macbook" || echo "Unable to cache pw."
   # echo "Running \"saml2aws ${args} --skip-prompt ${*}\""
-  $(which saml2aws) ${args} --skip-prompt ${*}
-}
-
-function samllogin {
-  saml2aws login
+  $(which saml2aws) ${args} ${*}
 }
 
 function get-ec2-id-from-pod ()

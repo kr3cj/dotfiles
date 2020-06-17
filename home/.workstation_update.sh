@@ -93,11 +93,10 @@ if [[ $(uname) == "Darwin" ]] ; then
     # /usr/local/bin/apm upgrade --confirm false
   # fi
 
-  # echo -e "\nUpdating helm plugins."
-  # for hplug in $(helm plugin list | grep -v ^NAME | awk '{print $1}') ; do
-  #   # how to qualify path to asdf helm...
-  #   su - ${LOGNAME} -c "${helm plugin update ${hplug}"
-  # done
+  echo -e "\nUpdating helm plugins."
+  for hplug in $($(asdf where helm 2.16.8)/bin/helm plugin list | grep -v ^NAME | awk '{print $1}') ; do
+    $(asdf where helm 2.16.8)/bin/helm plugin update ${hplug}
+  done
 
   echo -e "\nUpdating kubectl krew plugins."
   (

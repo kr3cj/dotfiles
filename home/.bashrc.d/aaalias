@@ -18,6 +18,7 @@ alias fgrep='fgrep --color=auto'
 alias grep='grep --color=auto'
 alias ducks="sudo du -cshx ./ | sort -h"
 alias cdd="homeshick cd dotfiles"
+alias cdp="homeshick cd dotfiles_private"
 alias pp="source ~/.bash_profile"
 
 function cb() {

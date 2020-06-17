@@ -1,12 +1,13 @@
 # aws-iam-authenticator 0.4.0
 # eksctl 0.20.0
-golang 1.14.1
-helm 2.16.7
+golang 1.14.4
+helm 2.16.8
 # helmfile 0.116.0
 kops 1.9.2
-kubectl 1.15.11
+kubectl 1.16.10
 # minikube 1.6.2
 pluto 2.0.2
 saml2aws 2.26.1
+sopstool 0.4.1
 terraform 0.12.26
 # tfenv 2.0.0
