@@ -68,7 +68,7 @@ LOG4=/var/tmp/workstation_setup_$(date +%Y-%m-%d).log
     cd ~/.homesick/repos/otp-cli/
     sudo ln -s $( echo "$( pwd )/otp-cli" ) /usr/local/bin/otp-cli
     chmod 700 -c ~/otp-cli/tokens
-    find ~/otp-cli/tokens/ -type f -exec chmod 400 -cR '{}' \;
+    chmod 400 -c ~/otp-cli/tokens/${CUSTOM_WORK_SSO_PROVIDER} 
   )
 
   # mas is a CLI for AppStore installs/updates
@@ -106,7 +106,7 @@ LOG4=/var/tmp/workstation_setup_$(date +%Y-%m-%d).log
     # brew tap homebrew/cask-versions
     # brew cask install java11
     # setup build system credentials; TODO: cache username/password?
-    /usr/local/bin/docker login ${CUSTOM_WORK_JFROG_SUBDOMAIN}.jfrog.io
+    # /usr/local/bin/docker login ${CUSTOM_WORK_JFROG_SUBDOMAIN}.jfrog.io
 
     ### general macos customizations ###
     # first, backup the current defaults
@@ -114,7 +114,7 @@ LOG4=/var/tmp/workstation_setup_$(date +%Y-%m-%d).log
     source "${HOME}/.homesick/repos/homeshick/homeshick.sh"
     homeshick track dotfiles_private ~/.macos_defaults_original_$(hostname)_$(/usr/local/opt/coreutils/libexec/gnubin/date --rfc-3339=date).json
     # FIX: second, load customizations https://github.com/mathiasbynens/dotfiles/blob/master/.macos
-    ~/.macos_customizations.json
+    bash ~/.macos_sane_defaults
   fi
 
   if [[ ${TRAVIS_CI_RUN} != true ]]; then
