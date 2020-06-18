@@ -115,7 +115,7 @@ function acp {
 }
 
 function find-error() {
-  sudo grep -A2 -B2 -riE 'DENIED|ERR|EXIST|FAIL|INVALID|SPECIFIED|SUCH|UNABLE|WARN|USAGE:|UNKNOWN|:\ LINE\ [0-9]' ${1} \
+  sudo grep -A2 -B2 -riHE 'DENIED|ERR|EXIST|FAIL|INVALID|SPECIFIED|SUCH|UNABLE|WARN|USAGE:|UNKNOWN|:\ LINE\ [0-9]' ${1} \
   | grep -v ierra \
   | grep -v erra
 }

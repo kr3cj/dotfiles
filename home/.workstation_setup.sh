@@ -132,9 +132,6 @@ if ${IS_MACOS} && ! hash mas 2>/dev/null ; then
 
   sudo rm -rf /Applications/{iMovie.app,GarageBand.app,Pages.app,Numbers.app}
 
-  # git stuff
-  git config --global pull.ff only
-
   cd ~/build/github
   for repo1 in \
    helm/charts \
@@ -233,7 +230,7 @@ EOF
 
   # install asdf tools
   # golang
-  for asdf_plugin in eksctl golang helm helmfile kubectl minikube saml2aws sopstool terraform; do
+  for asdf_plugin in argo eksctl golang helm helmfile kubectl minikube saml2aws sopstool terraform; do
     asdf plugin-add ${asdf_plugin}
   done
 
@@ -255,10 +252,10 @@ EOF
   if [[ ${TRAVIS_CI_RUN} != true ]]; then
     echo -e "\nTo continue, you must be logged into lastpass cli: \
     lpass login --trust lastpass@${CUSTOM_HOME_DOMAIN} \
-    Press any key to start \"~/.workstation_setup_private\"."
+    Then start \"~/.workstation_setup_private.sh\"."
     read -n 1 -s
-    [[ -r ~/.workstation_setup_private.sh ]] && \
-      /usr/local/bin/bash ~/.workstation_setup_private.sh
+    # [[ -r ~/.workstation_setup_private.sh ]] && \
+    #   /usr/local/bin/bash ~/.workstation_setup_private.sh
   else
     echo -e "\nInitial macos System setup completed."
   fi

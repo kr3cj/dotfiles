@@ -129,7 +129,7 @@ function work_vpn {
     else
       echo
       mount_home_nfs
-      _create_socks_proxy "proxy.${CUSTOM_NAS_HOST#*\.}" "2000"
+      # _create_socks_proxy "proxy.${CUSTOM_NAS_HOST#*\.}" "2000"
     fi
   else
     echo "Already connected to work vpn; skipping"
