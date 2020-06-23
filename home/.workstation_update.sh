@@ -67,7 +67,7 @@ if [[ $(uname) == "Darwin" ]] ; then
   /usr/local/bin/brew update
   /usr/local/bin/brew upgrade
   echo -e "\nUpdating brew casks..."
-  # dont rely on "brew cask outdated", "brew cask upgrade" as they miss stuff. Loop over each and upgrade.
+  # dont rely on "brew cask outdated --greedy", "brew cask upgrade" as they miss stuff. Loop over each and upgrade.
   # /usr/local/bin/brew cask upgrade
   # for cask1 in $(/usr/local/bin/brew cask outdated | awk '{print $1}') ; do
   for cask1 in $(/usr/local/bin/brew cask list) ; do

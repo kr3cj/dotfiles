@@ -19,6 +19,8 @@ source ~/.private-utils.sh
 
 function kubectl() {
   case ${@} in
+    *get?events*)
+      $(which kubectl) --sort-by='{.lastTimestamp}' ${*} ;;
     *get?componentstatus|*get?all)
       $(which kubectl) ${*} ;;
     *get?no*)
