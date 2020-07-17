@@ -153,8 +153,8 @@ if ${IS_MACOS} && ! hash mas 2>/dev/null ; then
   # FIX: failed to download beyond-compare due to cert problem with curl
   brew cask install \
     alfred slack spotify gimp github google-backup-and-sync brave-browser iterm2 \
-    firefox keystore-explorer keybase balenaetcher visual-studio-code zoomus
-    # private-internet-access; etcher is a usb flash utility
+    firefox keystore-explorer balenaetcher visual-studio-code zoomus
+    # keybase private-internet-access; etcher is a usb flash utility
 
   # brew cask install intellij-idea goland
   # input license for intellij, then goland should detect it, then remove intellij?
@@ -164,7 +164,7 @@ if ${IS_MACOS} && ! hash mas 2>/dev/null ; then
   # TODO: disable updates in docker so brew update can manage it, disable experimental features
   brew cask install docker
   open -a "Docker"
-  #w virtualbox
+  # virtualbox
 
   # TODO: use openvpn to connect to PIA via CLI
   #  https://helpdesk.privateinternetaccess.com/hc/en-us/articles/219437987-Installing-OpenVPN-PIA-on-MacOS
@@ -209,7 +209,7 @@ if ${IS_MACOS} && ! hash mas 2>/dev/null ; then
 #!$(which bash)
 EOF
   for extension1 in \
-    hashicorp.terraform \
+    hashicorp.terraform eamodio.gitlens \
     ; do
     echo "code --install-extension ${extension1} --verbose" >> /var/tmp/vscode_installs.sh
   done
@@ -230,18 +230,14 @@ EOF
 
   # install asdf tools
   # golang
-  for asdf_plugin in argo eksctl golang helm helmfile kubectl minikube saml2aws sopstool terraform; do
+  for asdf_plugin in argo eksctl golang helm helmfile kubectl minikube kops saml2aws sopstool terraform; do
     asdf plugin-add ${asdf_plugin}
   done
+  asdf plugin-add octant https://github.com/looztra/asdf-octant
 
   # gce and gke stuff (https://cloud.google.com/sdk/docs/quickstart-mac-os-x)
   brew install golang
   go get golang.org/x/tools/cmd/godoc
-  # brew cask install google-cloud-sdk
-  # gcloud components install kubectl -q
-  # gcloud init
-  # gcloud auth list
-  # gcloud config list
 
   # prep for home nfs mount
   [[ -d ~/Documents/share1 ]] || mkdir ~/Documents/share1

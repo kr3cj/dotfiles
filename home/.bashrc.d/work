@@ -121,8 +121,7 @@ function work_vpn {
       # openit "Cisco AnyConnect Secure Mobility Client"
       nohup open -a "Cisco AnyConnect Secure Mobility Client" > /dev/null &
       sleep 5
-      echo "Caching otp token..."
-      otp
+      otp && echo "Cached otp token."
       # pre-authentication
       # "/Applications/Brave Browser.app/Contents/MacOS/Brave Browser" https://${CUSTOM_WORK_DOMAINS[0]/.com/}.onelogin.com
       # "/Applications/Brave Browser.app/Contents/MacOS/Brave Browser" https://github.com/${CUSTOM_WORK_DOMAINS[0]/.com/}
@@ -137,7 +136,9 @@ function work_vpn {
   fi
 }
 
+echo ""
 work_saml2aws
+echo ""
 work_vpn
 
 # if ${at_home}; then

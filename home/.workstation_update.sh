@@ -71,22 +71,15 @@ if [[ $(uname) == "Darwin" ]] ; then
   # /usr/local/bin/brew cask upgrade
   # for cask1 in $(/usr/local/bin/brew cask outdated | awk '{print $1}') ; do
   for cask1 in $(/usr/local/bin/brew cask list) ; do
-  #   if [[ ${cask1} =~ virtualbox ]] ; then
-  #     echo -e "\nSkipping reinstall of brew cask \"virtualbox\" (known issues with non-root installs at time of coding)."
-  #     continue
-  #   elif [[ ${cask1} =~ gcloud ]] ; then
-      echo "Upgrading cask \"${cask1}\"..."
-      # spotify and google-backup-and-sync always reinstall, unfortunately
-      /usr/local/bin/brew cask upgrade ${cask1}
-      # TODO: open each new cask to get past the "downloaded from internet" warning
-      # openit "${cask1}"
-  #     echo -e "\nUpgrading gcloud cask requires reinstall of kubectl client..."
-  #     sudo gcloud components install kubectl -q
-  #     continue
-  #   fi
-  #   /usr/local/bin/brew cask reinstall ${cask1}
+    case ${cask1} in
+      brave-browser|firefox|github|google-backup-and-sync|\
+      slack|spotify|visual-studio-code|virtualbox|zoomus)
+        echo "Skipping cask that should auto update itself: ${cask1}" ;;
+      *)
+        echo "Upgrading cask \"${cask1}\"..."
+        /usr/local/bin/brew cask upgrade ${cask1} ;;
+    esac
   done
-
 
   # if [[ -e /usr/local/bin/apm ]] ; then
     # echo -e "\nUpdating atom editor plugins."
@@ -94,8 +87,8 @@ if [[ $(uname) == "Darwin" ]] ; then
   # fi
 
   echo -e "\nUpdating helm plugins."
-  for hplug in $($(asdf where helm 2.16.8)/bin/helm plugin list | grep -v ^NAME | awk '{print $1}') ; do
-    $(asdf where helm 2.16.8)/bin/helm plugin update ${hplug}
+  for hplug in $($(asdf where helm 2.16.9)/bin/helm plugin list | grep -v ^NAME | awk '{print $1}') ; do
+    $(asdf where helm 2.16.9)/bin/helm plugin update ${hplug}
   done
 
   echo -e "\nUpdating kubectl krew plugins."
@@ -124,7 +117,38 @@ if [[ $(uname) == "Darwin" ]] ; then
   if hash asdf 2>/dev/null ; then
     echo -e "\nUpdating asdf plugins..."
     $(brew --prefix asdf)/bin/asdf plugin-update --all
-    # TODO: overwrite ~/.tool-versions with new releases
+    # overwrite ~/.tool-versions with new releases
+    # from https://gist.github.com/ig0rsky/fef7f785b940d13b52eb1b379bd7438d
+    echo -e "\nUpdating asdf tool versions..."
+    [[ -f ~/.tool-versions ]] || break
+    # backing up ~/.tool-versions
+    cp -avL ~/.tool-versions ~/.tool-versions.$(date +%Y%m%d).backup
+
+    local version1
+    [[ -f ~/.tool-versions.new ]] && true > ~/.tool-versions.new
+    for tool1 in $(awk '{print $1}' ~/.tool-versions | grep -v "^#" | sort); do
+      case ${tool1} in
+        kops|argo|terraform)
+          echo "Skipping upgrade of locked asdf plugin \"${tool1}\""
+          echo "$(grep ^${tool1} ~/.tool-versions)" >> ~/.tool-versions.new ;;
+        kubectl)
+          echo "Getting latest patch version of asdf plugin \"${tool1}\"..."
+          version1="$(grep ${tool1} ~/.tool-versions | awk '{print $2}')"
+          # use bash parameter expansion to extract the major and minor version from ${version1}
+          echo "${tool1} $($(brew --prefix asdf)/bin/asdf latest ${tool1} ${version1%\.*}})" >> ~/.tool-versions.new ;;
+        dummy-example)
+          echo "Getting latest minor version only of asdf plugin \"${tool}\"..."
+          version1="$(grep ${tool1} ~/.tool-versions | awk '{print $2}')"
+          # use bash parameter expansion to extract the major version from ${version1}
+          echo "${tool1} $($(brew --prefix asdf)/bin/asdf latest ${tool1} ${version1%%\.*}})" >> ~/.tool-versions.new ;;
+        *)
+          echo "Getting latest version of asdf plugin \"${tool1}\"..."
+          echo "${tool1} $($(brew --prefix asdf)/bin/asdf latest ${tool1})" >> ~/.tool-versions.new ;;
+      esac
+    done
+    mv ~/.tool-versions.new ~/.tool-versions
+    diff -y ~/.tool-versions ~/.tool-versions.$(date +%Y%m%d).backup
+    (cd ${HOME} && $(brew --prefix asdf)/bin/asdf install)
   fi
 
   /bin/rm -vr ~/.gradle/caches/* 2> /dev/null || echo
@@ -176,7 +200,8 @@ if [[ $(uname) == "Darwin" ]] ; then
   echo -e "\nUpdating macos system..."
   /usr/sbin/softwareupdate --install --all
   # /usr/sbin/softwareupdate --restart
-  sudo xcodebuild -license accept
+  sudo xcode-select --switch /Library/Developer/CommandLineTools && \
+    sudo xcodebuild -license accept
   if [[ ${TRAVIS_CI_RUN} != true ]]; then
     # TODO: Must reboot immediately else the Finder can get disk sync issues and error -43?
     echo -e "\nChecking macos disk health."

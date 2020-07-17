@@ -24,8 +24,8 @@ function saml2aws {
     # "need to cache work private ssh key"
     lpass show --field=Passphrase --clip "id_rsa"
   fi
-  # lpass show --password --clip "${CUSTOM_WORK_DOMAINS[0]/.com/} macbook" || echo "Unable to cache pw."
-  # echo "Running \"saml2aws ${args} --skip-prompt ${*}\""
+  [[ ${VERBOSE} -ge 1 ]] && \
+    echo "Running \"saml2aws ${args} --skip-prompt ${*}\""
   $(which saml2aws) ${args} ${*}
 }
 

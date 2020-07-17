@@ -17,6 +17,8 @@ if [[ $(uname) == "Darwin" ]] ; then
   # use app store instead if xcode isn't updated by softwareupdate
   # https://apple.stackexchange.com/questions/341706/cant-update-developer-tools-on-mojavehttps://apple.stackexchange.com/questions/341706/cant-update-developer-tools-on-mojave
   xcode-select --install # TODO: make non-interactive
+  # enable command line tools
+  sudo xcode-select --switch /Library/Developer/CommandLineTools
   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)" # TODO: make non-interactive
   brew install git
 elif [[ $(uname) == "Linux" ]] ; then

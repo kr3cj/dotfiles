@@ -17,20 +17,6 @@ ${IS_MACOS} || return
 
 source ~/.private-utils.sh
 
-function kubectl() {
-  case ${@} in
-    *get?events*)
-      $(which kubectl) --sort-by='{.lastTimestamp}' ${*} ;;
-    *get?componentstatus|*get?all)
-      $(which kubectl) ${*} ;;
-    *get?no*)
-      $(which kubectl) --label-columns=nodegroup_name,function --sort-by=.metadata.creationTimestamp ${*} ;;
-    *get?po*|*get?ds*|*get?svc*|*get?deploy*)
-      $(which kubectl) --sort-by=.metadata.creationTimestamp ${*} ;;
-    *)
-      $(which kubectl) ${*} ;;
-  esac
-}
 function eks() {
   local cluster=${1}
   if ! [[ -r ~/.kube/${cluster} ]]; then
@@ -55,9 +41,38 @@ function eks() {
   if [[ ${action} =~ "outdated" ]] || [[ ${action} =~ "node-admin" ]]; then
     kube_config=""
   fi
+  # automatic sorting and displaying of labels
+  case ${action} in
+    *get?events*)
+      action="${action} --sort-by='{.lastTimestamp}'" ;;
+    *get?no*)
+      action="${action} --label-columns=nodegroup_name,function --sort-by=.metadata.creationTimestamp" ;;
+  esac
+
   [[ ${VERBOSE} -ge 1 ]] && \
-    echo "Running: \"kubectl ${kube_config} ${action}\""
+    echo "Running: \"$(which kubectl) ${kube_config} ${action}\""
   kubectl ${kube_config} ${action} #--context admin@${cluster}
+}
+
+function ibexs() {
+  if ! [[ $(pwd) =~ ibex ]] ; then
+    echo "You must be in the ibex repo to run it"
+    exit 1
+  fi
+
+  local cluster=${1}
+  if ! [[ -r ~/.kube/${cluster} ]]; then
+    echo "No kubeconfig found for \"${cluster}\"!"
+    return 1
+  fi
+  shift
+  local args="${@}"
+
+  local my_cluster_path="$(map-cluster-to-path ${cluster})"
+
+  [[ ${VERBOSE} -ge 1 ]] && \
+    echo "Running: ./ibex --cluster ${my_cluster_path} ${args}"
+  ./ibex --cluster ${my_cluster_path} ${args}
 }
 
 function helms() {
@@ -193,3 +208,9 @@ TABLE_EOF
 
 # force pod deletion (only removes from etcd, doesn't force kill container on node)
 # kubectl -n operations delete pod/host-agent-datadog-l22qs --grace-period=0 --force
+
+# show count of deployment revisionHistoryLimit by microservice (replicationsets)
+# kubectl get deploy -ogo-template='{{range .items}}{{.metadata.name}}{{"\t"}}{{.spec.revisionHistoryLimit}}{{"\n"}}{{end}}' | column -t | awk '{print $2}' | sort | uniq -c
+
+# show count of configmaps by microservice
+# kubectl get rs -lapp -ogo-template='{{range .items}}{{.metadata.labels.app}}{{"\n"}}{{end}}' | awk '{print $1}' | sort | uniq -c
