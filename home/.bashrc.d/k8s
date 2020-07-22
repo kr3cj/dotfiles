@@ -214,3 +214,6 @@ TABLE_EOF
 
 # show count of configmaps by microservice
 # kubectl get rs -lapp -ogo-template='{{range .items}}{{.metadata.labels.app}}{{"\n"}}{{end}}' | awk '{print $1}' | sort | uniq -c
+
+# show counts of unique images/versions by namespace (watch is helpful for rollouts)
+# watch "kubectl -n operations get po --sort-by=.metadata.creationTimestamp -o jsonpath='{..image}' | tr -s '[[:space:]]' '\n' | sort | uniq -c"

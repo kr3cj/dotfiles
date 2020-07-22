@@ -1,15 +1,15 @@
 argo 2.4.3
 # aws-iam-authenticator 0.4.0
 # eksctl 0.24.0
-golang 1.14.4
+golang 1.14.6
 helm 2.16.9
 # helmfile 0.116.0
 kops 1.9.2
-kubectl 1.16.11
+kubectl 1.16.13
 # minikube 1.6.2
-octant 0.13.1
-pluto 3.2.0
-python 3.8.3
+octant 0.14.1
+pluto 3.4.0
+python 3.8.5
 saml2aws 2.26.2
 sopstool 0.4.2
 terraform 0.12.28

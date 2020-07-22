@@ -6,3 +6,5 @@ if [[ "$(uname)" == "Darwin" ]] && [[ -f /etc/profile ]]; then
 fi
 
 [[ -f ~/.bashrc ]] && . ~/.bashrc
+
+export PATH="$HOME/.asdf/installs/poetry/1.0.10/bin:$PATH"

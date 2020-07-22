@@ -209,17 +209,12 @@ if ${IS_MACOS} && ! hash mas 2>/dev/null ; then
 #!$(which bash)
 EOF
   for extension1 in \
-    hashicorp.terraform eamodio.gitlens \
+    hashicorp.terraform eamodio.gitlens ms-python.python \
     ; do
     echo "code --install-extension ${extension1} --verbose" >> /var/tmp/vscode_installs.sh
   done
   bash /var/tmp/vscode_installs.sh && rm -v /var/tmp/vscode_installs.sh
   echo "Grab Personal Access Token from GitHub; put into vscode"
-  cat << EOF >> ${HOME}/Library/Application\ Support/Code/User/settings.json
-  {
-    "files.autoSave": "afterDelay",
-    "workbench.startupEditor": "none"
-  }
 EOF
 
   # install helm client
