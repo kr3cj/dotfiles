@@ -25,7 +25,7 @@ function saml2aws {
     lpass show --field=Passphrase --clip "id_rsa"
   fi
   [[ ${VERBOSE} -ge 1 ]] && \
-    echo "Running \"saml2aws ${args} --skip-prompt ${*}\""
+    echo "Running \"$(which saml2aws) ${args} ${*}\""
   $(which saml2aws) ${args} ${*}
 }
 

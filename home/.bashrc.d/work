@@ -132,6 +132,7 @@ function work_vpn {
     fi
   else
     echo "Already connected to work vpn; skipping"
+    unmount_home_nfs
     # _create_socks_proxy "home.${CUSTOM_HOME_DOMAIN}" "2000"
   fi
 }
