@@ -23,7 +23,7 @@ else
 fi
 
 function on_vpn {
-  if [[ ${ip_address} =~ ${CUSTOM_VPN_SUBNET}.* ]]; then
+  if [[ ${ip_address} =~ ${CUSTOM_WORK_VPN_SUBNET}.* ]]; then
     # ping -c1 -W1 -i0.1 tools.${CUSTOM_WORK_DOMAINS[0]} &> /dev/null
     # local response=$(curl https://${CUSTOM_WORK_K8S_DOMAIN}/version?timeout=2s \
     #   --insecure \
@@ -72,9 +72,9 @@ function _create_socks_proxy {
       return 1
     fi
     if [[ ${host1} == "home.${CUSTOM_HOME_DOMAIN}" || \
-          ${host1} == "proxy.${CUSTOM_NAS_HOST#*\.}" ]]; then
+          ${host1} == "proxy.${CUSTOM_HOME_NAS_HOST#*\.}" ]]; then
       # sleep 2 # reduce collisions between clear_clip and subsequent copies
-      lpass show --password --clip "proxy.${CUSTOM_NAS_HOST#*\.}"
+      lpass show --password --clip "proxy.${CUSTOM_HOME_NAS_HOST#*\.}"
     fi
     # ssh options moved to ~/.ssh/config
     #  -o TCPKeepAlive=yes -o ConnectTimeout=1 -o ConnectionAttempts=1 \
@@ -91,22 +91,22 @@ function _create_socks_proxy {
 
 function unmount_home_nfs {
   while $(mount | grep -q "Documents/share1") ; do
-    sudo umount -fv -t nfs ${CUSTOM_NAS_HOST}:/share
+    sudo umount -fv -t nfs ${CUSTOM_HOME_NAS_HOST}:/share
   done
   while $(mount | grep -q "Pictures/share1") ; do
-    sudo umount -fv -t nfs ${CUSTOM_NAS_HOST}:/share/pictures
+    sudo umount -fv -t nfs ${CUSTOM_HOME_NAS_HOST}:/share/pictures
   done
 }
 function mount_home_nfs {
     mount | grep -q "Documents/share1" || mount -t nfs -o \
       vers=4,rw,soft,intr,bg,rwsize=32768,dsize=32768 \
-      ${CUSTOM_NAS_HOST}:/share ~/Documents/share1
+      ${CUSTOM_HOME_NAS_HOST}:/share ~/Documents/share1
     mount | grep -q "Pictures/share1" || mount -t nfs -o \
       vers=4,rw,soft,intr,bg,rwsize=32768,dsize=32768 \
-      ${CUSTOM_NAS_HOST}:/share/pictures ~/Pictures/share1
+      ${CUSTOM_HOME_NAS_HOST}:/share/pictures ~/Pictures/share1
     # add printer
     # see https://www.jamf.com/jamf-nation/discussions/31099/adding-printer-to-mac-via-terminal-command-line-for-airprint
-    # lpadmin -p canon_mg5220 -L "canon_mg5220" -E -v lpd://printer.${CUSTOM_NAS_HOST#*\.} -m everywhere
+    # lpadmin -p canon_mg5220 -L "canon_mg5220" -E -v lpd://printer.${CUSTOM_HOME_NAS_HOST#*\.} -m everywhere
 }
 function work_saml2aws {
   otp
@@ -128,7 +128,7 @@ function work_vpn {
     else
       echo
       mount_home_nfs
-      # _create_socks_proxy "proxy.${CUSTOM_NAS_HOST#*\.}" "2000"
+      # _create_socks_proxy "proxy.${CUSTOM_HOME_NAS_HOST#*\.}" "2000"
     fi
   else
     echo "Already connected to work vpn; skipping"
@@ -143,7 +143,7 @@ echo ""
 work_vpn
 
 # if ${at_home}; then
-#   if $(ping -c1 -W1 -i0.1 ${CUSTOM_NAS_HOST} &> /dev/null); then
+#   if $(ping -c1 -W1 -i0.1 ${CUSTOM_HOME_NAS_HOST} &> /dev/null); then
 #     mount_home_nfs
 #     # openit "Backup and Sync"
 #   fi

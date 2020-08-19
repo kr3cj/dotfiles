@@ -13,17 +13,17 @@ Lifetime set to 36000 seconds
 Identity added: /Users/${LOGNAME}/.ssh/id_rsa_coreos (/Users/${LOGNAME}/.ssh/id_rsa_coreos)
 Lifetime set to 36000 seconds
 net.link.ether.inet.arp_unicast_lim: 0 -> 1
-Establishing ssh tunnel with ${CUSTOM_LDAP_NAME}@forinf2.${CUSTOM_WORK_DOMAINS[0]}:2002...
-Establishing ssh tunnel with ${CUSTOM_LDAP_NAME}@laxinf2.${CUSTOM_WORK_DOMAINS[0]}:2003...
+Establishing ssh tunnel with ${CUSTOM_WORK_LDAP_NAME}@forinf2.${CUSTOM_WORK_DOMAINS[0]}:2002...
+Establishing ssh tunnel with ${CUSTOM_WORK_LDAP_NAME}@laxinf2.${CUSTOM_WORK_DOMAINS[0]}:2003...
 Establishing ssh tunnel with ${LOGNAME/\.*/}@${CUSTOM_HOME_DOMAIN}:2000...
 ${LOGNAME/\.*/}@home.${CUSTOM_HOME_DOMAIN}'s password:
 net.link.ether.inet.arp_unicast_lim: 3 -> 1
-nas.${CUSTOM_NAS_HOST#*\.}:/share unmount from /Users/${LOGNAME}/Documents/share1
-nas.${CUSTOM_NAS_HOST#*\.}:/share unmount from /Users/${LOGNAME}/Documents/share1
+nas.${CUSTOM_HOME_NAS_HOST#*\.}:/share unmount from /Users/${LOGNAME}/Documents/share1
+nas.${CUSTOM_HOME_NAS_HOST#*\.}:/share unmount from /Users/${LOGNAME}/Documents/share1
 umount: unmount(/Users/${LOGNAME}/Documents/share1): Invalid argument
 attempting to unmount /Users/${LOGNAME}/Documents/share1 by fsid
-nas.${CUSTOM_NAS_HOST#*\.}:/share/pictures unmount from /Users/${LOGNAME}/Pictures/share1
-nas.${CUSTOM_NAS_HOST#*\.}:/share/pictures unmount from /Users/${LOGNAME}/Pictures/share1
+nas.${CUSTOM_HOME_NAS_HOST#*\.}:/share/pictures unmount from /Users/${LOGNAME}/Pictures/share1
+nas.${CUSTOM_HOME_NAS_HOST#*\.}:/share/pictures unmount from /Users/${LOGNAME}/Pictures/share1
 umount: unmount(/Users/${LOGNAME}/Pictures/share1): Invalid argument
 attempting to unmount /Users/${LOGNAME}/Pictures/share1 by fsid
       refresh The castles dotfiles,homeshick are outdated.

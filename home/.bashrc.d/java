@@ -1,5 +1,5 @@
 [[ $- = *i* ]] || return
 ${IS_MACOS} || return
 
-MVN_REPO_LOGIN="deployer:${CUSTOM_NPM_MVN_AUTH}"
+MVN_REPO_LOGIN="deployer:${CUSTOM_WORK_NPM_MVN_AUTH}"
 alias j8='export JAVA_HOME=`/usr/libexec/java_home -v 1.8`'

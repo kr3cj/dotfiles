@@ -247,19 +247,19 @@ if [[ "${IS_MACOS}" == "true" ]]; then
         ${CUSTOM_WORK_SUBNET}.*|$(echo ${CUSTOM_WORK_DOMAINS[@]/#/*.}|tr ' ' '|'))
           lpass show --password --clip \"${CUSTOM_WORK_DOMAINS[0]/.com/} ${CUSTOM_WORK_SSO_PROVIDER}\";;
         home.${CUSTOM_HOME_DOMAIN})
-          lpass show --password --clip \"proxy.${CUSTOM_NAS_HOST#*\.}\" ;;
-        nas|nas.${CUSTOM_NAS_HOST#*\.})
-          lpass show --password --clip \"nas.${CUSTOM_NAS_HOST#*\.}\" ;;
-        web|web.${CUSTOM_NAS_HOST#*\.})
-          lpass show --password --clip \"web.${CUSTOM_NAS_HOST#*\.}\" ;;
-        ship|ship.${CUSTOM_NAS_HOST#*\.})
-          lpass show --password --clip \"ship.${CUSTOM_NAS_HOST#*\.}\" ;;
-        plex|plex.${CUSTOM_NAS_HOST#*\.})
-          lpass show --password --clip \"plex.${CUSTOM_NAS_HOST#*\.}\" ;;
-        proxy|proxy.${CUSTOM_NAS_HOST#*\.})
-          lpass show --password --clip \"proxy.${CUSTOM_NAS_HOST#*\.}\" ;;
-        babycam|babycam.${CUSTOM_NAS_HOST#*\.})
-          lpass show --password --clip \"babycam.${CUSTOM_NAS_HOST#*\.}\" ;;
+          lpass show --password --clip \"proxy.${CUSTOM_HOME_NAS_HOST#*\.}\" ;;
+        nas|nas.${CUSTOM_HOME_NAS_HOST#*\.})
+          lpass show --password --clip \"nas.${CUSTOM_HOME_NAS_HOST#*\.}\" ;;
+        web|web.${CUSTOM_HOME_NAS_HOST#*\.})
+          lpass show --password --clip \"web.${CUSTOM_HOME_NAS_HOST#*\.}\" ;;
+        ship|ship.${CUSTOM_HOME_NAS_HOST#*\.})
+          lpass show --password --clip \"ship.${CUSTOM_HOME_NAS_HOST#*\.}\" ;;
+        plex|plex.${CUSTOM_HOME_NAS_HOST#*\.})
+          lpass show --password --clip \"plex.${CUSTOM_HOME_NAS_HOST#*\.}\" ;;
+        proxy|proxy.${CUSTOM_HOME_NAS_HOST#*\.})
+          lpass show --password --clip \"proxy.${CUSTOM_HOME_NAS_HOST#*\.}\" ;;
+        babycam|babycam.${CUSTOM_HOME_NAS_HOST#*\.})
+          lpass show --password --clip \"babycam.${CUSTOM_HOME_NAS_HOST#*\.}\" ;;
         macbuild*)
           lpass show --password --clip AD ;;
       esac

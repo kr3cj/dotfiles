@@ -16,7 +16,7 @@ if [[ "${HEALTHY_INTERNET}" == "true" ]] && [[ "${VAULT_REACHABLE}" == "true" ]]
   if ! vault token lookup &> /dev/null; then
     echo "Must re-authenticate with VAULT (${VAULT_ADDR}...)"
     lpass show --password --clip LDAP
-    vault login -method=ldap username=${CUSTOM_LDAP_NAME} > /dev/null
+    vault login -method=ldap username=${CUSTOM_WORK_LDAP_NAME} > /dev/null
     if [[ ${?} -ne 0 ]]; then
       export VAULT_REACHABLE="false"
     else

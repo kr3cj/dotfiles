@@ -1,8 +1,6 @@
 [[ $- = *i* ]] || return
 ${IS_LINUX} || return
 
-[[ -d /build/${CUSTOM_LDAP_NAME}/deploy ]] && cd /build/${CUSTOM_LDAP_NAME}/deploy
-
 is_debian="false"
 is_rhel="false"
 at_work="false"
