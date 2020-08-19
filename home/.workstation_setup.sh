@@ -104,13 +104,13 @@ if ${IS_MACOS} && ! hash mas 2>/dev/null ; then
   # brew install perl518
   echo "install python"
   # https://docs.python-guide.org/starting/install3/osx/
-  brew install python
+  brew install python@3.8
   # pip3 install --upgrade distribute
   # pip3 install --upgrade pip
   # pip3 install pylint virtualenv yq==2.2.0
 
   echo "install some extra utility packages for me"
-  brew install bash-completion certigo cfssl dos2unix gnu-getopt jq jid pstree tree
+  brew install bash-completion certigo cfssl dos2unix gnu-getopt jq jid pstree step tree
   brew tap wallix/awless; brew install awless
   echo "install extra tools that I like"
   brew install \
@@ -238,11 +238,14 @@ EOF
   [[ -d ~/Documents/share1 ]] || mkdir ~/Documents/share1
   [[ -d ~/Pictures/share1 ]] || mkdir ~/Pictures/share1
 
-  ### Rest requires bash v5+ and authenticated lpass cli for private dotfiles ###
+  ### Rest requires bash v5+ and authenticated password manager cli for private dotfiles ###
   brew install lastpass-cli
+  brew cask install 1password-cli
   if [[ ${TRAVIS_CI_RUN} != true ]]; then
-    echo -e "\nTo continue, you must be logged into lastpass cli: \
-    lpass login --trust lastpass@${CUSTOM_HOME_DOMAIN} \
+    echo -e "\nTo continue, you must be authenticated to password manager cli: \
+    op signin ${CUSTOM_HOME_PASSWD_MGR_ACCOUNT} \
+    eval \$(op signin my) \
+    # lpass login --trust lastpass@${CUSTOM_HOME_DOMAIN} \
     Then start \"~/.workstation_setup_private.sh\"."
     read -n 1 -s
     # [[ -r ~/.workstation_setup_private.sh ]] && \
@@ -250,6 +253,7 @@ EOF
   else
     echo -e "\nInitial macos System setup completed."
   fi
+
 fi
 
 # install software on linux

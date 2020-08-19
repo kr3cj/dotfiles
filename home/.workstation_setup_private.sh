@@ -2,7 +2,8 @@
 LOG4=/var/tmp/workstation_setup_$(date +%Y-%m-%d).log
 (
   # the purpose of this script is to house all macos workstation customizations requiring access to dotfiles_private
-  echo "first, check that we are logged into lastpass."
+  echo "first, check that we are authenticated to password manager."
+  # op get account > /dev/null || ( echo "Not logged into password manager; quitting" && exit 1)
   lpass status > /dev/null || ( echo "Not logged into lastpass-cli; quitting" && exit 1)
   echo "second, check that SHELL is bash v5+."
   if ! $(bash --version | grep -q 'version 5'); then
@@ -68,7 +69,7 @@ LOG4=/var/tmp/workstation_setup_$(date +%Y-%m-%d).log
     cd ~/.homesick/repos/otp-cli/
     sudo ln -s $( echo "$( pwd )/otp-cli" ) /usr/local/bin/otp-cli
     chmod 700 -c ~/otp-cli/tokens
-    chmod 400 -c ~/otp-cli/tokens/${CUSTOM_WORK_SSO_PROVIDER} 
+    chmod 400 -c ~/otp-cli/tokens/${CUSTOM_WORK_SSO_PROVIDER}
   )
 
   # mas is a CLI for AppStore installs/updates
