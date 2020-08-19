@@ -21,6 +21,28 @@ alias cdd="homeshick cd dotfiles"
 alias cdp="homeshick cd dotfiles_private"
 alias pp="source ~/.bash_profile"
 
+function argod () {
+  local uri
+  case ${1} in
+    barrel)
+      uri=https://argo-workflow.int.ibops.net/workflows ;;
+    apollo)
+      uri=https://argo-workflow.int.staging.ibops.net/workflows ;;
+    cats)
+      uri=https://argo-workflow.pay.staging.ibops.net/workflows ;;
+    epoxi)
+      uri=https://argo-workflow.pay.ibops.net/login/workflows ;;
+    dawn)
+      uri=https://argo-workflow.ops.int.ibops.net/workflows ;;
+    *)
+      echo "Could not find a matching cluster config for \"${1}\"."
+      exit 1 ;;
+  esac
+  [[ ${VERBOSE} -ge 1 ]] && \
+    echo "Running \"( KUBECONFIG=~/.kube/${1} argo auth token | pbcopy ) && open ${uri}\"..."
+  ( KUBECONFIG=~/.kube/${1} argo auth token | pbcopy ) && open ${uri}
+}
+
 function cb() {
   cd ~/build/github/${@}
 }

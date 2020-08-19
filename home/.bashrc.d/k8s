@@ -41,12 +41,21 @@ function eks() {
   if [[ ${action} =~ "outdated" ]] || [[ ${action} =~ "node-admin" ]]; then
     kube_config=""
   fi
-  # automatic sorting and displaying of labels
+  # automatic sorting and displaying of labels for common get commands
   case ${action} in
     *get?events*)
-      action="${action} --sort-by='{.lastTimestamp}'" ;;
+      action="${action} --sort-by=.lastTimestamp" ;;
+    *get?po*)
+      action="${action} --sort-by=.metadata.creationTimestamp" ;;
     *get?no*)
-      action="${action} --label-columns=nodegroup_name,function --sort-by=.metadata.creationTimestamp" ;;
+      if [[ ${cluster} =~ k8s ]]; then
+        action="${action} --label-columns=kubernetes.io/role,function --sort-by=.metadata.creationTimestamp"
+      else
+        action="${action} --label-columns=nodegroup_name,function --sort-by=.metadata.creationTimestamp"
+      fi ;;
+    *)
+      [[ ${VERBOSE} -ge 1 ]] && echo "matched global"
+      action="${action}" ;;
   esac
 
   [[ ${VERBOSE} -ge 1 ]] && \
@@ -101,10 +110,11 @@ function helms() {
   # old kops clusters dont need saml2aws wrapper
   # local wrapper="saml2aws exec --exec-profile=${my_aws_profile} --"
   local helm_path="/Users/${LOGNAME}/.asdf/shims/helm"
-  if [[ ${cluster} =~ "k8s-" ]]; then
+  if [[ ${cluster} =~ k8s ]]; then
     wrapper=""
-    # k8s-staging is 2.11
-    helm_path="$(asdf where helm 2.11.0)/bin/helm"
+    # kops clusters (k8s and k8s-staging) running helm 2.14.2
+    asdf install helm 2.14.2
+    helm_path="$(asdf where helm 2.14.2)/bin/helm"
   fi
 
   [[ ${VERBOSE} -ge 1 ]] && \
@@ -217,3 +227,6 @@ TABLE_EOF
 
 # show counts of unique images/versions by namespace (watch is helpful for rollouts)
 # watch "kubectl -n operations get po --sort-by=.metadata.creationTimestamp -o jsonpath='{..image}' | tr -s '[[:space:]]' '\n' | sort | uniq -c"
+
+# show counts of unique images/version for kubelet
+# kubectl --kubeconfig get no --sort-by=.metadata.creationTimestamp -o jsonpath='{..kubeletVersion}' | tr -s '[[:space:]]' '\n' | sort | uniq -c

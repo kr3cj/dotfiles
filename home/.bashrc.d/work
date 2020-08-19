@@ -152,7 +152,7 @@ work_vpn
 #   _create_socks_proxy "home.${CUSTOM_HOME_DOMAIN}" "2000"
 
 #   # open desktop apps (TODO: --background not working for Slack and Atom)
-#   # openit Slack "Visual Studio Code"
+openit Slack "Visual Studio Code"
 #   unmount_home_nfs
 #   work_vpn
 # else
