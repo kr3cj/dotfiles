@@ -7,10 +7,11 @@ helm 2.16.10
 kops 1.9.2
 kubectl 1.18.8
 # minikube 1.6.2
+nova 2.0.1
 octant 0.15.0
 # pluto 3.4.0
 python 3.8.5
-saml2aws 2.26.2
+saml2aws 2.27.0
 # sopstool 0.4.2
 terraform 0.12.29
 # tfenv 2.0.0

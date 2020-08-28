@@ -17,7 +17,7 @@ ${IS_MACOS} || return
 
 source ~/.private-utils.sh
 
-function eks() {
+function k() {
   local cluster=${1}
   if ! [[ -r ~/.kube/${cluster} ]]; then
     echo "No kubeconfig found for \"${cluster}\"!"
@@ -84,7 +84,7 @@ function ibexs() {
   ./ibex --cluster ${my_cluster_path} ${args}
 }
 
-function helms() {
+function h() {
   local cluster=${1}
   if ! [[ -r ~/.kube/${cluster} ]]; then
     echo "No kubeconfig found for \"${cluster}\"!"
