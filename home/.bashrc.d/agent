@@ -32,33 +32,33 @@ EOF
   # alias tmux='_ssh_auth_save ; $(which tmux)'
 fi
 
-function _load_ssh_key_from_lpass () {
+function _load_ssh_key_from_passman () {
   local key=${@}
   # reload ssh keys into agent daily from lastpass
   if ! $(ssh-add -l 2> /dev/null | grep -q "/.ssh/id_rsa${key}\ ("); then
-    # TODO: better integrate passphrase from LastPass CLI? https://svkt.org/~simias/lpass/#ssh-agent
+    # TODO: better integrate passphrase from passman? https://svkt.org/~simias/lpass/#ssh-agent
     (umask 177
     # workaround since this sometimes creates a directory
     [[ -d ~/.ssh/id_rsa${key} ]] && rmdir ~/.ssh/id_rsa${key}
     [[ -f ~/.ssh/id_rsa${key} ]] || touch ~/.ssh/id_rsa${key}
-    lpass show --field="Private Key" "id_rsa${key}" > ~/.ssh/id_rsa${key}
+    op get item "id_rsa${key}" --fields notes > ~/.ssh/id_rsa${key}
     )
-    lpass show --field=Passphrase --clip "id_rsa${key}"
+    op get item "id_rsa${key}" --fields Passphrase | pbcopy
     ssh-add -q -t 43200 -k ~/.ssh/id_rsa${key}
     [[ ${?} -ne 0 ]] && echo "Failed to load \"~/.ssh/id_rsa${key}\"!"
     # keep only work private key on filesystem so container mounts have it
     [[ -z ${key} ]] || rm -f ~/.ssh/id_rsa${key}
     (umask 177
-    lpass show --field="Public Key" "id_rsa${key}" > ~/.ssh/id_rsa${key}.pub
+    op get item "id_rsa${key}" --fields "Public Key" > ~/.ssh/id_rsa${key}.pub
     )
   fi
 }
 for ssh_key in "" _personal ; do
-  _load_ssh_key_from_lpass ${ssh_key}
+  _load_ssh_key_from_passman ${ssh_key}
 done
 [[ ${at_work} || $(port ${CUSTOM_WORK_K8S_DOMAIN}:443 &>/dev/null) ]] \
-  && for ssh_key in _harness _k8s-prod _k8s-staging _k8s-dawn; do
-    _load_ssh_key_from_lpass ${ssh_key}
+  && for ssh_key in _k8s-prod _k8s-staging _k8s-dawn; do
+    _load_ssh_key_from_passman ${ssh_key}
 done
 
 # remove next line if work gets vault

@@ -2,16 +2,6 @@
 # [[ ${HISTSIZE} -lt 1000000 ]] && echo -e "\nSomething has overridden \${HISTSIZE} to ${HISTSIZE}!!!\n"
 
 [[ -f ~/.base_homeshick_vars ]] && source ~/.base_homeshick_vars
-export IS_MACOS="false"
-export IS_LINUX="false"
-case "$(uname)" in
-  Darwin)
-    export IS_MACOS="true" ;;
-  Linux)
-    export IS_LINUX="true" ;;
-  *)
-    echo "Unable to determine linux or macos" ;;
-esac
 
 alias egrep='egrep --color=auto'
 alias fgrep='fgrep --color=auto'
@@ -195,19 +185,24 @@ if [[ "${IS_MACOS}" == "true" ]]; then
   # alias gphoto="open --background -a \"Google Photos Backup\""
   # alias gphoto="open --background -a \"Backup and Sync\""
 
-  function alfred {
-    lpass show --password --clip "${CUSTOM_WORK_DOMAINS[0]/.com/} macbook" || echo "Unable to cache pw."
-    $(which alfred) ${*}
-    # $(which alfred) "${@}"
-  }
+  function passman() {
+    # TODO: convert to flag based args instead of positional args
+    # # if the first variable is an integer, then clear clipboard
+    # local clear_clip_delay
+    # if [[ ${1} =~ ^-?[0-9]+$ ]] ; then
+    #   clear_clip_delay=${1}
+    # fi
+    local item1="${1}"
+    shift
+    local field1="${@:-password}" # default to grabbing password
 
-  function keybase {
-    lpass show --password --clip "Keybase" || echo "Unable to cache pw."
-    $(which keybase) ${*}
-  }
+    [[ ${VERBOSE} -ge 1 ]] && \
+      echo "Running: $(which op) get item \"${item1}\" --fields \"${field1}\" | pbcopy"
+    $(which op) get item "${item1}" --fields "${field1}" | pbcopy
 
-  function ack {
-    $(which ack) "${@}" --ignore-dir=.terraform
+    # if [[ ${clear_clip_delay} -gt 0 ]]; then
+    #   clear_clip ${1}
+    # fi
   }
 
   function clear_clip {
@@ -221,21 +216,23 @@ if [[ "${IS_MACOS}" == "true" ]]; then
     ) 2> /dev/null
   }
 
-  function lpass {
-    # # if the first variable is an integer, then clear clipboard
-    # local clear_clip_delay
-    # if [[ ${1} =~ ^-?[0-9]+$ ]] ; then
-    #   clear_clip_delay=${1}
-    # fi
-    $(which lpass) "${@}"
-
-    # if [[ ${clear_clip_delay} -gt 0 ]]; then
-    #   clear_clip ${1}
-    # fi
-  }
-
   function otp {
     otp-cli show -1 -c -s ${CUSTOM_WORK_SSO_PROVIDER} | awk '/[0-9].*/{print $2}'
+  }
+
+  function alfred {
+    passman  "${CUSTOM_WORK_DOMAINS[0]/.com/} macbook" || echo "Unable to cache pw."
+    $(which alfred) ${*}
+    # $(which alfred) "${@}"
+  }
+
+  function keybase {
+    passman  "Keybase" || echo "Unable to cache pw."
+    $(which keybase) ${*}
+  }
+
+  function ack {
+    $(which ack) "${@}" --ignore-dir=.terraform
   }
 
   if [[ ${TRAVIS_CI_RUN} != true ]]; then
@@ -245,23 +242,19 @@ if [[ "${IS_MACOS}" == "true" ]]; then
       local host1=\"\${@/us-east-2.compute/ec2}\"
       case \"\${host1}\" in
         ${CUSTOM_WORK_SUBNET}.*|$(echo ${CUSTOM_WORK_DOMAINS[@]/#/*.}|tr ' ' '|'))
-          lpass show --password --clip \"${CUSTOM_WORK_DOMAINS[0]/.com/} ${CUSTOM_WORK_SSO_PROVIDER}\";;
+          passman  \"${CUSTOM_WORK_DOMAINS[0]/.com/} ${CUSTOM_WORK_SSO_PROVIDER}\";;
         home.${CUSTOM_HOME_DOMAIN})
-          lpass show --password --clip \"proxy.${CUSTOM_HOME_NAS_HOST#*\.}\" ;;
+          passman  \"proxy.${CUSTOM_HOME_NAS_HOST#*\.}\" ;;
         nas|nas.${CUSTOM_HOME_NAS_HOST#*\.})
-          lpass show --password --clip \"nas.${CUSTOM_HOME_NAS_HOST#*\.}\" ;;
+          passman  \"nas.${CUSTOM_HOME_NAS_HOST#*\.}\" ;;
         web|web.${CUSTOM_HOME_NAS_HOST#*\.})
-          lpass show --password --clip \"web.${CUSTOM_HOME_NAS_HOST#*\.}\" ;;
+          passman  \"web.${CUSTOM_HOME_NAS_HOST#*\.}\" ;;
         ship|ship.${CUSTOM_HOME_NAS_HOST#*\.})
-          lpass show --password --clip \"ship.${CUSTOM_HOME_NAS_HOST#*\.}\" ;;
+          passman  \"ship.${CUSTOM_HOME_NAS_HOST#*\.}\" ;;
         plex|plex.${CUSTOM_HOME_NAS_HOST#*\.})
-          lpass show --password --clip \"plex.${CUSTOM_HOME_NAS_HOST#*\.}\" ;;
+          passman  \"plex.${CUSTOM_HOME_NAS_HOST#*\.}\" ;;
         proxy|proxy.${CUSTOM_HOME_NAS_HOST#*\.})
-          lpass show --password --clip \"proxy.${CUSTOM_HOME_NAS_HOST#*\.}\" ;;
-        babycam|babycam.${CUSTOM_HOME_NAS_HOST#*\.})
-          lpass show --password --clip \"babycam.${CUSTOM_HOME_NAS_HOST#*\.}\" ;;
-        macbuild*)
-          lpass show --password --clip AD ;;
+          passman  \"proxy.${CUSTOM_HOME_NAS_HOST#*\.}\" ;;
       esac
       # using homebrew ssh $(which ssh) results in 'Bad configuration option: usekeychain'
       /usr/bin/ssh \${host1}
@@ -285,7 +278,7 @@ elif [[ "${IS_LINUX}" == "true" ]]; then
   alias list-services="systemctl list-unit-files --type=service | grep enabled | \
     cut -d. -f1 | sort"
   # enforce one use of clipboard memory
-  # export LPASS_CLIPBOARD_COMMAND="xclip -selection clipboard -in -l 1"
+  # export PASSMAN_CLIPBOARD_COMMAND="xclip -selection clipboard -in -l 1"
 
   function aria() {
     $(which aria2c) \

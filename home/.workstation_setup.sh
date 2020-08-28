@@ -38,6 +38,10 @@ if ! $(crontab -l | grep -q workstation_update) ; then
   # FIX: crontab: tmp/tmp.55269: Operation not permitted
   (crontab -l 2>/dev/null; echo "0 10 * * 5 ~/.workstation_update.sh") | crontab -
 fi
+# refresh 1password-cli to workaround the hardcoded 30 minute idle timeout
+if ! $(crontab -l | grep -q pm_token_refresh) ; then
+  (crontab -l 2>/dev/null; echo "0,20,40 7-17 * * MON-FRI ~/.pm_token_refresh.sh") | crontab -
+fi
 
 # install software on macos
 if ${IS_MACOS} && ! hash mas 2>/dev/null ; then
@@ -152,12 +156,15 @@ if ${IS_MACOS} && ! hash mas 2>/dev/null ; then
   HOMEBREW_CASK_OPTS="--appdir=/Applications"
   # FIX: failed to download beyond-compare due to cert problem with curl
   brew cask install \
-    alfred slack spotify gimp github google-backup-and-sync brave-browser iterm2 \
+    alfred slack spotify gimp github google-backup-and-sync iterm2 \
     firefox keystore-explorer balenaetcher visual-studio-code zoomus
     # keybase private-internet-access; etcher is a usb flash utility
 
   # brew cask install intellij-idea goland
   # input license for intellij, then goland should detect it, then remove intellij?
+
+  # install brave separately. if already installed it won't break the rest
+  brew cask install brave-browser
 
   # broken up into separate commands to avoid 10 minute travis build timeout
   brew cask install wireshark
@@ -215,7 +222,6 @@ EOF
   done
   bash /var/tmp/vscode_installs.sh && rm -v /var/tmp/vscode_installs.sh
   echo "Grab Personal Access Token from GitHub; put into vscode"
-EOF
 
   # install helm client
   # additional hackery for brew dependencies. also, must install helm after kubernetes?
@@ -225,7 +231,8 @@ EOF
 
   # install asdf tools
   # golang
-  for asdf_plugin in argo eksctl golang helm helmfile kubectl minikube kops saml2aws sopstool terraform; do
+  for asdf_plugin in argo eksctl golang helm helmfile kops kubectl kustomize \
+      linkerd minikube pluto poetry python saml2aws sops sopstool terraform; do
     asdf plugin-add ${asdf_plugin}
   done
   asdf plugin-add octant https://github.com/looztra/asdf-octant
@@ -245,7 +252,6 @@ EOF
     echo -e "\nTo continue, you must be authenticated to password manager cli: \
     op signin ${CUSTOM_HOME_PASSWD_MGR_ACCOUNT} \
     eval \$(op signin my) \
-    # lpass login --trust lastpass@${CUSTOM_HOME_DOMAIN} \
     Then start \"~/.workstation_setup_private.sh\"."
     read -n 1 -s
     # [[ -r ~/.workstation_setup_private.sh ]] && \

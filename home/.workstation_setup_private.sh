@@ -3,8 +3,7 @@ LOG4=/var/tmp/workstation_setup_$(date +%Y-%m-%d).log
 (
   # the purpose of this script is to house all macos workstation customizations requiring access to dotfiles_private
   echo "first, check that we are authenticated to password manager."
-  # op get account > /dev/null || ( echo "Not logged into password manager; quitting" && exit 1)
-  lpass status > /dev/null || ( echo "Not logged into lastpass-cli; quitting" && exit 1)
+  op get account > /dev/null || ( echo "Not logged into password manager; quitting" && exit 1)
   echo "second, check that SHELL is bash v5+."
   if ! $(bash --version | grep -q 'version 5'); then
     echo "Change default shell to \"/usr/local/bin/bash\":"
@@ -16,9 +15,9 @@ LOG4=/var/tmp/workstation_setup_$(date +%Y-%m-%d).log
   # load personal ssh key if necessary
   if ! $(ssh-add -l | grep -q "/.ssh/id_rsa_personal\ ("); then
     (umask 177
-    lpass show --field="Private Key" "id_rsa_personal" > ~/.ssh/id_rsa_personal
+    op get item id_rsa_personal --fields notes > ~/.ssh/id_rsa_personal
     )
-    lpass show --field=Passphrase --clip "id_rsa_personal"
+    passman id_rsa_personal Passphrase
     ssh-add -t 36000 -k ~/.ssh/id_rsa_personal
     rm -f ~/.ssh/id_rsa_personal
   fi
@@ -75,7 +74,7 @@ LOG4=/var/tmp/workstation_setup_$(date +%Y-%m-%d).log
   # mas is a CLI for AppStore installs/updates
   if [[ ${TRAVIS_CI_RUN} != true ]]; then
     echo "Prepare to sign into \"App Store.app\" manually..."
-    lpass show --password --clip "Apple"
+    passman Apple
     # mas signin apple@${CUSTOM_HOME_DOMAIN} # disabled on macos 10.15.x+
     open -a "App Store"
 

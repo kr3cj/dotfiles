@@ -72,7 +72,7 @@ if [[ $(uname) == "Darwin" ]] ; then
   # for cask1 in $(/usr/local/bin/brew cask outdated | awk '{print $1}') ; do
   for cask1 in $(/usr/local/bin/brew cask list) ; do
     case ${cask1} in
-      brave-browser|firefox|github|google-backup-and-sync|\
+      1password-cli|brave-browser|docker|firefox|github|google-backup-and-sync|\
       slack|spotify|visual-studio-code|virtualbox|zoomus)
         echo "Skipping cask that should auto update itself: ${cask1}" ;;
       *)
@@ -87,8 +87,8 @@ if [[ $(uname) == "Darwin" ]] ; then
   # fi
 
   echo -e "\nUpdating helm plugins."
-  for hplug in $($(asdf where helm 2.16.9)/bin/helm plugin list | grep -v ^NAME | awk '{print $1}') ; do
-    $(asdf where helm 2.16.9)/bin/helm plugin update ${hplug}
+  for hplug in $($($(brew --prefix asdf)/bin/asdf where helm 2.16.9)/bin/helm plugin list | grep -v ^NAME | awk '{print $1}') ; do
+    $($(brew --prefix asdf)bin/asdf where helm 2.16.9)/bin/helm plugin update ${hplug}
   done
 
   echo -e "\nUpdating kubectl krew plugins."
@@ -98,6 +98,9 @@ if [[ $(uname) == "Darwin" ]] ; then
     # ~/.asdf/shims/kubectl krew system receipts-upgrade
     ~/.asdf/shims/kubectl krew upgrade
   )
+
+  echo -e "\nUpdating password manager."
+  /usr/local/bin/op update
 
   echo -e "\nCleaning temporary files and securely delete trash."
   PATH="/usr/local/bin:${PATH}"
@@ -207,8 +210,8 @@ if [[ $(uname) == "Darwin" ]] ; then
   echo -e "\nUpdating macos App Store apps..."
   # authenticate to apple account if necessary
   if [[ ${TRAVIS_CI_RUN} != true ]] && [[ ! $(/usr/local/bin/mas account) ]]; then
-    /usr/local/bin/lpass show --password --clip "Apple" && \
-      /usr/local/bin/mas signin apple@${CUSTOM_HOME_DOMAIN}
+    passman Apple && \
+      /usr/local/bin/mas signin appleid@${CUSTOM_HOME_DOMAIN}
   fi
   /usr/local/bin/mas upgrade # '/usr/local/bin/mas list' finds more with sudo prefix
 

@@ -15,7 +15,7 @@ port ${VAULT_ADDR} &> /dev/null || VAULT_REACHABLE="false"
 if [[ "${HEALTHY_INTERNET}" == "true" ]] && [[ "${VAULT_REACHABLE}" == "true" ]]; then
   if ! vault token lookup &> /dev/null; then
     echo "Must re-authenticate with VAULT (${VAULT_ADDR}...)"
-    lpass show --password --clip LDAP
+    passman LDAP
     vault login -method=ldap username=${CUSTOM_WORK_LDAP_NAME} > /dev/null
     if [[ ${?} -ne 0 ]]; then
       export VAULT_REACHABLE="false"

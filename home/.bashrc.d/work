@@ -72,9 +72,8 @@ function _create_socks_proxy {
       return 1
     fi
     if [[ ${host1} == "home.${CUSTOM_HOME_DOMAIN}" || \
-          ${host1} == "proxy.${CUSTOM_HOME_NAS_HOST#*\.}" ]]; then
-      # sleep 2 # reduce collisions between clear_clip and subsequent copies
-      lpass show --password --clip "proxy.${CUSTOM_HOME_NAS_HOST#*\.}"
+    ${host1} == "proxy.${CUSTOM_HOME_NAS_HOST#*\.}" ]]; then
+      passman  "proxy.${CUSTOM_HOME_NAS_HOST#*\.}"
     fi
     # ssh options moved to ~/.ssh/config
     #  -o TCPKeepAlive=yes -o ConnectTimeout=1 -o ConnectionAttempts=1 \
@@ -117,7 +116,7 @@ function work_vpn {
   if ! $(on_vpn); then
     if read -t 2 -s -p "To connect to work VPN, press any key within 2 seconds..."; then
       unmount_home_nfs
-      lpass show --password --clip "${CUSTOM_WORK_DOMAINS[0]/.com/} ${CUSTOM_WORK_SSO_PROVIDER}" || echo "Unable to cache ${CUSTOM_WORK_SSO_PROVIDER} pw."
+      passman  "${CUSTOM_WORK_DOMAINS[0]/.com/} ${CUSTOM_WORK_SSO_PROVIDER}" || echo "Unable to cache ${CUSTOM_WORK_SSO_PROVIDER} pw."
       # openit "Cisco AnyConnect Secure Mobility Client"
       nohup open -a "Cisco AnyConnect Secure Mobility Client" > /dev/null &
       sleep 5
@@ -152,7 +151,7 @@ work_vpn
 #   _create_socks_proxy "home.${CUSTOM_HOME_DOMAIN}" "2000"
 
 #   # open desktop apps (TODO: --background not working for Slack and Atom)
-openit Slack "Visual Studio Code"
+# openit Slack "Visual Studio Code"
 #   unmount_home_nfs
 #   work_vpn
 # else

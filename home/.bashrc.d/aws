@@ -23,7 +23,7 @@ function saml2aws {
   fi
   if [[ ${@} =~ "helmfile-" || ${@} =~ "-cluster" || ${@} =~ "common-" ]] ; then
     # "need to cache work private ssh key"
-    lpass show --field=Passphrase --clip "id_rsa"
+    passman id_rsa Passphrase
   fi
   [[ ${VERBOSE} -ge 1 ]] && \
     echo "Running \"$(which saml2aws) ${args} ${*}\""
