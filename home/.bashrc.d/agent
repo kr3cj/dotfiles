@@ -1,4 +1,5 @@
 [[ $- = *i* ]] || return
+${IS_MACOS} || return
 
 # fix ssh directory permissions
 find -L ~/.ssh/ -type f -exec chmod -c 600 '{}' \;
