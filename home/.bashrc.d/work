@@ -108,8 +108,11 @@ function mount_home_nfs {
     # lpadmin -p canon_mg5220 -L "canon_mg5220" -E -v lpd://printer.${CUSTOM_HOME_NAS_HOST#*\.} -m everywhere
 }
 function work_saml2aws {
-  otp
-  saml2aws login #--mfa-token=$(otp-cli show -1 ${CUSTOM_WORK_SSO_PROVIDER} | awk '/[0-9].*/{print $2}') # outputs "credentials are not expired skipping" when auth'd
+  $(which saml2aws) exec -- aws sts get-caller-identity --query Arn --output text > /dev/null
+  if [[ ${?} -ge 0 ]]; then
+    otp "${CUSTOM_WORK_DOMAINS[0]/.com/} ${CUSTOM_WORK_SSO_PROVIDER}" | pbcopy
+    saml2aws login #--mfa-token=$(otp-cli show -1 ${CUSTOM_WORK_SSO_PROVIDER} | awk '/[0-9].*/{print $2}') # outputs "credentials are not expired skipping" when auth'd
+  fi
 }
 function work_vpn {
   # see https://gist.github.com/p120ph37/10999344 for cisco automation
@@ -120,7 +123,7 @@ function work_vpn {
       # openit "Cisco AnyConnect Secure Mobility Client"
       nohup open -a "Cisco AnyConnect Secure Mobility Client" > /dev/null &
       sleep 5
-      otp && echo "Cached otp token."
+      otp "${CUSTOM_WORK_DOMAINS[0]/.com/} ${CUSTOM_WORK_SSO_PROVIDER}" && echo "Cached otp token."
       # pre-authentication
       # "/Applications/Brave Browser.app/Contents/MacOS/Brave Browser" https://${CUSTOM_WORK_DOMAINS[0]/.com/}.onelogin.com
       # "/Applications/Brave Browser.app/Contents/MacOS/Brave Browser" https://github.com/${CUSTOM_WORK_DOMAINS[0]/.com/}

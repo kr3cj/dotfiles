@@ -8,7 +8,9 @@ export AWS_ASSUME_ROLE_TTL=1h # 4h for devtoolsSandboxAccountAccessRole
 export AWS_DEFAULT_REGION=us-east-1
 export SAML2AWS_SESSION_DURATION=43200 # 12 hour max for "saml2aws login"
 export SAML2AWS_MFA="TOTP"
+# export SAML2AWS_ROLE=${CUSTOM_WORK_IAM_ROLE}
 # export SAML2AWS_PROFILE=
+# export SAML2AWS_CONFIGFILE=
 
 function saml2aws {
   # saml2aws logins can have a max session duration of 12h, but role chaining can only have a max session duration of 1h
@@ -20,10 +22,6 @@ function saml2aws {
   if [[ ${@} =~ "--exec-profile" ]] ; then
     export MY_AWS_PROFILE=$(echo ${@} | sed -r 's/.*--exec-profile[=,\ ]([^ ]+).*/\1/')
     args="--session-duration=3600"
-  fi
-  if [[ ${@} =~ "helmfile-" || ${@} =~ "-cluster" || ${@} =~ "common-" ]] ; then
-    # "need to cache work private ssh key"
-    passman id_rsa Passphrase
   fi
   [[ ${VERBOSE} -ge 1 ]] && \
     echo "Running \"$(which saml2aws) ${args} ${*}\""

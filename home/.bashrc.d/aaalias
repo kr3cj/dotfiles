@@ -217,7 +217,8 @@ if [[ "${IS_MACOS}" == "true" ]]; then
   }
 
   function otp {
-    otp-cli show -1 -c -s ${CUSTOM_WORK_SSO_PROVIDER} | awk '/[0-9].*/{print $2}'
+    op get totp "${1}" | pbcopy
+    # otp-cli show -1 -c -s ${CUSTOM_WORK_SSO_PROVIDER} | awk '/[0-9].*/{print $2}'
   }
 
   function alfred {

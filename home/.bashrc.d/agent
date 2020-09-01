@@ -47,8 +47,9 @@ function _load_ssh_key_from_passman () {
     op get item "id_rsa${key}" --fields Passphrase | pbcopy
     ssh-add -q -t 43200 -k ~/.ssh/id_rsa${key}
     [[ ${?} -ne 0 ]] && echo "Failed to load \"~/.ssh/id_rsa${key}\"!"
-    # keep only work private key on filesystem so container mounts have it
-    [[ -z ${key} ]] || rm -f ~/.ssh/id_rsa${key}
+    # must keep work private key on filesystem so container mounts have it
+    # [[ -z ${key} ]] || rm -f ~/.ssh/id_rsa${key}
+    rm -f ~/.ssh/id_rsa${key}
     (umask 177
     op get item "id_rsa${key}" --fields "Public Key" > ~/.ssh/id_rsa${key}.pub
     )
