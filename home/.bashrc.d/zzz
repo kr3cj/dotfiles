@@ -1,4 +1,2 @@
 [[ $- = *i* ]] || return
 ${IS_MACOS} || return
-
-clear_clip 10
