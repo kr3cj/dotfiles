@@ -197,8 +197,8 @@ if [[ "${IS_MACOS}" == "true" ]]; then
     local field1="${@:-password}" # default to grabbing password
 
     [[ ${VERBOSE} -ge 1 ]] && \
-      echo "Running: $(which op) get item \"${item1}\" --fields \"${field1}\" | pbcopy"
-    $(which op) get item "${item1}" --fields "${field1}" | pbcopy
+      echo "Running: op get item \"${item1}\" --fields \"${field1}\" | pbcopy"
+    op get item "${item1}" --fields "${field1}" | pbcopy
 
     # if [[ ${clear_clip_delay} -gt 0 ]]; then
     #   clear_clip ${1}
@@ -217,7 +217,9 @@ if [[ "${IS_MACOS}" == "true" ]]; then
   }
 
   function otp {
-    op get totp "${1}" | pbcopy
+    [[ ${VERBOSE} -ge 1 ]] && \
+      echo "Running: op get totp \"${1}\" | cut -c1-6 | tr -d '\n' | pbcopy"
+    op get totp "${1}" | cut -c1-6 | tr -d '\n' | pbcopy
     # otp-cli show -1 -c -s ${CUSTOM_WORK_SSO_PROVIDER} | awk '/[0-9].*/{print $2}'
   }
 

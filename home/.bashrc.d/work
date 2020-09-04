@@ -109,9 +109,12 @@ function mount_home_nfs {
 }
 function work_saml2aws {
   $(which saml2aws) exec -- aws sts get-caller-identity --query Arn --output text > /dev/null
-  if [[ ${?} -ge 0 ]]; then
-    otp "${CUSTOM_WORK_DOMAINS[0]/.com/} ${CUSTOM_WORK_SSO_PROVIDER}" | pbcopy
-    saml2aws login #--mfa-token=$(otp-cli show -1 ${CUSTOM_WORK_SSO_PROVIDER} | awk '/[0-9].*/{print $2}') # outputs "credentials are not expired skipping" when auth'd
+  if [[ ${?} -gt 0 ]]; then
+    # --mfa-token not supported yet for ${CUSTOM_WORK_SSO_PROVIDER}
+    # otp "${CUSTOM_WORK_DOMAINS[0]/.com/} ${CUSTOM_WORK_SSO_PROVIDER}"
+    otp-cli show -1 -c -s ${CUSTOM_WORK_SSO_PROVIDER} | awk '/[0-9].*/{print $2}'
+    saml2aws login
+    clear_clip 10
   fi
 }
 function work_vpn {
@@ -124,6 +127,7 @@ function work_vpn {
       nohup open -a "Cisco AnyConnect Secure Mobility Client" > /dev/null &
       sleep 5
       otp "${CUSTOM_WORK_DOMAINS[0]/.com/} ${CUSTOM_WORK_SSO_PROVIDER}" && echo "Cached otp token."
+      clear_clip 10
       # pre-authentication
       # "/Applications/Brave Browser.app/Contents/MacOS/Brave Browser" https://${CUSTOM_WORK_DOMAINS[0]/.com/}.onelogin.com
       # "/Applications/Brave Browser.app/Contents/MacOS/Brave Browser" https://github.com/${CUSTOM_WORK_DOMAINS[0]/.com/}
@@ -133,7 +137,7 @@ function work_vpn {
       # _create_socks_proxy "proxy.${CUSTOM_HOME_NAS_HOST#*\.}" "2000"
     fi
   else
-    echo "Already connected to work vpn; skipping"
+    # echo "Already connected to work vpn; skipping"
     unmount_home_nfs
     # _create_socks_proxy "home.${CUSTOM_HOME_DOMAIN}" "2000"
   fi
