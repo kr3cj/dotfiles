@@ -108,23 +108,29 @@ function mount_home_nfs {
     # lpadmin -p canon_mg5220 -L "canon_mg5220" -E -v lpd://printer.${CUSTOM_HOME_NAS_HOST#*\.} -m everywhere
 }
 function work_saml2aws {
-  $(which saml2aws) exec -- aws sts get-caller-identity --query Arn --output text > /dev/null
-  if [[ ${?} -gt 0 ]]; then
+  if ! session_is_active saml2aws; then
+    # ${HOME}/.asdf/shims/saml2aws exec -- aws sts get-caller-identity --query Arn --output text > /dev/null
+    # echo ""
+
     # --mfa-token not supported yet for ${CUSTOM_WORK_SSO_PROVIDER}
     # otp "${CUSTOM_WORK_DOMAINS[0]/.com/} ${CUSTOM_WORK_SSO_PROVIDER}"
     otp-cli show -1 -c -s ${CUSTOM_WORK_SSO_PROVIDER} | awk '/[0-9].*/{print $2}'
     saml2aws login
+    if [[ ${?} == 0 ]]; then
+      session_is_active saml2aws "${SAML2AWS_SESSION_DURATION} seconds" || true
+    fi
     clear_clip 10
   fi
 }
 function work_vpn {
   # see https://gist.github.com/p120ph37/10999344 for cisco automation
   if ! $(on_vpn); then
+    echo ""
     if read -t 2 -s -p "To connect to work VPN, press any key within 2 seconds..."; then
       unmount_home_nfs
       passman  "${CUSTOM_WORK_DOMAINS[0]/.com/} ${CUSTOM_WORK_SSO_PROVIDER}" || echo "Unable to cache ${CUSTOM_WORK_SSO_PROVIDER} pw."
       # openit "Cisco AnyConnect Secure Mobility Client"
-      nohup open -a "Cisco AnyConnect Secure Mobility Client" > /dev/null &
+      nohup open -a "Cisco AnyConnect Secure Mobility Client" </dev/null >/dev/null 2>&1 &
       sleep 5
       otp "${CUSTOM_WORK_DOMAINS[0]/.com/} ${CUSTOM_WORK_SSO_PROVIDER}" && echo "Cached otp token."
       clear_clip 10
@@ -132,7 +138,6 @@ function work_vpn {
       # "/Applications/Brave Browser.app/Contents/MacOS/Brave Browser" https://${CUSTOM_WORK_DOMAINS[0]/.com/}.onelogin.com
       # "/Applications/Brave Browser.app/Contents/MacOS/Brave Browser" https://github.com/${CUSTOM_WORK_DOMAINS[0]/.com/}
     else
-      echo
       mount_home_nfs
       # _create_socks_proxy "proxy.${CUSTOM_HOME_NAS_HOST#*\.}" "2000"
     fi
@@ -143,9 +148,7 @@ function work_vpn {
   fi
 }
 
-echo ""
 work_saml2aws
-echo ""
 work_vpn
 
 # if ${at_home}; then

@@ -9,7 +9,7 @@ export AWS_DEFAULT_REGION=us-east-1
 
 # move saml2aws variables to config file
 export SAML2AWS_CONFIGFILE=~/.saml2aws
-# export SAML2AWS_SESSION_DURATION=43200 # 12 hour max for "saml2aws login"
+export SAML2AWS_SESSION_DURATION=43200 # 12 hour max for "saml2aws login"
 # export SAML2AWS_MFA="TOTP"
 # export SAML2AWS_ROLE=${CUSTOM_WORK_IAM_ROLE}
 # export SAML2AWS_PROFILE=

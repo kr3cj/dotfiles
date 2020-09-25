@@ -27,6 +27,7 @@ if hash gem 2>/dev/null && [[ ${TRAVIS_CI_RUN} != true ]]; then
 fi
 if hash pip 2>/dev/null; then
   echo -e "\nUpdating pip..."
+  python -m pip install --upgrade pip
   pip install --upgrade setuptools
   pip install --upgrade -r <( pip freeze )
   # for pkg in $(sudo -H pip list --outdated --format=columns | tail -n +3 | awk '{print $1}') ; do
@@ -70,14 +71,14 @@ if [[ $(uname) == "Darwin" ]] ; then
   # dont rely on "brew cask outdated --greedy", "brew cask upgrade" as they miss stuff. Loop over each and upgrade.
   # /usr/local/bin/brew cask upgrade
   # for cask1 in $(/usr/local/bin/brew cask outdated | awk '{print $1}') ; do
-  for cask1 in $(/usr/local/bin/brew cask list) ; do
+  for cask1 in $(/usr/local/bin/brew list --cask) ; do
     case ${cask1} in
-      1password-cli|brave-browser|docker|firefox|github|google-backup-and-sync|\
+      alfred|brave-browser|docker|firefox|github|google-backup-and-sync|\
       slack|spotify|visual-studio-code|virtualbox|zoomus)
         echo "Skipping cask that should auto update itself: ${cask1}" ;;
       *)
         echo "Upgrading cask \"${cask1}\"..."
-        /usr/local/bin/brew cask upgrade ${cask1} ;;
+        /usr/local/bin/brew upgrade --cask ${cask1} ;;
     esac
   done
 
@@ -87,8 +88,8 @@ if [[ $(uname) == "Darwin" ]] ; then
   # fi
 
   echo -e "\nUpdating helm plugins."
-  for hplug in $($($(brew --prefix asdf)/bin/asdf where helm 2.16.9)/bin/helm plugin list | grep -v ^NAME | awk '{print $1}') ; do
-    $($(brew --prefix asdf)bin/asdf where helm 2.16.9)/bin/helm plugin update ${hplug}
+  for hplug in $($($(/usr/local/bin/brew --prefix asdf)/bin/asdf where helm)/bin/helm plugin list | grep -v ^NAME | awk '{print $1}') ; do
+    $($(/usr/local/bin/brew --prefix asdf)/bin/asdf where helm)/bin/helm plugin update ${hplug}
   done
 
   echo -e "\nUpdating kubectl krew plugins."
@@ -99,15 +100,15 @@ if [[ $(uname) == "Darwin" ]] ; then
     ~/.asdf/shims/kubectl krew upgrade
   )
 
-  echo -e "\nUpdating password manager."
-  /usr/local/bin/op update
+  # echo -e "\nUpdating password manager." # done via cask
+  # /usr/local/bin/op update
 
   echo -e "\nCleaning temporary files and securely delete trash."
   PATH="/usr/local/bin:${PATH}"
   /usr/local/bin/brew cleanup -s
-  /usr/bin/sudo $(brew --prefix findutils)/libexec/gnubin/find ~/.Trash/ -type f -exec /bin/rm -vP '{}' \; || \
+  /usr/bin/sudo $(/usr/local/bin/brew --prefix findutils)/libexec/gnubin/find ~/.Trash/ -type f -exec /bin/rm -vP '{}' \; || \
     echo "open System Preferences->Privacy & Security->Full Disk Access->Check iTerm.app"
-  /usr/bin/sudo $(brew --prefix findutils)/libexec/gnubin/find ~/.Trash/ -type d -delete
+  /usr/bin/sudo $(/usr/local/bin/brew --prefix findutils)/libexec/gnubin/find ~/.Trash/ -type d -delete
 
   # /usr/local/bin/brew cask cleanup
   /usr/local/bin/brew doctor
@@ -119,7 +120,7 @@ if [[ $(uname) == "Darwin" ]] ; then
 
   if hash asdf 2>/dev/null ; then
     echo -e "\nUpdating asdf plugins..."
-    $(brew --prefix asdf)/bin/asdf plugin-update --all
+    $(/usr/local/bin/brew --prefix asdf)/bin/asdf plugin-update --all
     # overwrite ${TOOL_FILE} with new releases
 
     echo -e "\nUpdating asdf tool versions..."
@@ -147,25 +148,25 @@ if [[ $(uname) == "Darwin" ]] ; then
         argo|helm|kops|kubectl|terraform)
           echo "Getting latest patch version of asdf plugin \"${tool1}:${old_version1}\"..."
           # use bash parameter expansion to extract the major and minor version from ${old_version1}
-          new_version1="$($(brew --prefix asdf)/bin/asdf latest ${tool1} ${old_version1%\.*})"
+          new_version1="$($(/usr/local/bin/brew --prefix asdf)/bin/asdf latest ${tool1} ${old_version1%\.*})"
           # if asdf dropped old_version, above will return emtpy string, so return old_version
           echo "${tool1} ${new_version1:=${old_version1}}" >> ${TOOL_FILE}.new ;;
         example2)
           echo "Getting latest minor version only of asdf plugin \"${tool}:${old_version1}\"..."
           # use bash parameter expansion to extract the major version from ${old_version1}
-          new_version1="$($(brew --prefix asdf)/bin/asdf latest ${tool1} ${old_version1%%\.*})"
+          new_version1="$($(/usr/local/bin/brew --prefix asdf)/bin/asdf latest ${tool1} ${old_version1%%\.*})"
           # if asdf dropped old_version, above will return emtpy string, so return old_version
           echo "${tool1} ${new_version1:=${old_version1}}" >> ${TOOL_FILE}.new ;;
         *)
           echo "Getting latest major version of asdf plugin \"${tool1}:${old_version1}\"..."
-          echo "${tool1} $($(brew --prefix asdf)/bin/asdf latest ${tool1})" >> ${TOOL_FILE}.new ;;
+          echo "${tool1} $($(/usr/local/bin/brew --prefix asdf)/bin/asdf latest ${tool1})" >> ${TOOL_FILE}.new ;;
       esac
     done < ${TOOL_FILE}
 
     echo -e "Now a diff of the version updates:...\n"
-    diff -y ${TOOL_FILE}.$(date +%Y%m%d).backup ${TOOL_FILE}.new
+    diff ${TOOL_FILE}.$(date +%Y%m%d).backup ${TOOL_FILE}.new
     cat ${TOOL_FILE}.new > ${TOOL_FILE} && rm ${TOOL_FILE}.new
-    (cd ${HOME} && $(brew --prefix asdf)/bin/asdf install)
+    (cd ${HOME} && $(/usr/local/bin/brew --prefix asdf)/bin/asdf install)
     echo "Finished updating asdf ${TOOL_FILE}"
   fi
 
@@ -187,7 +188,7 @@ if [[ $(uname) == "Darwin" ]] ; then
   fi
 
   echo -e "\nPrint any dead links in home directory..."
-  $(brew --prefix findutils)/libexec/gnubin/find ${HOME} \
+  $(/usr/local/bin/brew --prefix findutils)/libexec/gnubin/find ${HOME} \
     -xtype l \
     ! -path "*/Library/*" \
     ! -path "*/.virtualenvs/*" \
@@ -196,7 +197,7 @@ if [[ $(uname) == "Darwin" ]] ; then
     # -exec rm -v '{}' \;
 
   echo -e "\nPrint any unmanaged dotfiles..."
-  $(brew --prefix findutils)/libexec/gnubin/find ${HOME} -mindepth 1 -maxdepth 2 -type f \
+  $(/usr/local/bin/brew --prefix findutils)/libexec/gnubin/find ${HOME} -mindepth 1 -maxdepth 2 -type f \
     -name ".[^.]*" -not \( -name ".DS_Store" -or -name ".localized" \
     -or -name "*_history" -or -name "*hst" -or -name "*hist" \
     -or -name ".macos_*.json" -or -name .gitignore -or -name .yarnrc \) \
@@ -218,19 +219,19 @@ if [[ $(uname) == "Darwin" ]] ; then
   echo -e "\nUpdating macos system..."
   /usr/sbin/softwareupdate --install --all
   # /usr/sbin/softwareupdate --restart
-  sudo xcode-select --switch /Library/Developer/CommandLineTools && \
-    sudo xcodebuild -license accept
+  sudo xcode-select --switch /Library/Developer/CommandLineTools
+  sudo xcodebuild -license accept 2> /dev/null
   if [[ ${TRAVIS_CI_RUN} != true ]]; then
     # TODO: Must reboot immediately else the Finder can get disk sync issues and error -43?
     echo -e "\nChecking macos disk health."
-    echo "Verifying disk health at $($(brew --prefix coreutils)/libexec/gnubin/date --rfc-3339=seconds). \
+    echo "Verifying disk health at $($(/usr/local/bin/brew --prefix coreutils)/libexec/gnubin/date --rfc-3339=seconds). \
     # This will freeze the system for a couple minutes." | /usr/bin/wall
     # for DEV in disk1 disk1s{1..4}; do
       # /usr/bin/sudo /usr/sbin/diskutil verifyVolume /dev/${DEV}
       # sudo diskutil repairVolume /dev/${DEV}
     # done
     /usr/bin/sudo /usr/sbin/diskutil verifyDisk /dev/disk0
-    echo "Finished verifying disk health at $($(brew --prefix coreutils)/libexec/gnubin/date --rfc-3339=seconds)." | /usr/bin/wall
+    echo "Finished verifying disk health at $($(/usr/local/bin/brew --prefix coreutils)/libexec/gnubin/date --rfc-3339=seconds)." | /usr/bin/wall
     # sudo diskutil repairDisk /dev/disk0
   fi
 

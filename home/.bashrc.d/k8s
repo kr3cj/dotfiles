@@ -128,7 +128,7 @@ pathadd ${KREW_ROOT}/bin
 
 function _get_latest_version_from_github()
 {
-  # mostly replaced by kubectl/krew outdated
+  # mostly replaced by kubectl/krew outdated and FairwindsOps/nova
   local path=${@}
   if ! [[ ${path} =~ [a-z]\/[a-z] ]]; then
     echo "Invalid path provided to ${FUNCNAME[0]}. Must be like \"this/that\""
@@ -145,7 +145,7 @@ function _get_latest_version_from_github()
 }
 function get_kube_versions()
 {
-  # mostly replaced by kubectl/krew outdated
+  # mostly replaced by kubectl/krew outdated and FairwindsOps/nova
   local L8ST_COREOS_V=$(curl -s https://coreos.com/dist/aws/aws-stable.json \
     | jq -r '.release_info.version') \
   local CURR_KOPS_V=$(kops version | awk '{print $2}') \

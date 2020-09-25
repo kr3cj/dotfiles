@@ -1,3 +1,14 @@
+export IS_MACOS="false"
+export IS_LINUX="false"
+case "$(uname)" in
+  Darwin)
+    export IS_MACOS="true" ;;
+  Linux)
+    export IS_LINUX="true" ;;
+  *)
+    echo "Unable to determine linux or macos" ;;
+esac
+
 #  troubleshooting
 # [[ ${HISTSIZE} -lt 1000000 ]] && echo -e "\nSomething has overridden \${HISTSIZE} to ${HISTSIZE}!!!\n"
 
@@ -10,32 +21,6 @@ alias ducks="sudo du -cshx ./ | sort -h"
 alias cdd="homeshick cd dotfiles"
 alias cdp="homeshick cd dotfiles_private"
 alias pp="source ~/.bash_profile"
-
-function argod () {
-  local uri
-  case ${1} in
-    barrel)
-      uri=https://argo-workflow.int.ibops.net/workflows ;;
-    apollo)
-      uri=https://argo-workflow.int.staging.ibops.net/workflows ;;
-    cats)
-      uri=https://argo-workflow.pay.staging.ibops.net/workflows ;;
-    epoxi)
-      uri=https://argo-workflow.pay.ibops.net/login/workflows ;;
-    dawn)
-      uri=https://argo-workflow.ops.int.ibops.net/workflows ;;
-    *)
-      echo "Could not find a matching cluster config for \"${1}\"."
-      exit 1 ;;
-  esac
-  [[ ${VERBOSE} -ge 1 ]] && \
-    echo "Running \"( KUBECONFIG=~/.kube/${1} argo auth token | pbcopy ) && open ${uri}\"..."
-  ( KUBECONFIG=~/.kube/${1} argo auth token | pbcopy ) && open ${uri}
-}
-
-function cb() {
-  cd ~/build/github/${@}
-}
 
 function pathadd() {
   unset newpath
@@ -132,47 +117,6 @@ function find-error() {
   | grep -v erra
 }
 
-# https://github.com/chubin/awesome-console-services
-function speedtest {
-  curl -s https://raw.githubusercontent.com/sivel/speedtest-cli/master/speedtest.py \
-  | python - --secure --simple --single
-  # includes bufferbloat score: http://www.dslreports.com/speedtest
-}
-
-function update-all-repos {
-  for repo1 in $(find ~/build/github -mindepth 1 -maxdepth 6 -path "*/.git/config") ; do echo -e "\n${repo1%.git/config}" ; \
-    cd ${repo1%.git/config} \
-    && git clean -xfd \
-    && gitp \
-    && cd - ; \
-  done
-}
-
-function whatismyip {
-  curl ifconfig.me
-}
-
-function netshoot {
-  # spin up a throwaway container in k8s for network debugging
-  kubectl --kubeconfig ~/.kube/${1} run --generator=run-pod/v1 \
-    tmp-shell --rm -i --tty --image nicolaka/netshoot -- /bin/bash
-}
-
-function mysql-client {
-  # spin up a throwaway container in k8s for querying RDS
-  kubectl --kubeconfig ~/.kube/${1} run --generator=run-pod/v1 \
-    tmp-shell --rm -i --tty --image arey/mysql-client -- \
-      mysql -P3306 -h"${2}.us-east-1.rds.amazonaws.com" -u"user1" -p"SeeLastPass"
-  # docker run --rm -it alpine:latest sh
-  #   apk add bash mysql-client
-  #   mysql -h"something.us-east-1.rds.amazonaws.com" -P"3306" -u"user1" -p"SeeLastPass"
-
-}
-
-function weather {
-  curl https://wttr.in/Denver
-}
-
 if [[ "${IS_MACOS}" == "true" ]]; then
   alias curl="/usr/local/opt/curl/bin/curl"
   # since the path file hasn't been sourced yet, use absolute paths to ls for macos
@@ -184,6 +128,96 @@ if [[ "${IS_MACOS}" == "true" ]]; then
   # alias pia="nohup ~/.pia_manager/pia_manager.app/Contents/MacOS/runner.sh >/dev/null 2>&1 &"
   # alias gphoto="open --background -a \"Google Photos Backup\""
   # alias gphoto="open --background -a \"Backup and Sync\""
+
+  function _throttle()
+  {
+    if [[ "${#}" -lt 2 ]]; then
+      printf '%s\n' "Usage: throttle timeout command [arg ... ]" >&2
+      return 1
+    fi
+    local t=${1}
+    shift
+
+    [[ ${VERBOSE} -ge 1 ]] && \
+      echo "starting throttle function with t=${t} and _throttled=${_throttled}"
+
+    if [[ -n "${_throttled["${1}"]}" ]]; then
+      if [[ "$(date +%s)" -ge "${_throttled["${1}"]}" ]]; then
+        "${@}" && _throttled["${1}"]=$((t + $(date +%s)))
+      else
+        : printf '%s\n' "Timeout for: ${1} has not yet been reached" >&2
+      fi
+    else
+      "${@}" && _throttled["${1}"]=$((t + $(date +%s)))
+    fi
+  }
+
+  # https://github.com/chubin/awesome-console-services
+  function speedtest {
+    curl -s https://raw.githubusercontent.com/sivel/speedtest-cli/master/speedtest.py \
+    | python - --secure --simple --single
+    # includes bufferbloat score: http://www.dslreports.com/speedtest
+  }
+
+  function whatismyip {
+    curl ifconfig.me
+  }
+
+  function netshoot {
+    # spin up a throwaway container in k8s for network debugging
+    kubectl --kubeconfig ~/.kube/${1} run --generator=run-pod/v1 \
+      tmp-shell --rm -i --tty --image nicolaka/netshoot -- /bin/bash
+  }
+
+  function mysql-client {
+    # spin up a throwaway container in k8s for querying RDS
+    kubectl --kubeconfig ~/.kube/${1} run --generator=run-pod/v1 \
+      tmp-shell --rm -i --tty --image arey/mysql-client -- \
+        mysql -P3306 -h"${2}.us-east-1.rds.amazonaws.com" -u"user1" -p"SeeLastPass"
+    # docker run --rm -it alpine:latest sh
+    #   apk add bash mysql-client
+    #   mysql -h"something.us-east-1.rds.amazonaws.com" -P"3306" -u"user1" -p"SeeLastPass"
+
+  }
+
+  function weather {
+    curl https://wttr.in/Denver
+  }
+
+  function update-all-repos {
+    for repo1 in $(find ~/build/github -mindepth 1 -maxdepth 6 -path "*/.git/config") ; do echo -e "\n${repo1%.git/config}" ; \
+      cd ${repo1%.git/config} \
+      && git clean -xfd \
+      && gitp \
+      && cd - ; \
+    done
+  }
+
+  function argod () {
+    local uri
+    case ${1} in
+      barrel)
+        uri=https://argo-workflow.int.ibops.net/workflows ;;
+      apollo)
+        uri=https://argo-workflow.int.staging.ibops.net/workflows ;;
+      cats)
+        uri=https://argo-workflow.pay.staging.ibops.net/workflows ;;
+      epoxi)
+        uri=https://argo-workflow.pay.ibops.net/login/workflows ;;
+      dawn)
+        uri=https://argo-workflow.ops.int.ibops.net/workflows ;;
+      *)
+        echo "Could not find a matching cluster config for \"${1}\"."
+        exit 1 ;;
+    esac
+    [[ ${VERBOSE} -ge 1 ]] && \
+      echo "Running \"( KUBECONFIG=~/.kube/${1} argo auth token | pbcopy ) && open ${uri}\"..."
+    ( KUBECONFIG=~/.kube/${1} argo auth token | pbcopy ) && open ${uri}
+  }
+
+  function cb() {
+    cd ~/build/github/${@}
+  }
 
   function passman() {
     # TODO: convert to flag based args instead of positional args
@@ -221,6 +255,75 @@ if [[ "${IS_MACOS}" == "true" ]]; then
       echo "Running: op get totp \"${1}\" | cut -c1-6 | tr -d '\n' | pbcopy"
     op get totp "${1}" | cut -c1-6 | tr -d '\n' | pbcopy
     # otp-cli show -1 -c -s ${CUSTOM_WORK_SSO_PROVIDER} | awk '/[0-9].*/{print $2}'
+  }
+
+  function session_is_active {
+    # usage: session_is_active <tool_name> [<session_validity_length>]
+    # ex1: if $(session_is_active saml2aws); then echo "already active session"; fi
+    # description: return 0 if a tool's session token is active, else 1
+    #  To reduce the number of unnecessary authentication calls (which can be slow)
+    #  when other native mechanisms to check don't exist. If necessary, sets up a
+    #  local hidden file with a timestamp in it of an expiration date. If the file
+    #  already exists and the date is in the future, simply returns false. This will
+    #  not store token values for the tool's session.
+
+    local current_time=$(/usr/local/opt/coreutils/libexec/gnubin/date +%s)
+
+    local tool_name="${1}"
+    local timeout_file="/var/tmp/.${tool_name}_token_expiration"
+    shift
+    local expiration_date
+
+    if [[ -n "${*}" ]]; then
+      # session_validity_length provided; need to setup expiration file
+      # if [[ ${VERBOSE} -ge 1 ]]; then
+      #   echo "Creating expiration date from \$(/usr/local/opt/coreutils/libexec/gnubin/date --date=\"${*}\" +%s)"
+      # fi
+      expiration_date=$(/usr/local/opt/coreutils/libexec/gnubin/date --date="${*}" +%s)
+      if ! [[ ${expiration_date} =~ ^-?[0-9]+$ ]]; then
+        echo "Unable to create expiration date from \"${*}\"."
+        return 1
+      fi
+      # if [[ ${VERBOSE} -ge 1 ]]; then
+      #   echo "Creating token expiration file for ${tool_name} with value of ${expiration_date}"
+      # fi
+      (umask 077 ; touch "${timeout_file}")
+      # $(brew --prefix coreutils)/libexec/gnubin/chmod -c 600 ${timeout_file}
+      echo "${expiration_date}" > "${timeout_file}"
+      return 0
+    else
+      # if [[ ${VERBOSE} -ge 1 ]]; then
+      #   echo "grab existing date from tools token expiration file and see if active"
+      # fi
+      if [[ -f ${timeout_file} && -s ${timeout_file} ]]; then
+        # if [[ ${VERBOSE} -ge 1 ]]; then
+        #   echo "${tool_name} token expiration file found; grabbing expiration time"
+        # fi
+        expiration_date=$(head -n1 "${timeout_file}")
+        if [[ ${expiration_date} =~ ^-?[0-9]+$ && \
+        ${expiration_date} > ${current_time} ]]; then
+          # if [[ ${VERBOSE} -ge 1 ]]; then
+          #   echo "\"${expiration_date}\" is > \"${current_time}\""
+          # fi
+          return 0
+        else
+          # if [[ ${VERBOSE} -ge 1 ]]; then
+          #   echo "\"${expiration_date}\" is <= \"${current_time}\""
+          # fi
+          return 1
+        fi
+      else
+        # can't find the file or expiration date so we do actually need to set it up
+        echo "Fatal error: ${timeout_file} not found or empty"
+        return 1
+      fi
+    fi
+  }
+
+  function rsync {
+    echo "Running: time $(which rsync) -axHAWXS --info=progress2 --numeric-ids --size-only ..."
+    time $(which rsync) -axHAWXS --partial --info=progress2 --numeric-ids --size-only ${@}
+    # ttime $(which rsync) -axHAWXSP --numeric-ids --size-only ${@}
   }
 
   function alfred {
@@ -272,7 +375,7 @@ if [[ "${IS_MACOS}" == "true" ]]; then
 
     for ((item = 0; item < ${#programs[@]}; item++)); do
       program1="${programs[${item}]}"
-      pgrep -qf "${program1}.app" || (nohup open --hide --background -a "${program1}" >/dev/null 2>&1 &)
+      pgrep -qf "${program1}.app" || (nohup open --hide --background -a "${program1}" </dev/null >/dev/null 2>&1 &)
     done
   }
 elif [[ "${IS_LINUX}" == "true" ]]; then
