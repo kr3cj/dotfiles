@@ -1,11 +1,12 @@
- #!/usr/bin/env bash +x
+#!/usr/bin/env bash
+set +x
 LOG4=/var/tmp/workstation_setup_$(date +%Y-%m-%d).log
 (
   # the purpose of this script is to house all macos workstation customizations requiring access to dotfiles_private
   echo "first, check that we are authenticated to password manager."
   op get account > /dev/null || ( echo "Not logged into password manager; quitting" && exit 1)
   echo "second, check that SHELL is bash v5+."
-  if ! $(bash --version | grep -q 'version 5'); then
+  if ! bash --version | grep -q 'version 5'; then
     echo "Change default shell to \"/usr/local/bin/bash\":"
     echo " \"chsh -s /usr/local/bin/bash && /usr/local/bin/bash\""
     exit 1
@@ -13,7 +14,7 @@ LOG4=/var/tmp/workstation_setup_$(date +%Y-%m-%d).log
 
   # now we can install any private repos with private ssh key
   # load personal ssh key if necessary
-  if ! $(ssh-add -l | grep -q "/.ssh/id_rsa_personal\ ("); then
+  if ! ssh-add -l | grep -q "/.ssh/id_rsa_personal\ ("; then
     (umask 177
     op get item id_rsa_personal --fields notes > ~/.ssh/id_rsa_personal
     )
@@ -26,7 +27,7 @@ LOG4=/var/tmp/workstation_setup_$(date +%Y-%m-%d).log
     source "${HOME}/.homesick/repos/homeshick/homeshick.sh"
     if homeshick list | grep -q ${private_repo}; then
       # must trim long git URIs to just repo name
-      homeshick --batch pull $(echo ${private_repo/*\//} | sed -e "s/\.git$//")
+      homeshick --batch pull "$(echo "${private_repo/*\//}" | sed -e "s/\.git$//")"
     else
       homeshick --batch clone ${private_repo}
     fi

@@ -1,4 +1,5 @@
-#!/usr/bin/env bash +x
+#!/usr/bin/env bash
+set +x
 LOG2=/var/tmp/workstation_setup_$(date +%Y-%m-%d).log
 (
 # the purpose of this script is to house all initial workstation customizations in linux or macos
@@ -38,10 +39,6 @@ if ! $(crontab -l | grep -q workstation_update) ; then
   # FIX: crontab: tmp/tmp.55269: Operation not permitted
   (crontab -l 2>/dev/null; echo "0 10 * * 5 ~/.workstation_update.sh") | crontab -
 fi
-# refresh 1password-cli to workaround the hardcoded 30 minute idle timeout
-# if ! $(crontab -l | grep -q pm_token_refresh) ; then
-#   (crontab -l 2>/dev/null; echo "*/29 7-17 * * MON-FRI ~/.pm_token_refresh.sh") | crontab -
-# fi
 
 # install software on macos
 if ${IS_MACOS} && ! hash mas 2>/dev/null ; then
@@ -217,7 +214,11 @@ if ${IS_MACOS} && ! hash mas 2>/dev/null ; then
 #!$(which bash)
 EOF
   for extension1 in \
-    hashicorp.terraform eamodio.gitlens ms-python.python timonwong.shellcheck \
+    eamodio.gitlens \
+    GitHub.vscode-pull-request-github \
+    hashicorp.terraform \
+    ms-python.python \
+    timonwong.shellcheck \
     ; do
     echo "code --install-extension ${extension1} --verbose" >> /var/tmp/vscode_installs.sh
   done
@@ -232,9 +233,9 @@ EOF
 
   # install asdf tools
   # golang
-  for asdf_plugin in argo eksctl golang helm helmfile kops kubectl kustomize \
-      linkerd minikube pluto poetry python saml2aws sops sopstool terraform \
-      terraform-docs; do
+  for asdf_plugin in argo eksctl golang helm helmfile kubectl kustomize \
+      linkerd minikube nova octant pluto poetry python saml2aws sinker sops sopstool terraform \
+      terraform-docs yq; do
     asdf plugin-add ${asdf_plugin}
   done
   asdf plugin-add octant https://github.com/looztra/asdf-octant

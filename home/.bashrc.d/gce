@@ -9,3 +9,6 @@ ${IS_MACOS} || return
 
 # gcloud info
 # gcloud help
+
+# this golang debug variable should be in its own golang file but I'm lazy:
+# export GODEBUG=netdns=9

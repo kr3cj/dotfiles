@@ -1,3 +1,21 @@
+function pathadd() {
+  unset newpath
+  local newpath=${1%/}
+  if [[ ! -d "${newpath}" ]] ; then
+    # echo "Directory \"${1}\" does not exist."
+    return
+  fi
+  if [[ "${PATH}" =~ (^|:)"${newpath}"(:|$) ]] ; then
+    # echo "Path \"${newpath}\" already exists in path \"${PATH}\"."
+    return
+  fi
+  if [[ "${2}" == "after" ]] ; then
+    export PATH="${PATH}:${newpath}"
+  else
+    export PATH="${newpath}:${PATH}"
+  fi
+}
+
 # add admin paths, replace macos utilities with GNU core utilities (should already include /usr/sbin/ and /sbin )
 
 # libexec paths because brew removed --with-default-names ... \
@@ -6,6 +24,7 @@ for path2 in \
   /usr/local/sbin \
   /Applications/Visual\ Studio\ Code.app/Contents/Resources/app/bin \
   ${KREW_ROOT:-$HOME/.krew}/bin \
+  /usr/local/opt/python@3.9/bin \
   /usr/local/opt/coreutils/libexec/gnubin \
   /usr/local/opt/ed/libexec/gnubin \
   /usr/local/opt/findutils/libexec/gnubin \

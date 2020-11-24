@@ -38,6 +38,8 @@ function _load_ssh_key_from_passman () {
   # reload ssh keys into agent daily from lastpass
   if ! $(ssh-add -l 2> /dev/null | grep -q "/.ssh/id_rsa${key}\ ("); then
     # TODO: better integrate passphrase from passman? https://svkt.org/~simias/lpass/#ssh-agent
+    export OP_SESSION_my="$(head -n1 ~/.pm_session_token)"
+    _passman_needs_auth || _passman_auth
     (umask 177
     # workaround since this sometimes creates a directory
     [[ -d ~/.ssh/id_rsa${key} ]] && rmdir ~/.ssh/id_rsa${key}

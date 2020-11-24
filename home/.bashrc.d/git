@@ -16,7 +16,14 @@ function gitp {
   git fetch --prune --all
   git checkout ${gbranch}
   git pull origin ${gbranch}
-  # git fetch origin --prune
-  # git fetch --tags
   git status
+}
+
+function update-all-repos {
+  for repo1 in $(find ~/build/github -mindepth 1 -maxdepth 6 -path "*/.git/config") ; do echo -e "\n${repo1%.git/config}" ; \
+    cd ${repo1%.git/config} \
+    && git clean -xfd \
+    && gitp \
+    && cd - ; \
+  done
 }

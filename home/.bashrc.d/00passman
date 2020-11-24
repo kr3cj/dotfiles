@@ -1,0 +1,118 @@
+[[ $- = *i* ]] || return
+${IS_MACOS} || return
+
+# passman doesn't have support for debug logging, session timeout control,
+# or even an easy way to know if you're authenticated
+# export OP_LOG_LEVEL=7
+# export OP_SESSION_TIMEOUT=43200
+
+function _passman_needs_auth() {
+  op list vaults --cache --session ${OP_SESSION_my} &> /dev/null && return
+  false
+}
+
+function _passman_auth() {
+  # if [[ "${need_to_auth_passman}" == true ]]; then
+  [[ ${VERBOSE} -ge 1 ]] && \
+    echo "Need to auth passman; about to run \"op signin my --raw --cache --session ${OP_SESSION_my} \""
+  # clear contents of file
+  > ~/.pm_session_token
+  OP_SESSION_my="$(op signin my --raw --cache)"
+  if [[ "${?}" -eq 0 ]]; then
+    echo ${OP_SESSION_my} > ~/.pm_session_token
+  else
+    echo "Failed to authenticate to passman!"
+    export HEALTHY_INTERNET=false
+  fi
+  clear_clip 10
+}
+
+function passman() {
+  # TODO: convert to flag based args instead of positional args
+  # # if the first variable is an integer, then clear clipboard
+
+  # prompt to login if necessary
+  export OP_SESSION_my="$(head -n1 ~/.pm_session_token)"
+  _passman_needs_auth || _passman_auth
+
+  local item1="${1}"
+  shift
+  local field1="${@:-password}" # default to grabbing password
+
+  [[ ${VERBOSE} -ge 1 ]] && \
+    echo "Running: op get item \"${item1}\" --fields \"${field1}\" \
+      --cache --session ${OP_SESSION_my} | pbcopy"
+  op get item "${item1}" --fields "${field1}" \
+    --cache --session ${OP_SESSION_my} | pbcopy
+}
+
+function otp {
+  [[ ${VERBOSE} -ge 1 ]] && \
+    echo "Running: op get totp \"${1}\" | cut -c1-6 | tr -d '\n' | pbcopy"
+  op get totp "${1}" --cache --cache --session ${OP_SESSION_my} | cut -c1-6 | tr -d '\n' | pbcopy
+  # otp-cli show -1 -c -s ${CUSTOM_WORK_SSO_PROVIDER} | awk '/[0-9].*/{print $2}'
+}
+
+
+function session_is_active {
+  # usage: session_is_active <tool_name> [<session_validity_length>]
+  # ex1: if $(session_is_active saml2aws); then echo "already active session"; fi
+  # description: return 0 if a tool's session token is active, else 1
+  #  To reduce the number of unnecessary authentication calls (which can be slow)
+  #  when other native mechanisms to check don't exist. If necessary, sets up a
+  #  local hidden file with a timestamp in it of an expiration date. If the file
+  #  already exists and the date is in the future, simply returns false. This will
+  #  not store token values for the tool's session.
+
+  local current_time=$(/usr/local/opt/coreutils/libexec/gnubin/date +%s)
+
+  local tool_name="${1}"
+  local timeout_file="/var/tmp/.${tool_name}_token_expiration"
+  shift
+  local expiration_date
+
+  if [[ -n "${*}" ]]; then
+    # session_validity_length provided; need to setup expiration file
+    # if [[ ${VERBOSE} -ge 1 ]]; then
+    #   echo "Creating expiration date from \$(/usr/local/opt/coreutils/libexec/gnubin/date --date=\"${*}\" +%s)"
+    # fi
+    expiration_date=$(/usr/local/opt/coreutils/libexec/gnubin/date --date="${*}" +%s)
+    if ! [[ ${expiration_date} =~ ^-?[0-9]+$ ]]; then
+      echo "Unable to create expiration date from \"${*}\"."
+      return 1
+    fi
+    # if [[ ${VERBOSE} -ge 1 ]]; then
+    #   echo "Creating token expiration file for ${tool_name} with value of ${expiration_date}"
+    # fi
+    (umask 077 ; touch "${timeout_file}")
+    # $(brew --prefix coreutils)/libexec/gnubin/chmod -c 600 ${timeout_file}
+    echo "${expiration_date}" > "${timeout_file}"
+    return 0
+  else
+    # if [[ ${VERBOSE} -ge 1 ]]; then
+    #   echo "grab existing date from tools token expiration file and see if active"
+    # fi
+    if [[ -f ${timeout_file} && -s ${timeout_file} ]]; then
+      # if [[ ${VERBOSE} -ge 1 ]]; then
+      #   echo "${tool_name} token expiration file found; grabbing expiration time"
+      # fi
+      expiration_date=$(head -n1 "${timeout_file}")
+      if [[ ${expiration_date} =~ ^-?[0-9]+$ && \
+      ${expiration_date} > ${current_time} ]]; then
+        # if [[ ${VERBOSE} -ge 1 ]]; then
+        #   echo "\"${expiration_date}\" is > \"${current_time}\""
+        # fi
+        return 0
+      else
+        # if [[ ${VERBOSE} -ge 1 ]]; then
+        #   echo "\"${expiration_date}\" is <= \"${current_time}\""
+        # fi©
+        return 1
+      fi
+    else
+      # can't find the file or expiration date so we do actually need to set it up
+      echo "Fatal error: ${timeout_file} not found or empty"
+      return 1
+    fi
+  fi
+}

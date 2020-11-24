@@ -1,14 +1,19 @@
 [[ $- = *i* ]] || return
 ${IS_MACOS} || return
 
+$(/usr/local/bin/brew --prefix findutils)/libexec/gnubin/find ~/.kube/ \
+  -mindepth 1 \
+  -maxdepth 1 \
+  -type l \
+  -exec chmod -c 600 '{}' \;
 # export KUBECONFIG=~/.kube/k3sa
- export KUBECONFIG=$(find ~/.kube/ \
-   -mindepth 1 \
-   -maxdepth 1 \
-   -type l \
-   ! -name minikube \
-   | sort \
-   | tr '\n' ':')
+export KUBECONFIG=$(find ~/.kube/ \
+  -mindepth 1 \
+  -maxdepth 1 \
+  -type l \
+  ! -name minikube \
+  | sort \
+  | tr '\n' ':')
   # -printf "%p:" \
 
 # source <(kubectl completion bash) # slow
@@ -28,7 +33,7 @@ function k() {
 
   local my_aws_profile="$(map-cluster-to-profile ${cluster})"
   # verify that eks clusters mapped to a my_aws_profile
-  if [[ ! ${cluster} =~ k8s ]] && [[ "${my_aws_profile}" == "" ]]; then
+  if [[ "${my_aws_profile}" == "" ]]; then
     return 1
   fi
   # if ! $(on_vpn); then
@@ -48,11 +53,7 @@ function k() {
     *get?po*)
       action="${action} --sort-by=.metadata.creationTimestamp" ;;
     *get?no*)
-      if [[ ${cluster} =~ k8s ]]; then
-        action="${action} --label-columns=kubernetes.io/role,function --sort-by=.metadata.creationTimestamp"
-      else
-        action="${action} --label-columns=nodegroup_name,function --sort-by=.metadata.creationTimestamp"
-      fi ;;
+      action="${action} --label-columns=nodegroup_name,function --sort-by=.metadata.creationTimestamp" ;;
     *)
       [[ ${VERBOSE} -ge 1 ]] && echo "matched global"
       action="${action}" ;;
@@ -61,6 +62,40 @@ function k() {
   [[ ${VERBOSE} -ge 1 ]] && \
     echo "Running: \"$(which kubectl) ${kube_config} ${action}\""
   kubectl ${kube_config} ${action} #--context admin@${cluster}
+}
+
+function h() {
+  local cluster=${1}
+  if ! [[ -r ~/.kube/${cluster} ]]; then
+    echo "No kubeconfig found for \"${cluster}\"!"
+    return 1
+  fi
+  shift
+  local action=${@} # ex: "get pod"
+
+  local my_aws_profile="$(map-cluster-to-profile ${cluster})" # dynamically determine
+
+  # verify that eks clusters mapped to an my_aws_profile
+  if [[ "${my_aws_profile}" == "" ]]; then
+    echo "Could not map the cluster name to an aws profile."
+    return 1
+  fi
+  # if ! $(on_vpn); then
+  #   work_vpn
+  #   echo
+  # fi
+
+  local kube_config="--kubeconfig ${HOME}/.kube/${cluster}"
+  local helm_path="$(asdf where helm)/bin/helm"
+  [[ ${VERBOSE} -ge 1 ]] && \
+    echo "Running: \"${helm_path} ${kube_config} ${action}\""
+  ${helm_path} ${kube_config} ${action} #--kube-context admin@${cluster}
+}
+
+function netshoot {
+  # spin up a throwaway container in k8s for network debugging
+  kubectl --kubeconfig ~/.kube/${1} run --generator=run-pod/v1 \
+    tmp-shell --rm -i --tty --image nicolaka/netshoot -- /bin/bash
 }
 
 function ibexs() {
@@ -84,44 +119,6 @@ function ibexs() {
   ./ibex --cluster ${my_cluster_path} ${args}
 }
 
-function h() {
-  local cluster=${1}
-  if ! [[ -r ~/.kube/${cluster} ]]; then
-    echo "No kubeconfig found for \"${cluster}\"!"
-    return 1
-  fi
-  shift
-  local action=${@} # ex: "get pod"
-
-  local my_aws_profile="$(map-cluster-to-profile ${cluster})" # dynamically determine
-
-  # verify that eks clusters mapped to an my_aws_profile
-  if [[ ! ${cluster} =~ k8s ]] && [[ "${my_aws_profile}" == "" ]]; then
-    echo "Could not map the cluster name to an aws profile."
-    return 1
-  fi
-  # if ! $(on_vpn); then
-  #   work_vpn
-  #   echo
-  # fi
-
-  local kube_config="--kubeconfig ${HOME}/.kube/${cluster}"
-
-  # old kops clusters dont need saml2aws wrapper
-  # local wrapper="saml2aws exec --exec-profile=${my_aws_profile} --"
-  local helm_path="/Users/${LOGNAME}/.asdf/shims/helm"
-  if [[ ${cluster} =~ k8s ]]; then
-    wrapper=""
-    # kops clusters (k8s and k8s-staging) running helm 2.14.2
-    asdf install helm 2.14.2
-    helm_path="$(asdf where helm 2.14.2)/bin/helm"
-  fi
-
-  [[ ${VERBOSE} -ge 1 ]] && \
-    echo "Running: \"${helm_path} ${kube_config} ${action}\""
-  ${helm_path} ${kube_config} ${action} #--kube-context admin@${cluster}
-}
-
 # kubectl plugin manager: krew
 export KREW_ROOT=${HOME}/.krew
 pathadd ${KREW_ROOT}/bin
@@ -143,47 +140,6 @@ function _get_latest_version_from_github()
     return 1
   fi
 }
-function get_kube_versions()
-{
-  # mostly replaced by kubectl/krew outdated and FairwindsOps/nova
-  local L8ST_COREOS_V=$(curl -s https://coreos.com/dist/aws/aws-stable.json \
-    | jq -r '.release_info.version') \
-  local CURR_KOPS_V=$(kops version | awk '{print $2}') \
-  local L8ST_KOPS_V=$(_get_latest_version_from_github "kubernetes/kops")
-  local CURR_K8S_V=$(kubectl version --short --output=json | jq -r '.serverVersion.gitVersion')
-  local L8ST_K8S_V=$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)
-  local CURR_HELMC_V=$(helm version --client --short | awk '{print $2}')
-  local CURR_HELMS_V=$(helm version --server --short | awk '{print $2}')
-  local L8ST_HELM_V=$(_get_latest_version_from_github "helm/helm")
-  # TODO: GO_V=$(kubectl version --short --output=json | jq -r '.serverVersion.goVersion')
-  # TODO: Versions of kernel, Debian/coreos/container-optimized-os-from-google, etcd, kube-aws,
-  #  kiam-server, kernel, nginx ingress, dashboard, heapster->metrics-server, kube-state-metrics, prometheus, eksctl?
-  # TODO: providers for dns and network layer
-  # datadog agent+chart, sumologic-fluentd agent+chart, runatlantis/atlantis
-  # update di-4325
-
-  ### Tools that come with the cluster (indirect versioning correlation)
-  # docker: https://github.com/docker/docker-ce/releases/latest
-  # cluster-autoscaler latest version matches k8s: https://github.com/kubernetes/autoscaler/tree/master/cluster-autoscaler#releases
-  # kube-state-metrics: https://github.com/kubernetes/kube-state-metrics#compatibility-matrix
-
-  # TODO: utilize column command?
-  cat << TABLE_EOF
-  +------------+------------------+----------------+
-  | COMPONENT  | CURRENT VERSION  | LATEST VERSION |
-  +------------+------------------+----------------+
-  | CoreOS     | N/A              | ${L8ST_COREOS_V}       |
-  +------------+------------------+----------------+
-  | Kops       | ${CURR_KOPS_V}           | ${L8ST_KOPS_V}         |
-  +------------+------------------+----------------+
-  | Kubernetes | ${CURR_K8S_V}          | ${L8ST_K8S_V}        |
-  +------------+------------------+----------------+
-  | Helm Client| ${CURR_HELMC_V} | ${L8ST_HELM_V}        |
-  +------------+------------------+----------------+
-  | Helm Server| ${CURR_HELMS_V} | ${L8ST_HELM_V}        |
-  +------------+------------------+----------------+
-TABLE_EOF
-}
 
 # function doit () {
 #   local saml2aws-profile=${1}
@@ -197,6 +153,16 @@ TABLE_EOF
 #         kubectl get nodes -o go-template --template=\'{{.spec.externalID}}\' ${nodeid}
 #   done
 # }
+
+# if one AZ is having problems in EC2...
+# 1) Use datadog to look at all errors in a cluster per AZ to find the one that is having problems
+# 2) If running spot ASGs (which span multi AZ), simply remove the bad AZ subnet from its config in the console
+# 3) cordon and drain those nodes from the cluster
+# [optional] kubectl cordon -l 'failure-domain.beta.kubernetes.io/zone=us-east-1d'
+# kubectl drain --ignore-daemonsets --delete-local-data -l 'failure-domain.beta.kubernetes.io/zone=us-east-1d'
+# repeat the drain as necessary to catch any new nodes coming up in the bad AZ
+# 4) If running ASGs per AZ, decrease the max nodes to the same as the running nodes and min to 0 (so no new ones can spin up)
+#  watch for race condition between decreasing max and cluster-autoscaler not knowing to prevent launching in bad az
 
 # kubectl get node \
   # -l kubernetes.io/role=node,failure-domain.beta.kubernetes.io/zone=us-east-${az} \
@@ -230,3 +196,11 @@ TABLE_EOF
 
 # show counts of unique images/version for kubelet
 # kubectl --kubeconfig get no --sort-by=.metadata.creationTimestamp -o jsonpath='{..kubeletVersion}' | tr -s '[[:space:]]' '\n' | sort | uniq -c
+
+# show all pods from nodes with given label
+# pcols=""; for n in $(kubectl get node -lfunction=cluster-critical -ocustom-columns=name:metadata.name --no-headers); do kubectl get pod \
+# --all-namespaces -o wide --field-selector "spec.nodeName=$n" $pcols; pcols="--no-headers"; done | column -t
+
+# show Pods with containers that aren't ready. Each row is the pod name, container name, ready state, started state.
+# kubectl get pod --all-namespaces -o go-template='POD{{"\t"}}CONTAINER{{"\t"}}READY{{"\t"}}STARTED{{"\n"}}{{range .items}}{{$p:=.metadata.name}}{{range \
+# .status.containerStatuses}}{{if not .ready}}{{$p}}{{"\t"}}{{.name}}{{"\t"}}{{.ready}}{{"\t"}}{{.started}}{{"\n"}}{{end}}{{end}}{{end}}'

@@ -1,4 +1,5 @@
-#!/usr/bin/env bash +x
+#!/usr/bin/env bash
+set +x
 LOG=/var/tmp/workstation_update_$(date +%Y-%m-%d).log
 (
 # the purpose of this script is to update client binaries on an occasional basis
@@ -88,8 +89,9 @@ if [[ $(uname) == "Darwin" ]] ; then
   # fi
 
   echo -e "\nUpdating helm plugins."
-  for hplug in $($($(/usr/local/bin/brew --prefix asdf)/bin/asdf where helm)/bin/helm plugin list | grep -v ^NAME | awk '{print $1}') ; do
-    $($(/usr/local/bin/brew --prefix asdf)/bin/asdf where helm)/bin/helm plugin update ${hplug}
+  helm_binary="$($(/usr/local/bin/brew --prefix asdf)/bin/asdf where helm)/bin/helm"
+  for hplug in $(${helm_binary} plugin list | grep -v ^NAME | awk '{print $1}') ; do
+    ${helm_binary} plugin update ${hplug}
   done
 
   echo -e "\nUpdating kubectl krew plugins."
@@ -126,48 +128,58 @@ if [[ $(uname) == "Darwin" ]] ; then
     echo -e "\nUpdating asdf tool versions..."
     # from https://gist.github.com/ig0rsky/fef7f785b940d13b52eb1b379bd7438d
     TOOL_FILE="${HOME}/.tool-versions"
-    [[ -f ${TOOL_FILE} ]] || break
-    # backing up ${TOOL_FILE}
-    cp -avL ${TOOL_FILE} ${TOOL_FILE}.$(date +%Y%m%d).backup
+    if [[ -f ${TOOL_FILE} ]]; then
+      # backing up ${TOOL_FILE}
+      cp -avL ${TOOL_FILE} ${TOOL_FILE}.$(date +%Y%m%d).backup
 
-    # read each line of .tool-versions into array of tool+version
-    [[ -f ${TOOL_FILE}.new ]] && true > ${TOOL_FILE}.new
-    while read line1; do
-      array=( ${line1} )
-      tool1="${array[0]}"
-      old_version1="${array[1]}" # ${old_version1%% *} to only grab first word
-      new_version1=""
+      # read each line of .tool-versions into array of tool+version
+      [[ -f ${TOOL_FILE}.new ]] && true > ${TOOL_FILE}.new
+      while read line1; do
+        array=( ${line1} )
+        tool1="${array[0]}"
+        old_version1="${array[1]}" # ${old_version1%% *} to only grab first word
+        new_version1=""
 
-      case ${tool1} in
-        \#)
-          echo "Skipping commented line \"${line1}\""
-          echo "${line1}" >> ${TOOL_FILE}.new ;;
-        example1)
-          echo "Skipping upgrade of locked asdf plugin \"${tool1}:${old_version1}\""
-          echo "${tool1} ${old_version1}" >> ${TOOL_FILE}.new ;;
-        argo|helm|kops|kubectl|terraform)
-          echo "Getting latest patch version of asdf plugin \"${tool1}:${old_version1}\"..."
-          # use bash parameter expansion to extract the major and minor version from ${old_version1}
-          new_version1="$($(/usr/local/bin/brew --prefix asdf)/bin/asdf latest ${tool1} ${old_version1%\.*})"
-          # if asdf dropped old_version, above will return emtpy string, so return old_version
-          echo "${tool1} ${new_version1:=${old_version1}}" >> ${TOOL_FILE}.new ;;
-        example2)
-          echo "Getting latest minor version only of asdf plugin \"${tool}:${old_version1}\"..."
-          # use bash parameter expansion to extract the major version from ${old_version1}
-          new_version1="$($(/usr/local/bin/brew --prefix asdf)/bin/asdf latest ${tool1} ${old_version1%%\.*})"
-          # if asdf dropped old_version, above will return emtpy string, so return old_version
-          echo "${tool1} ${new_version1:=${old_version1}}" >> ${TOOL_FILE}.new ;;
-        *)
-          echo "Getting latest major version of asdf plugin \"${tool1}:${old_version1}\"..."
-          echo "${tool1} $($(/usr/local/bin/brew --prefix asdf)/bin/asdf latest ${tool1})" >> ${TOOL_FILE}.new ;;
-      esac
-    done < ${TOOL_FILE}
+        case ${tool1} in
+          \#)
+            echo "Skipping commented line \"${line1}\""
+            echo "${line1}" >> ${TOOL_FILE}.new ;;
+          example1)
+            echo "Skipping upgrade of locked asdf plugin \"${tool1}:${old_version1}\""
+            echo "${tool1} ${old_version1}" >> ${TOOL_FILE}.new ;;
+          argo|helm|kubectl|nodejs|terraform)
+            echo "Getting latest patch version of asdf plugin \"${tool1}:${old_version1}\"..."
+            # use bash parameter expansion to extract the major and minor version from ${old_version1}
+            new_version1="$($(/usr/local/bin/brew --prefix asdf)/bin/asdf latest ${tool1} ${old_version1%\.*})"
+            # if asdf dropped old_version, above will return emtpy string, so return old_version
+            echo "${tool1} ${new_version1:=${old_version1}}" >> ${TOOL_FILE}.new ;;
+          example2)
+            echo "Getting latest minor version only of asdf plugin \"${tool}:${old_version1}\"..."
+            # use bash parameter expansion to extract the major version from ${old_version1}
+            new_version1="$($(/usr/local/bin/brew --prefix asdf)/bin/asdf latest ${tool1} ${old_version1%%\.*})"
+            # if asdf dropped old_version, above will return emtpy string, so return old_version
+            echo "${tool1} ${new_version1:=${old_version1}}" >> ${TOOL_FILE}.new ;;
+          *)
+            echo "Getting latest major version of asdf plugin \"${tool1}:${old_version1}\"..."
+            echo "${tool1} $($(/usr/local/bin/brew --prefix asdf)/bin/asdf latest ${tool1})" >> ${TOOL_FILE}.new ;;
+        esac
+      done < ${TOOL_FILE}
 
-    echo -e "Now a diff of the version updates:...\n"
-    diff ${TOOL_FILE}.$(date +%Y%m%d).backup ${TOOL_FILE}.new
-    cat ${TOOL_FILE}.new > ${TOOL_FILE} && rm ${TOOL_FILE}.new
-    (cd ${HOME} && $(/usr/local/bin/brew --prefix asdf)/bin/asdf install)
-    echo "Finished updating asdf ${TOOL_FILE}"
+      echo -e "Now a diff of the version updates:...\n"
+      diff ${TOOL_FILE}.$(date +%Y%m%d).backup ${TOOL_FILE}.new
+      cat ${TOOL_FILE}.new > ${TOOL_FILE} && rm ${TOOL_FILE}.new
+      (cd ${HOME} && $(/usr/local/bin/brew --prefix asdf)/bin/asdf install)
+      echo "Finished updating asdf ${TOOL_FILE}"
+      # TODO: Remove all unused versions automatically
+      echo "Remove old asdf config files older than 30 days"
+      $(/usr/local/bin/brew --prefix findutils)/libexec/gnubin/find ${HOME}/ \
+        -mindepth 1 \
+        -maxdepth 1 \
+        -type f \
+        -name ".tool-versions\.*" \
+        -mtime +30 \
+        -print -delete
+    fi
   fi
 
   /bin/rm -vr ~/.gradle/caches/* 2> /dev/null || echo
