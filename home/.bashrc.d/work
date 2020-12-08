@@ -118,16 +118,16 @@ function work_saml2aws {
     saml2aws login
     if [[ ${?} == 0 ]]; then
       session_is_active saml2aws "${SAML2AWS_SESSION_DURATION} seconds" || true
-      open -a "Brave Browser" --args --profile-directory=Work "https://${CUSTOM_WORK_DOMAINS[0]/.com/}.${CUSTOM_WORK_SSO_PROVIDER}.com"
+      # open -a "Brave Browser" --args --profile-directory=Work "https://${CUSTOM_WORK_DOMAINS[0]/.com/}.${CUSTOM_WORK_SSO_PROVIDER}.com"
     fi
-    clear_clip 20
+    clear_clip 10
   fi
 }
 function work_vpn {
   # see https://gist.github.com/p120ph37/10999344 for cisco automation
   if ! on_vpn; then
     echo ""
-    if read -t 2 -s -p "To connect to work VPN, press any key within 2 seconds..."; then
+    if read -t 2 -s -p "To connect to work VPN, press enter key within 2 seconds..."; then
       unmount_home_nfs
       passman  "${CUSTOM_WORK_DOMAINS[0]/.com/} ${CUSTOM_WORK_SSO_PROVIDER}" || echo "Unable to cache ${CUSTOM_WORK_SSO_PROVIDER} pw."
       # openit "Cisco AnyConnect Secure Mobility Client"
@@ -136,8 +136,8 @@ function work_vpn {
       otp "${CUSTOM_WORK_DOMAINS[0]/.com/} ${CUSTOM_WORK_SSO_PROVIDER}" && echo "Cached otp token."
       clear_clip 20
       # pre-authentication
-    else
-      mount_home_nfs
+    # else
+      # mount_home_nfs
       # _create_socks_proxy "proxy.${CUSTOM_HOME_NAS_HOST#*\.}" "2000"
     fi
   else

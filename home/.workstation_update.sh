@@ -63,25 +63,25 @@ if [[ $(uname) == "Darwin" ]] ; then
   #   npm install --global ${generator/\//\/generator-}
   # done
 
-  echo -e "\nUpdating brew..."
+  echo -e "\nUpdating brew packages..."
   # hack for weird virt-manager dependency (or just remove spice-gtk, virt-manager and virt-viewer)
   # /usr/local/bin/brew uninstall --ignore-dependencies spice-protocol
   /usr/local/bin/brew update
   /usr/local/bin/brew upgrade
-  echo -e "\nUpdating brew casks..."
+  echo -e "\nSkipping brew casks..."
   # dont rely on "brew cask outdated --greedy", "brew cask upgrade" as they miss stuff. Loop over each and upgrade.
   # /usr/local/bin/brew cask upgrade
   # for cask1 in $(/usr/local/bin/brew cask outdated | awk '{print $1}') ; do
-  for cask1 in $(/usr/local/bin/brew list --cask) ; do
-    case ${cask1} in
-      alfred|brave-browser|docker|firefox|github|google-backup-and-sync|\
-      slack|spotify|visual-studio-code|virtualbox|zoomus)
-        echo "Skipping cask that should auto update itself: ${cask1}" ;;
-      *)
-        echo "Upgrading cask \"${cask1}\"..."
-        /usr/local/bin/brew upgrade --cask ${cask1} ;;
-    esac
-  done
+  # for cask1 in $(/usr/local/bin/brew list --cask) ; do
+  #   case ${cask1} in
+  #     alfred|brave-browser|docker|firefox|github|google-backup-and-sync|\
+  #     slack|spotify|visual-studio-code|virtualbox|zoom)
+  #       echo "Skipping cask that should auto update itself: ${cask1}" ;;
+  #     *)
+  #       echo "Upgrading cask \"${cask1}\"..."
+  #       /usr/local/bin/brew upgrade --cask ${cask1} ;;
+  #   esac
+  # done
 
   # if [[ -e /usr/local/bin/apm ]] ; then
     # echo -e "\nUpdating atom editor plugins."
@@ -107,13 +107,13 @@ if [[ $(uname) == "Darwin" ]] ; then
 
   echo -e "\nCleaning temporary files and securely delete trash."
   PATH="/usr/local/bin:${PATH}"
-  /usr/local/bin/brew cleanup -s
-  /usr/bin/sudo $(/usr/local/bin/brew --prefix findutils)/libexec/gnubin/find ~/.Trash/ -type f -exec /bin/rm -vP '{}' \; || \
+    /usr/bin/sudo $(/usr/local/bin/brew --prefix findutils)/libexec/gnubin/find ~/.Trash/ -type f -exec /bin/rm -vP '{}' \; || \
     echo "open System Preferences->Privacy & Security->Full Disk Access->Check iTerm.app"
   /usr/bin/sudo $(/usr/local/bin/brew --prefix findutils)/libexec/gnubin/find ~/.Trash/ -type d -delete
 
   # /usr/local/bin/brew cask cleanup
   /usr/local/bin/brew doctor
+  /usr/local/bin/brew cleanup -s
   # docker docker-machine docker-compose
   # for problematic_brews in kubernetes-helm ; do
     # /usr/local/bin/brew link ${problematic_brews} --overwrite

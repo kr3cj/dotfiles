@@ -19,7 +19,7 @@ if ! [[ -S ${SSH_AUTH_SOCK} ]]; then
   "ps -ef | grep ssh-agent": $(ps -ef | grep ssh-agent)
   "ssh-add -l": $(ssh-add -l 2> /dev/null)
 EOF
-  read -p "Did not find valid socket for SSH_AUTH_SOCK; press any key to clear ssh-agent resources."
+  read -p "Did not find valid socket for SSH_AUTH_SOCK; press enter key to clear ssh-agent resources."
   pkill -f "ssh-agent -s"
   unset SSH_AUTH_SOCK SSH_AGENT_PID
   [[ -f ${HOME}/.ssh/ssh-agent-setup ]] && source ${HOME}/.ssh/ssh-agent-setup
