@@ -111,7 +111,7 @@ if ${IS_MACOS} && ! hash mas 2>/dev/null ; then
   # pip3 install pylint virtualenv yq==2.2.0
 
   echo "install some extra utility packages for me"
-  brew install bash-completion certigo cfssl dos2unix gnu-getopt jq jid pstree step tree
+  brew install bash-completion certigo cfssl dos2unix gnu-getopt jid pstree step tree
   brew tap wallix/awless; brew install awless
   echo "install extra tools that I like"
   brew install \
@@ -233,7 +233,7 @@ EOF
 
   # install asdf tools
   # golang
-  for asdf_plugin in argo eksctl golang helm helmfile kubectl kustomize \
+  for asdf_plugin in argo eksctl golang helm helmfile jq kubectl kustomize \
       linkerd minikube nova octant pluto poetry python saml2aws sinker sops sopstool terraform \
       terraform-docs yq; do
     asdf plugin-add ${asdf_plugin}

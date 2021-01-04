@@ -161,7 +161,9 @@ if [[ $(uname) == "Darwin" ]] ; then
             echo "${tool1} ${new_version1:=${old_version1}}" >> ${TOOL_FILE}.new ;;
           *)
             echo "Getting latest major version of asdf plugin \"${tool1}:${old_version1}\"..."
-            echo "${tool1} $($(/usr/local/bin/brew --prefix asdf)/bin/asdf latest ${tool1})" >> ${TOOL_FILE}.new ;;
+            new_version1="$($(/usr/local/bin/brew --prefix asdf)/bin/asdf latest ${tool1})"
+            # if above returns emtpy string (jq, terraform-docs), return old_version
+            echo "${tool1} ${new_version1:=${old_version1}}" >> ${TOOL_FILE}.new ;;
         esac
       done < ${TOOL_FILE}
 

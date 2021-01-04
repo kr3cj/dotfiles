@@ -18,7 +18,7 @@ export KUBECONFIG=$(find ~/.kube/ \
 
 # source <(kubectl completion bash) # slow
 # alias k=kubectl
-# source <(kubectl completion bash | sed 's/kubectl/k/g' )
+source <(kubectl completion bash | sed 's/kubectl/k/g' )
 
 source ~/.private-utils.sh
 
@@ -171,6 +171,17 @@ function _get_latest_version_from_github()
   # --sort-by metadata.creationTimestamp
 
   # -o name
+
+# get all ds,deploy complete with different labels using custom columns:
+# kubectl get deploy,ds --all-namespaces -o custom-columns=\
+# NAMESPACE:.metadata.namespace,\
+# K8S_NAME:.metadata.name,\
+# INSTANCE:".metadata.labels.app\.kubernetes\.io\/instance",\
+# K8S-APP:.metadata.labels.k8s-app,\
+# APP:.metadata.labels.app,\
+# HELM_RELEASE:".metadata.labels.helm\.sh\/chart",\
+# SHORT_IMAGE:.spec.template.spec.containers[0].image\
+#  | grep -v ^default
 
 # I can get a list of pods sorted by the node its on using the below.
 # But how can I show *node* labels by pod?

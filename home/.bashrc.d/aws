@@ -24,7 +24,8 @@ function saml2aws {
   [[ ${@} =~ "--skip-prompt" ]] || args="${args} --skip-prompt"
   if [[ ${@} =~ "--exec-profile" ]] ; then
     export MY_AWS_PROFILE=$(echo ${@} | sed -r 's/.*--exec-profile[=,\ ]([^ ]+).*/\1/')
-    args="--session-duration=3600"
+    # add 1 hour session duration if missing
+    [[ ${@} =~ "--session-duration" ]] || args="${args} --session-duration=3600"
   fi
   [[ ${VERBOSE} -ge 1 ]] && \
     echo "Running \"$(which saml2aws) ${args} ${*}\""
