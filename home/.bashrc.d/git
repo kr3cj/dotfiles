@@ -14,6 +14,12 @@ function gitp {
   local gbranch=${1:-${current_branch}}
 
   git fetch --prune --all
+
+  # delete local branches (excluding default and current) which have been merged
+  for br1 in $(git branch --merged | grep -vE "${default_branch}|${current_branch}"); do
+    echo -e "\nDeleting local branch \"${br1}\" that's already merged..."
+    git branch -d ${br1}
+  done
   git checkout ${gbranch}
   git pull origin ${gbranch}
   git status

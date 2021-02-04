@@ -128,28 +128,26 @@ function work_vpn {
   if ! on_vpn; then
     echo ""
     if read -t 2 -s -p "To connect to work VPN, press enter key within 2 seconds..."; then
+      echo ""
       unmount_home_nfs
       passman  "${CUSTOM_WORK_DOMAINS[0]/.com/} ${CUSTOM_WORK_SSO_PROVIDER}" || echo "Unable to cache ${CUSTOM_WORK_SSO_PROVIDER} pw."
       # openit "Cisco AnyConnect Secure Mobility Client"
       nohup open -a "Cisco AnyConnect Secure Mobility Client" </dev/null >/dev/null 2>&1 &
       sleep 5
       otp "${CUSTOM_WORK_DOMAINS[0]/.com/} ${CUSTOM_WORK_SSO_PROVIDER}" && echo "Cached otp token."
+      echo ""
       clear_clip 20
       # pre-authentication
     # else
       # mount_home_nfs
       # _create_socks_proxy "proxy.${CUSTOM_HOME_NAS_HOST#*\.}" "2000"
     fi
-  else
-    # echo "Already connected to work vpn; skipping"
-    unmount_home_nfs
-    _create_socks_proxy "home.${CUSTOM_HOME_DOMAIN}" "2000"
   fi
-  echo ""
 }
 
 work_saml2aws
 work_vpn
+${at_work} && _create_socks_proxy "home.${CUSTOM_HOME_DOMAIN}" "2000"
 
 # if ${at_home}; then
 #   if $(ping -c1 -W1 -i0.1 ${CUSTOM_HOME_NAS_HOST} &> /dev/null); then

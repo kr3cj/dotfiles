@@ -232,18 +232,20 @@ if [[ "${IS_MACOS}" == "true" ]]; then
       case \"\${host1}\" in
         ${CUSTOM_WORK_SUBNET}.*|$(echo ${CUSTOM_WORK_DOMAINS[@]/#/*.}|tr ' ' '|'))
           passman  \"${CUSTOM_WORK_DOMAINS[0]/.com/} ${CUSTOM_WORK_SSO_PROVIDER}\";;
+        herky|herky.${CUSTOM_HOME_NAS_HOST#*\.})
+          passman \"herky.${CUSTOM_HOME_NAS_HOST#*\.}\" ;;
         home.${CUSTOM_HOME_DOMAIN})
           passman  \"proxy.${CUSTOM_HOME_NAS_HOST#*\.}\" ;;
         nas|nas.${CUSTOM_HOME_NAS_HOST#*\.})
           passman  \"nas.${CUSTOM_HOME_NAS_HOST#*\.}\" ;;
-        web|web.${CUSTOM_HOME_NAS_HOST#*\.})
-          passman  \"web.${CUSTOM_HOME_NAS_HOST#*\.}\" ;;
-        ship|ship.${CUSTOM_HOME_NAS_HOST#*\.})
-          passman  \"ship.${CUSTOM_HOME_NAS_HOST#*\.}\" ;;
         plex|plex.${CUSTOM_HOME_NAS_HOST#*\.})
           passman  \"plex.${CUSTOM_HOME_NAS_HOST#*\.}\" ;;
         proxy|proxy.${CUSTOM_HOME_NAS_HOST#*\.})
           passman  \"proxy.${CUSTOM_HOME_NAS_HOST#*\.}\" ;;
+        ship|ship.${CUSTOM_HOME_NAS_HOST#*\.})
+          passman  \"ship.${CUSTOM_HOME_NAS_HOST#*\.}\" ;;
+        web|web.${CUSTOM_HOME_NAS_HOST#*\.})
+          passman  \"web.${CUSTOM_HOME_NAS_HOST#*\.}\" ;;
       esac
       # using homebrew ssh $(which ssh) results in 'Bad configuration option: usekeychain'
       /usr/bin/ssh \${host1}
