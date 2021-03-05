@@ -188,7 +188,7 @@ function _get_latest_version_from_github()
 # kubectl get pods -o wide --sort-by="{.spec.nodeName}"
 
 # get list of running pods on the node
-# kubectl get po --field-selector=spec.nodeName=<ec2_hostname> | grep -v event-observer
+# kubectl get po --field-selector=spec.nodeName=ip-10-1-2-3.ec2.internal | grep -v event-observer
 
 # get events by specific pod/node
 # kubectl get events -n operations --sort-by='{.lastTimestamp}' --field-selector involvedObject.kind=Pod,involvedObject.name=datadog-worker-bv9nk

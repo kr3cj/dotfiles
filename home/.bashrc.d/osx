@@ -13,7 +13,7 @@ ${IS_MACOS} || return
 
 export BASH_SILENCE_DEPRECATION_WARNING=1
 
-export HOMEBREW_CASK_OPTS="--appdir=/Applications"
+export HOMEBREW_CASK_OPTS="--appdir=~/Applications"
 
 MANPATH="/usr/local/opt/findutils/libexec/gnuman:${MANPATH-/usr/share/man}"
 MANPATH="/usr/local/opt/coreutils/libexec/gnuman:${MANPATH}"

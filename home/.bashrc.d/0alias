@@ -232,7 +232,7 @@ if [[ "${IS_MACOS}" == "true" ]]; then
       case \"\${host1}\" in
         ${CUSTOM_WORK_SUBNET}.*|$(echo ${CUSTOM_WORK_DOMAINS[@]/#/*.}|tr ' ' '|'))
           passman  \"${CUSTOM_WORK_DOMAINS[0]/.com/} ${CUSTOM_WORK_SSO_PROVIDER}\";;
-        herky|herky.${CUSTOM_HOME_NAS_HOST#*\.})
+        herky|herky2|herky.${CUSTOM_HOME_NAS_HOST#*\.}|herky2.${CUSTOM_HOME_NAS_HOST#*\.}|${CUSTOM_HOME_SUBNET}1|${CUSTOM_HOME_SUBNET}2)
           passman \"herky.${CUSTOM_HOME_NAS_HOST#*\.}\" ;;
         home.${CUSTOM_HOME_DOMAIN})
           passman  \"proxy.${CUSTOM_HOME_NAS_HOST#*\.}\" ;;

@@ -49,7 +49,10 @@ fi
 # TODO: update chrome extensions (https://github.com/mdamien/chrome-extensions-archive/issues/8)
 
 if [[ $(uname) == "Darwin" ]] ; then
-  # echo -e "\nUpdating code..."
+  echo -e "\nUpdating vs code extensions..."
+  for ext1 in $(/usr/local/bin/code --list-extensions); do
+    /usr/local/bin/code --install-extension "${ext1}"
+  done
   # cd ~/build/all-repos
   echo -e "Updating stubborn config files to homesick repo"
   # cp -av ~/.kube/config ~/.homesick/repos/dotfiles_private/home/.kube/

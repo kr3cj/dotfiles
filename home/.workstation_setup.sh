@@ -149,8 +149,8 @@ if ${IS_MACOS} && ! hash mas 2>/dev/null ; then
   brew install liquidprompt
   # standard customizations already tracked by dotfiles via ~/.liquidpromptrc
 
-  # install main apps into Applications
-  HOMEBREW_CASK_OPTS="--appdir=/Applications"
+  # install main apps into user Applications to avoid admin permission requirements for upgrades
+  HOMEBREW_CASK_OPTS="--appdir=~/Applications"
   # FIX: failed to download beyond-compare due to cert problem with curl
   brew cask install \
     alfred slack spotify gimp github google-backup-and-sync iterm2 \
