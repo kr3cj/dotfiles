@@ -236,8 +236,8 @@ if [[ $(uname) == "Darwin" ]] ; then
   echo -e "\nUpdating macos system..."
   /usr/sbin/softwareupdate --install --all
   # /usr/sbin/softwareupdate --restart
-  sudo xcode-select --switch /Library/Developer/CommandLineTools
-  sudo xcodebuild -license accept 2> /dev/null
+  sudo /usr/bin/xcode-select --switch /Library/Developer/CommandLineTools
+  sudo /usr/bin/xcodebuild -license accept 2> /dev/null
   if [[ ${TRAVIS_CI_RUN} != true ]]; then
     # TODO: Must reboot immediately else the Finder can get disk sync issues and error -43?
     echo -e "\nChecking macos disk health."

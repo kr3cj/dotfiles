@@ -5,7 +5,7 @@ ${IS_MACOS} || return
 export DOCKER_REGISTRY="${CUSTOM_WORK_DEFAULT_AWS_ACCT}.dkr.ecr.us-east-1.amazonaws.com"
 
 function docker-login () {
-  saml2aws exec --exec-profile=${CUSTOM_WORK_IAM_PROFILE_PREFIX}-mono-prod -- aws ecr get-login-password --region us-east-1 | \
+  aws --profile=${CUSTOM_WORK_IAM_PROFILE_PREFIX}-mono-prod ecr get-login-password --region us-east-1 | \
     docker login --username AWS --password-stdin 264606497040.dkr.ecr.us-east-1.amazonaws.com
 }
 

@@ -85,6 +85,9 @@ function h() {
   #   echo
   # fi
 
+  echo "Now that k8s add-ons run helm3, it will only show those"
+  echo "To see helm2 releases, run: \"\$(asdf where helm 2.16.12)/bin/helm --kubeconfig ~/.kube/${cluster} ls\""
+
   local kube_config="--kubeconfig ${HOME}/.kube/${cluster}"
   local helm_path="$(asdf where helm)/bin/helm"
   [[ ${VERBOSE} -ge 1 ]] && \
