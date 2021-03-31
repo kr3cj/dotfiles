@@ -152,21 +152,21 @@ if ${IS_MACOS} && ! hash mas 2>/dev/null ; then
   # install main apps into user Applications to avoid admin permission requirements for upgrades
   HOMEBREW_CASK_OPTS="--appdir=~/Applications"
   # FIX: failed to download beyond-compare due to cert problem with curl
-  brew cask install \
+  brew install --cask ${HOMEBREW_CASK_OPTS} \
     alfred slack spotify gimp github google-backup-and-sync iterm2 \
     firefox keystore-explorer balenaetcher visual-studio-code zoomus
     # keybase private-internet-access; etcher is a usb flash utility
 
-  # brew cask install intellij-idea goland
+  # brew install --cask intellij-idea goland
   # input license for intellij, then goland should detect it, then remove intellij?
 
   # install brave separately. if already installed it won't break the rest
-  brew cask install brave-browser
+  brew install --cask brave-browser
 
   # broken up into separate commands to avoid 10 minute travis build timeout
-  brew cask install wireshark
+  brew install --cask wireshark
   # TODO: disable updates in docker so brew update can manage it, disable experimental features
-  brew cask install docker
+  brew install --cask docker
   open -a "Docker"
   # virtualbox
 
@@ -250,7 +250,7 @@ EOF
 
   ### Rest requires bash v5+ and authenticated password manager cli for private dotfiles ###
   # brew install lastpass-cli
-  brew cask install 1password-cli
+  brew install --cask 1password-cli
   if [[ ${TRAVIS_CI_RUN} != true ]]; then
     echo -e "\nTo continue, you must be authenticated to password manager cli: \
     op signin ${CUSTOM_HOME_PASSWD_MGR_ACCOUNT} \

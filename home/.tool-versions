@@ -7,11 +7,11 @@ kubectl 1.19.9
 # minikube 1.6.2
 nodejs 11.9.0
 nova 2.3.0
-octant 0.17.0
+octant 0.18.0
 # pluto 3.4.0
 python 3.9.2
 saml2aws 2.28.4
 # sopstool 0.4.2
 terraform 0.12.30
-terraform-docs 0.11.2
+terraform-docs 0.12.1
 # tfenv 2.0.0

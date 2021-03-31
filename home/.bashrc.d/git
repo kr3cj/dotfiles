@@ -30,6 +30,11 @@ function gitp {
   done
   git checkout ${desired_branch}
   git pull origin ${desired_branch}
+  if ! [[ "${desired_branch}" == "${current_branch}" ]]; then
+    # conditionally warn if desired doesnt match current and suggest rebase?
+    echo "You might consider running \"git pull --rebase origin ${desired_branch}\"..."
+  fi
+  # git pull --rebase origin ${desired_branch} # could be a problem if 2+ folks working on same branch
   git status
 }
 
