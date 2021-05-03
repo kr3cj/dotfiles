@@ -21,7 +21,8 @@ function saml2aws {
   # [[ ${@} =~ "--session-duration" ]] || args="--session-duration=${SAML2AWS_SESSION_DURATION}"
   # [[ ${@} =~ "--role" ]] || args="${args} --role=${CUSTOM_WORK_IAM_ROLE}"
   # [[ ${@} =~ "--mfa" ]] || args="${args} --mfa=${SAML2AWS_MFA}"
-  [[ ${@} =~ "--skip-prompt" ]] || args="${args} --skip-prompt"
+  [[ ${@} =~ "--config" ]] || args="${args} --config=${SAML2AWS_CONFIGFILE}"
+  # [[ ${@} =~ "--skip-prompt" ]] || args="${args} --skip-prompt"
   if [[ ${@} =~ "--exec-profile" ]] ; then
     export MY_AWS_PROFILE=$(echo ${@} | sed -r 's/.*--exec-profile[=,\ ]([^ ]+).*/\1/')
     # add 1 hour session duration if missing

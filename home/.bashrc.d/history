@@ -14,6 +14,8 @@ shopt -s histappend
 # save history immediately
 export PROMPT_COMMAND="history -a"
 
+export HISTFILE=~/.${LOGNAME/\.*/}_bash_history
+
 # for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
 export HISTSIZE=1000000
 export HISTFILESIZE=1000000

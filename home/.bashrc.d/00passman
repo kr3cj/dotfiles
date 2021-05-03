@@ -7,8 +7,8 @@ ${IS_MACOS} || return
 # export OP_SESSION_TIMEOUT=43200
 
 function _passman_needs_auth() {
-  op list vaults --cache --session ${OP_SESSION_my} &> /dev/null && return
-  false
+  op list vaults --cache --session ${OP_SESSION_my} &> /dev/null && return 0
+  return 1
 }
 
 function _passman_auth() {

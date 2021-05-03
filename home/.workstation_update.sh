@@ -71,20 +71,19 @@ if [[ $(uname) == "Darwin" ]] ; then
   # /usr/local/bin/brew uninstall --ignore-dependencies spice-protocol
   /usr/local/bin/brew update
   /usr/local/bin/brew upgrade
-  echo -e "\nSkipping brew casks..."
-  # dont rely on "brew cask outdated --greedy", "brew cask upgrade" as they miss stuff. Loop over each and upgrade.
-  # /usr/local/bin/brew cask upgrade
-  # for cask1 in $(/usr/local/bin/brew cask outdated | awk '{print $1}') ; do
-  # for cask1 in $(/usr/local/bin/brew list --cask) ; do
-  #   case ${cask1} in
-  #     alfred|brave-browser|docker|firefox|github|google-backup-and-sync|\
-  #     slack|spotify|visual-studio-code|virtualbox|zoom)
-  #       echo "Skipping cask that should auto update itself: ${cask1}" ;;
-  #     *)
-  #       echo "Upgrading cask \"${cask1}\"..."
-  #       /usr/local/bin/brew upgrade --cask ${cask1} ;;
-  #   esac
-  # done
+  /usr/local/bin/brew upgrade --cask
+  # dont rely on "brew upgrade --cask" to skip auto-updating casks. Loop over each instead
+  # /usr/local/bin/brew upgrade --cask
+  for cask1 in $(/usr/local/bin/brew upgrade --cask --dry-run | awk '{print $1}') ; do
+    case ${cask1} in
+      alfred|brave-browser|docker|firefox|github|google-backup-and-sync|\
+      slack|spotify|visual-studio-code|virtualbox|zoom)
+        echo "Skipping cask that should auto update itself: ${cask1}" ;;
+      *)
+        echo "Upgrading cask \"${cask1}\"..."
+        /usr/local/bin/brew upgrade --cask ${cask1} ;;
+    esac
+  done
 
   # if [[ -e /usr/local/bin/apm ]] ; then
     # echo -e "\nUpdating atom editor plugins."
@@ -236,8 +235,8 @@ if [[ $(uname) == "Darwin" ]] ; then
   echo -e "\nUpdating macos system..."
   /usr/sbin/softwareupdate --install --all
   # /usr/sbin/softwareupdate --restart
-  sudo /usr/bin/xcode-select --switch /Library/Developer/CommandLineTools
-  sudo /usr/bin/xcodebuild -license accept 2> /dev/null
+  # sudo /usr/bin/xcode-select --switch /Library/Developer/CommandLineTools
+  # sudo /usr/bin/xcodebuild -license accept 2> /dev/null
   if [[ ${TRAVIS_CI_RUN} != true ]]; then
     # TODO: Must reboot immediately else the Finder can get disk sync issues and error -43?
     echo -e "\nChecking macos disk health."

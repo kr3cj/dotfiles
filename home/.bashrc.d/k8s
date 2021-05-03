@@ -41,7 +41,8 @@ function k() {
   #   echo
   # fi
 
-  local kube_config="--kubeconfig ${HOME}/.kube/${cluster}"
+  # local kube_config="--kubeconfig ${HOME}/.kube/${cluster}"
+  local kube_config="--context ${cluster}"
   # some kubectl plugin commands won't work with "--kubeconfig"
   if [[ ${action} =~ "outdated" ]] || [[ ${action} =~ "node-admin" ]]; then
     kube_config=""
@@ -53,7 +54,12 @@ function k() {
     *get?po*)
       action="${action} --sort-by=.metadata.creationTimestamp" ;;
     *get?no*)
-      action="${action} --label-columns=nodegroup_name,function --sort-by=.metadata.creationTimestamp" ;;
+      # -ocustom-columns=INSTANCE_ID:.spec.providerID \
+      action="${action} --label-columns=\
+eks.amazonaws.com/nodegroup-image,node.kubernetes.io/instance-type,\
+failure-domain.beta.kubernetes.io/zone,nodegroup_name,\
+function,node-lifecycle,aws.amazon.com/spot \
+--sort-by=.metadata.creationTimestamp" ;;
     *)
       [[ ${VERBOSE} -ge 1 ]] && echo "matched global"
       action="${action}" ;;

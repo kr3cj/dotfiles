@@ -117,7 +117,7 @@ if ${IS_MACOS} && ! hash mas 2>/dev/null ; then
   brew install \
     ack aria2 mas mtr nmap tmux reattach-to-user-namespace \
     ansible octant node rbenv ruby ruby-build \
-    awscli hub packer hey siege tfenv travis vault maven
+    awscli hub packer hey siege tfenv travis vault maven zoom
     # openshift-cli fleetctl; aria2=torrent_client(aria2c); android-platform-tools; android-file-transfer
     # load testing clients: hey siege artillery gauntlet
 
@@ -154,7 +154,7 @@ if ${IS_MACOS} && ! hash mas 2>/dev/null ; then
   # FIX: failed to download beyond-compare due to cert problem with curl
   brew install --cask ${HOMEBREW_CASK_OPTS} \
     alfred slack spotify gimp github google-backup-and-sync iterm2 \
-    firefox keystore-explorer balenaetcher visual-studio-code zoomus
+    firefox keystore-explorer balenaetcher visual-studio-code
     # keybase private-internet-access; etcher is a usb flash utility
 
   # brew install --cask intellij-idea goland
