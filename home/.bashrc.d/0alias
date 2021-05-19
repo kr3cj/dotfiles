@@ -229,6 +229,7 @@ if [[ "${IS_MACOS}" == "true" ]]; then
     eval "function ssh {
       # us-east-2 is non-default at current work, so hostnames include that, so filter it
       local host1=\"\${@/us-east-2.compute/ec2}\"
+      local use_ssm=\"false\"
       case \"\${host1}\" in
         ${CUSTOM_WORK_SUBNET}.*|$(echo ${CUSTOM_WORK_DOMAINS[@]/#/*.}|tr ' ' '|'))
           passman  \"${CUSTOM_WORK_DOMAINS[0]/.com/} ${CUSTOM_WORK_SSO_PROVIDER}\";;
@@ -246,9 +247,22 @@ if [[ "${IS_MACOS}" == "true" ]]; then
           passman  \"ship.${CUSTOM_HOME_NAS_HOST#*\.}\" ;;
         web|web.${CUSTOM_HOME_NAS_HOST#*\.})
           passman  \"web.${CUSTOM_HOME_NAS_HOST#*\.}\" ;;
+        ip-10-*|10.*)
+          use_ssm=\"true\"
       esac
-      # using homebrew ssh $(which ssh) results in 'Bad configuration option: usekeychain'
-      /usr/bin/ssh \${host1}
+      # using homebrew ssh $(which ssh) results in 'Bad configuration option: usekeychain' :shrug:
+      if \${use_ssm}; then
+        if [[ \${VERBOSE} -ge 1 ]]; then
+          echo \"Calling: aws --profile=\$(map-host-to-profile \${host1}) ssm start-session \
+--region \${AWS_DEFAULT_REGION} --target \$(get-ec2-id-from-hostname \
+\$(map-host-to-cluster \${host1}) \${host1})\"
+        fi
+        aws --profile=\$(map-host-to-profile \${host1}) ssm start-session \
+         --region \${AWS_DEFAULT_REGION} \
+         --target \$(get-ec2-id-from-hostname \$(map-host-to-cluster \${host1}) \${host1})
+      else
+        /usr/bin/ssh \${host1}
+      fi
     }"
   fi
 

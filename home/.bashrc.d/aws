@@ -15,7 +15,7 @@ export SAML2AWS_SESSION_DURATION=43200 # 12 hour max for "saml2aws login"
 # export SAML2AWS_PROFILE=
 
 
-function saml2aws {
+function saml2aws() {
   # saml2aws logins can have a max session duration of 12h, but role chaining can only have a max session duration of 1h
   local args
   # [[ ${@} =~ "--session-duration" ]] || args="--session-duration=${SAML2AWS_SESSION_DURATION}"
@@ -33,31 +33,32 @@ function saml2aws {
   $(which saml2aws) ${args} ${*}
 }
 
-function get-ec2-id-from-pod ()
-{
+function get-ec2-id-from-pod() {
   # only requires kube config with correct context and namespace set
-  kubectl --kubeconfig ~/.kube/${1} \
+  basename "$(kubectl --kubeconfig ~/.kube/${1} \
    get no/$(kubectl --kubeconfig ~/.kube/${1} get po/${2} -ojsonpath='{.spec.nodeName}') \
-    -ojsonpath='{.metadata.labels.alpha\.eksctl\.io/instance-id}' ; echo
+    -ojsonpath='{.spec.providerID}')"
+    # -ojsonpath='{.metadata.labels.alpha\.eksctl\.io/instance-id}' ; echo
 
   # alternative requires exec'ing into container and the curl binary
   # kubectl exec -it ${@} -- curl http://169.254.169.254/latest/meta-data/instance-id ; echo
 }
-function get-ec2-hostname-from-pod ()
-{
+function get-ec2-hostname-from-pod() {
   # only requires kube config with correct context set
-  kubectl --kubeconfig ~/.kube/${1} get po/${2} -ojsonpath='{.spec.nodeName}' ; echo # '{.status.hostIP}'
+  kubectl --kubeconfig ~/.kube/${1} get po/${2} -ojsonpath='{.spec.nodeName}' \
+  ; echo # '{.status.hostIP}'
 
   # fall back requires exec'ing into container and the curl binary
   # kubectl exec -it ${@} -- curl http://169.254.169.254/latest/meta-data/hostname ; echo
 }
-function get-ec2-id-from-hostname ()
-{
+function get-ec2-id-from-hostname() {
   # takes in two parameters: kube config name (assumes one cluster per config) and ec2 hostname
   # (k8s-a which is in us-east-2 so hostnames include the region which should be filtered)
   # only requires kube config with correct context set
-  kubectl --kubeconfig ~/.kube/${1} get no/${2/us-east-2.compute/ec2} -ojsonpath="{.metadata.labels.alpha\.eksctl\.io/instance-id}" \
-    ; echo
+  basename "$(kubectl --kubeconfig ~/.kube/${1} get no/${2/us-east-2.compute/ec2} \
+    -ojsonpath='{.spec.providerID}')"
+    # -ojsonpath="{.metadata.labels.alpha\.eksctl\.io/instance-id}" \
+    # echo
 
   # if [[ -n ${result} ]]; then
   #   echo ${result}
@@ -66,8 +67,7 @@ function get-ec2-id-from-hostname ()
   #   ssh ${@/us-east-2.compute/ec2} "curl --silent http://169.254.169.254/latest/meta-data/instance-id" ; echo
   # fi
 }
-function get-ec2-hostname-from-id ()
-{
+function get-ec2-hostname-from-id() {
   # takes in two parameters: kube config name (assumes one cluster per config) and ec2 instance id
   # if a k8s node, only requires kube config with correct context set
   kubectl --kubeconfig ~/.kube/${1} get no \
@@ -85,4 +85,17 @@ function get-ec2-hostname-from-id ()
   #     --query Reservations[].Instances[].PrivateDnsName \
   #     --output text
   # fi
+}
+
+function get-latest-eks-ami-release-version() {
+  aws ec2 --profile=${CUSTOM_WORK_IAM_PROFILE_PREFIX}-k8s-stage describe-images --owners amazon \
+   --image-ids $(aws ssm --profile=${CUSTOM_WORK_IAM_PROFILE_PREFIX}-k8s-stage get-parameters \
+    --names /aws/service/eks/optimized-ami/1.19/amazon-linux-2/recommended/image_id \
+    --region us-east-1 | jq -r '.Parameters[0].Value') | jq -r '.Images[0].Name'
+}
+
+function get-latest-eks-ami-id() {
+  aws ssm --profile=${CUSTOM_WORK_IAM_PROFILE_PREFIX}-k8s-stage get-parameters \
+   --names /aws/service/eks/optimized-ami/1.19/amazon-linux-2/recommended/image_id \
+   --region us-east-1 | jq -r '.Parameters[0].Value'
 }

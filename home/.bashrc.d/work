@@ -9,6 +9,8 @@ ${HEALTHY_INTERNET} || return
 ip_address=""
 at_work="false"
 at_home="false"
+is_weekend="false"
+[[ $(date +%a) =~ (Sat|Sun) ]] && is_weekend="true"
 
 # grab all ip addresses
 ip_address=$(/sbin/ifconfig 2> /dev/null | grep 'inet ' | grep -v '127.0.0.1' | awk '{print $2}')
@@ -158,8 +160,8 @@ function work_vpn {
   fi
 }
 
-work_saml2aws
-work_vpn
+${is_weekend} || work_saml2aws
+${is_weekend} || work_vpn
 ${at_work} && _create_socks_proxy "home.${CUSTOM_HOME_DOMAIN}" "2000"
 
 # if ${at_home}; then
