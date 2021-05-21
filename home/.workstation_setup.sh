@@ -121,9 +121,23 @@ if ${IS_MACOS} && ! hash mas 2>/dev/null ; then
     # openshift-cli fleetctl; aria2=torrent_client(aria2c); android-platform-tools; android-file-transfer
     # load testing clients: hey siege artillery gauntlet
 
-
   # create folder for repos before checking out private repo
   [[ -d ~/build/github ]] || mkdir -pv ~/build/github
+
+  # install awscli session-manager-plugin
+  (
+    cd ~/build
+    curl "https://s3.amazonaws.com/session-manager-downloads/plugin/latest/mac/sessionmanager-bundle.zip" \
+     -o "sessionmanager-bundle.zip"
+    unzip sessionmanager-bundle.zip
+    sudo ./sessionmanager-bundle/install -i /usr/local/sessionmanagerplugin \
+     -b /usr/local/bin/session-manager-plugin
+    ./sessionmanager-bundle/install -h
+    rm -rf ./sessionmanager-bundle ./sessionmanager-bundle.zip
+    # to uninstall, run:
+    # sudo rm -rf /usr/local/sessionmanagerplugin
+    # sudo rm /usr/local/bin/session-manager-plugin
+  )
 
   # tmux plugins
   git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm

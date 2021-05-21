@@ -228,7 +228,8 @@ if [[ "${IS_MACOS}" == "true" ]]; then
   # travis build barf on the matching syntax
     eval "function ssh {
       # us-east-2 is non-default at current work, so hostnames include that, so filter it
-      local host1=\"\${@/us-east-2.compute/ec2}\"
+      # local host1=\"\${@/us-east-2.compute/ec2}
+      local host1=\"\${@#node/}\"
       local use_ssm=\"false\"
       case \"\${host1}\" in
         ${CUSTOM_WORK_SUBNET}.*|$(echo ${CUSTOM_WORK_DOMAINS[@]/#/*.}|tr ' ' '|'))
