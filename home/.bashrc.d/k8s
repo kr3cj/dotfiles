@@ -54,12 +54,17 @@ function k() {
     *get?po*)
       action="${action} --sort-by=.metadata.creationTimestamp" ;;
     *get?no*)
-      # -ocustom-columns=INSTANCE_ID:.spec.providerID \
       action="${action} --label-columns=\
 eks.amazonaws.com/nodegroup-image,node.kubernetes.io/instance-type,\
 failure-domain.beta.kubernetes.io/zone,nodegroup_name,\
-function,node-lifecycle,aws.amazon.com/spot \
---sort-by=.metadata.creationTimestamp" ;;
+function,node-lifecycle \
+--sort-by=.metadata.creationTimestamp"
+# -ojsonpath={range $.items[*]}{.metadata.name}{.spec.taints.eks\.amazonaws\.com/nodegroup=unschedulable{\"\n\"}{end}'"
+# another taint we use on proxy nodes: node-upgrading=true:NoSchedule
+# TODO: show annotation "cluster-autoscaler.kubernetes.io/scale-down-disabled" from aws/containers-roadmap/issues/916
+# aws.amazon.com/spot
+# -ocustom-columns=INSTANCE_ID:.spec.providerID \
+      ;;
     *)
       [[ ${VERBOSE} -ge 1 ]] && echo "matched global"
       action="${action}" ;;

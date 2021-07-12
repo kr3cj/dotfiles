@@ -77,7 +77,9 @@ if [[ $(uname) == "Darwin" ]] ; then
   for cask1 in $(/usr/local/bin/brew upgrade --cask --dry-run | awk '{print $1}') ; do
     case ${cask1} in
       alfred|brave-browser|docker|firefox|github|google-backup-and-sync|\
-      slack|spotify|visual-studio-code|virtualbox|zoom)
+      slack|spotify|visual-studio-code|virtualbox)
+        # TODO: letting apps update themselves may mistakenly install them to /Applications intead of ~/Applications :(
+        # docker|github|iterm2|spotify|zoom
         echo "Skipping cask that should auto update itself: ${cask1}" ;;
       *)
         echo "Upgrading cask \"${cask1}\"..."

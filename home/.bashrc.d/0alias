@@ -227,14 +227,14 @@ if [[ "${IS_MACOS}" == "true" ]]; then
   if [[ ${TRAVIS_CI_RUN} != true ]]; then
   # travis build barf on the matching syntax
     eval "function ssh {
-      # us-east-2 is non-default at current work, so hostnames include that, so filter it
-      # local host1=\"\${@/us-east-2.compute/ec2}
-      local host1=\"\${@#node/}\"
+      # host must be the first argument
+      local host1=\"\${1#node/}\"
+      shift
       local use_ssm=\"false\"
       case \"\${host1}\" in
         ${CUSTOM_WORK_SUBNET}.*|$(echo ${CUSTOM_WORK_DOMAINS[@]/#/*.}|tr ' ' '|'))
           passman  \"${CUSTOM_WORK_DOMAINS[0]/.com/} ${CUSTOM_WORK_SSO_PROVIDER}\";;
-        herky|herky2|herky.${CUSTOM_HOME_NAS_HOST#*\.}|herky2.${CUSTOM_HOME_NAS_HOST#*\.}|${CUSTOM_HOME_SUBNET}1|${CUSTOM_HOME_SUBNET}2)
+        herky*)
           passman \"herky.${CUSTOM_HOME_NAS_HOST#*\.}\" ;;
         home.${CUSTOM_HOME_DOMAIN})
           passman  \"proxy.${CUSTOM_HOME_NAS_HOST#*\.}\" ;;
@@ -248,21 +248,19 @@ if [[ "${IS_MACOS}" == "true" ]]; then
           passman  \"ship.${CUSTOM_HOME_NAS_HOST#*\.}\" ;;
         web|web.${CUSTOM_HOME_NAS_HOST#*\.})
           passman  \"web.${CUSTOM_HOME_NAS_HOST#*\.}\" ;;
-        ip-10-*|10.*)
+        ip-10-*)
           use_ssm=\"true\"
       esac
       # using homebrew ssh $(which ssh) results in 'Bad configuration option: usekeychain' :shrug:
       if \${use_ssm}; then
-        if [[ \${VERBOSE} -ge 1 ]]; then
-          echo \"Calling: aws --profile=\$(map-host-to-profile \${host1}) ssm start-session \
---region \${AWS_DEFAULT_REGION} --target \$(get-ec2-id-from-hostname \
-\$(map-host-to-cluster \${host1}) \${host1})\"
-        fi
+        # .ssh/config will translate to aws ssm --start-session...
+        echo \"Calling: aws --profile=\$(map-host-to-profile \${host1}) ssm start-session \
+--region \${AWS_DEFAULT_REGION} --target \$(get-ec2-id-from-hostname \${host1})\"
         aws --profile=\$(map-host-to-profile \${host1}) ssm start-session \
          --region \${AWS_DEFAULT_REGION} \
-         --target \$(get-ec2-id-from-hostname \$(map-host-to-cluster \${host1}) \${host1})
+         --target \$(get-ec2-id-from-hostname \${host1})
       else
-        /usr/bin/ssh \${host1}
+        /usr/bin/ssh \${host1} \${*}
       fi
     }"
   fi
