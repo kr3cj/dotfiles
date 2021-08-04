@@ -1,17 +1,16 @@
 argo 2.9.5
-# aws-iam-authenticator 0.4.0
-golang 1.16.5
-grpcurl 1.8.1
+awscli 2.2.23
+golang 1.16.6
+grpcurl 1.8.2
 helm 2.16.12
 jq 1.6
-kubectl 1.20.8
-# minikube 1.6.2
+kubectl 1.20.9
 # nodejs 11.9.0
 nodejs 12.18.4
 nova 2.3.2
 # pluto 3.4.0
 python 3.9.6
-saml2aws 2.31.0
+saml2aws 2.32.0
 # sopstool 0.4.2
 terraform 0.12.31
 terraform-docs 0.14.1

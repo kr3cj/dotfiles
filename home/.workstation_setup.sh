@@ -117,7 +117,7 @@ if ${IS_MACOS} && ! hash mas 2>/dev/null ; then
   brew install \
     ack aria2 mas mtr nmap tmux reattach-to-user-namespace \
     ansible octant node rbenv ruby ruby-build \
-    awscli hub packer hey siege tfenv travis vault maven zoom
+    hub packer hey siege slack tfenv travis vault maven zoom
     # openshift-cli fleetctl; aria2=torrent_client(aria2c); android-platform-tools; android-file-transfer
     # load testing clients: hey siege artillery gauntlet
 
@@ -167,9 +167,10 @@ if ${IS_MACOS} && ! hash mas 2>/dev/null ; then
   HOMEBREW_CASK_OPTS="--appdir=~/Applications"
   # FIX: failed to download beyond-compare due to cert problem with curl
   brew install --cask ${HOMEBREW_CASK_OPTS} \
-    alfred slack spotify gimp github google-backup-and-sync iterm2 \
+    alfred spotify gimp github google-backup-and-sync iterm2 \
     firefox keystore-explorer balenaetcher visual-studio-code
     # keybase private-internet-access; etcher is a usb flash utility
+    # slack doesn't like being installed in personal Applications (vs system Applications)
 
   # brew install --cask intellij-idea goland
   # input license for intellij, then goland should detect it, then remove intellij?
@@ -247,9 +248,10 @@ EOF
 
   # install asdf tools
   # golang
-  for asdf_plugin in argo eksctl golang helm helmfile jq kubectl kustomize \
-      linkerd minikube nova octant pluto poetry python saml2aws sinker sops sopstool terraform \
+  for asdf_plugin in argo awscli eksctl golang helm helmfile jq kubectl kustomize \
+      nova pluto poetry python saml2aws sinker sops sopstool terraform \
       terraform-docs yq; do
+    # kops linkerd minikube octant
     asdf plugin-add ${asdf_plugin}
   done
   asdf plugin-add octant https://github.com/looztra/asdf-octant
@@ -358,7 +360,6 @@ if ${IS_LINUX} && ! hash packer 2>/dev/null ; then
   sudo wget https://bootstrap.pypa.io/get-pip.py
   sudo python get-pip.py && rm get-pip.py
   sudo pip install --upgrade setuptools
-  pip install awscli --upgrade --user
   # install liquidprompt for linux
   cd
   git clone https://github.com/nojhan/liquidprompt.git

@@ -77,9 +77,9 @@ if [[ $(uname) == "Darwin" ]] ; then
   for cask1 in $(/usr/local/bin/brew upgrade --cask --dry-run | awk '{print $1}') ; do
     case ${cask1} in
       alfred|brave-browser|docker|firefox|github|google-backup-and-sync|\
-      slack|spotify|visual-studio-code|virtualbox)
+      spotify|visual-studio-code|virtualbox)
         # TODO: letting apps update themselves may mistakenly install them to /Applications intead of ~/Applications :(
-        # docker|github|iterm2|spotify|zoom
+        # docker|github|iterm2|slack|spotify|zoom
         echo "Skipping cask that should auto update itself: ${cask1}" ;;
       *)
         echo "Upgrading cask \"${cask1}\"..."
@@ -151,7 +151,7 @@ if [[ $(uname) == "Darwin" ]] ; then
           example1)
             echo "Skipping upgrade of locked asdf plugin \"${tool1}:${old_version1}\""
             echo "${tool1} ${old_version1}" >> ${TOOL_FILE}.new ;;
-          argo|helm|kubectl|nodejs|terraform)
+          argo|awscli|kubectl|nodejs|terraform)
             echo "Getting latest patch version of asdf plugin \"${tool1}:${old_version1}\"..."
             # use bash parameter expansion to extract the major and minor version from ${old_version1}
             new_version1="$($(/usr/local/bin/brew --prefix asdf)/bin/asdf latest ${tool1} ${old_version1%\.*})"

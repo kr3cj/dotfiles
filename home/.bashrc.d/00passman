@@ -24,7 +24,7 @@ function _passman_auth() {
     echo "Failed to authenticate to passman!"
     export HEALTHY_INTERNET=false
   fi
-  clear_clip 10
+  # clear_clip 10
 }
 
 function passman() {

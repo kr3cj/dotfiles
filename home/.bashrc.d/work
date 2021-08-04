@@ -126,7 +126,6 @@ function work_saml2aws {
     else
       echo "Has your password changed? Try removing keychain and run \"saml2aws login\""
     fi
-    clear_clip 10
   fi
 }
 function work_vpn {
@@ -152,8 +151,7 @@ function work_vpn {
         op get item "${CUSTOM_WORK_DOMAINS[0]/.com/} ${CUSTOM_WORK_SSO_PROVIDER}" --fields "password" --cache --session ${OP_SESSION_my}
         op get totp "${CUSTOM_WORK_DOMAINS[0]/.com/} ${CUSTOM_WORK_SSO_PROVIDER}" --cache --session ${OP_SESSION_my} | cut -c1-6
       )
-      # echo ""
-      clear_clip 20
+      # echo """
     # else
       # mount_home_nfs
       # _create_socks_proxy "proxy.${CUSTOM_HOME_NAS_HOST#*\.}" "2000"
@@ -164,6 +162,8 @@ function work_vpn {
 ${is_weekend} || work_saml2aws
 ${is_weekend} || work_vpn
 ${at_work} && _create_socks_proxy "home.${CUSTOM_HOME_DOMAIN}" "2000"
+
+[[ $(pwd) == "/Users/${LOGNAME}" ]] && cd ~/build/github/ibex
 
 # if ${at_home}; then
 #   if $(ping -c1 -W1 -i0.1 ${CUSTOM_HOME_NAS_HOST} &> /dev/null); then
