@@ -1,10 +1,10 @@
 argo 2.9.5
-awscli 2.2.23
-golang 1.16.6
+awscli 2.2.29
+golang 1.16.7
 grpcurl 1.8.2
-helm 2.16.12
+helm 3.6.3
 jq 1.6
-kubectl 1.20.9
+kubectl 1.20.10
 # nodejs 11.9.0
 nodejs 12.18.4
 nova 2.3.2
@@ -13,5 +13,5 @@ python 3.9.6
 saml2aws 2.32.0
 # sopstool 0.4.2
 terraform 0.12.31
-terraform-docs 0.14.1
+terraform-docs 0.15.0
 # tfenv 2.0.0

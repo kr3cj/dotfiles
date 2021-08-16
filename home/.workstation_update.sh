@@ -185,6 +185,7 @@ if [[ $(uname) == "Darwin" ]] ; then
         -name ".tool-versions\.*" \
         -mtime +30 \
         -print -delete
+      asdf install
     fi
   fi
 
