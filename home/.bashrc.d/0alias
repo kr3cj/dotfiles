@@ -232,7 +232,7 @@ if [[ "${IS_MACOS}" == "true" ]]; then
       shift
       local use_ssm=\"false\"
       case \"\${host1}\" in
-        ${CUSTOM_WORK_SUBNET}.*|$(echo ${CUSTOM_WORK_DOMAINS[@]/#/*.}|tr ' ' '|'))
+        ${CUSTOM_WORK_SUBNET}*|$(echo ${CUSTOM_WORK_DOMAINS[@]/#/*.}|tr ' ' '|'))
           passman  \"${CUSTOM_WORK_DOMAINS[0]/.com/} ${CUSTOM_WORK_SSO_PROVIDER}\";;
         herky*)
           passman \"herky.${CUSTOM_HOME_NAS_HOST#*\.}\" ;;
