@@ -15,7 +15,7 @@ export SAML2AWS_SESSION_DURATION=43200 # 12 hour max for "saml2aws login"
 # export SAML2AWS_PROFILE=
 
 
-function saml2aws() {
+function saml() {
   # saml2aws logins can have a max session duration of 12h, but role chaining can only have a max session duration of 1h
   local args
   # [[ ${@} =~ "--session-duration" ]] || args="--session-duration=${SAML2AWS_SESSION_DURATION}"
@@ -30,7 +30,7 @@ function saml2aws() {
   fi
   [[ ${VERBOSE} -ge 1 ]] && \
     echo "Running \"$(which saml2aws) ${args} ${*}\""
-  $(which saml2aws) ${args} ${*}
+  saml2aws ${args} ${*}
 }
 
 function get-ec2-id-from-pod() {
@@ -96,38 +96,34 @@ function get-latest-eks-ami-release-version() {
     --region us-east-1 | jq -r '.Parameters[0].Value')" | jq -r '.Images[0].Name'
 }
 
-# function get-all-eks-ami-release-versions() {
-#   local current_kube_version="$(kubectl version --client=false -ojson | \
-#     jq -r '.serverVersion.major + "." + .serverVersion.minor' | sed 's/+$//g')"
-#   local desired_kube_version="${1:-$current_kube_version}"
-
-#   aws ssm --profile=${CUSTOM_WORK_IAM_PROFILE_PREFIX}-k8s-stage describe-parameters --region us-east-1 --max-items 100 \
-#    --parameter-filters "Key=Path,Values=/aws/service/eks/optimized-ami/${desired_kube_version%+}/amazon-linux-2/" \
-#    | jq -r '.Parameters[].Name' | sort -r | sed 's/.*\///'
-# }
-
 function get-all-eks-ami-release-versions-and-ids() {
+  local the_profile="${IBEX_PROFILE:-${CUSTOM_WORK_IAM_PROFILE_PREFIX}-k8s-stage}"
+  if [[ -z ${IBEX_PROFILE} ]]; then
+    echo -e "\${IBEX_PROFILE} not set so I defaulted profile to \"${the_profile}\"; ymmv\n"
+  fi
+
   local current_kube_version="$(kubectl version --client=false -ojson | \
-    jq -r '.serverVersion.major + "." + .serverVersion.minor' | sed 's/+$//g')"
+      jq -r '.serverVersion.major + "." + .serverVersion.minor' | sed 's/+$//g')"
   local desired_kube_version="${1:-$current_kube_version}"
+  if [[ -z ${1} ]]; then
+    echo -e "K8s api major and minor version not passed in (ex: 1.19), grabbed from KUBECONFIG (\"${current_kube_version}\").\n"
+  fi
 
-  for param1 in $(aws ssm --profile=${CUSTOM_WORK_IAM_PROFILE_PREFIX}-k8s-stage describe-parameters --region us-east-1 --max-items 100 \
-   --parameter-filters "Key=Path,Values=/aws/service/eks/optimized-ami/${desired_kube_version%+}/amazon-linux-2/" \
-   | jq -r '.Parameters[].Name' | sort -r); do
-    echo -e "$(basename ${param1} | sed 's/^amazon-eks-node-//g' | sed 's/-v2/-2/g'): $(aws ssm --profile=${CUSTOM_WORK_IAM_PROFILE_PREFIX}-k8s-stage get-parameters \
-     --names ${param1}/image_id --region us-east-1 | jq -r '.Parameters[0].Value')"
-  done | column -t
+  echo "Grabbing eks-ami releaseVersions and AMI IDs for k8s version ${desired_kube_version}... (could take up to 30s)"
+  echo " (see also https://docs.aws.amazon.com/eks/latest/userguide/eks-optimized-ami.html)"
+  echo
+
+  {
+    echo "ManagedNodeGroups UnmanagedNodeGroups"
+    echo "----------------- ---------------------"
+    for param1 in $(aws ssm --profile=${the_profile} describe-parameters --region us-east-1 --max-items 100 \
+                    --parameter-filters "Key=Path,Values=/aws/service/eks/optimized-ami/${desired_kube_version%+}/amazon-linux-2/" \
+                    | jq -r '.Parameters[].Name' | grep -v recommended | sort -r); do
+      aws ssm --profile=${the_profile} get-parameters --names ${param1} --region us-east-1 | \
+        jq -r '.Parameters[0].Value' | jq -r '.release_version + " " + .image_id'
+    done
+  } | column -t
 }
-
-# function get-latest-eks-ami-id() {
-#   local current_kube_version="$(kubectl version --client=false -ojson | \
-#     jq -r '.serverVersion.major + "." + .serverVersion.minor' | sed 's/+$//g')"
-#   local desired_kube_version="${1:-$current_kube_version}"
-
-#   aws ssm --profile="${CUSTOM_WORK_IAM_PROFILE_PREFIX}-k8s-stage" get-parameters \
-#    --names /aws/service/eks/optimized-ami/${desired_kube_version%+}/amazon-linux-2/recommended/image_id \
-#    --region us-east-1 | jq -r '.Parameters[0].Value'
-# }
 
 function show-domain-registration-expirations() {
   for profile1 in $(grep \ ${CUSTOM_WORK_IAM_PROFILE_PREFIX}- ~/.aws/config \

@@ -38,17 +38,17 @@ LOG4=/var/tmp/workstation_setup_$(date +%Y-%m-%d).log
   # heptio-authenticator-aws, aws-iam-authenticator, kubesec, minikube, python, ruby, trerraform, terragrunt, vault
   # brew install kubectx # depends on kubernetes-cli
   # kubectl plugins: krew
-  (
-    set -x; cd "$(mktemp -d)" &&
-    curl -fsSLO "https://github.com/kubernetes-sigs/krew/releases/latest/download/krew.tar.gz" &&
-    tar zxvf krew.tar.gz &&
-    KREW=./krew-"$(uname | tr '[:upper:]' '[:lower:]')_amd64"
-    ${KREW} install krew
-    ${KREW} update
-  )
-  for krew_plugin in datadog node-admin outdated rolesum Rakkess; do
-    kubectl krew install ${krew_plugin}
-  done
+  # (
+  #   set -x; cd "$(mktemp -d)" &&
+  #   curl -fsSLO "https://github.com/kubernetes-sigs/krew/releases/latest/download/krew.tar.gz" &&
+  #   tar zxvf krew.tar.gz &&
+  #   KREW=./krew-"$(uname | tr '[:upper:]' '[:lower:]')_amd64"
+  #   ${KREW} install krew
+  #   ${KREW} update
+  # )
+  # for krew_plugin in datadog node-admin outdated rolesum Rakkess; do
+  #   kubectl krew install ${krew_plugin}
+  # done
 
   # install helm plugin for Visual Studio Code
   # TODO: fix reliance on saml2aws via function name override?

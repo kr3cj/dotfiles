@@ -97,7 +97,9 @@ function port {
     return 1
   fi
 
-  # echo "Checking host \"${host1}\" over port \"${port1}\"."
+  [[ ${VERBOSE} -ge 1 ]] && \
+    echo "Running: ${timeout_path} 2 bash -c \"echo >/dev/tcp/${host1}/${port1}\" > /dev/null 2>&1 && echo success \
+    || (>&2 echo \"failure\"; return 1)"
   ${timeout_path} 2 bash -c "echo >/dev/tcp/${host1}/${port1}" > /dev/null 2>&1 && echo success \
     || (>&2 echo "failure"; return 1)
 }

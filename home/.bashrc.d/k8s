@@ -162,7 +162,7 @@ function _get_latest_version_from_github()
 #   local nodes=${@}
 #   for node1 in ${nodes} ; do
 #     echo -e "\n starting on ${node1} at $(date)"
-#     kubectl drain ${node1} --ignore-daemonsets --force --delete-local-data
+#     kubectl drain ${node1} --ignore-daemonsets --force --delete-emptdir-data
 #     saml2aws exec --exec-profile=${saml2aws-profile} -- \
 #       aws ec2 terminate-instances --instance-ids \
 #         kubectl get nodes -o go-template --template=\'{{.spec.externalID}}\' ${nodeid}
@@ -174,7 +174,7 @@ function _get_latest_version_from_github()
 # 2) If running spot ASGs (which span multi AZ), simply remove the bad AZ subnet from its config in the console
 # 3) cordon and drain those nodes from the cluster
 # [optional] kubectl cordon -l 'failure-domain.beta.kubernetes.io/zone=us-east-1d'
-# kubectl drain --ignore-daemonsets --delete-local-data -l 'failure-domain.beta.kubernetes.io/zone=us-east-1d'
+# kubectl drain --ignore-daemonsets --delete-emptdir-data -l 'failure-domain.beta.kubernetes.io/zone=us-east-1d'
 # repeat the drain as necessary to catch any new nodes coming up in the bad AZ
 # 4) If running ASGs per AZ, decrease the max nodes to the same as the running nodes and min to 0 (so no new ones can spin up)
 #  watch for race condition between decreasing max and cluster-autoscaler not knowing to prevent launching in bad az
