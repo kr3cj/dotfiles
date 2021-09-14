@@ -7,6 +7,7 @@ if $(echo ${SHELL} | grep -q 'zsh'); then
 fi
 
 echo "Need sudo password to setup passwdless sudo"
+read -p "Warn security teams at work before proceeding as it trips alerts; press enter key to continue"
 if ! sudo grep -q $(whoami) /etc/sudoers && [[ ${TRAVIS_CI_RUN} != true ]]; then
   sudo bash -c "echo \"$(whoami) ALL=(ALL) NOPASSWD: ALL\" >> /etc/sudoers"
 fi
