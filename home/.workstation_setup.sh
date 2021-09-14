@@ -54,6 +54,7 @@ if ${IS_MACOS} && ! hash mas 2>/dev/null ; then
   brew install coreutils
   echo "install utilities"
   brew install binutils
+  brew install curl
   brew install diffutils
   brew install ed
   brew install findutils
@@ -112,7 +113,7 @@ if ${IS_MACOS} && ! hash mas 2>/dev/null ; then
 
   echo "install some extra utility packages for me"
   brew install bash-completion certigo cfssl dos2unix gnu-getopt jid pstree step tree
-  brew tap wallix/awless; brew install awless
+  # brew tap wallix/awless; brew install awless :(
   echo "install extra tools that I like"
   brew install \
     ack aria2 mas mtr nmap tmux reattach-to-user-namespace \
