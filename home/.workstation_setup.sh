@@ -116,7 +116,7 @@ if ${IS_MACOS} && ! hash mas 2>/dev/null ; then
   echo "install extra tools that I like"
   brew install \
     ack aria2 mas mtr nmap tmux reattach-to-user-namespace \
-    ansible octant node rbenv ruby ruby-build \
+    ansible node rbenv ruby ruby-build \
     hub packer hey siege slack tfenv travis vault maven zoom
     # openshift-cli fleetctl; aria2=torrent_client(aria2c); android-platform-tools; android-file-transfer
     # load testing clients: hey siege artillery gauntlet
@@ -254,7 +254,6 @@ EOF
     # kops linkerd minikube octant
     asdf plugin-add ${asdf_plugin}
   done
-  asdf plugin-add octant https://github.com/looztra/asdf-octant
 
   # gce and gke stuff (https://cloud.google.com/sdk/docs/quickstart-mac-os-x)
   brew install golang
@@ -268,6 +267,7 @@ EOF
   # brew install lastpass-cli
   brew install --cask 1password-cli
   if [[ ${TRAVIS_CI_RUN} != true ]]; then
+    # secret zero
     echo -e "\nTo continue, you must be authenticated to password manager cli: \
     op signin ${CUSTOM_HOME_PASSWD_MGR_ACCOUNT} \
     eval \$(op signin my) \
