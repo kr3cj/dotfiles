@@ -4,13 +4,12 @@ ${IS_MACOS} || return
 $(/usr/local/bin/brew --prefix findutils)/libexec/gnubin/find ~/.kube/ \
   -mindepth 1 \
   -maxdepth 1 \
-  -type l \
+  -type f \
   -exec chmod -c 600 '{}' \;
-# export KUBECONFIG=~/.kube/k3sa
 export KUBECONFIG=$(find ~/.kube/ \
   -mindepth 1 \
   -maxdepth 1 \
-  -type l \
+  -type f \
   ! -name minikube \
   | sort \
   | tr '\n' ':')
