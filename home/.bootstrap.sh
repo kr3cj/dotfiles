@@ -6,7 +6,8 @@ if $(echo ${SHELL} | grep -q 'zsh'); then
   exit 1
 fi
 
-read -p "Need sudo access before continuing; press enter key to continue"
+echo "Need sudo access before continuing; press enter key to continue"
+read -n 1 -s
 # disabling in favor of corporate security method
 # read -p "Warn security teams at work before proceeding as it trips alerts; press enter key to continue"
 # if ! sudo grep -q $(whoami) /etc/sudoers && [[ ${TRAVIS_CI_RUN} != true ]]; then
