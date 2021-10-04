@@ -2,15 +2,16 @@
 # the purpose of this script is to install my homeshick dotfiles from github
 
 if $(echo ${SHELL} | grep -q 'zsh'); then
-  echo "Change from zsh to bash: \"chsh -s /bin/bash && /bin/bash\""
+  echo "Change from zsh to bash: \"chsh -s /bin/bash && SHELL=/bin/bash && bash\""
   exit 1
 fi
 
-echo "Need sudo password to setup passwdless sudo"
-read -p "Warn security teams at work before proceeding as it trips alerts; press enter key to continue"
-if ! sudo grep -q $(whoami) /etc/sudoers && [[ ${TRAVIS_CI_RUN} != true ]]; then
-  sudo bash -c "echo \"$(whoami) ALL=(ALL) NOPASSWD: ALL\" >> /etc/sudoers"
-fi
+read -p "Need sudo access before continuing; press enter key to continue"
+# disabling in favor of corporate security method
+# read -p "Warn security teams at work before proceeding as it trips alerts; press enter key to continue"
+# if ! sudo grep -q $(whoami) /etc/sudoers && [[ ${TRAVIS_CI_RUN} != true ]]; then
+#   sudo bash -c "echo \"$(whoami) ALL=(ALL) NOPASSWD: ALL\" >> /etc/sudoers"
+# fi
 
 # install git
 if [[ $(uname) == "Darwin" ]] ; then

@@ -62,7 +62,7 @@ function bashcurl {
 }
 
 function find-error() {
-  sudo grep -A2 -B2 -riHE 'DENIED|ERR|EXIST|FAIL|INVALID|SPECIFIED|SUCH|UNABLE|WARN|USAGE:|UNKNOWN|:\ LINE\ [0-9]' ${1} \
+  grep -A2 -B2 -riHE 'DENIED|ERR|EXIST|FAIL|INVALID|SPECIFIED|SUCH|UNABLE|WARN|USAGE:|UNKNOWN|:\ LINE\ [0-9]' ${1} \
   | grep -v ierra \
   | grep -v erra
 }
