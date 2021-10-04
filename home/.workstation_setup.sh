@@ -112,15 +112,21 @@ if ${IS_MACOS} && ! hash mas 2>/dev/null ; then
   # pip3 install pylint virtualenv yq==2.2.0
 
   echo "install some extra utility packages for me"
-  brew install bash-completion certigo cfssl dos2unix gnu-getopt jid pstree step tree
+  # use for loops so errors don't stop the whole brew operation
+  for pkg0 in bash-completion certigo cfssl dos2unix gnu-getopt jid pstree step tree; do
+    brew install pkg0
+  done
   # brew tap wallix/awless; brew install awless :(
   echo "install extra tools that I like"
-  brew install \
-    ack aria2 mas mtr nmap tmux reattach-to-user-namespace \
-    ansible node rbenv ruby ruby-build \
-    hub packer hey siege slack tfenv travis vault maven zoom
-    # openshift-cli fleetctl; aria2=torrent_client(aria2c); android-platform-tools; android-file-transfer
-    # load testing clients: hey siege artillery gauntlet
+  for pkg1 in \
+   ack aria2 mas mtr nmap tmux reattach-to-user-namespace \
+   ansible node rbenv ruby ruby-build \
+   hub packer hey siege tfenv travis vault maven; do
+   # slack zoom; openshift-cli fleetctl; aria2=torrent_client(aria2c); \
+   # android-platform-tools; android-file-transfer
+   # load testing clients: hey siege artillery gauntlet
+    brew install ${pkg1}
+  done
 
   # create folder for repos before checking out private repo
   [[ -d ~/build/github ]] || mkdir -pv ~/build/github
@@ -167,11 +173,14 @@ if ${IS_MACOS} && ! hash mas 2>/dev/null ; then
   # install main apps into user Applications to avoid admin permission requirements for upgrades
   HOMEBREW_CASK_OPTS="--appdir=~/Applications"
   # FIX: failed to download beyond-compare due to cert problem with curl
-  brew install --cask ${HOMEBREW_CASK_OPTS} \
-    alfred spotify gimp github google-backup-and-sync iterm2 \
-    firefox keystore-explorer balenaetcher visual-studio-code
-    # keybase private-internet-access; etcher is a usb flash utility
-    # slack doesn't like being installed in personal Applications (vs system Applications)
+  # use for loops so errors don't stop the whole brew operation
+  for pkg2 in \
+   alfred spotify gimp github iterm2 \
+   firefox keystore-explorer balenaetcher visual-studio-code
+   # keybase private-internet-access; etcher is a usb flash utility
+   # slack doesn't like being installed in personal Applications (vs system Applications)
+    brew install --cask ${HOMEBREW_CASK_OPTS} ${pkg2}
+  done
 
   # brew install --cask intellij-idea goland
   # input license for intellij, then goland should detect it, then remove intellij?
