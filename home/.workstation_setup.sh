@@ -258,8 +258,8 @@ EOF
 
   # install asdf tools
   # golang
-  for asdf_plugin in argo awscli eksctl golang helm helmfile jq kubectl kustomize \
-      nova pluto poetry python saml2aws sinker sops sopstool terraform \
+  for asdf_plugin in argo awscli eksctl golang helm helmfile jq k9s kubectl kustomize \
+      minikube nova pluto poetry python saml2aws sinker sops sopstool terraform \
       terraform-docs yq; do
     # kops linkerd minikube octant
     asdf plugin-add ${asdf_plugin}

@@ -5,3 +5,5 @@ ${IS_MACOS} || return
 # TODO: platform specific pathing
 alias pip="pip3"
 alias python="python3"
+
+# pathadd $(asdf where python)/bin # just do "asdf reshim python" instead

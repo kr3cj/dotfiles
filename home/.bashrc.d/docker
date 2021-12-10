@@ -4,9 +4,16 @@ ${IS_MACOS} || return
 # remote host for container tools (https://docs.docker.com/engine/security/https/)
 export DOCKER_REGISTRY="${CUSTOM_WORK_DEFAULT_AWS_ACCT}.dkr.ecr.us-east-1.amazonaws.com"
 
+function docker () {
+  if [[ ${@} =~ pull ]] && ! [[ ${@} =~ public.ecr.aws ]]; then
+    echo -e "  Remember you can pull docker stuff from \"docker pull public.ecr.aws/docker/library/${@#pull\ }\"...\n"
+    # see also https://gallery.ecr.aws/docker/
+  fi
+  $(which docker) ${@}
+}
 function docker-login () {
   aws --profile=${CUSTOM_WORK_IAM_PROFILE_PREFIX}-mono-production ecr get-login-password --region us-east-1 | \
-    docker login --username AWS --password-stdin 264606497040.dkr.ecr.us-east-1.amazonaws.com
+    docker login --username AWS --password-stdin ${CUSTOM_WORK_DEFAULT_AWS_ACCT}.dkr.ecr.us-east-1.amazonaws.com
 }
 
 alias docker-clean="sudo docker system prune --all --force --volumes"
