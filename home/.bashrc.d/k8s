@@ -12,7 +12,7 @@ export KUBECONFIG=$(find ~/.kube/ \
   -type f \
   ! -name minikube \
   | sort \
-  | tr '\n' ':')
+  | tr '\n' ':' || "")
   # -printf "%p:" \
 
 # source <(kubectl completion bash) # slow
@@ -20,6 +20,8 @@ export KUBECONFIG=$(find ~/.kube/ \
 source <(kubectl completion bash | sed 's/kubectl/k/g' )
 
 source ~/.private-utils.sh
+
+pathadd ${HOME}/build/github/ibex
 
 function k() {
   local cluster=${1}
@@ -58,6 +60,7 @@ eks.amazonaws.com/nodegroup-image,node.kubernetes.io/instance-type,\
 failure-domain.beta.kubernetes.io/zone,nodegroup_name,\
 function,node-lifecycle \
 --sort-by=.metadata.creationTimestamp"
+# --sort-by={.metadata.labels.function,.metadata.creationTimestamp} ignores first field
 # -ojsonpath={range $.items[*]}{.metadata.name}{.spec.taints.eks\.amazonaws\.com/nodegroup=unschedulable{\"\n\"}{end}'"
 # another taint we use on proxy nodes: node-upgrading=true:NoSchedule
 # TODO: show annotation "cluster-autoscaler.kubernetes.io/scale-down-disabled" from aws/containers-roadmap/issues/916
@@ -95,12 +98,12 @@ function h() {
   #   echo
   # fi
 
-  local kube_config="--kubeconfig ${HOME}/.kube/${cluster}"
+  local kube_config="--kube-context ${cluster}"
   local helm_path="$(asdf where helm)/bin/helm"
   echo "Using helm client $(${helm_path} ${kube_config} version --client --short)..."
 
   if [[ ${VERBOSE} -ge 1 ]]; then
-    echo "To see helm2 releases, run: \"\$(asdf where helm 2.16.12)/bin/helm --kubeconfig ~/.kube/${cluster} ls\""
+    echo "To see helm2 releases, run: \"\$(asdf where helm 2.16.12)/bin/helm ${kube_config} ls\""
     echo "Running: \"${helm_path} ${kube_config} ${action}\""
   fi
   ${helm_path} ${kube_config} ${action} #--kube-context admin@${cluster}
@@ -108,8 +111,7 @@ function h() {
 
 function netshoot {
   # spin up a throwaway container in k8s for network debugging
-  kubectl --kubeconfig ~/.kube/${1} run --generator=run-pod/v1 \
-    tmp-shell --rm -i --tty --image nicolaka/netshoot -- /bin/bash
+  kubectl --kubeconfig ~/.kube/${1} run tmp-shell --rm -i --tty --image nicolaka/netshoot -- /bin/bash
 }
 
 function ibexs() {
@@ -134,8 +136,8 @@ function ibexs() {
 }
 
 # kubectl plugin manager: krew
-export KREW_ROOT=${HOME}/.krew
-pathadd ${KREW_ROOT}/bin
+# export KREW_ROOT=${HOME}/.krew
+# pathadd ${KREW_ROOT}/bin
 
 function _get_latest_version_from_github()
 {

@@ -19,11 +19,11 @@ function pathadd() {
 # add admin paths, replace macos utilities with GNU core utilities (should already include /usr/sbin/ and /sbin )
 
 # libexec paths because brew removed --with-default-names ... \
+# ${KREW_ROOT:-$HOME/.krew}/bin \
 for path2 in \
   /usr/sbin \
   /usr/local/sbin \
   /Applications/Visual\ Studio\ Code.app/Contents/Resources/app/bin \
-  ${KREW_ROOT:-$HOME/.krew}/bin \
   /usr/local/opt/python@3.9/bin \
   /usr/local/opt/coreutils/libexec/gnubin \
   /usr/local/opt/ed/libexec/gnubin \

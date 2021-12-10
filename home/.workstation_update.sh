@@ -98,13 +98,13 @@ if [[ $(uname) == "Darwin" ]] ; then
     ${helm_binary} plugin update ${hplug}
   done
 
-  echo -e "\nUpdating kubectl krew plugins."
-  (
-    # change to home dir to pick up .tool-versions for asdf
-    cd ~
-    # ~/.asdf/shims/kubectl krew system receipts-upgrade
-    ~/.asdf/shims/kubectl krew upgrade
-  )
+  # echo -e "\nUpdating kubectl krew plugins."
+  # (
+  #   # change to home dir to pick up .tool-versions for asdf
+  #   cd ~
+  #   # ~/.asdf/shims/kubectl krew system receipts-upgrade
+  #   ~/.asdf/shims/kubectl krew upgrade
+  # )
 
   # echo -e "\nUpdating password manager." # done via cask
   # /usr/local/bin/op update
@@ -175,6 +175,7 @@ if [[ $(uname) == "Darwin" ]] ; then
       diff ${TOOL_FILE}.$(date +%Y%m%d).backup ${TOOL_FILE}.new
       cat ${TOOL_FILE}.new > ${TOOL_FILE} && rm ${TOOL_FILE}.new
       (cd ${HOME} && $(/usr/local/bin/brew --prefix asdf)/bin/asdf install)
+      asdf reshim python
       echo "Finished updating asdf ${TOOL_FILE}"
       # TODO: Remove all unused versions automatically
       echo "Remove old asdf config files older than 30 days"
