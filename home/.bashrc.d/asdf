@@ -3,3 +3,5 @@ ${IS_MACOS} || return
 
 source /usr/local/opt/asdf/asdf.sh
 source /usr/local/etc/bash_completion.d/asdf.bash
+
+export ASDF_DIR='/usr/local/opt/asdf/libexec'

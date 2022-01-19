@@ -116,6 +116,9 @@ LOG4=/var/tmp/workstation_setup_$(date +%Y-%m-%d).log
     homeshick track dotfiles_private ~/.macos_defaults_original_$(hostname)_$(/usr/local/opt/coreutils/libexec/gnubin/date --rfc-3339=date).json
     # FIX: second, load customizations https://github.com/mathiasbynens/dotfiles/blob/master/.macos
     bash ~/.macos_sane_defaults
+    # Disable user interface sounds (screnshots, emptying trash)
+    defaults write com.apple.systemsound "com.apple.sound.uiaudio.enabled" -int 0
+    # TODO: add iterm.app to "System Preferences > Security & Privacy > Privacy > Full Disk Access"
   fi
 
   if [[ ${TRAVIS_CI_RUN} != true ]]; then

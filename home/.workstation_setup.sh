@@ -66,6 +66,7 @@ if ${IS_MACOS} && ! hash mas 2>/dev/null ; then
   brew install gnutls
   brew install grep
   brew install gzip
+  brew install ipcalc
   brew install screen
   brew install watch
   brew install wdiff

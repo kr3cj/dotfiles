@@ -23,11 +23,16 @@ function gitp {
   git fetch --prune --all
 
   # delete local branches (excluding default and current) which have been merged
-  # TODO: delete local branches that were deleted upstream (ex: closed PRs)
   for br1 in $(git branch --merged | grep -vE "${default_branch}|${current_branch}"); do
     echo -e "\nDeleting local branch \"${br1}\" that's already merged..."
     git branch -d ${br1}
   done
+  # delete local branches that were deleted upstream (ex: closed PRs)
+  for br1 in $(git branch -vv | grep ': gone]' | grep -v '\*' | awk '{print $1}'); do
+    echo -e "\nDeleting local branch \"${br1}\" that's not on remote (RISKY?!)..."
+    git branch -d ${br1}
+  done
+
   git checkout ${desired_branch}
   git pull origin ${desired_branch}
   if ! [[ "${desired_branch}" == "${current_branch}" ]]; then
