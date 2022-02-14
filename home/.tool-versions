@@ -1,18 +1,18 @@
 argo 2.9.5
 awscli 2.2.47
-golang 1.17.6
+golang 1.17.7
 grpcurl 1.8.2
-helm 3.7.2
+helm 3.8.0
 jq 1.6
 k9s 0.25.18
-kubectl 1.21.8
-minikube 1.24.0
+kubectl 1.21.9
+minikube 1.25.1
 # nodejs 11.9.0
 nodejs 12.18.4
-nova 2.3.4
+nova 3.0.0
 # pluto 3.4.0
-python 3.10.1
-saml2aws 2.33.0
+python 3.10.2
+saml2aws 2.34.0
 # sopstool 0.4.2
 terraform 0.12.31
 terraform-docs 0.16.0

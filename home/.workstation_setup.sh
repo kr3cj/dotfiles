@@ -114,8 +114,8 @@ if ${IS_MACOS} && ! hash mas 2>/dev/null ; then
 
   echo "install some extra utility packages for me"
   # use for loops so errors don't stop the whole brew operation
-  for pkg0 in bash-completion certigo cfssl dos2unix gnu-getopt jid pstree step tree; do
-    brew install pkg0
+  for pkg0 in bash-completion certigo cfssl colima docker dos2unix gnu-getopt jid pstree step tree; do
+    brew install ${pkg0}
   done
   # brew tap wallix/awless; brew install awless :(
   echo "install extra tools that I like"
@@ -191,10 +191,6 @@ if ${IS_MACOS} && ! hash mas 2>/dev/null ; then
 
   # broken up into separate commands to avoid 10 minute travis build timeout
   brew install --cask wireshark
-  # TODO: disable updates in docker so brew update can manage it, disable experimental features
-  brew install --cask docker
-  open -a "Docker"
-  # virtualbox
 
   # TODO: use openvpn to connect to PIA via CLI
   #  https://helpdesk.privateinternetaccess.com/hc/en-us/articles/219437987-Installing-OpenVPN-PIA-on-MacOS

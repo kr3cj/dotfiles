@@ -5,8 +5,10 @@ fi
 
 # shellcheck disable=SC2120
 function gitp {
-  local default_branch="$(git remote show origin | grep "HEAD branch" | awk '{print $3}')"
-  local current_branch="$(git rev-parse --abbrev-ref HEAD)"
+  local default_branch
+  default_branch="$(git remote show origin | grep "HEAD branch" | awk '{print $3}')"
+  local current_branch
+  current_branch="$(git rev-parse --abbrev-ref HEAD)"
   local desired_branch=${1:-${current_branch}}
 
   if ! [[ "${default_branch}" == "${current_branch}" ]]; then
@@ -25,12 +27,12 @@ function gitp {
   # delete local branches (excluding default and current) which have been merged
   for br1 in $(git branch --merged | grep -vE "${default_branch}|${current_branch}"); do
     echo -e "\nDeleting local branch \"${br1}\" that's already merged..."
-    git branch -d ${br1}
+    git branch -d "${br1}"
   done
   # delete local branches that were deleted upstream (ex: closed PRs)
   for br1 in $(git branch -vv | grep ': gone]' | grep -v '\*' | awk '{print $1}'); do
     echo -e "\nDeleting local branch \"${br1}\" that's not on remote (RISKY?!)..."
-    git branch -d ${br1}
+    git branch -d "${br1}"
   done
 
   git checkout ${desired_branch}

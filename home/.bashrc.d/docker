@@ -1,6 +1,9 @@
 [[ $- = *i* ]] || return
 ${IS_MACOS} || return
 
+# switched from docker desktop to colima 1/2022
+
+
 # remote host for container tools (https://docs.docker.com/engine/security/https/)
 export DOCKER_REGISTRY="${CUSTOM_WORK_DEFAULT_AWS_ACCT}.dkr.ecr.us-east-1.amazonaws.com"
 
