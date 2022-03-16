@@ -35,6 +35,8 @@ fi
 
 if hash curl 2>/dev/null && ${timeout_path} 1 curl github.com; then
   HEALTHY_INTERNET=true
+else
+  echo "No healthy internet detected..."
 fi
 
 if [[ -d ${HOME}/.bashrc.d ]]; then
