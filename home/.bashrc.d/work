@@ -95,10 +95,10 @@ function _create_socks_proxy {
 
 function unmount_home_nfs {
   while $(mount | grep -q "Documents/share1") ; do
-    sudo umount -fv -t nfs ${CUSTOM_HOME_NAS_HOST}:/share
+    umount -fv -t nfs ${CUSTOM_HOME_NAS_HOST}:/share
   done
   while $(mount | grep -q "Pictures/share1") ; do
-    sudo umount -fv -t nfs ${CUSTOM_HOME_NAS_HOST}:/share/pictures
+    umount -fv -t nfs ${CUSTOM_HOME_NAS_HOST}:/share/pictures
   done
 }
 function mount_home_nfs {
