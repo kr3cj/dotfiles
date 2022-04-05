@@ -52,7 +52,7 @@ function k() {
   case ${action} in
     *get?events*)
       action="${action} --sort-by=.lastTimestamp" ;;
-    *get?po*)
+    *get?po*|*get?rollouts*)
       action="${action} --sort-by=.metadata.creationTimestamp" ;;
     *get?no*)
       action="${action} --label-columns=\

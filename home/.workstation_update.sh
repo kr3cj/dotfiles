@@ -231,8 +231,7 @@ if [[ $(uname) == "Darwin" ]] ; then
   echo -e "\nUpdating macos App Store apps..."
   # authenticate to apple account if necessary
   if [[ ${TRAVIS_CI_RUN} != true ]] && [[ ! $(/usr/local/bin/mas account) ]]; then
-    passman Apple && \
-      /usr/local/bin/mas signin appleid@${CUSTOM_HOME_DOMAIN}
+    passman Apple && /usr/local/bin/mas signin appleid@${CUSTOM_HOME_DOMAIN}
   fi
   /usr/local/bin/mas upgrade # '/usr/local/bin/mas list' finds more with sudo prefix
 
