@@ -7,17 +7,17 @@ ${IS_MACOS} || return
 # export OP_SESSION_TIMEOUT=43200
 
 function _passman_needs_auth() {
-  op list vaults --cache --session ${OP_SESSION_my} &> /dev/null && return 0
+  op vault list --cache --session ${OP_SESSION_my} &> /dev/null && return 0
   return 1
 }
 
 function _passman_auth() {
   # if [[ "${need_to_auth_passman}" == true ]]; then
   [[ ${VERBOSE} -ge 1 ]] && \
-    echo "Need to auth passman; about to run \"op signin my --raw --cache --session ${OP_SESSION_my} \""
+    echo "Need to auth passman; about to run \"op account get --account my --cache --session ${OP_SESSION_my} \""
   # clear contents of file
   > ~/.pm_session_token
-  OP_SESSION_my="$(op signin my --raw --cache)"
+  OP_SESSION_my="$(op signin --account my --raw)"
   if [[ "${?}" -eq 0 ]]; then
     echo ${OP_SESSION_my} > ~/.pm_session_token
   else
@@ -40,16 +40,16 @@ function passman() {
   local field1="${@:-password}" # default to grabbing password
 
   [[ ${VERBOSE} -ge 1 ]] && \
-    echo "Running: op get item \"${item1}\" --fields \"${field1}\" \
+    echo "Running: op item get \"${item1}\" --field \"${field1}\" \
       --cache --session ${OP_SESSION_my} | pbcopy"
-  op get item "${item1}" --fields "${field1}" \
-    --cache --session ${OP_SESSION_my} | pbcopy
+  op item get "${item1}" --field "${field1}" --cache --session ${OP_SESSION_my} \
+   | pbcopy
 }
 
 function otp {
   [[ ${VERBOSE} -ge 1 ]] && \
-    echo "Running: op get totp \"${1}\" | cut -c1-6 | tr -d '\n' | pbcopy"
-  op get totp "${1}" --cache --cache --session ${OP_SESSION_my} | cut -c1-6 | tr -d '\n' | pbcopy
+    echo "Running: op item get --otp \"${1}\" | cut -c1-6 | tr -d '\n' | pbcopy"
+  op item get --otp "${1}" --cache --session ${OP_SESSION_my} | cut -c1-6 | tr -d '\n' | pbcopy
   # otp-cli show -1 -c -s ${CUSTOM_WORK_SSO_PROVIDER} | awk '/[0-9].*/{print $2}'
 }
 

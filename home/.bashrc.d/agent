@@ -46,16 +46,19 @@ function _load_ssh_key_from_passman () {
     # workaround since this sometimes creates a directory
     [[ -d ~/.ssh/id_rsa${key} ]] && rmdir ~/.ssh/id_rsa${key}
     [[ -f ~/.ssh/id_rsa${key} ]] || touch ~/.ssh/id_rsa${key}
-    op get item "id_rsa${key}" --fields notes > ~/.ssh/id_rsa${key}
+    op item get "id_rsa${key}" --field notesPlain --cache --session ${OP_SESSION_my} \
+     | sed 's/"//g' > ~/.ssh/id_rsa${key}
     )
-    op get item "id_rsa${key}" --fields Passphrase | pbcopy
+    op item get "id_rsa${key}" --field Passphrase --cache --session ${OP_SESSION_my} \
+     | pbcopy
     ssh-add -q -t 43200 -k ~/.ssh/id_rsa${key}
     [[ ${?} -ne 0 ]] && echo "Failed to load \"~/.ssh/id_rsa${key}\"!"
     # must keep work private key on filesystem so container mounts have it
     # [[ -z ${key} ]] || rm -f ~/.ssh/id_rsa${key}
     rm -f ~/.ssh/id_rsa${key}
     (umask 177
-    op get item "id_rsa${key}" --fields "Public Key" > ~/.ssh/id_rsa${key}.pub
+    op item get "id_rsa${key}" --field "Public Key" --cache --session ${OP_SESSION_my} \
+     > ~/.ssh/id_rsa${key}.pub
     )
   fi
 }
