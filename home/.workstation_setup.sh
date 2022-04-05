@@ -114,9 +114,14 @@ if ${IS_MACOS} && ! hash mas 2>/dev/null ; then
 
   echo "install some extra utility packages for me"
   # use for loops so errors don't stop the whole brew operation
-  for pkg0 in bash-completion certigo cfssl colima docker dos2unix gnu-getopt jid pstree step tree; do
+  for pkg0 in bash-completion certigo cfssl colima docker dos2unix fzf gnu-getopt jid pstree step tree; do
     brew install ${pkg0}
   done
+
+  echo "install fuzzy history search"
+  brew install fzf
+  yes | $(brew --prefix)/opt/fzf/install
+
   # brew tap wallix/awless; brew install awless :(
   echo "install extra tools that I like"
   for pkg1 in \
