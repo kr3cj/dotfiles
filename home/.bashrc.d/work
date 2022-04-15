@@ -48,7 +48,7 @@ function _create_socks_proxy {
   local host1=${1}
   local port1=${2}
   local test_url=${3:-"http://www.google.com"}
-  local ssh_proxy_options="-o ServerAliveInterval=60 -o ServerAliveCountMax=5 -f -N -D "
+  local ssh_proxy_options="-o ServerAliveInterval=30 -o ServerAliveCountMax=5 -f -N -D "
   [[ ${VERBOSE} -ge 1 ]] && ssh_proxy_options="-vvv ${ssh_proxy_options}"
   local ssh_proxy_response_file="/var/tmp/ssh_proxy_response.txt"
   # clear contents of response file
@@ -133,29 +133,29 @@ function work_vpn {
   # see https://gist.github.com/p120ph37/10999344 for cisco automatio with split tunnel
   if ! on_vpn; then
     echo ""
-    if read -t 2 -s -p "To connect to work VPN, press enter key within 2 seconds..."; then
+    if read -t 2 -s -p "Connecting to work VPN in 2 seconds, press Enter to skip..."; then
+      echo ""
+      # mount_home_nfs
+      # _create_socks_proxy "proxy.${CUSTOM_HOME_NAS_HOST#*\.}" "2000"
+    else
       echo ""
       unmount_home_nfs
 
       # echo "Killing gui"
       pgrep -f AnyConnect
       pkill -f AnyConnect
-      /opt/cisco/anyconnect/bin/vpn disconnect vpn.${CUSTOM_WORK_DOMAINS}
+      /opt/cisco/anyconnect/bin/vpn disconnect vpn.${CUSTOM_WORK_DOMAINS[0]}
 
       # make sure we are authenticated to password manager
       export OP_SESSION_my="$(head -n1 ~/.pm_session_token)";
       _passman_needs_auth || _passman_auth;
 
       /opt/cisco/anyconnect/bin/vpn -s < <(
-        echo connect vpn.${CUSTOM_WORK_DOMAINS}
+        echo connect vpn.${CUSTOM_WORK_DOMAINS[0]}
         echo ${LOGNAME}@${CUSTOM_WORK_DOMAINS[0]}
         op item get "${CUSTOM_WORK_DOMAINS[0]/.com/} ${CUSTOM_WORK_SSO_PROVIDER}" --fields "password" --cache --session ${OP_SESSION_my}
         op item get --otp "${CUSTOM_WORK_DOMAINS[0]/.com/} ${CUSTOM_WORK_SSO_PROVIDER}" --cache --session ${OP_SESSION_my} | cut -c1-6
       )
-      # echo """
-    # else
-      # mount_home_nfs
-      # _create_socks_proxy "proxy.${CUSTOM_HOME_NAS_HOST#*\.}" "2000"
     fi
   fi
 }

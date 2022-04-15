@@ -14,7 +14,7 @@ function _passman_needs_auth() {
 function _passman_auth() {
   # if [[ "${need_to_auth_passman}" == true ]]; then
   [[ ${VERBOSE} -ge 1 ]] && \
-    echo "Need to auth passman; about to run \"op account get --account my --cache --session ${OP_SESSION_my} \""
+    echo "Need to auth passman; about to run \"op account get --account my --raw\""
   # clear contents of file
   > ~/.pm_session_token
   OP_SESSION_my="$(op signin --account my --raw)"

@@ -97,6 +97,10 @@ if [[ $(uname) == "Darwin" ]] ; then
   for hplug in $(${helm_binary} plugin list | grep -v ^NAME | awk '{print $1}') ; do
     ${helm_binary} plugin update ${hplug}
   done
+  echo -e "\nUpdating helm repos."
+  for repo1 in $(${helm_binary} repo list | grep -v NAME | awk '{print $1}'); do
+    ${helm_binary} repo update ${repo1}
+  done
 
   # echo -e "\nUpdating kubectl krew plugins."
   # (
