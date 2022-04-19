@@ -73,7 +73,7 @@ LOG4=/var/tmp/workstation_setup_$(date +%Y-%m-%d).log
   )
 
   # mas is a CLI for AppStore installs/updates
-  if [[ ${TRAVIS_CI_RUN} != true ]]; then
+  if [[ ${GHA_CI_RUN} != true ]]; then
     echo "Prepare to sign into \"App Store.app\" manually..."
     passman Apple
     # mas signin apple@${CUSTOM_HOME_DOMAIN} # disabled on macos 10.15.x+
@@ -95,7 +95,7 @@ LOG4=/var/tmp/workstation_setup_$(date +%Y-%m-%d).log
   # TODO: Create Dock shortcut to "/System/Library/CoreServices/Screen Sharing.app"
 
 
-  if [[ ${TRAVIS_CI_RUN} != true ]]; then
+  if [[ ${GHA_CI_RUN} != true ]]; then
     # iterm2 customizations
     # Specify the preferences directory
     defaults write com.googlecode.iterm2.plist PrefsCustomFolder -string \
@@ -121,7 +121,7 @@ LOG4=/var/tmp/workstation_setup_$(date +%Y-%m-%d).log
     # TODO: add iterm.app to "System Preferences > Security & Privacy > Privacy > Full Disk Access"
   fi
 
-  if [[ ${TRAVIS_CI_RUN} != true ]]; then
+  if [[ ${GHA_CI_RUN} != true ]]; then
     # Run python code to checkout all repositories
     cd ~/build
     # git clone asottile/all-repos

@@ -18,7 +18,7 @@ fi
 # control characters
 stty -echoctl
 
-export TRAVIS_CI_RUN="${TRAVIS_CI_RUN:-false}"
+export GHA_CI_RUN="${GHA_CI_RUN:-false}"
 [[ -f ~/.base_homeshick_vars ]] && source ~/.base_homeshick_vars
 
 # impatiently detect healthy internet connectivity; prereq for passwd mgr stuff

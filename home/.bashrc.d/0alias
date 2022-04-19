@@ -226,8 +226,8 @@ if [[ "${IS_MACOS}" == "true" ]]; then
     # includes bufferbloat score: http://www.dslreports.com/speedtest
   }
 
-  if [[ ${TRAVIS_CI_RUN} != true ]]; then
-  # travis build barf on the matching syntax
+  if [[ ${GHA_CI_RUN} != true ]]; then
+  # ci tool build errors on the matching syntax
     eval "function ssh {
       # host must be the first argument
       local host1=\"\${1#node/}\"

@@ -1,4 +1,3 @@
-[![Build Status](https://travis-ci.org/kr3cj/dotfiles.svg?branch=main)](https://travis-ci.org/kr3cj/dotfiles)
 # Homeshick dotfiles
 
 ## Bootstrap from macos or linux

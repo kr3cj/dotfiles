@@ -10,7 +10,7 @@ echo "Need sudo access before continuing; press enter key to continue"
 read -n 1 -s
 # disabling in favor of corporate security method
 # read -p "Warn security teams at work before proceeding as it trips alerts; press enter key to continue"
-# if ! sudo grep -q $(whoami) /etc/sudoers && [[ ${TRAVIS_CI_RUN} != true ]]; then
+# if ! sudo grep -q $(whoami) /etc/sudoers && [[ ${GHA_CI_RUN} != true ]]; then
 #   sudo bash -c "echo \"$(whoami) ALL=(ALL) NOPASSWD: ALL\" >> /etc/sudoers"
 # fi
 
@@ -54,8 +54,8 @@ for public_repo in kr3cj/dotfiles kr3cj/liquidprompt rfocosi/otp-cli; do
 done
 homeshick --force link
 
-if [[ ${TRAVIS_CI_RUN} != true ]]; then
-  # this prevents workstation update from running before workstation setup in travis builds
+if [[ ${GHA_CI_RUN} != true ]]; then
+  # this prevents workstation update from running before workstation setup in CI builds
   grep -q local /etc/shells || bash ~/.workstation_setup.sh
 fi
 [[ -f ~/.bash_profile ]] && source ~/.bash_profile

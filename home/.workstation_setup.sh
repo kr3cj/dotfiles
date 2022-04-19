@@ -4,7 +4,7 @@ LOG2=/var/tmp/workstation_setup_$(date +%Y-%m-%d).log
 (
 # the purpose of this script is to house all initial workstation customizations in linux or macos
 
-if [[ ${TRAVIS_CI_RUN} != true ]]; then
+if [[ ${GHA_CI_RUN} != true ]]; then
   echo -e "\nSystem looks new. Press any key to start installing workstation software."
   read -n 1 -s
 fi
@@ -21,7 +21,7 @@ case "$(uname)" in
 esac
 
 # only proceed for linux workstations, not servers
-if [[ ${TRAVIS_CI_RUN} != true ]]; then
+if [[ ${GHA_CI_RUN} != true ]]; then
   if [[ ${IS_LINUX} == true ]] && [[ ! -d /usr/share/xsessions ]]; then
     echo "Quitting workfstation setup on what appears to be a linux server"
     exit 0
@@ -29,7 +29,7 @@ if [[ ${TRAVIS_CI_RUN} != true ]]; then
 fi
 
 echo "Need sudo password to setup passwdless sudo"
-if ! sudo grep -q $(whoami) /etc/sudoers && [[ ${TRAVIS_CI_RUN} != true ]]; then
+if ! sudo grep -q $(whoami) /etc/sudoers && [[ ${GHA_CI_RUN} != true ]]; then
   sudo bash -c "echo \"$(whoami) ALL=(ALL) NOPASSWD: ALL\" >> /etc/sudoers"
 fi
 
@@ -127,7 +127,7 @@ if ${IS_MACOS} && ! hash mas 2>/dev/null ; then
   for pkg1 in \
    ack aria2 mas mtr nmap tmux reattach-to-user-namespace \
    ansible node rbenv ruby ruby-build \
-   hub packer hey siege tfenv travis vault maven; do
+   hub packer hey siege tfenv vault maven; do
    # slack zoom; openshift-cli fleetctl; aria2=torrent_client(aria2c); \
    # android-platform-tools; android-file-transfer
    # load testing clients: hey siege artillery gauntlet
@@ -194,7 +194,7 @@ if ${IS_MACOS} && ! hash mas 2>/dev/null ; then
   # install brave separately. if already installed it won't break the rest
   brew install --cask brave-browser
 
-  # broken up into separate commands to avoid 10 minute travis build timeout
+  # broken up into separate commands to avoid 10 minute CI build timeout
   brew install --cask wireshark
 
   # TODO: use openvpn to connect to PIA via CLI
@@ -228,7 +228,6 @@ if ${IS_MACOS} && ! hash mas 2>/dev/null ; then
     # donjayamanne.githist\ory \
     # eamodio.gitlens \
     # erd0s.terraform-autocomplete \
-    # felixrieseberg.vsc-travis-ci-status \
     # ipedrazas.kubernetes-snippets \
     # KnisterPeter.vscode-github \
     # mauve.terraform \
@@ -278,7 +277,7 @@ EOF
   ### Rest requires bash v5+ and authenticated password manager cli for private dotfiles ###
   # brew install lastpass-cli
   brew install --cask 1password-cli
-  if [[ ${TRAVIS_CI_RUN} != true ]]; then
+  if [[ ${GHA_CI_RUN} != true ]]; then
     # secret zero
     echo -e "\nTo continue, you must be authenticated to password manager cli: \
     op signin ${CUSTOM_HOME_PASSWD_MGR_ACCOUNT} \

@@ -5,7 +5,7 @@ LOG=/var/tmp/workstation_update_$(date +%Y-%m-%d).log
 # the purpose of this script is to update client binaries on an occasional basis
 # child of ~/.workstation_setup
 
-if [[ ${TRAVIS_CI_RUN} != true ]]; then
+if [[ ${GHA_CI_RUN} != true ]]; then
   echo -e "Backup current macos configs..."
   defaults read > ~/.homesick/repos/dotfiles_private/home/.macos_current.json
   # [[ -l ~/.macos_current.json ]] ||   \
@@ -18,7 +18,7 @@ if hash npm 2>/dev/null ; then
   npm install npm -g
   npm update -g
 fi
-if hash gem 2>/dev/null && [[ ${TRAVIS_CI_RUN} != true ]]; then
+if hash gem 2>/dev/null && [[ ${GHA_CI_RUN} != true ]]; then
   echo -e "\nUpdating gems..."
   # ~/.gemrc should prevent ri or rdoc files from being installed
   # sudo gem update --system --conservative --minimal-deps --no-verbose --force
@@ -40,7 +40,7 @@ if hash tmux 2>/dev/null ; then
   echo -e "\nUpdating tmux plugins..."
   ~/.tmux/plugins/tpm/bin/update_plugins all
 fi
-# if hash gcloud 2>/dev/null && [[ ${TRAVIS_CI_RUN} != true ]]; then
+# if hash gcloud 2>/dev/null && [[ ${GHA_CI_RUN} != true ]]; then
   # echo -e "\nUpdating glcoud..."
   # sudo gcloud components update --quiet
   # find and fix any ownership problems (~/.config/gcloud/logs/ appears to be a common offender)
@@ -57,9 +57,6 @@ if [[ $(uname) == "Darwin" ]] ; then
   echo -e "Updating stubborn config files to homesick repo"
   # cp -av ~/.kube/config ~/.homesick/repos/dotfiles_private/home/.kube/
   cp -av ~/.docker/*.json ~/.homesick/repos/dotfiles_private/home/.docker/
-  [[ -d ~/.homesick/repos/dotfiles_private/home/.code ]] || mkdir ~/.homesick/repos/dotfiles_private/home/.code
-  cp -av ~/Library/Application\ Support/Code/User/settings.json \
-    ~/.homesick/repos/dotfiles/home/.code/settings.json
 
   # echo -e "\nUpdating work specific yeoman tools..."
   # for generator1 in $(yo --generators | grep /); do
@@ -197,7 +194,7 @@ if [[ $(uname) == "Darwin" ]] ; then
   /bin/rm -vr ~/.gradle/caches/* 2> /dev/null || echo
   /bin/rm -vr ~/.ivy2/{local,cache}/* 2> /dev/null || echo
   /bin/rm -vr ~/Library/Containers/com.apple.mail/Data/Library/Mail\ Downloads/* 2> /dev/null || echo
-  if [[ ${TRAVIS_CI_RUN} != true ]]; then
+  if [[ ${GHA_CI_RUN} != true ]]; then
     /usr/bin/sudo /bin/rm -vr /System/Library/Speech/Voices/* 2> /dev/null || echo
     # /usr/bin/sudo /bin/rm -vr /private/var/tmp/* 2> /dev/null || echo
     /usr/bin/sudo /usr/sbin/purge
@@ -234,7 +231,7 @@ if [[ $(uname) == "Darwin" ]] ; then
 
   echo -e "\nUpdating macos App Store apps..."
   # authenticate to apple account if necessary
-  if [[ ${TRAVIS_CI_RUN} != true ]] && [[ ! $(/usr/local/bin/mas account) ]]; then
+  if [[ ${GHA_CI_RUN} != true ]] && [[ ! $(/usr/local/bin/mas account) ]]; then
     passman Apple && /usr/local/bin/mas signin appleid@${CUSTOM_HOME_DOMAIN}
   fi
   /usr/local/bin/mas upgrade # '/usr/local/bin/mas list' finds more with sudo prefix
@@ -244,7 +241,7 @@ if [[ $(uname) == "Darwin" ]] ; then
   # /usr/sbin/softwareupdate --restart
   # sudo /usr/bin/xcode-select --switch /Library/Developer/CommandLineTools
   # sudo /usr/bin/xcodebuild -license accept 2> /dev/null
-  if [[ ${TRAVIS_CI_RUN} != true ]]; then
+  if [[ ${GHA_CI_RUN} != true ]]; then
     # TODO: Must reboot immediately else the Finder can get disk sync issues and error -43?
     echo -e "\nChecking macos disk health."
     echo "Verifying disk health at $($(/usr/local/bin/brew --prefix coreutils)/libexec/gnubin/date --rfc-3339=seconds). \
@@ -260,7 +257,7 @@ if [[ $(uname) == "Darwin" ]] ; then
 
 elif [[ $(uname) == "Linux" ]] ; then
   # only proceed for Linux workstations, not servers
-  if [[ ! -d /usr/share/xsessions ]] && [[ ${TRAVIS_CI_RUN} != true ]]; then
+  if [[ ! -d /usr/share/xsessions ]] && [[ ${GHA_CI_RUN} != true ]]; then
     echo "Quitting workstation setup on what appears to be a linux server"
     exit 0
   fi
@@ -272,7 +269,7 @@ elif [[ $(uname) == "Linux" ]] ; then
   fi
 fi
 
-if [[ ${TRAVIS_CI_RUN} != true ]]; then
+if [[ ${GHA_CI_RUN} != true ]]; then
    echo -e "\nClear old log files."
   /usr/bin/find /var/tmp -type f -name "workstation_update_*.log" -user $(whoami) -mtime +90 -print -delete
 fi
