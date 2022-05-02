@@ -1,7 +1,7 @@
 [[ $- = *i* ]] || return
 ${IS_MACOS} || return
 
-$(/usr/local/bin/brew --prefix findutils)/libexec/gnubin/find ~/.kube/ \
+$(brew --prefix findutils)/libexec/gnubin/find ~/.kube/ \
   -mindepth 1 \
   -maxdepth 1 \
   -type f \

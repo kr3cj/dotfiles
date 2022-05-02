@@ -1,16 +1,16 @@
-#!/usr/bin/env bash
-set +x
+#!/bin/zsh
 LOG2=/var/tmp/workstation_setup_$(date +%Y-%m-%d).log
 (
 # the purpose of this script is to house all initial workstation customizations in linux or macos
 
 if [[ ${GHA_CI_RUN} != true ]]; then
   echo -e "\nSystem looks new. Press any key to start installing workstation software."
-  read -n 1 -s
+  read -k1 -s
 fi
 
 export IS_MACOS="false"
 export IS_LINUX="false"
+export IS_ARM="false"
 case "$(uname)" in
   Darwin)
     IS_MACOS="true" ;;
@@ -19,6 +19,13 @@ case "$(uname)" in
   *)
     echo "Unable to determine linux or macos" ;;
 esac
+case "$(uname -m)" in
+  arm64)
+    export IS_ARM="true"
+esac
+
+export HOMEBREW_PATH="/usr/local/bin/brew"
+[[ ${IS_ARM} ]] && export HOMEBREW_PATH="/opt/homebrew/bin/brew"
 
 # only proceed for linux workstations, not servers
 if [[ ${GHA_CI_RUN} != true ]]; then
@@ -28,10 +35,10 @@ if [[ ${GHA_CI_RUN} != true ]]; then
   fi
 fi
 
-echo "Need sudo password to setup passwdless sudo"
-if ! sudo grep -q $(whoami) /etc/sudoers && [[ ${GHA_CI_RUN} != true ]]; then
-  sudo bash -c "echo \"$(whoami) ALL=(ALL) NOPASSWD: ALL\" >> /etc/sudoers"
-fi
+# echo "Need sudo password to setup passwdless sudo"
+# if ! sudo grep -q $(whoami) /etc/sudoers && [[ ${GHA_CI_RUN} != true ]]; then
+#   sudo bash -c "echo \"$(whoami) ALL=(ALL) NOPASSWD: ALL\" >> /etc/sudoers"
+# fi
 
 # TODO: requires macos permission
 # upgrade software Fridays at 10am
@@ -41,7 +48,7 @@ if ! $(crontab -l | grep -q workstation_update) ; then
 fi
 
 # install software on macos
-if ${IS_MACOS} && ! hash mas 2>/dev/null ; then
+if ${IS_MACOS}; then
   echo "Configuring macos. This will take an hour or so."
   # see http://meng6.net/pages/computing/installing_and_configuring/installing_and_configuring_command-line_utilities/
   if ! hash brew 2>/dev/null ; then
@@ -75,9 +82,6 @@ if ${IS_MACOS} && ! hash mas 2>/dev/null ; then
   brew install gnupg2
   echo "install newer utilities than macos provides"
   brew install bash
-  sudo /usr/local/opt/gnu-sed/libexec/gnubin/sed -i.bak "s/\/bin\/bash/\/usr\/local\/bin\/bash\\n\/bin\/bash/g" /etc/shells
-  chsh -s /usr/local/bin/bash
-  /usr/local/bin/bash
 
   # brew install emacs
   # brew install --cocoa --srgb emacs ##
@@ -182,7 +186,7 @@ if ${IS_MACOS} && ! hash mas 2>/dev/null ; then
   # use for loops so errors don't stop the whole brew operation
   for pkg2 in \
    alfred spotify gimp github iterm2 \
-   firefox keystore-explorer balenaetcher visual-studio-code
+   firefox keystore-explorer balenaetcher visual-studio-code ; do
    # keybase private-internet-access; etcher is a usb flash utility
    # slack doesn't like being installed in personal Applications (vs system Applications)
     brew install --cask ${HOMEBREW_CASK_OPTS} ${pkg2}
@@ -280,12 +284,12 @@ EOF
   if [[ ${GHA_CI_RUN} != true ]]; then
     # secret zero
     echo -e "\nTo continue, you must be authenticated to password manager cli: \
-    op signin ${CUSTOM_HOME_PASSWD_MGR_ACCOUNT} \
-    eval \$(op signin my) \
+    op account add --address ${CUSTOM_HOME_PASSWD_MGR_ACCOUNT[0]} --email ${CUSTOM_HOME_PASSWD_MGR_ACCOUNT[1]}
+    eval \$(op signin) \
     Then start \"~/.workstation_setup_private.sh\"."
-    read -n 1 -s
+    read -k1 -s
     # [[ -r ~/.workstation_setup_private.sh ]] && \
-    #   /usr/local/bin/bash ~/.workstation_setup_private.sh
+    #   zsh ~/.workstation_setup_private.sh
   else
     echo -e "\nInitial macos System setup completed."
   fi

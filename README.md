@@ -4,7 +4,7 @@
 The below shortened url goes to raw.githubusercontent.com/kr3cj/dotfiles/home/.bootstrap.sh:
 
 ```
-curl -L goo.gl/vQJOF9 | bash
+curl -L goo.gl/vQJOF9 | zsh
 ```
 
 ## Workstation customizations

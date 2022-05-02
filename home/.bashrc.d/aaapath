@@ -20,22 +20,15 @@ function pathadd() {
 
 # libexec paths because brew removed --with-default-names ... \
 # ${KREW_ROOT:-$HOME/.krew}/bin \
+HOMEBREW_PATH="$(brew --prefix)"
 for path2 in \
   /usr/sbin \
-  /usr/local/sbin \
+  ${HOMEBREW_PATH}/sbin \
   /Applications/Visual\ Studio\ Code.app/Contents/Resources/app/bin \
-  /usr/local/opt/python@3.9/bin \
-  /usr/local/opt/coreutils/libexec/gnubin \
-  /usr/local/opt/ed/libexec/gnubin \
-  /usr/local/opt/findutils/libexec/gnubin \
-  /usr/local/opt/gnu-getopt/libexec/gnubin \
-  /usr/local/opt/gnu-indent/libexec/gnubin \
-  /usr/local/opt/gnu-sed/libexec/gnubin \
-  /usr/local/opt/gnu-tar/libexec/gnubin \
-  /usr/local/opt/gnu-which/libexec/gnubin \
-  /usr/local/opt/grep/libexec/gnubin \
-  /usr/local/opt/curl/bin \
-  /usr/local/opt/openssl/bin \
+  ${HOMEBREW_PATH}/opt/python/bin \
+  ${HOMEBREW_PATH}/opt/curl/bin \
+  ${HOMEBREW_PATH}/opt/openssl/bin \
+  $(ls -d $(brew --prefix)/opt/*/libexec/gnubin) \
   ; do
   pathadd ${path2}
 done

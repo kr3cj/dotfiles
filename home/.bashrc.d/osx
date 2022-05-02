@@ -14,8 +14,7 @@ export BASH_SILENCE_DEPRECATION_WARNING=1
 
 export HOMEBREW_CASK_OPTS="--appdir=~/Applications"
 
-MANPATH="/usr/local/opt/findutils/libexec/gnuman:${MANPATH-/usr/share/man}"
-MANPATH="/usr/local/opt/coreutils/libexec/gnuman:${MANPATH}"
-MANPATH="/usr/local/opt/gnu-sed/libexec/gnuman:${MANPATH}"
-MANPATH="/usr/local/opt/gnu-tar/libexec/gnuman:${MANPATH}"
+for path3 in $(ls -d $(brew --prefix)/opt/*/libexec/gnuman); do
+  MANPATH="${path3}:${MANPATH}"
+done
 export MANPATH

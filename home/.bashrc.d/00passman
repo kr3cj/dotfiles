@@ -64,7 +64,7 @@ function session_is_active {
   #  already exists and the date is in the future, simply returns false. This will
   #  not store token values for the tool's session.
 
-  local current_time=$(/usr/local/opt/coreutils/libexec/gnubin/date +%s)
+  local current_time="$(/bin/date +%s)"
 
   local tool_name="${1}"
   local timeout_file="/var/tmp/.${tool_name}_token_expiration"
@@ -74,9 +74,9 @@ function session_is_active {
   if [[ -n "${*}" ]]; then
     # session_validity_length provided; need to setup expiration file
     # if [[ ${VERBOSE} -ge 1 ]]; then
-    #   echo "Creating expiration date from \$(/usr/local/opt/coreutils/libexec/gnubin/date --date=\"${*}\" +%s)"
+    #   echo "Creating expiration date from \$(/bin/date --date=\"${*}\" +%s)"
     # fi
-    expiration_date=$(/usr/local/opt/coreutils/libexec/gnubin/date --date="${*}" +%s)
+    expiration_date=$(/bin/date --date="${*}" +%s)
     if ! [[ ${expiration_date} =~ ^-?[0-9]+$ ]]; then
       echo "Unable to create expiration date from \"${*}\"."
       return 1

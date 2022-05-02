@@ -1,13 +1,9 @@
-#!/usr/bin/env bash
+#!/bin/zsh
 # the purpose of this script is to install my homeshick dotfiles from github
 
-if $(echo ${SHELL} | grep -q 'zsh'); then
-  echo "Change from zsh to bash: \"chsh -s /bin/bash && SHELL=/bin/bash && bash\""
-  exit 1
-fi
-
-echo "Need sudo access before continuing; press enter key to continue"
-read -n 1 -s
+echo -e "\nNeed sudo access before continuing; press enter key to continue"
+read -k1 -s
+sudo -l
 # disabling in favor of corporate security method
 # read -p "Warn security teams at work before proceeding as it trips alerts; press enter key to continue"
 # if ! sudo grep -q $(whoami) /etc/sudoers && [[ ${GHA_CI_RUN} != true ]]; then
@@ -24,13 +20,13 @@ if [[ $(uname) == "Darwin" ]] ; then
   # https://apple.stackexchange.com/questions/341706/cant-update-developer-tools-on-mojavehttps://apple.stackexchange.com/questions/341706/cant-update-developer-tools-on-mojave
   xcode-select --install # TODO: make non-interactive
   # sudo xcode-select --switch /Library/Developer/CommandLineTools
-  echo "Open work software manager, search for Xcode Command Line Developer Tools and click on Install"
+  echo -e "\nOpen work software manager, search for Xcode Command Line Developer Tools and click on Install"
   echo "When finished, press enter key to continue"
-  read -n 1 -s
+  read -k1 -s
 
 
   echo -e "\nInstalling Homebrew..."
-  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)" # TODO: make non-interactive
+  NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)" # TODO: make non-interactive
   brew install git
 elif [[ $(uname) == "Linux" ]] ; then
   if [[ -f /etc/redhat-release ]] ; then
@@ -64,6 +60,6 @@ homeshick --force link
 
 if [[ ${GHA_CI_RUN} != true ]]; then
   # this prevents workstation update from running before workstation setup in CI builds
-  grep -q local /etc/shells || bash ~/.workstation_setup.sh
+  grep -q local /etc/shells || zsh ~/.workstation_setup.sh
 fi
-[[ -f ~/.bash_profile ]] && source ~/.bash_profile
+# [[ -f ~/.bash_profile ]] && source ~/.bash_profile

@@ -1,5 +1,6 @@
 export IS_MACOS="false"
 export IS_LINUX="false"
+export IS_ARM="false"
 case "$(uname)" in
   Darwin)
     export IS_MACOS="true" ;;
@@ -7,6 +8,10 @@ case "$(uname)" in
     export IS_LINUX="true" ;;
   *)
     echo "Unable to determine linux or macos" ;;
+esac
+case "$(uname -m)" in
+  arm64)
+    export IS_ARM="true"
 esac
 
 #  troubleshooting
@@ -23,7 +28,7 @@ alias cdp="homeshick cd dotfiles_private"
 alias pp="source ~/.bash_profile"
 
 function acp {
-  cp -av ${1} ${1}.$(date --rfc-3339=date)
+  cp -av ${1} ${1}.$(/bin/date +%Y-%m-%d)
 }
 
 function bashcurl {
@@ -128,10 +133,10 @@ function _throttle()
 }
 
 if [[ "${IS_MACOS}" == "true" ]]; then
-  alias curl="/usr/local/opt/curl/bin/curl"
+  alias curl="$(brew --prefix curl)/bin/curl"
   # since the path file hasn't been sourced yet, use absolute paths to ls for macos
-  alias ls="/usr/local/opt/coreutils/libexec/gnubin/ls -G --color=auto"
-  alias ll="/usr/local/opt/coreutils/libexec/gnubin/ls -hl -G --color=auto"
+  alias ls="$(brew --prefix coreutils)/libexec/gnubin/ls -G --color=auto"
+  alias ll="$(brew --prefix coreutils)/libexec/gnubin/ls -hl -G --color=auto"
   alias srm="/bin/rm -vP"
   alias slack="open -a Slack"
   alias spotify="open -a Spotify"

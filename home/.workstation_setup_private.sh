@@ -1,16 +1,9 @@
-#!/usr/bin/env bash
-set +x
-LOG4=/var/tmp/workstation_setup_$(date +%Y-%m-%d).log
+#!/bin/zsh
+LOG3=/var/tmp/workstation_setup_$(date +%Y-%m-%d).log
 (
   # the purpose of this script is to house all macos workstation customizations requiring access to dotfiles_private
   echo "first, check that we are authenticated to password manager."
   op get account > /dev/null || ( echo "Not logged into password manager; quitting" && exit 1)
-  echo "second, check that SHELL is bash v5+."
-  if ! bash --version | grep -q 'version 5'; then
-    echo "Change default shell to \"/usr/local/bin/bash\":"
-    echo " \"chsh -s /usr/local/bin/bash && /usr/local/bin/bash\""
-    exit 1
-  fi
 
   # now we can install any private repos with private ssh key
   # load personal ssh key if necessary
@@ -67,7 +60,7 @@ LOG4=/var/tmp/workstation_setup_$(date +%Y-%m-%d).log
   brew install oath-toolkit
   (
     cd ~/.homesick/repos/otp-cli/
-    sudo ln -s $( echo "$( pwd )/otp-cli" ) /usr/local/bin/otp-cli
+    sudo ln -s $( echo "$( pwd )/otp-cli" ) $(brew --prefix)/bin/otp-cli
     chmod 700 -c ~/otp-cli/tokens
     chmod 400 -c ~/otp-cli/tokens/${CUSTOM_WORK_SSO_PROVIDER}
   )
@@ -107,15 +100,15 @@ LOG4=/var/tmp/workstation_setup_$(date +%Y-%m-%d).log
     # brew tap homebrew/cask-versions
     # brew cask install java11
     # setup build system credentials; TODO: cache username/password?
-    # /usr/local/bin/docker login ${CUSTOM_WORK_JFROG_SUBDOMAIN}.jfrog.io
+    # $(brew --prefix docker)/bin/docker login ${CUSTOM_WORK_JFROG_SUBDOMAIN}.jfrog.io
 
     ### general macos customizations ###
     # first, backup the current defaults
-    defaults read > ~/.macos_defaults_original_$(hostname)_$(/usr/local/opt/coreutils/libexec/gnubin/date --rfc-3339=date).json
+    defaults read > ~/.macos_defaults_original_$(hostname)_$(/bin/date +%Y-%m-%d).json
     source "${HOME}/.homesick/repos/homeshick/homeshick.sh"
-    homeshick track dotfiles_private ~/.macos_defaults_original_$(hostname)_$(/usr/local/opt/coreutils/libexec/gnubin/date --rfc-3339=date).json
+    homeshick track dotfiles_private ~/.macos_defaults_original_$(hostname)_$(/bin/date +%Y-%m-%d).json
     # FIX: second, load customizations https://github.com/mathiasbynens/dotfiles/blob/master/.macos
-    bash ~/.macos_sane_defaults
+    zsh ~/.macos_sane_defaults
     # Disable user interface sounds (screnshots, emptying trash)
     defaults write com.apple.systemsound "com.apple.sound.uiaudio.enabled" -int 0
     # TODO: add iterm.app to "System Preferences > Security & Privacy > Privacy > Full Disk Access"
@@ -129,7 +122,7 @@ LOG4=/var/tmp/workstation_setup_$(date +%Y-%m-%d).log
   fi
 
   # close out logging
-) 2>&1 | tee -a ${LOG4}
+) 2>&1 | tee -a ${LOG3}
 
 echo "Checking for and running \"~/.work_setup.sh\"."
 [[ -x ~/.work_setup.sh ]] && ~/.work_setup.sh

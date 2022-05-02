@@ -26,6 +26,8 @@ export HEALTHY_INTERNET=false
 export timeout_path
 if [[ -e /usr/local/opt/coreutils/libexec/gnubin/timeout ]]; then
   timeout_path=/usr/local/opt/coreutils/libexec/gnubin/timeout
+elif [[ -e /opt/homebrew/bin/coreutils/libexec/gnubin/timeout ]]; then
+  timeout_path=/opt/homebrew/opt/coreutils/libexec/gnubin/timeout
 elif [[ -e /usr/bin/timeout ]]; then
   timeout_path=/usr/bin/timeout
 # else
