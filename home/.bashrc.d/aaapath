@@ -9,7 +9,7 @@ function pathadd() {
     [[ ${VERBOSE} -ge 1 ]] && echo "Path \"${newpath}\" already exists in path \"${PATH}\"."
     return
   fi
-  [[ ${VERBOSE} -ge 1 ]] && echo "...adding ${newpath} to \${PATH}"
+  [[ ${VERBOSE} -ge 1 ]] && echo "...adding \"${newpath}\" to \${PATH}"
   if [[ "${2}" == "after" ]] ; then
     export PATH="${PATH}:${newpath}"
   else
@@ -27,7 +27,6 @@ for path2 in \
   ${BASE_PATH}/opt/curl/bin \
   ${BASE_PATH}/opt/openssl/bin \
   $(/bin/ls -d $(brew --prefix)/opt/*/libexec/gnubin) \
-  /Applications/Visual\ Studio\ Code.app/Contents/Resources/app/bin \
   ; do
   pathadd ${path2}
 done

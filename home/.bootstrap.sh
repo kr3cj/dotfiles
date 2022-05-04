@@ -13,6 +13,7 @@ sudo -l
 # install git
 if [[ $(uname) == "Darwin" ]] ; then
   echo -e "\nRunning softwareupdate..."
+  [[ $(uname -m) == "arm64" ]] && sudo /usr/sbin/softwareupdate --install-rosetta
   sudo /usr/sbin/softwareupdate --install --all --restart
 
   echo -e "\nInstalling xcode..."

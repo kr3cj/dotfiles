@@ -10,7 +10,7 @@ brew "diffutils"
 brew "ed"
 brew "findutils"
 brew "gawk"
-brew "gdb" # gdb requires further actions to make it work. See `brew info gdb`
+brew "gdb" # no bottle for Apple Silicon; gdb needs more actions to work. See `brew info gdb`
 brew "gnu-indent"
 brew "gnu-sed"
 brew "gnu-tar"
@@ -46,7 +46,7 @@ brew "m4"
 
 ### install extra tools I like
 brew "ack"
-brew "android-file-transfer"
+# brew "android-file-transfer" # not found
 brew "aria2"
 brew "asdf"
 brew "bash-completion"
@@ -64,7 +64,7 @@ brew "mtr"
 brew "nmap"
 brew "oath-toolkit"
 brew "pstree"
-brew "sslyze"
+brew "sslyze" # no bottle for Apple Silicon
 brew "step"
 brew "tmux"
 brew "tree"
@@ -135,6 +135,6 @@ cask "wireshark", args: { appdir: "~/Applications" }
 
 ### App Store installs won't work until authenticated to apple account
 mas "CopyClip", id: 595191960
-mas "Keynote", id: 409183694
+# mas "Keynote", id: 409183694
 mas "Magnet", id: 441258766
 mas "Microsoft Remote Desktop", id: 1295203466
