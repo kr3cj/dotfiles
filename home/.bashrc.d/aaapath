@@ -2,13 +2,14 @@ function pathadd() {
   unset newpath
   local newpath=${1%/}
   if [[ ! -d "${newpath}" ]] ; then
-    # echo "Directory \"${1}\" does not exist."
+    [[ ${VERBOSE} -ge 1 ]] && echo "Directory \"${1}\" does not exist."
     return
   fi
   if [[ "${PATH}" =~ (^|:)"${newpath}"(:|$) ]] ; then
-    # echo "Path \"${newpath}\" already exists in path \"${PATH}\"."
+    [[ ${VERBOSE} -ge 1 ]] && echo "Path \"${newpath}\" already exists in path \"${PATH}\"."
     return
   fi
+  [[ ${VERBOSE} -ge 1 ]] && echo "...adding ${newpath} to \${PATH}"
   if [[ "${2}" == "after" ]] ; then
     export PATH="${PATH}:${newpath}"
   else
@@ -17,18 +18,16 @@ function pathadd() {
 }
 
 # add admin paths, replace macos utilities with GNU core utilities (should already include /usr/sbin/ and /sbin )
-
-# libexec paths because brew removed --with-default-names ... \
-# ${KREW_ROOT:-$HOME/.krew}/bin \
-HOMEBREW_PATH="$(brew --prefix)"
+BASE_PATH="$(brew --prefix)"
 for path2 in \
   /usr/sbin \
-  ${HOMEBREW_PATH}/sbin \
+  ${BASE_PATH}/bin \
+  ${BASE_PATH}/sbin \
+  ${BASE_PATH}/opt/python/bin \
+  ${BASE_PATH}/opt/curl/bin \
+  ${BASE_PATH}/opt/openssl/bin \
+  $(/bin/ls -d $(brew --prefix)/opt/*/libexec/gnubin) \
   /Applications/Visual\ Studio\ Code.app/Contents/Resources/app/bin \
-  ${HOMEBREW_PATH}/opt/python/bin \
-  ${HOMEBREW_PATH}/opt/curl/bin \
-  ${HOMEBREW_PATH}/opt/openssl/bin \
-  $(ls -d $(brew --prefix)/opt/*/libexec/gnubin) \
   ; do
   pathadd ${path2}
 done

@@ -49,12 +49,14 @@ fi
 # TODO: update chrome extensions (https://github.com/mdamien/chrome-extensions-archive/issues/8)
 
 if [[ $(uname) == "Darwin" ]] ; then
-  BREW_PATH="/usr/local/bin/brew"
-  [[ "$(uname -m)" == "arm64" ]] && BREW_PATH="/opt/homebrew/bin/brew"
+  BREWBIN_PATH="/usr/local/bin/brew"
+  [[ "$(uname -m)" == "arm64" ]] && BREWBIN_PATH="/opt/homebrew/bin/brew"
+  BASE_PATH="$(${BREWBIN_PATH} --prefix)"
+  export PATH="${BASE_PATH}/bin:${BASE_PATH}/opt/asdf/libexec/bin/asdf:${LOG_NAME}/.asdf/shims:${PATH}"
 
   echo -e "\nUpdating vscode extensions..."
-  for ext1 in $($(${BREW_PATH} --prefix)/bin/code --list-extensions); do
-    $(${BREW_PATH} --prefix)/bin/code --install-extension --force "${ext1}"
+  for ext1 in $(code --list-extensions); do
+    code --install-extension --force "${ext1}"
   done
   # cd ~/build/all-repos
   echo -e "Updating stubborn config files to homesick repo"
@@ -67,16 +69,14 @@ if [[ $(uname) == "Darwin" ]] ; then
   # done
 
   echo -e "\nUpdating brew packages..."
-  [[ $(uname -m) == "arm64" ]] && BREW_PATH="/opt/homebrew/bin/brew"
-
   # hack for weird virt-manager dependency (or just remove spice-gtk, virt-manager and virt-viewer)
-  # ${BREW_PATH} uninstall --ignore-dependencies spice-protocol
-  ${BREW_PATH} update
-  ${BREW_PATH} upgrade
-  ${BREW_PATH} upgrade --cask
+  # brew uninstall --ignore-dependencies spice-protocol
+  brew update
+  brew upgrade
+  brew upgrade --cask
   # dont rely on "brew upgrade --cask" to skip auto-updating casks. Loop over each instead
-  # ${BREW_PATH} upgrade --cask
-  for cask1 in $(${BREW_PATH} upgrade --cask --dry-run | awk '{print $1}') ; do
+  # brew upgrade --cask
+  for cask1 in $(brew upgrade --cask --dry-run | awk '{print $1}') ; do
     case ${cask1} in
       alfred|brave-browser|docker|firefox|github|google-backup-and-sync|\
       spotify|visual-studio-code|virtualbox)
@@ -85,17 +85,17 @@ if [[ $(uname) == "Darwin" ]] ; then
         echo "Skipping cask that should auto update itself: ${cask1}" ;;
       *)
         echo "Upgrading cask \"${cask1}\"..."
-        ${BREW_PATH} upgrade --cask ${cask1} ;;
+        brew upgrade --cask ${cask1} ;;
     esac
   done
 
-  # if [[ -e $(${BREW_PATH} --prefix)/bin/apm ]] ; then
+  # if [[ -e $(brew --prefix)/bin/apm ]] ; then
     # echo -e "\nUpdating atom editor plugins."
-    # $(${BREW_PATH} --prefix)/bin/apm upgrade --confirm false
+    # $(brew --prefix)/bin/apm upgrade --confirm false
   # fi
 
   echo -e "\nUpdating helm plugins."
-  helm_binary="$($(${BREW_PATH} --prefix asdf)/bin/asdf where helm)/bin/helm"
+  helm_binary="$($(brew --prefix asdf)/bin/asdf where helm)/bin/helm"
   for hplug in $(${helm_binary} plugin list | grep -v ^NAME | awk '{print $1}') ; do
     ${helm_binary} plugin update ${hplug}
   done
@@ -116,23 +116,22 @@ if [[ $(uname) == "Darwin" ]] ; then
   # /usr/local/bin/op update
 
   echo -e "\nCleaning temporary files and securely delete trash."
-  PATH="$(${BREW_PATH} --prefix)/bin:${PATH}"
-    /usr/bin/sudo $(${BREW_PATH} --prefix findutils)/libexec/gnubin/find ~/.Trash/ -type f -exec /bin/rm -vP '{}' \; || \
-    echo "open System Preferences->Privacy & Security->Full Disk Access->Check iTerm.app"
-  /usr/bin/sudo $(${BREW_PATH} --prefix findutils)/libexec/gnubin/find ~/.Trash/ -type d -delete
+  /usr/bin/sudo $(brew --prefix findutils)/libexec/gnubin/find ~/.Trash/ -type f -exec /bin/rm -vP '{}' \; || \
+  echo "open System Preferences->Privacy & Security->Full Disk Access->Check iTerm.app"
+  /usr/bin/sudo $(brew --prefix findutils)/libexec/gnubin/find ~/.Trash/ -type d -delete
 
-  # ${BREW_PATH} cask cleanup
-  ${BREW_PATH} doctor
-  ${BREW_PATH} cleanup -s
+  # brew cask cleanup
+  brew doctor
+  brew cleanup -s
   # docker docker-machine docker-compose
   # for problematic_brews in kubernetes-helm ; do
-    # ${BREW_PATH} link ${problematic_brews} --overwrite
+    # brew link ${problematic_brews} --overwrite
   # done
-  ${BREW_PATH} missing
+  brew missing
 
   if hash asdf 2>/dev/null ; then
     echo -e "\nUpdating asdf plugins..."
-    $(${BREW_PATH} --prefix asdf)/bin/asdf plugin-update --all
+    $(brew --prefix asdf)/bin/asdf plugin-update --all
     # overwrite ${TOOL_FILE} with new releases
 
     echo -e "\nUpdating asdf tool versions..."
@@ -160,32 +159,32 @@ if [[ $(uname) == "Darwin" ]] ; then
           argo|awscli|kubectl|nodejs|terraform)
             echo "Getting latest patch version of asdf plugin \"${tool1}:${old_version1}\"..."
             # use bash parameter expansion to extract the major and minor version from ${old_version1}
-            new_version1="$($(${BREW_PATH} --prefix asdf)/bin/asdf latest ${tool1} ${old_version1%\.*})"
+            new_version1="$($(brew --prefix asdf)/bin/asdf latest ${tool1} ${old_version1%\.*})"
             # if asdf dropped old_version, above will return emtpy string, so return old_version
             echo "${tool1} ${new_version1:=${old_version1}}" >> ${TOOL_FILE}.new ;;
           example2)
             echo "Getting latest minor version only of asdf plugin \"${tool}:${old_version1}\"..."
             # use bash parameter expansion to extract the major version from ${old_version1}
-            new_version1="$($(${BREW_PATH} --prefix asdf)/bin/asdf latest ${tool1} ${old_version1%%\.*})"
+            new_version1="$($(brew --prefix asdf)/bin/asdf latest ${tool1} ${old_version1%%\.*})"
             # if asdf dropped old_version, above will return emtpy string, so return old_version
             echo "${tool1} ${new_version1:=${old_version1}}" >> ${TOOL_FILE}.new ;;
           *)
             echo "Getting latest major version of asdf plugin \"${tool1}:${old_version1}\"..."
-            new_version1="$($(${BREW_PATH} --prefix asdf)/bin/asdf latest ${tool1})"
+            new_version1="$($(brew --prefix asdf)/bin/asdf latest ${tool1})"
             # if above returns emtpy string (jq, terraform-docs), return old_version
             echo "${tool1} ${new_version1:=${old_version1}}" >> ${TOOL_FILE}.new ;;
         esac
       done < ${TOOL_FILE}
 
       echo -e "Now a diff of the version updates:...\n"
-      diff ${TOOL_FILE}.$(date +%Y%m%d).backup ${TOOL_FILE}.new
+      diff ${TOOL_FILE}.$(/bin/date +%Y%m%d).backup ${TOOL_FILE}.new
       cat ${TOOL_FILE}.new > ${TOOL_FILE} && rm ${TOOL_FILE}.new
-      (cd ${HOME} && $(${BREW_PATH} --prefix asdf)/bin/asdf install)
+      (cd ${HOME} && $(brew --prefix asdf)/bin/asdf install)
       asdf reshim python
       echo "Finished updating asdf ${TOOL_FILE}"
       # TODO: Remove all unused versions automatically
       echo "Remove old asdf config files older than 30 days"
-      $(${BREW_PATH} --prefix findutils)/libexec/gnubin/find ${HOME}/ \
+      $(brew --prefix findutils)/libexec/gnubin/find ${HOME}/ \
         -mindepth 1 \
         -maxdepth 1 \
         -type f \
@@ -208,13 +207,13 @@ if [[ $(uname) == "Darwin" ]] ; then
 
     # ensure credential files for development are locked down
     for item1 in ~/.ivy2 ~/.docker ~/.ant ~/.m2 ~/.pgpass ~/.vnc/passwd ~/.jspm/config; do
-      [[ -f ${item1} ]] && chmod -v 600 ${item1}
-      [[ -d ${item1} ]] && find ${item1} -type d -exec chmod -v 700 '{}' \;
+      [[ -f ${item1} ]] && $(brew --prefix coreutils)/libexec/gnubin/chmod -cv 600 ${item1}
+      [[ -d ${item1} ]] && $(brew --prefix findutils)/libexec/gnubin/find ${item1} -type d -exec chmod -v 700 '{}' \;
     done
   fi
 
   echo -e "\nPrint any dead links in home directory..."
-  $(${BREW_PATH} --prefix findutils)/libexec/gnubin/find ${HOME} \
+  $(brew --prefix findutils)/libexec/gnubin/find ${HOME} \
     -xtype l \
     ! -path "*/Library/*" \
     ! -path "*/.virtualenvs/*" \
@@ -223,7 +222,7 @@ if [[ $(uname) == "Darwin" ]] ; then
     # -exec rm -v '{}' \;
 
   echo -e "\nPrint any unmanaged dotfiles..."
-  $(${BREW_PATH} --prefix findutils)/libexec/gnubin/find ${HOME} -mindepth 1 -maxdepth 2 -type f \
+  $(brew --prefix findutils)/libexec/gnubin/find ${HOME} -mindepth 1 -maxdepth 2 -type f \
     -name ".[^.]*" -not \( -name ".DS_Store" -or -name ".localized" \
     -or -name "*_history" -or -name "*hst" -or -name "*hist" \
     -or -name ".macos_*.json" -or -name .gitignore -or -name .yarnrc \) \
@@ -236,11 +235,11 @@ if [[ $(uname) == "Darwin" ]] ; then
 
   echo -e "\nUpdating macos App Store apps..."
   # authenticate to apple account if necessary
-  # if [[ ${GHA_CI_RUN} != true ]] && [[ ! $($(${BREW_PATH} --prefix mas)/bin/mas account) ]]; then
-  #   passman Apple && $(${BREW_PATH} --prefix mas)/bin/mas signin appleid@${CUSTOM_HOME_DOMAIN}
+  # if [[ ${GHA_CI_RUN} != true ]] && [[ ! $($(brew --prefix mas)/bin/mas account) ]]; then
+  #   passman Apple && $(brew --prefix mas)/bin/mas signin appleid@${CUSTOM_HOME_DOMAIN}
   # fi
-  # $(${BREW_PATH} --prefix mas)/bin/mas/bin/mas upgrade
-  # "$(${BREW_PATH} --prefix mas)/bin/mas/bin/mas list" finds more with sudo prefix
+  # $(brew --prefix mas)/bin/mas/bin/mas upgrade
+  # "$(brew --prefix mas)/bin/mas/bin/mas list" finds more with sudo prefix
 
   echo -e "\nUpdating macos system..."
   /usr/sbin/softwareupdate --install --all

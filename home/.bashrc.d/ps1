@@ -1,5 +1,8 @@
 [[ $- = *i* ]] || return
 
+# load fuzzy search
+[[ -f ~/.fzf.bash ]] && source ~/.fzf.bash
+
 if [[ -f ~/.homesick/repos/liquidprompt/liquidprompt ]]; then
   # echo "Detected forked nojhan/liquidprompt"
   source ~/.homesick/repos/liquidprompt/liquidprompt

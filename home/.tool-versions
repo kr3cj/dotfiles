@@ -3,6 +3,7 @@ awscli 2.2.47
 golang 1.18.1
 # grpcurl 1.8.2
 helm 3.8.2
+# TODO: failed for arm64
 jq 1.6
 k9s 0.25.18
 kubectl 1.23.6
@@ -14,6 +15,7 @@ nova 3.0.2
 python 3.10.4
 saml2aws 2.35.0
 # sopstool 0.4.2
+ # TODO: failed for arm64
 terraform 0.12.31
 terraform-docs 0.16.0
 # tfenv 2.0.0

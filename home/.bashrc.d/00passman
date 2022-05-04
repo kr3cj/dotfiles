@@ -76,7 +76,7 @@ function session_is_active {
     # if [[ ${VERBOSE} -ge 1 ]]; then
     #   echo "Creating expiration date from \$(/bin/date --date=\"${*}\" +%s)"
     # fi
-    expiration_date=$(/bin/date --date="${*}" +%s)
+    expiration_date=$($(brew --prefix coreutils)/libexec/gnubin/date --date="${*}" +%s)
     if ! [[ ${expiration_date} =~ ^-?[0-9]+$ ]]; then
       echo "Unable to create expiration date from \"${*}\"."
       return 1

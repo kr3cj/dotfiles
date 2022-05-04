@@ -3,15 +3,15 @@ LOG3=/var/tmp/workstation_setup_$(date +%Y-%m-%d).log
 (
   # the purpose of this script is to house all macos workstation customizations requiring access to dotfiles_private
   echo "first, check that we are authenticated to password manager."
-  op get account > /dev/null || ( echo "Not logged into password manager; quitting" && exit 1)
+  op vault list > /dev/null || ( echo "Not logged into password manager; quitting" && exit 1)
 
   # now we can install any private repos with private ssh key
   # load personal ssh key if necessary
   if ! ssh-add -l | grep -q "/.ssh/id_rsa_personal\ ("; then
     (umask 177
-    op get item id_rsa_personal --fields notes > ~/.ssh/id_rsa_personal
+    op item get id_rsa_personal --field notesPlain | sed 's/"//g' > ~/.ssh/id_rsa_personal
     )
-    passman id_rsa_personal Passphrase
+    op item get id_rsa_personal --field Passphrase | pbcopy
     ssh-add -t 36000 -k ~/.ssh/id_rsa_personal
     rm -f ~/.ssh/id_rsa_personal
   fi
@@ -29,46 +29,28 @@ LOG3=/var/tmp/workstation_setup_$(date +%Y-%m-%d).log
 
   asdf install
   # heptio-authenticator-aws, aws-iam-authenticator, kubesec, minikube, python, ruby, trerraform, terragrunt, vault
-  # brew install kubectx # depends on kubernetes-cli
-  # kubectl plugins: krew
-  # (
-  #   set -x; cd "$(mktemp -d)" &&
-  #   curl -fsSLO "https://github.com/kubernetes-sigs/krew/releases/latest/download/krew.tar.gz" &&
-  #   tar zxvf krew.tar.gz &&
-  #   KREW=./krew-"$(uname | tr '[:upper:]' '[:lower:]')_amd64"
-  #   ${KREW} install krew
-  #   ${KREW} update
-  # )
-  # for krew_plugin in datadog node-admin outdated rolesum Rakkess; do
-  #   kubectl krew install ${krew_plugin}
-  # done
 
   # install helm plugin for Visual Studio Code
-  # TODO: fix reliance on saml2aws via function name override?
   # manually add asdf pat
-  ~/.asdf/shims/helm init
   for plugin1 in \
-   technosophos/helm-template \
    lrills/helm-unittest \
    databus23/helm-diff \
-   futuresimple/helm-secrets \
    aslafy-z/helm-git ; do
      ~/.asdf/shims/helm plugin install https://github.com/${plugin1}
   done
 
-  # install otp client for mfa
-  brew install oath-toolkit
+  # configure otp client for mfa (oath-toolkit)
   (
     cd ~/.homesick/repos/otp-cli/
     sudo ln -s $( echo "$( pwd )/otp-cli" ) $(brew --prefix)/bin/otp-cli
-    chmod 700 -c ~/otp-cli/tokens
-    chmod 400 -c ~/otp-cli/tokens/${CUSTOM_WORK_SSO_PROVIDER}
+    $(brew --prefix coreutils)/libexec/gnubin/chmod -c 700 ~/otp-cli/tokens
+    $(brew --prefix coreutils)/libexec/gnubin/chmod -c 400 ~/otp-cli/tokens/${CUSTOM_WORK_SSO_PROVIDER}
   )
 
   # mas is a CLI for AppStore installs/updates
   if [[ ${GHA_CI_RUN} != true ]]; then
     echo "Prepare to sign into \"App Store.app\" manually..."
-    passman Apple
+    op item get Apple --field password | pbcopy
     # mas signin apple@${CUSTOM_HOME_DOMAIN} # disabled on macos 10.15.x+
     open -a "App Store"
 

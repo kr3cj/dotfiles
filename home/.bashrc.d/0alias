@@ -133,6 +133,11 @@ function _throttle()
 }
 
 if [[ "${IS_MACOS}" == "true" ]]; then
+  BREWBIN_PATH="/usr/local/bin/brew"
+  [[ "${IS_ARM}" == "true" ]] && BREWBIN_PATH="/opt/homebrew/bin/brew"
+  BASE_PATH="$(${BREWBIN_PATH} --prefix)"
+  export PATH="${BASE_PATH}/bin:${BASE_PATH}/opt/asdf/libexec/bin/asdf:${LOG_NAME}/.asdf/shims:${PATH}"
+
   alias curl="$(brew --prefix curl)/bin/curl"
   # since the path file hasn't been sourced yet, use absolute paths to ls for macos
   alias ls="$(brew --prefix coreutils)/libexec/gnubin/ls -G --color=auto"
@@ -157,16 +162,10 @@ if [[ "${IS_MACOS}" == "true" ]]; then
   function argod () {
     local uri
     case ${1} in
-      barrel)
-        uri=https://argo-workflow.int.ibops.net/workflows ;;
-      apollo)
-        uri=https://argo-workflow.int.staging.ibops.net/workflows ;;
-      cats)
-        uri=https://argo-workflow.pay.staging.ibops.net/workflows ;;
-      epoxi)
-        uri=https://argo-workflow.pay.ibops.net/login/workflows ;;
       dawn)
-        uri=https://argo-workflow.ops.int.ibops.net/workflows ;;
+        uri=https://argo-workflow.ops.int.${CUSTOM_WORK_DOMAINS[1]}/workflows ;;
+      nancy)
+        uri=https://argo-workflow.ops.int.staging.${CUSTOM_WORK_DOMAINS[1]}/workflows ;;
       *)
         echo "Could not find a matching cluster config for \"${1}\"."
         exit 1 ;;

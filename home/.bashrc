@@ -52,5 +52,3 @@ if [[ -d ${HOME}/.bashrc.d ]]; then
   done
   unset dotd
 fi
-
-[ -f ~/.fzf.bash ] && source ~/.fzf.bash

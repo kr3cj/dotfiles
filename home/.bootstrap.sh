@@ -23,11 +23,6 @@ if [[ $(uname) == "Darwin" ]] ; then
   echo -e "\nOpen work software manager, search for Xcode Command Line Developer Tools and click on Install"
   echo "When finished, press enter key to continue"
   read -k1 -s
-
-
-  echo -e "\nInstalling Homebrew..."
-  NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)" # TODO: make non-interactive
-  brew install git
 elif [[ $(uname) == "Linux" ]] ; then
   if [[ -f /etc/redhat-release ]] ; then
     sudo yum install git -y
