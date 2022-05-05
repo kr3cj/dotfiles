@@ -109,6 +109,19 @@ function port {
     || (>&2 echo "failure"; return 1)
 }
 
+function sudo()
+{
+  if session_is_active sudo; then
+    echo "Should already be authenticated to sudo..."
+  else
+    session_is_active sudo "890 seconds" || true
+    echo ""
+    read -p "Push enter when sudo is auth'd by corporate software..."
+  fi
+  passman "${CUSTOM_WORK_DOMAINS[0]/.com/} macbook"
+  $(which sudo) ${@}
+}
+
 function _throttle()
 {
   if [[ "${#}" -lt 2 ]]; then

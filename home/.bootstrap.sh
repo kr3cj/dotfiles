@@ -1,8 +1,7 @@
 #!/bin/zsh
 # the purpose of this script is to install my homeshick dotfiles from github
 
-echo -e "\nNeed sudo access before continuing; press enter key to continue"
-read -k1 -s
+read -p "Push enter when sudo is auth'd by corporate software..."
 sudo -l
 # disabling in favor of corporate security method
 # read -p "Warn security teams at work before proceeding as it trips alerts; press enter key to continue"
@@ -22,8 +21,7 @@ if [[ $(uname) == "Darwin" ]] ; then
   xcode-select --install # TODO: make non-interactive
   # sudo xcode-select --switch /Library/Developer/CommandLineTools
   echo -e "\nOpen work software manager, search for Xcode Command Line Developer Tools and click on Install"
-  echo "When finished, press enter key to continue"
-  read -k1 -s
+  read -p "When finished, press enter key to continue"
 elif [[ $(uname) == "Linux" ]] ; then
   if [[ -f /etc/redhat-release ]] ; then
     sudo yum install git -y

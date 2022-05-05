@@ -42,6 +42,7 @@ LOG3=/var/tmp/workstation_setup_$(date +%Y-%m-%d).log
   # configure otp client for mfa (oath-toolkit)
   (
     cd ~/.homesick/repos/otp-cli/
+    read -p "Push enter when sudo is auth'd by corporate software..."
     sudo ln -s $( echo "$( pwd )/otp-cli" ) $(brew --prefix)/bin/otp-cli
     $(brew --prefix coreutils)/libexec/gnubin/chmod -c 700 ~/otp-cli/tokens
     $(brew --prefix coreutils)/libexec/gnubin/chmod -c 400 ~/otp-cli/tokens/${CUSTOM_WORK_SSO_PROVIDER}
