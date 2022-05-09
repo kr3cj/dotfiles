@@ -24,13 +24,16 @@ alias docker-clean="sudo docker system prune --all --force --volumes"
 
 function docker-reset () {
   [[ -f docker-compose.yml || -f docker-compose.yaml ]] && docker-compose down --remove-orphans
-  sudo docker stop $(sudo docker container ls -a -q)
-  sudo docker system prune --all --force --volumes
+  docker stop $(docker container ls -a -q)
+  docker system prune --all --force --volumes
+  colima stop
+  colima delete
+  colima start
 
   ${IS_LINUX} && sudo systemctl restart docker.service
   # ${IS_MACOS} && (echo -e "\nRestarting docker... (wait 1 min)" && killall Docker && open /Applications/Docker.app && sleep 60)
 
-  sudo docker ps -a
+  docker ps -a
 }
 
 # when connected to saml2aws using certain rolearns, auth to ECR if necessary

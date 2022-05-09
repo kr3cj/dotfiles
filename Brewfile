@@ -64,6 +64,7 @@ brew "mtr"
 brew "nmap"
 brew "oath-toolkit"
 brew "pstree"
+brew "shellcheck"
 brew "sslyze" # no bottle for Apple Silicon
 brew "step"
 brew "tmux"

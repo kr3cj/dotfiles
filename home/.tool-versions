@@ -15,7 +15,7 @@ nova 3.0.2
 python 3.10.4
 saml2aws 2.35.0
 # sopstool 0.4.2
- # TODO: failed for arm64
+# TODO: failed for arm64
 terraform 0.12.31
 terraform-docs 0.16.0
 # tfenv 2.0.0

@@ -22,7 +22,7 @@ esac
 alias egrep='egrep --color=auto'
 alias fgrep='fgrep --color=auto'
 alias grep='grep --color=auto'
-alias ducks="sudo du -cshx ./ | sort -h"
+alias ducks="du -cshx ./ | sort -h"
 alias cdd="homeshick cd dotfiles"
 alias cdp="homeshick cd dotfiles_private"
 alias pp="source ~/.bash_profile"
@@ -158,7 +158,6 @@ if [[ "${IS_MACOS}" == "true" ]]; then
   alias srm="/bin/rm -vP"
   alias slack="open -a Slack"
   alias spotify="open -a Spotify"
-  # alias pia="nohup ~/.pia_manager/pia_manager.app/Contents/MacOS/runner.sh >/dev/null 2>&1 &"
   # alias gphoto="open --background -a \"Google Photos Backup\""
   # alias gphoto="open --background -a \"Backup and Sync\""
 

@@ -97,15 +97,14 @@ if ${IS_MACOS}; then
   echo "Remove this stuff that I don't use on macos"
   sudo rm -rf /Applications/{iMovie.app,GarageBand.app,Pages.app,Numbers.app}
 
-  # TODO: use openvpn to connect to PIA via CLI
+  # docker/colima
+  # mkdir -p ~/.docker
+  colima start
+
+  # TODO: use openvpn to connect to Mullvad via CLI
   #  https://helpdesk.privateinternetaccess.com/hc/en-us/articles/219437987-Installing-OpenVPN-PIA-on-MacOS
   # old google-photos-backup available at
   #  https://onedrive.live.com/?authkey=%21AACjGt3FG05pkGM&cid=8E2F81FF61FCF79E&id=8E2F81FF61FCF79E%21104613&parId=8E2F81FF61FCF79E%2187733&o=OneUp
-
-  # https://developer.mozilla.org/en-US/docs/Mozilla/Command_Line_Options
-  echo "Lock down firefox about:config
-    browser.search.defaultenginename
-  "
 
     # install atom editor plugins
   # apm install auto-update-packages open-terminal-here minimap language-hcl \
@@ -124,6 +123,7 @@ EOF
     GitHub.vscode-pull-request-github \
     hashicorp.terraform \
     ms-python.python \
+    redhat.vscode-yaml \
     timonwong.shellcheck \
     ; do
     echo "code --install-extension ${extension1} --verbose" >> /var/tmp/vscode_installs.sh
