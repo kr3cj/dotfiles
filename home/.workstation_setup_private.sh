@@ -39,15 +39,6 @@ LOG3=/var/tmp/workstation_setup_$(date +%Y-%m-%d).log
      ~/.asdf/shims/helm plugin install https://github.com/${plugin1}
   done
 
-  # configure otp client for mfa (oath-toolkit)
-  (
-    cd ~/.homesick/repos/otp-cli/
-    read -p "Push enter when sudo is auth'd by corporate software..."
-    sudo ln -s $( echo "$( pwd )/otp-cli" ) $(brew --prefix)/bin/otp-cli
-    $(brew --prefix coreutils)/libexec/gnubin/chmod -c 700 ~/otp-cli/tokens
-    $(brew --prefix coreutils)/libexec/gnubin/chmod -c 400 ~/otp-cli/tokens/${CUSTOM_WORK_SSO_PROVIDER}
-  )
-
   # mas is a CLI for AppStore installs/updates
   if [[ ${GHA_CI_RUN} != true ]]; then
     echo "Prepare to sign into \"App Store.app\" manually..."

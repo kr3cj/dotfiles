@@ -48,9 +48,8 @@ function passman() {
 
 function otp {
   [[ ${VERBOSE} -ge 1 ]] && \
-    echo "Running: op item get --otp \"${1}\" | cut -c1-6 | tr -d '\n' | pbcopy"
-  op item get --otp "${1}" --cache --session ${OP_SESSION_my} | cut -c1-6 | tr -d '\n' | pbcopy
-  # otp-cli show -1 -c -s ${CUSTOM_WORK_SSO_PROVIDER} | awk '/[0-9].*/{print $2}'
+    echo "Running: op item get --otp \"${1}\" --cache --session ${OP_SESSION_my}"
+  op item get --otp "${1}" --cache --session ${OP_SESSION_my}
 }
 
 

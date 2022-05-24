@@ -117,9 +117,12 @@ function work_saml2aws {
     # ${HOME}/.asdf/shims/saml2aws exec -- aws sts get-caller-identity --query Arn --output text > /dev/null
 
     # --mfa-token not supported yet for ${CUSTOM_WORK_SSO_PROVIDER}
-    # otp "${CUSTOM_WORK_DOMAINS[0]/.com/} ${CUSTOM_WORK_SSO_PROVIDER}"
-    otp-cli show -1 -c -s ${CUSTOM_WORK_SSO_PROVIDER} # | awk '/[0-9].*/{print $2}'
-    saml login --skip-prompt # remove --skip-prompt once when pw is changed
+    # uncomment pbcopy once saml2aws over asdf on arm64 uses keychain
+    otp "${CUSTOM_WORK_DOMAINS[0]/.com/} ${CUSTOM_WORK_SSO_PROVIDER} saml2aws" # | pbcopy
+    # remove once ""
+    passman "${CUSTOM_WORK_DOMAINS[0]/.com/} ${CUSTOM_WORK_SSO_PROVIDER} saml2aws"
+
+    saml login # --skip-prompt # remove --skip-prompt once when pw is changed
     if [[ ${?} == 0 ]]; then
       session_is_active saml "${SAML2AWS_SESSION_DURATION} seconds" || true
       docker-login
@@ -141,10 +144,10 @@ function work_vpn {
       echo ""
       unmount_home_nfs
 
+      /opt/cisco/anyconnect/bin/vpn disconnect vpn.${CUSTOM_WORK_DOMAINS[0]}
       # echo "Killing gui"
       pgrep -f AnyConnect
       pkill -f AnyConnect
-      /opt/cisco/anyconnect/bin/vpn disconnect vpn.${CUSTOM_WORK_DOMAINS[0]}
 
       # make sure we are authenticated to password manager
       export OP_SESSION_my="$(head -n1 ~/.pm_session_token)";
@@ -154,7 +157,7 @@ function work_vpn {
         echo connect vpn.${CUSTOM_WORK_DOMAINS[0]}
         echo ${LOGNAME}@${CUSTOM_WORK_DOMAINS[0]}
         op item get "${CUSTOM_WORK_DOMAINS[0]/.com/} ${CUSTOM_WORK_SSO_PROVIDER}" --fields "password" --cache --session ${OP_SESSION_my}
-        op item get --otp "${CUSTOM_WORK_DOMAINS[0]/.com/} ${CUSTOM_WORK_SSO_PROVIDER}" --cache --session ${OP_SESSION_my} | cut -c1-6
+        otp "${CUSTOM_WORK_DOMAINS[0]/.com/} ${CUSTOM_WORK_SSO_PROVIDER}"
       )
     fi
   fi

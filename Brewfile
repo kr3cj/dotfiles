@@ -54,6 +54,7 @@ brew "certigo"
 brew "cfssl"
 brew "colima"
 brew "docker"
+brew "docker-compose"
 # brew "dos2unix"
 # brew "etcher-cli"
 brew "fzf"
@@ -93,24 +94,24 @@ brew "rbenv"
 brew "ruby"
 brew "ruby-build"
 # brew "svn"
-# brew terraform_landscape
+# brew "terraform_landscape"
 brew "tfenv"
 # brew "travis"
 
 ### dont use these anymore
-# brew aria2 # torrent_client(aria2c)
-# brew awless # no longer maintained (cask "wallix/awless")
-# brew fleetctl
-# brew go-jira
-# brew lastpasscli
+# brew "aria2" # torrent_client(aria2c)
+# brew "awless" # no longer maintained (cask "wallix/awless")
+# brew "fleetctl"
+# brew "go-jira"
+# brew "lastpasscli"
+# brew "macvim" --with-override-system-vim --custom-system-icons
 # brew link --overwrite macvim
 # brew linkapps macvim
-# brew openshift-cli
-# brew macvim --with-override-system-vim --custom-system-icons
-# brew nano
-# brew packer
-# brew vault
-# brew zsh
+# brew "nano
+# brew "openshift-cli"
+# brew "packer"
+# brew "vault"
+# brew "zsh"
 
 ### install these using corporate installer
 # slack zoom

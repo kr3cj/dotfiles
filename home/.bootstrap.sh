@@ -18,9 +18,13 @@ if [[ $(uname) == "Darwin" ]] ; then
   echo -e "\nInstalling xcode..."
   # use app store instead if xcode isn't updated by softwareupdate?
   # https://apple.stackexchange.com/questions/341706/cant-update-developer-tools-on-mojavehttps://apple.stackexchange.com/questions/341706/cant-update-developer-tools-on-mojave
-  xcode-select --install # TODO: make non-interactive
+  xcode-select --install # TODO: make non-interactive; equivalent of "Xcode Command Line Developer Tools"
   # sudo xcode-select --switch /Library/Developer/CommandLineTools
-  echo -e "\nOpen work software manager, search for Xcode Command Line Developer Tools and click on Install"
+  # echo -e "\nOpen work software manager, search for Xcode Command Line Developer Tools and click on Install"
+  if ! [[ -d /Library/Developer/CommandLineTools/Library ]]; then
+    echo "You need to run \"xcode-select --install\"! Aborting!"
+    exit 1
+  fi
   read -p "When finished, press enter key to continue"
 elif [[ $(uname) == "Linux" ]] ; then
   if [[ -f /etc/redhat-release ]] ; then
@@ -42,7 +46,7 @@ fi
 hash homeshick 2> /dev/null || source ${HOME}/.homesick/repos/homeshick/homeshick.sh
 
 # sudermanjr/tmux-kube
-for public_repo in kr3cj/dotfiles kr3cj/liquidprompt rfocosi/otp-cli; do
+for public_repo in kr3cj/dotfiles kr3cj/liquidprompt; do
   if homeshick list | grep -q ${public_repo}; then
     # must trim long git URIs to just repo name
     homeshick --batch pull $(echo ${public_repo/*\//} | sed -e "s/\.git$//")
