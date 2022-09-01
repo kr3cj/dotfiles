@@ -55,17 +55,33 @@ function k() {
     *get?po*|*get?rollouts*)
       action="${action} --sort-by=.metadata.creationTimestamp" ;;
     *get?no*)
-      action="${action} --label-columns=\
-eks.amazonaws.com/nodegroup-image,node.kubernetes.io/instance-type,\
-failure-domain.beta.kubernetes.io/zone,nodegroup_name,\
-function,node-lifecycle \
---sort-by=.metadata.creationTimestamp"
-# --sort-by={.metadata.labels.function,.metadata.creationTimestamp} ignores first field
-# -ojsonpath={range $.items[*]}{.metadata.name}{.spec.taints.eks\.amazonaws\.com/nodegroup=unschedulable{\"\n\"}{end}'"
+      action="${action} --sort-by=.metadata.creationTimestamp \
+--label-columns=\
+eks.amazonaws.com/nodegroup-image,\
+node.kubernetes.io/instance-type,\
+failure-domain.beta.kubernetes.io/zone,\
+nodegroup_name,\
+function,\
+node-lifecycle"
+# -o=custom-columns=\
+# NAME:.metadata.name,\
+# UNSCHEDULABLE?:spec.unschedulable,\
+# START_TIME:.metadata.creationTimestamp,\
+# KUBELET:.status.nodeInfo.kubeletVersion,\
+# IMAGE:\".metadata.labels.eks\.amazonaws\.com/nodegroup-image\",\
+# TYPE:\".metadata.labels.node\.kubernetes\.io/instance-type\",\
+# NODEGROUP:.metadata.labels.nodegroup_name,\
+# FUNCTION:.metadata.labels.function,\
+# LIFECYCLE:.metadata.labels.node-lifecycle,\
+# AZ_AND_INSTANCE_ID:.spec.providerID,\
+# SCALE_DOWN_DISABLED?:\".metadata.annotations.cluster-autoscaler\.kubernetes\.io/scale-down-disabled\",\
+# UNSCHEDULABLE?:.spec.taints[?(@.key=='eks.amazonaws.com/nodegroup')].value"
+# info on SCALE_DOWN_DISABLED: https://github.com/aws/containers-roadmap/issues/916
+# info on UNSCHEDULABLE: https://docs.aws.amazon.com/eks/latest/userguide/managed-node-update-behavior.html#managed-node-update-scale-up
+
+# -ojsonpath=\
+# {range $.items[*]}{.metadata.name}{.spec.taints.eks\.amazonaws\.com/nodegroup=unschedulable{\"\n\"}{end}'"
 # another taint we use on proxy nodes: node-upgrading=true:NoSchedule
-# TODO: show annotation "cluster-autoscaler.kubernetes.io/scale-down-disabled" from aws/containers-roadmap/issues/916
-# aws.amazon.com/spot
-# -ocustom-columns=INSTANCE_ID:.spec.providerID \
       ;;
     *)
       [[ ${VERBOSE} -ge 1 ]] && echo "matched global"
@@ -220,6 +236,8 @@ function _get_latest_version_from_github()
 
 # show counts of unique images/versions by namespace (watch is helpful for rollouts)
 # watch "kubectl -n operations get po --sort-by=.metadata.creationTimestamp -o jsonpath='{..image}' | tr -s '[[:space:]]' '\n' | sort | uniq -c"
+# all namespaces except default
+# kubectl --context dawn get po --all-namespaces --field-selector=metadata.namespace!=default -o jsonpath='{..image}' | tr -s '[[:space:]]' '\n' | sort | uniq -c
 
 # show counts of unique images/version for kubelet
 # kubectl --kubeconfig get no --sort-by=.metadata.creationTimestamp -o jsonpath='{..kubeletVersion}' | tr -s '[[:space:]]' '\n' | sort | uniq -c

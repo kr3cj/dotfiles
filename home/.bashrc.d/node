@@ -1,5 +1,9 @@
 [[ $- = *i* ]] || return
 ${IS_MACOS} || return
 
+export NVM_DIR="$HOME/.nvm"
+[ -s "$(brew --prefix)/opt/nvm/nvm.sh" ] && \. "$(brew --prefix)/opt/nvm/nvm.sh"  # This loads nvm
+[ -s "$(brew --prefix)/opt/nvm/etc/bash_completion.d/nvm" ] && \. "$(brew --prefix)/opt/nvm/etc/bash_completion.d/nvm"  # This loads nvm bash_completion
+
 export NPM_REPO_LOGIN="deployer:${CUSTOM_WORK_NPM_MVN_AUTH}"
 export MASTER_GENERATOR_LOGIN="developer:${CUSTOM_WORK_MSG_AUTH}"

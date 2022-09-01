@@ -9,8 +9,12 @@ ${HEALTHY_INTERNET} || return
 ip_address=""
 at_work="false"
 at_home="false"
-is_weekend="false"
-[[ $(date +%a) =~ (Sat|Sun) ]] && is_weekend="true"
+is_weekend=""
+if [[ $(date +%a) =~ (Sat|Sun) && -z ${is_weekend} ]]; then
+  is_weekend="true"
+else
+  is_weekend="false"
+fi
 
 # grab all ip addresses
 ip_address=$(/sbin/ifconfig 2> /dev/null | grep 'inet ' | grep -v '127.0.0.1' | awk '{print $2}' | tr "\n" ' ')
@@ -120,7 +124,7 @@ function work_saml2aws {
     # uncomment pbcopy once saml2aws over asdf on arm64 uses keychain
     otp "${CUSTOM_WORK_DOMAINS[0]/.com/} ${CUSTOM_WORK_SSO_PROVIDER} saml2aws" # | pbcopy
     # remove once ""
-    passman "${CUSTOM_WORK_DOMAINS[0]/.com/} ${CUSTOM_WORK_SSO_PROVIDER} saml2aws"
+    passman "${CUSTOM_WORK_DOMAINS[0]/.com/} ${CUSTOM_WORK_SSO_PROVIDER}"
 
     saml login # --skip-prompt # remove --skip-prompt once when pw is changed
     if [[ ${?} == 0 ]]; then
@@ -144,10 +148,16 @@ function work_vpn {
       echo ""
       unmount_home_nfs
 
-      /opt/cisco/anyconnect/bin/vpn disconnect vpn.${CUSTOM_WORK_DOMAINS[0]}
+      # TODO: why does this command take ~2min sometimes
+      time /opt/cisco/anyconnect/bin/vpn disconnect vpn.${CUSTOM_WORK_DOMAINS[0]}
       # echo "Killing gui"
       pgrep -f AnyConnect
       pkill -f AnyConnect
+
+      if ! $(port vpn.${CUSTOM_WORK_DOMAINS[0]}:443 &> /dev/null); then
+        echo "ERROR: Skipping ${FUNCNAME[0]}; unable to connect to \"vpn.${CUSTOM_WORK_DOMAINS[0]}:443\"."
+        return 1
+      fi
 
       # make sure we are authenticated to password manager
       export OP_SESSION_my="$(head -n1 ~/.pm_session_token)";

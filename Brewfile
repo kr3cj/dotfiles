@@ -1,6 +1,7 @@
 tap "homebrew/bundle"
 tap "homebrew/cask"
 tap "homebrew/core"
+tap "aws/tap"
 
 ### base software (gnu core utilities)
 brew "coreutils"
@@ -56,6 +57,7 @@ brew "colima"
 brew "docker"
 brew "docker-compose"
 # brew "dos2unix"
+brew "ec2-instance-selector"
 # brew "etcher-cli"
 brew "fzf"
 brew "gnu-getopt"
