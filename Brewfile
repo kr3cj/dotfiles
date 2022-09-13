@@ -89,7 +89,7 @@ brew "jid"
 brew "make"
 brew "maven"
 # brew "mysql-client"
-brew "node"
+# brew "node"
 # brew "perl518" # tap homebrew/versions
 brew "python@3.10"
 brew "rbenv"

@@ -86,6 +86,7 @@ LOG3=/var/tmp/workstation_setup_$(date +%Y-%m-%d).log
     # Disable user interface sounds (screnshots, emptying trash)
     defaults write com.apple.systemsound "com.apple.sound.uiaudio.enabled" -int 0
     # TODO: add iterm.app to "System Preferences > Security & Privacy > Privacy > Full Disk Access"
+    echo "Give Full Disk Access permission to iTerm.app"
   fi
 
   if [[ ${GHA_CI_RUN} != true ]]; then

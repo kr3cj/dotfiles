@@ -121,6 +121,7 @@ if [[ $(uname) == "Darwin" ]] ; then
   $(brew --prefix findutils)/libexec/gnubin/find ~/.Trash/ -type d -delete
 
   # brew cask cleanup
+  brew autoremove
   brew doctor
   brew cleanup -s
   # docker docker-machine docker-compose

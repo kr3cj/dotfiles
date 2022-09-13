@@ -90,14 +90,14 @@ function get-latest-eks-ami-release-version() {
     jq -r '.serverVersion.major + "." + .serverVersion.minor' | sed 's/+$//g')"
   local desired_kube_version="${1:-$current_kube_version}"
 
-  aws ec2 --profile="${CUSTOM_WORK_IAM_PROFILE_PREFIX}-microservices-staging" describe-images --owners amazon \
-   --image-ids "$(aws ssm --profile=${CUSTOM_WORK_IAM_PROFILE_PREFIX}-microservices-staging get-parameters \
+  aws ec2 --profile="${CUSTOM_WORK_IAM_PROFILE_PREFIX%admin}-microservices-staging" describe-images --owners amazon \
+   --image-ids "$(aws ssm --profile=${CUSTOM_WORK_IAM_PROFILE_PREFIX%admin}-microservices-staging get-parameters \
     --names /aws/service/eks/optimized-ami/${desired_kube_version%+}/amazon-linux-2/recommended/image_id \
     --region us-east-1 | jq -r '.Parameters[0].Value')" | jq -r '.Images[0].Name'
 }
 
 function get-all-eks-ami-release-versions-and-ids() {
-  local the_profile="${IBEX_PROFILE:-${CUSTOM_WORK_IAM_PROFILE_PREFIX}-microservices-staging}"
+  local the_profile="${IBEX_PROFILE:-${CUSTOM_WORK_IAM_PROFILE_PREFIX%admin}-microservices-staging}"
   if [[ -z ${IBEX_PROFILE} ]]; then
     echo -e "\${IBEX_PROFILE} not set so I defaulted profile to \"${the_profile}\"; ymmv\n"
   fi
@@ -126,7 +126,7 @@ function get-all-eks-ami-release-versions-and-ids() {
 }
 
 function show-domain-registration-expirations() {
-  for profile1 in $(grep \ ${CUSTOM_WORK_IAM_PROFILE_PREFIX}- ~/.aws/config \
+  for profile1 in $(grep \ ${CUSTOM_WORK_IAM_PROFILE_PREFIX%admin}- ~/.aws/config \
    | awk '{print $2}' | sed 's/]^//g'); do
     echo ${profile1%]}
     aws --profile ${profile1%]} route53domains list-domains | \
@@ -135,7 +135,7 @@ function show-domain-registration-expirations() {
 }
 
 function show-acm-cert-expirations() {
-  for profile1 in $(grep \ ${CUSTOM_WORK_IAM_PROFILE_PREFIX}- ~/.aws/config \
+  for profile1 in $(grep \ ${CUSTOM_WORK_IAM_PROFILE_PREFIX%admin}- ~/.aws/config \
    | awk '{print $2}' | sed 's/]^//g'); do
     echo ${profile1%]}
     for arn1 in $(aws --profile ${profile1%]} acm list-certificates --max-items 100 \

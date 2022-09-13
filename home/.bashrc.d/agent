@@ -5,11 +5,10 @@ ${IS_MACOS} || return
 find -L ~/.ssh/ -type f -exec chmod -c 600 '{}' \;
 find -L ~/.ssh/ -type d -exec chmod -c 700 '{}' \;
 
-# ${IS_MACOS} || return
 ${HEALTHY_INTERNET} || return
 
-# ssh agent startup (rarely works reliably; but utilizing the native launchd instead works fine)
-# TODO: convert to launchctl https://www.packetmischief.ca/2016/09/06/ssh-agent-on-os-x/
+# ssh agent startup is unreliable; utilizing the native launchd instead works fine
+# TODO: convert to launchctl? https://www.packetmischief.ca/2016/09/06/ssh-agent-on-os-x/
 # if ! [[ -S ${SSH_AUTH_SOCK} ]]; then
 #   cat << EOF
 #   echo "Silly ssh-agent ..."
@@ -38,7 +37,7 @@ function _load_ssh_key_from_passman () {
   [[ ${VERBOSE} -ge 1 ]] && \
     echo "Running ${FUNC_NMAE[0]} with \"${key}\"..."
   # reload ssh keys into agent daily from lastpass
-  if ! $(ssh-add -l 2> /dev/null | grep -q "/.ssh/id_rsa${key}\ ("); then
+  if ! $(ssh-add -l 2> /dev/null | grep -q "/.ssh/id_rsa${key} ("); then
     # TODO: better integrate passphrase from passman? https://svkt.org/~simias/lpass/#ssh-agent
     export OP_SESSION_my="$(head -n1 ~/.pm_session_token)"
     _passman_needs_auth || _passman_auth
@@ -62,14 +61,16 @@ function _load_ssh_key_from_passman () {
     )
   fi
 }
+function ssh-keys () {
+  for ssh_key in "" _personal ; do
+    _load_ssh_key_from_passman ${ssh_key}
+  done
+}
 
 is_weekend="false"
 [[ $(date +%a) =~ (Sat|Sun) ]] && is_weekend="true"
-
 ${is_weekend} && return
-for ssh_key in "" _personal ; do
-  _load_ssh_key_from_passman ${ssh_key}
-done
+ssh-keys
 # [[ ${at_work} || $(port ${CUSTOM_WORK_K8S_DOMAIN}:443 &>/dev/null) ]] \
 #   && for ssh_key in _k8s-prod _k8s-staging _k8s-dawn; do
 #     _load_ssh_key_from_passman ${ssh_key}
