@@ -119,6 +119,7 @@ if ${IS_MACOS}; then
 #!$(which bash)
 EOF
   for extension1 in \
+    DavidAnson.vscode-markdownlint \
     eamodio.gitlens \
     GitHub.vscode-pull-request-github \
     hashicorp.terraform \
