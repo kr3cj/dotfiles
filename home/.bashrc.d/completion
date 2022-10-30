@@ -7,6 +7,7 @@
 if ! shopt -oq posix; then
   if [[ -f $(brew --prefix)/etc/bash_completion ]]; then
     # brew
+    # removed /opt/homebrew/etc/bash_completion.d/docker to get around errors
     source $(brew --prefix)/etc/bash_completion
   elif [[ -f /usr/share/bash-completion/bash_completion ]]; then
     # apple
@@ -20,10 +21,6 @@ fi
 #Use history for up and down arrow
 #bind '"\e[A": history-search-backward'
 #bind '"\e[B": history-search-forward'
-
-${IS_MACOS} || return
-[[ -f $(brew --prefix)/etc/bash_completion ]] && \
-  source $(brew --prefix)/etc/bash_completion
 
 # if [[ -d $(brew --prefix)/etc/bash_completion.d ]]; then
 #   for file1 in $(find $(brew --prefix)/etc/bash_completion.d -follow -type f); do

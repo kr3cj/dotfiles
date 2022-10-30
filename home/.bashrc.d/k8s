@@ -22,6 +22,8 @@ source <(kubectl completion bash | sed 's/kubectl/k/g' )
 source ~/.private-utils.sh
 
 pathadd ${HOME}/build/github/ibex
+# https://github.com/jimmidyson/asdf-krew/issues/3
+# pathadd ${HOME}/.asdf/installs/krew/$(asdf list krew | tail -fn1)/bin
 
 function k() {
   local cluster=${1}

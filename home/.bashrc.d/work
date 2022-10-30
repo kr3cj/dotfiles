@@ -108,10 +108,10 @@ function unmount_home_nfs {
 function mount_home_nfs {
     mount | grep -q "Documents/share1" || mount -t nfs -o \
       vers=4,rw,soft,intr,bg,rwsize=32768,dsize=32768 \
-      ${CUSTOM_HOME_NAS_HOST}:/share ~/Documents/share1
+      ${CUSTOM_HOME_NAS_HOST}:/mnt/media/share ~/Documents/share1
     mount | grep -q "Pictures/share1" || mount -t nfs -o \
       vers=4,rw,soft,intr,bg,rwsize=32768,dsize=32768 \
-      ${CUSTOM_HOME_NAS_HOST}:/share/pictures ~/Pictures/share1
+      ${CUSTOM_HOME_NAS_HOST}:/mnt/media/share/pictures ~/Pictures/share1
     # add printer
     # see https://www.jamf.com/jamf-nation/discussions/31099/adding-printer-to-mac-via-terminal-command-line-for-airprint
     # lpadmin -p canon_mg5220 -L "canon_mg5220" -E -v lpd://printer.${CUSTOM_HOME_NAS_HOST#*\.} -m everywhere
@@ -173,7 +173,9 @@ function work_vpn {
   fi
 }
 
-${is_weekend} || work_saml2aws
+# only proceed on work system
+${IS_ARM} || return
+${is_weekend} && ${IS_ARM} || work_saml2aws
 ${is_weekend} || work_vpn
 ${at_work} && _create_socks_proxy "home.${CUSTOM_HOME_DOMAIN}" "2000"
 

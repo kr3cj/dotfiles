@@ -14,12 +14,13 @@ export SAML2AWS_SESSION_DURATION=43200 # 12 hour max for "saml2aws login"
 # export SAML2AWS_ROLE=${CUSTOM_WORK_IAM_ROLE}
 # export SAML2AWS_PROFILE=
 
+export base_profile="$(basename $(echo ${IBEX_PROFILE:-CUSTOM_WORK_IAM_ROLE##*/}) Login | tr [A-Z] [a-z])"
 
 function saml() {
   # saml2aws logins can have a max session duration of 12h, but role chaining can only have a max session duration of 1h
   local args
   # [[ ${@} =~ "--session-duration" ]] || args="--session-duration=${SAML2AWS_SESSION_DURATION}"
-  # [[ ${@} =~ "--role" ]] || args="${args} --role=${CUSTOM_WORK_IAM_ROLE}"
+  [[ ${@} =~ "--role" ]] || args="${args} --role=${CUSTOM_WORK_IAM_ROLE}"
   # [[ ${@} =~ "--mfa" ]] || args="${args} --mfa=${SAML2AWS_MFA}"
   [[ ${@} =~ "--config" ]] || args="${args} --config=${SAML2AWS_CONFIGFILE}"
   # [[ ${@} =~ "--skip-prompt" ]] || args="${args} --skip-prompt"
@@ -90,14 +91,13 @@ function get-latest-eks-ami-release-version() {
     jq -r '.serverVersion.major + "." + .serverVersion.minor' | sed 's/+$//g')"
   local desired_kube_version="${1:-$current_kube_version}"
 
-  aws ec2 --profile="${CUSTOM_WORK_IAM_PROFILE_PREFIX%admin}-microservices-staging" describe-images --owners amazon \
-   --image-ids "$(aws ssm --profile=${CUSTOM_WORK_IAM_PROFILE_PREFIX%admin}-microservices-staging get-parameters \
+  aws ec2 --profile=${base_profile} describe-images --owners amazon \
+   --image-ids "$(aws ssm --profile=${the_profile} get-parameters \
     --names /aws/service/eks/optimized-ami/${desired_kube_version%+}/amazon-linux-2/recommended/image_id \
     --region us-east-1 | jq -r '.Parameters[0].Value')" | jq -r '.Images[0].Name'
 }
 
 function get-all-eks-ami-release-versions-and-ids() {
-  local the_profile="${IBEX_PROFILE:-${CUSTOM_WORK_IAM_PROFILE_PREFIX%admin}-microservices-staging}"
   if [[ -z ${IBEX_PROFILE} ]]; then
     echo -e "\${IBEX_PROFILE} not set so I defaulted profile to \"${the_profile}\"; ymmv\n"
   fi
@@ -114,13 +114,13 @@ function get-all-eks-ami-release-versions-and-ids() {
   echo
 
   {
-    echo "ManagedNodeGroups UnmanagedNodeGroups"
-    echo "----------------- ---------------------"
+    echo "ManagedNodeGroups UnmanagedNodeGroups SsmParameter"
+    echo "----------------- --------------------- ----------------------------------------------"
     for param1 in $(aws ssm --profile=${the_profile} describe-parameters --region us-east-1 --max-items 100 \
                     --parameter-filters "Key=Path,Values=/aws/service/eks/optimized-ami/${desired_kube_version%+}/amazon-linux-2/" \
                     | jq -r '.Parameters[].Name' | grep -v recommended | sort -r); do
       aws ssm --profile=${the_profile} get-parameters --names ${param1} --region us-east-1 | \
-        jq -r '.Parameters[0].Value' | jq -r '.release_version + " " + .image_id'
+        jq -r '.Parameters[0].Value' | jq -r '.release_version + " " + .image_id + " " + .Name'
     done
   } | column -t
 }

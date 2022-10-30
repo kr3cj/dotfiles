@@ -123,6 +123,7 @@ EOF
     eamodio.gitlens \
     GitHub.vscode-pull-request-github \
     hashicorp.terraform \
+    moshfeu.compare-folders \
     ms-python.python \
     redhat.vscode-yaml \
     timonwong.shellcheck \

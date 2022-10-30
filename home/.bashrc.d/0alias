@@ -26,6 +26,7 @@ alias ducks="du -cshx ./ | sort -h"
 alias cdd="homeshick cd dotfiles"
 alias cdp="homeshick cd dotfiles_private"
 alias pp="source ~/.bash_profile"
+alias dmesg="dmesg --follow --ctime"
 
 function acp {
   cp -av ${1} ${1}.$(/bin/date +%Y-%m-%d)
@@ -111,14 +112,16 @@ function port {
 
 function sudo()
 {
-  if session_is_active sudo; then
-    echo "Should already be authenticated to sudo..."
-  else
-    session_is_active sudo "890 seconds" || true
-    echo ""
-    read -p "Push enter when sudo is auth'd by corporate software..."
+  if ${IS_ARM}; then
+    if session_is_active sudo; then
+      echo "Should already be authenticated to sudo..."
+    else
+      session_is_active sudo "890 seconds" || true
+      echo ""
+      read -p "Push enter when sudo is auth'd by corporate software..."
+    fi
+    passman "$(hostname) macbook"
   fi
-  passman "${CUSTOM_WORK_DOMAINS[0]/.com/} macbook"
   $(which sudo) ${@}
 }
 
@@ -156,6 +159,7 @@ if [[ "${IS_MACOS}" == "true" ]]; then
   alias ls="$(brew --prefix coreutils)/libexec/gnubin/ls -G --color=auto"
   alias ll="$(brew --prefix coreutils)/libexec/gnubin/ls -hl -G --color=auto"
   alias srm="/bin/rm -vP"
+  alias brewdeps="brew leaves | xargs brew deps --include-build --tree"
   alias slack="open -a Slack"
   alias spotify="open -a Spotify"
   # alias gphoto="open --background -a \"Google Photos Backup\""
@@ -288,7 +292,7 @@ if [[ "${IS_MACOS}" == "true" ]]; then
   }
 
   function weather {
-    curl https://wttr.in/Denver
+    curl https://wttr.in/${CUSTOM_HOME_ZIPCODE}
   }
 elif [[ "${IS_LINUX}" == "true" ]]; then
   alias ls="ls --color=auto"
