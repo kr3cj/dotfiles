@@ -52,7 +52,8 @@ function _create_socks_proxy {
   local host1=${1}
   local port1=${2}
   local test_url=${3:-"http://www.google.com"}
-  local ssh_proxy_options="-o ServerAliveInterval=30 -o ServerAliveCountMax=5 -f -N -D "
+  # local ssh_proxy_options="-o ServerAliveInterval=30 -o ServerAliveCountMax=5 -f -N -D "
+  local ssh_proxy_options="-f -N -D "
   [[ ${VERBOSE} -ge 1 ]] && ssh_proxy_options="-vvv ${ssh_proxy_options}"
   local ssh_proxy_response_file="/var/tmp/ssh_proxy_response.txt"
   # clear contents of response file
@@ -80,13 +81,6 @@ function _create_socks_proxy {
       echo "ERROR: Skipping ${FUNCNAME[0]}; unable to connect to \"${host1}:22\"."
       return 1
     fi
-    if [[ ${host1} == "home.${CUSTOM_HOME_DOMAIN}" || \
-    ${host1} == "proxy.${CUSTOM_HOME_NAS_HOST#*\.}" ]]; then
-      passman "proxy.${CUSTOM_HOME_NAS_HOST#*\.}"
-    fi
-    # ssh options moved to ~/.ssh/config
-    #  -o TCPKeepAlive=yes -o ConnectTimeout=1 -o ConnectionAttempts=1 \
-    #  -o ServerAliveInterval=120 -o ServerAliveCountMax=2 \
     /usr/bin/ssh ${ssh_proxy_options} ${port1} "${host1}" 2> ${ssh_proxy_response_file}
   fi
   if [[ -s ${ssh_proxy_response_file} ]]; then

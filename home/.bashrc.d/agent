@@ -69,7 +69,7 @@ function ssh-keys () {
 
 is_weekend="false"
 [[ $(date +%a) =~ (Sat|Sun) ]] && is_weekend="true"
-${is_weekend} && return
+# ${is_weekend} && return
 ssh-keys
 # [[ ${at_work} || $(port ${CUSTOM_WORK_K8S_DOMAIN}:443 &>/dev/null) ]] \
 #   && for ssh_key in _k8s-prod _k8s-staging _k8s-dawn; do
