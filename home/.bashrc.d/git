@@ -11,6 +11,8 @@ function gitp {
   current_branch="$(git rev-parse --abbrev-ref HEAD)"
   local desired_branch=${1:-${current_branch}}
 
+  [[ ${VERBOSE} -ge 1 ]] && echo "default_branch=${default_branch}; current_branch=${current_branch}; desired_branch=${desired_branch}"
+
   if ! [[ "${default_branch}" == "${current_branch}" ]]; then
     # if ! [[ "${current_branch}" =~ "master" || "${current_branch}" =~ ""]]; then
     case "${current_branch}" in
@@ -22,21 +24,29 @@ function gitp {
     esac
   fi
 
-  git fetch --prune --all
-
-  # delete local branches (excluding default and current) which have been merged
-  for br1 in $(git branch --merged | grep -vE "${default_branch}|${current_branch}"); do
-    echo -e "\nDeleting local branch \"${br1}\" that's already merged..."
-    git branch -d "${br1}"
-  done
-  # delete local branches that were deleted upstream (ex: closed PRs)
-  for br1 in $(git branch -vv | grep ': gone]' | grep -v '\*' | awk '{print $1}'); do
-    echo -e "\nDeleting local branch \"${br1}\" that's not on remote (RISKY?!)..."
-    git branch -d "${br1}"
-  done
-
   git checkout ${desired_branch}
   git pull origin ${desired_branch}
+  git fetch --prune --all
+
+  local local_merged_branches=$(git branch --merged | grep -vE "${default_branch}|${current_branch}")
+  local local_deleted_branches=$(git branch -vv | grep ': gone]' | grep -v '\*' | awk '{print $1}')
+  [[ ${VERBOSE} -ge 1 ]] && echo "local_merged_branches=${local_merged_branches}; local_deleted_branches=${local_deleted_branches}"
+
+  # delete local branches (excluding default and current) which have been merged
+  if [[ -n ${local_merged_branches} ]]; then
+    for br1 in ${local_merged_branches}; do
+      echo -e "\nDeleting local branch \"${br1}\" that's already merged..."
+      git branch -d "${br1}"
+    done
+  fi
+
+  # delete local branches that were deleted upstream (ex: closed PRs; this doesn't get all of them?)
+  if [[ -n ${local_deleted_branches} ]]; then
+    for br1 in ${local_deleted_branches}; do
+      echo -e "\nDeleting local branch \"${br1}\" that's not on remote (RISKY?!)..."
+      git branch -d "${br1}"
+    done
+  fi
   if ! [[ "${desired_branch}" == "${current_branch}" ]]; then
     # conditionally warn if desired doesnt match current and suggest rebase?
     echo "You might consider running \"git pull --rebase origin ${desired_branch}\"..."

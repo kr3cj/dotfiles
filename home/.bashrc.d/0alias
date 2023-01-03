@@ -177,11 +177,11 @@ if [[ "${IS_MACOS}" == "true" ]]; then
 
   function argod () {
     local uri
-    case ${1} in
-      dawn)
-        uri=https://argo-workflow.ops.int.${CUSTOM_WORK_DOMAINS[1]}/workflows ;;
-      nancy)
-        uri=https://argo-workflow.ops.int.staging.${CUSTOM_WORK_DOMAINS[1]}/workflows ;;
+    case $(map-cluster-to-env ${1}) in
+      staging)
+        uri=https://argo-workflow.${1}.int.staging.${CUSTOM_WORK_DOMAINS[1]}/workflows ;;
+      production)
+        uri=https://argo-workflow.${1}.int.${CUSTOM_WORK_DOMAINS[1]}/workflows ;;
       *)
         echo "Could not find a matching cluster config for \"${1}\"."
         exit 1 ;;

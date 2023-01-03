@@ -17,3 +17,6 @@ function tfgen-all() {
     (cd $i; tfgen)
   done
 }
+
+# improves ability to install older versions of terraform before 1.x
+export ASDF_HASHICORP_OVERWRITE_ARCH_TERRAFORM=amd64

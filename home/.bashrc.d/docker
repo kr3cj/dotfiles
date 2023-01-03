@@ -1,15 +1,12 @@
 [[ $- = *i* ]] || return
 ${IS_MACOS} || return
 
-# switched from docker desktop to colima 1/2022
-
-
 # remote host for container tools (https://docs.docker.com/engine/security/https/)
 export DOCKER_REGISTRY="${CUSTOM_WORK_DEFAULT_AWS_ACCT}.dkr.ecr.us-east-1.amazonaws.com"
 export DOCKER_HOST="unix:///${HOME}/.colima/docker.sock"
 
 function docker () {
-  if [[ ${@} =~ pull ]] && ! [[ ${@} =~ public.ecr.aws ]]; then
+  if [[ ${@} =~ pull ]] && ! [[ ${@} =~ public.ecr.aws ]] && ! [[ ${@} =~ .com/ ]] && ! [[ ${@} =~ .io/ ]]; then
     echo -e "  Remember you can pull docker stuff from \"docker pull public.ecr.aws/docker/library/${@#pull\ }\"...\n"
     # see also https://gallery.ecr.aws/docker/
   fi
@@ -18,6 +15,9 @@ function docker () {
 function docker-login () {
   aws --profile=${CUSTOM_WORK_IAM_PROFILE_PREFIX}-mono-production ecr get-login-password --region us-east-1 | \
     docker login --username AWS --password-stdin ${CUSTOM_WORK_DEFAULT_AWS_ACCT}.dkr.ecr.us-east-1.amazonaws.com
+  # AWS ECR Repository for EKS Add-On images. See Amazon container image registries - Amazon EKS
+  aws --profile=${CUSTOM_WORK_IAM_PROFILE_PREFIX}-mono-production ecr get-login-password --region us-east-1 | \
+    docker login --username AWS --password-stdin 602401143452.dkr.ecr.us-east-1.amazonaws.com
 }
 
 alias docker-clean="sudo docker system prune --all --force --volumes"
@@ -27,7 +27,7 @@ function docker-reset () {
   docker stop $(docker container ls -a -q)
   docker system prune --all --force --volumes
   colima stop
-  colima delete
+  # colima delete
   colima start
 
   ${IS_LINUX} && sudo systemctl restart docker.service
@@ -53,3 +53,10 @@ function docker-reset () {
 #   #   aws ecr get-login --no-include-email | bash
 #   # fi
 # fi
+
+${is_weekend} && return
+# if necessary, start container engine
+pgrep -q colima || colima start
+# if necessary, authenticate to docker repos
+jq -e '.auths | has("'"${CUSTOM_WORK_DEFAULT_AWS_ACCT}"'.dkr.ecr.us-east-1.amazonaws.com")' \
+ ~/.docker/config.json > /dev/null || docker-login

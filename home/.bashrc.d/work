@@ -51,7 +51,7 @@ function on_vpn {
 function _create_socks_proxy {
   local host1=${1}
   local port1=${2}
-  local test_url=${3:-"http://www.google.com"}
+  local host1_ip="$(dig @1.1.1.1 +short ${host1} | grep '^[.0-9]*$' | tail -n1)"
   # local ssh_proxy_options="-o ServerAliveInterval=30 -o ServerAliveCountMax=5 -f -N -D "
   local ssh_proxy_options="-f -N -D "
   [[ ${VERBOSE} -ge 1 ]] && ssh_proxy_options="-vvv ${ssh_proxy_options}"
@@ -60,35 +60,27 @@ function _create_socks_proxy {
   > ${ssh_proxy_response_file}
   local response
 
-  # note: lsof still returns a row when port open but dead: lsof -nP -i4TCP:${port1} | grep -q LISTEN
-  # --socks5-hostname
-  response=$(curl \
-    --connect-timeout 2 \
-    --silent \
-    --output /dev/null \
-    --write-out "%{http_code}" \
-    --head \
-    --socks5 localhost:${port1} \
-    ${test_url})
-  if [[ ${response} -ne 200 ]] ; then
-    # first kill any old sessions
-    pgrep -f "ssh ${ssh_proxy_options} ${port1} ${host1}"
+  response="$(curl --connect-timeout 5 --silent --socks5 localhost:${port1} https://ifconfig.me | grep '^[.0-9]*$' | tail -n1)"
+  if [[ "${response}" != "${host1_ip}" ]] ; then
+    echo "socks proxy not working; first kill any old sessions"
+    pgrep -f "ssh ${ssh_proxy_options} ${port1} ${host1}" && \
     pkill -f "ssh ${ssh_proxy_options} ${port1} ${host1}"
 
-    echo "Establishing ssh tunnel with ${host1}:${port1} \
+    echo -e "\nEstablishing ssh tunnel with ${host1}:${port1} \
      (ssh ${ssh_proxy_options} ${port1} \"${host1}\")"
-    if ! $(port ${host1}:22 &> /dev/null); then
+    if ! port ${host1}:22 &> /dev/null; then
       echo "ERROR: Skipping ${FUNCNAME[0]}; unable to connect to \"${host1}:22\"."
       return 1
     fi
     /usr/bin/ssh ${ssh_proxy_options} ${port1} "${host1}" 2> ${ssh_proxy_response_file}
   fi
-  if [[ -s ${ssh_proxy_response_file} ]]; then
-    echo "Unable to establish ssh connection to ${host1}."
-    echo "  curl response: \"${response}\""
-    echo -e "  ssh proxy response:\n$(cat ${ssh_proxy_response_file})"
-    return 1
-  fi
+  # if [[ -s ${ssh_proxy_response_file} ]]; then
+  #   echo "Unable to establish ssh connection to ${host1}."
+  #   echo "  curl response: \"${response}\""
+  #   echo "  host1_ip response: \"${host1_ip}\""
+  #   echo -e "  ssh proxy response:\n$(cat ${ssh_proxy_response_file})"
+  #   return 1
+  # fi
 }
 
 function unmount_home_nfs {
@@ -116,6 +108,9 @@ function work_saml2aws {
 
     # --mfa-token not supported yet for ${CUSTOM_WORK_SSO_PROVIDER}
     # uncomment pbcopy once saml2aws over asdf on arm64 uses keychain
+    # make sure we are authenticated to password manager
+    export OP_SESSION_my="$(head -n1 ~/.pm_session_token)";
+    _passman_needs_auth || _passman_auth;
     otp "${CUSTOM_WORK_DOMAINS[0]/.com/} ${CUSTOM_WORK_SSO_PROVIDER} saml2aws" # | pbcopy
     # remove once ""
     passman "${CUSTOM_WORK_DOMAINS[0]/.com/} ${CUSTOM_WORK_SSO_PROVIDER}"
@@ -172,6 +167,7 @@ ${IS_ARM} || return
 ${is_weekend} && ${IS_ARM} || work_saml2aws
 ${is_weekend} || work_vpn
 ${at_work} && _create_socks_proxy "home.${CUSTOM_HOME_DOMAIN}" "2000"
+# pm
 
 [[ $(pwd) == "/Users/${LOGNAME}" ]] && cd ~/build/github/ibex
 

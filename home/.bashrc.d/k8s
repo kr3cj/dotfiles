@@ -15,7 +15,7 @@ export KUBECONFIG=$(find ~/.kube/ \
   | tr '\n' ':' || "")
   # -printf "%p:" \
 
-# source <(kubectl completion bash) # slow
+source <(kubectl completion bash) # slow
 # alias k=kubectl
 source <(kubectl completion bash | sed 's/kubectl/k/g' )
 
@@ -27,6 +27,7 @@ pathadd ${HOME}/build/github/ibex
 
 function k() {
   local cluster=${1}
+  export CLUSTER=${1}
   if ! [[ -r ~/.kube/${cluster} ]]; then
     echo "No kubeconfig found for \"${cluster}\"!"
     return 1
@@ -80,6 +81,8 @@ node-lifecycle"
 # UNSCHEDULABLE?:.spec.taints[?(@.key=='eks.amazonaws.com/nodegroup')].value"
 # info on SCALE_DOWN_DISABLED: https://github.com/aws/containers-roadmap/issues/916
 # info on UNSCHEDULABLE: https://docs.aws.amazon.com/eks/latest/userguide/managed-node-update-behavior.html#managed-node-update-scale-up
+
+# watch -n10 "kubectl --context ${CLUSTER} get no --sort-by=.metadata.creationTimestamp -o=custom-columns=NAME:.metadata.name,\"STATUS:status.conditions[?(@.status=='True')].type\",START_TIME:.metadata.creationTimestamp,KUBELET:.status.nodeInfo.kubeletVersion,IMAGE:\".metadata.labels.eks\.amazonaws\.com/nodegroup-image\",TYPE:\".metadata.labels.node\.kubernetes\.io/instance-type\",NODEGROUP:.metadata.labels.nodegroup_name,FUNCTION:.metadata.labels.function,LIFECYCLE:.metadata.labels.node-lifecycle,AZ_AND_INSTANCE_ID:.spec.providerID,SCALE_DOWN_DISABLED?:\".metadata.annotations.cluster-autoscaler\.kubernetes\.io/scale-down-disabled\",\"UNSCHEDULABLE:.spec.taints[?(@.key=='eks.amazonaws.com/nodegroup')].value\""
 
 # -ojsonpath=\
 # {range $.items[*]}{.metadata.name}{.spec.taints.eks\.amazonaws\.com/nodegroup=unschedulable{\"\n\"}{end}'"
@@ -205,6 +208,9 @@ function _get_latest_version_from_github()
   # --sort-by metadata.creationTimestamp
 
   # -o name
+
+# get/delete/describe pods from multiple labels like release
+# k -n kube-system get pod -l 'release in (kiam-server,kiam-agent)'
 
 # get all ds,deploy complete with different labels using custom columns:
 # kubectl get deploy,ds --all-namespaces -o custom-columns=\

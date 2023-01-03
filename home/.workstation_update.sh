@@ -24,7 +24,7 @@ if hash gem 2>/dev/null && [[ ${GHA_CI_RUN} != true ]]; then
   # sudo gem update --system --conservative --minimal-deps --no-verbose --force
   # sudo gem update --conservative --minimal-deps --no-verbose --force
   # to remove all ri and rdocs of installed gems:
-  sudo rm -vrf $(sudo gem env gemdir)/doc
+  # sudo rm -vrf $(gem env gemdir)/doc
 fi
 if hash pip 2>/dev/null; then
   echo -e "\nUpdating pip..."
@@ -54,10 +54,10 @@ if [[ $(uname) == "Darwin" ]] ; then
   BASE_PATH="$(${BREWBIN_PATH} --prefix)"
   export PATH="${BASE_PATH}/bin:${BASE_PATH}/opt/asdf/libexec/bin/asdf:${LOG_NAME}/.asdf/shims:${PATH}"
 
-  echo -e "\nUpdating vscode extensions..."
-  for ext1 in $(code --list-extensions); do
-    code --install-extension --force "${ext1}"
-  done
+  # echo -e "\nUpdating vscode extensions..."
+  # for ext1 in $(code --list-extensions); do
+  #   code --install-extension --force "${ext1}"
+  # done
   # cd ~/build/all-repos
   echo -e "Updating stubborn config files to homesick repo"
   # cp -av ~/.kube/config ~/.homesick/repos/dotfiles_private/home/.kube/
@@ -154,10 +154,15 @@ if [[ $(uname) == "Darwin" ]] ; then
           \#)
             echo "Skipping commented line \"${line1}\""
             echo "${line1}" >> ${TOOL_FILE}.new ;;
+          nodejs)
+            echo "nodejs install requires libtool PATH workaround github.com/nodejs/node/issues/2341:"
+            echo "$ alias libtool=\"/usr/bin/libtool\""
+            echo "$ asdf install nodejs $(asdf latest nodejs ${old_version1%\.*})"
+            echo "$ unalias libtool" ;;
           example1)
             echo "Skipping upgrade of locked asdf plugin \"${tool1}:${old_version1}\""
             echo "${tool1} ${old_version1}" >> ${TOOL_FILE}.new ;;
-          argo|awscli|kubectl|nodejs|terraform)
+          argo|awscli|terraform)
             # ASDF_HASHICORP_OVERWRITE_ARCH_TERRAFORM=x86_64 asdf install terraform 1.0.1
             echo "Getting latest patch version of asdf plugin \"${tool1}:${old_version1}\"..."
             # use bash parameter expansion to extract the major and minor version from ${old_version1}
