@@ -60,6 +60,7 @@ function k() {
       action="${action} --sort-by=.metadata.creationTimestamp \
 --label-columns=\
 eks.amazonaws.com/nodegroup-image,\
+instance,\
 node.kubernetes.io/instance-type,\
 failure-domain.beta.kubernetes.io/zone,\
 nodegroup_name,\
