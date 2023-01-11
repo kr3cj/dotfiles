@@ -36,8 +36,8 @@ function saml() {
 
 function get-ec2-id-from-pod() {
   # only requires kube config with correct context and namespace set
-  basename "$(kubectl --kubeconfig ~/.kube/${1} \
-   get no/$(kubectl --kubeconfig ~/.kube/${1} get po/${2} -ojsonpath='{.spec.nodeName}') \
+  basename "$(kubectl --context ${1} \
+   get no/$(kubectl --context ${1} get po/${2} -ojsonpath='{.spec.nodeName}') \
     -ojsonpath='{.spec.providerID}')"
     # -ojsonpath='{.metadata.labels.alpha\.eksctl\.io/instance-id}' ; echo
 
@@ -46,7 +46,7 @@ function get-ec2-id-from-pod() {
 }
 function get-ec2-hostname-from-pod() {
   # only requires kube config with correct context set
-  kubectl --kubeconfig ~/.kube/${1} get po/${2} -ojsonpath='{.spec.nodeName}' \
+  kubectl --context ${1} get po/${2} -ojsonpath='{.spec.nodeName}' \
   ; echo # '{.status.hostIP}'
 
   # fall back requires exec'ing into container and the curl binary
@@ -55,7 +55,7 @@ function get-ec2-hostname-from-pod() {
 function get-ec2-id-from-hostname() {
   # takes in one parameter: ec2 hostname
   # figures out cluster from hostname via private utility function
-  basename "$(kubectl --kubeconfig ~/.kube/$(map-host-to-cluster ${1}) get no/${1} \
+  basename "$(kubectl --context $(map-host-to-cluster ${1}) get no/${1} \
     -ojsonpath='{.spec.providerID}')"
     # -ojsonpath="{.metadata.labels.alpha\.eksctl\.io/instance-id}" \
     # echo
@@ -68,22 +68,16 @@ function get-ec2-id-from-hostname() {
   # fi
 }
 function get-ec2-hostname-from-id() {
-  # takes in two parameters: kube config name (assumes one cluster per config) and ec2 instance id
-  kubectl --kubeconfig ~/.kube/${1} get no \
-    -o=jsonpath="{.items[?(@.metadata.labels.alpha\.eksctl\.io/instance-id=='${2}')].metadata.name}" \
-    ; echo
-
-  # if [[ -n ${result} ]]; then
-     # echo ${result}
-  # else
-  #   echo "Falling back for non-k8s nodes (requires saml2aws, aws-cli)"
-  #   # takes in two paramters: instance-id and saml2aws profile
-  #   saml2aws exec --exec-profile=${2} -- \
-  #     aws ec2 describe-instances \
-  #     --instance-ids ${1} \
-  #     --query Reservations[].Instances[].PrivateDnsName \
-  #     --output text
-  # fi
+  # until https://github.com/aws/containers-roadmap/issues/1395
+  local role=""
+  local profile1=""
+  role="$(saml2aws exec aws sts get-caller-identity | jq -r ".Arn" | cut -d/ -f2 | tr '[A-Z]' '[a-z]')"
+  role=${role%login}
+  for profile1 in $(grep \ ${role}- ~/.aws/config | awk '{print $2}' | sed 's/]^//g'); do
+    aws ec2 --profile ${profile1%]} describe-instances --instance-ids "${1}" \
+     --query "Reservations[*].Instances[*][PrivateDnsName]" --output text 2> /dev/null
+    [[ ${?} -eq 0 ]] && break
+  done
 }
 
 function get-latest-eks-ami-release-version() {

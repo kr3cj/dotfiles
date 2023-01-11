@@ -45,7 +45,6 @@ function k() {
   #   echo
   # fi
 
-  # local kube_config="--kubeconfig ${HOME}/.kube/${cluster}"
   local kube_config="--context ${cluster}"
   # some kubectl plugin commands won't work with "--kubeconfig"
   if [[ ${action} =~ "outdated" ]] || [[ ${action} =~ "node-admin" ]]; then
@@ -132,7 +131,7 @@ function h() {
 
 function netshoot {
   # spin up a throwaway container in k8s for network debugging
-  kubectl --kubeconfig ~/.kube/${1} run tmp-shell --rm -i --tty --image nicolaka/netshoot -- /bin/bash
+  kubectl --context ${1} run tmp-shell --rm -i --tty --image nicolaka/netshoot -- /bin/bash
 }
 
 function ibexs() {
@@ -245,10 +244,10 @@ function _get_latest_version_from_github()
 # show counts of unique images/versions by namespace (watch is helpful for rollouts)
 # watch "kubectl -n operations get po --sort-by=.metadata.creationTimestamp -o jsonpath='{..image}' | tr -s '[[:space:]]' '\n' | sort | uniq -c"
 # all namespaces except default
-# kubectl --context dawn get po --all-namespaces --field-selector=metadata.namespace!=default -o jsonpath='{..image}' | tr -s '[[:space:]]' '\n' | sort | uniq -c
+# kubectl --context ${CLUSTER} get po --all-namespaces --field-selector=metadata.namespace!=default -o jsonpath='{..image}' | tr -s '[[:space:]]' '\n' | sort | uniq -c
 
 # show counts of unique images/version for kubelet
-# kubectl --kubeconfig get no --sort-by=.metadata.creationTimestamp -o jsonpath='{..kubeletVersion}' | tr -s '[[:space:]]' '\n' | sort | uniq -c
+# kubectl --context ${CLUSTER} get no --sort-by=.metadata.creationTimestamp -o jsonpath='{..kubeletVersion}' | tr -s '[[:space:]]' '\n' | sort | uniq -c
 
 # show all pods from nodes with given label
 # pcols=""; for n in $(kubectl get node -lfunction=cluster-critical -ocustom-columns=name:metadata.name --no-headers); do kubectl get pod \

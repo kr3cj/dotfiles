@@ -213,7 +213,7 @@ if [[ "${IS_MACOS}" == "true" ]]; then
 
   function mysql-client {
     # spin up a throwaway container in k8s for querying RDS
-    kubectl --kubeconfig ~/.kube/${1} run --generator=run-pod/v1 \
+    kubectl --context ${1} run --generator=run-pod/v1 \
       tmp-shell --rm -i --tty --image arey/mysql-client -- \
         mysql -P3306 -h"${2}.us-east-1.rds.amazonaws.com" -u"user1" -p"SeeLastPass"
     # docker run --rm -it alpine:latest sh

@@ -48,10 +48,21 @@ function on_vpn {
   fi
 }
 
-function _create_socks_proxy {
+function _check_socks_proxy {
   local host1=${1}
   local port1=${2}
   local host1_ip="$(dig @1.1.1.1 +short ${host1} | grep '^[.0-9]*$' | tail -n1)"
+  local response
+  response="$(curl --connect-timeout 5 --silent --socks5 localhost:${port1} https://ifconfig.me | grep '^[.0-9]*$' | tail -n1)"
+  if [[ "${response}" != "${host1_ip}" ]] ; then
+    return 1
+  else
+    return 0
+  fi
+}
+function _create_socks_proxy {
+  local host1=${1}
+  local port1=${2}
   # local ssh_proxy_options="-o ServerAliveInterval=30 -o ServerAliveCountMax=5 -f -N -D "
   local ssh_proxy_options="-f -N -D "
   [[ ${VERBOSE} -ge 1 ]] && ssh_proxy_options="-vvv ${ssh_proxy_options}"
@@ -60,9 +71,8 @@ function _create_socks_proxy {
   > ${ssh_proxy_response_file}
   local response
 
-  response="$(curl --connect-timeout 5 --silent --socks5 localhost:${port1} https://ifconfig.me | grep '^[.0-9]*$' | tail -n1)"
-  if [[ "${response}" != "${host1_ip}" ]] ; then
-    echo "socks proxy not working; first kill any old sessions"
+  if ! _check_socks_proxy ${host1} ${port1}; then
+    echo "socks proxy not connected/working; first kill any old sessions"
     pgrep -f "ssh ${ssh_proxy_options} ${port1} ${host1}" && \
     pkill -f "ssh ${ssh_proxy_options} ${port1} ${host1}"
 
@@ -71,8 +81,9 @@ function _create_socks_proxy {
     if ! port ${host1}:22 &> /dev/null; then
       echo "ERROR: Skipping ${FUNCNAME[0]}; unable to connect to \"${host1}:22\"."
       return 1
+    else
+      /usr/bin/ssh ${ssh_proxy_options} ${port1} ${host1}
     fi
-    /usr/bin/ssh ${ssh_proxy_options} ${port1} "${host1}" 2> ${ssh_proxy_response_file}
   fi
   # if [[ -s ${ssh_proxy_response_file} ]]; then
   #   echo "Unable to establish ssh connection to ${host1}."
