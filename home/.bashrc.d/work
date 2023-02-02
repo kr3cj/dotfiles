@@ -129,7 +129,7 @@ function work_saml2aws {
     saml login # --skip-prompt # remove --skip-prompt once when pw is changed
     if [[ ${?} == 0 ]]; then
       session_is_active saml "${SAML2AWS_SESSION_DURATION} seconds" || true
-      docker-login
+      # docker-login
       # open -a "Brave Browser" --args --profile-directory=Work "https://${CUSTOM_WORK_DOMAINS[0]/.com/}.${CUSTOM_WORK_SSO_PROVIDER}.com"
     else
       echo "Has your password changed? Try removing keychain and run \"saml login\""

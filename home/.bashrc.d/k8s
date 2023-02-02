@@ -26,6 +26,7 @@ pathadd ${HOME}/build/github/ibex
 # pathadd ${HOME}/.asdf/installs/krew/$(asdf list krew | tail -fn1)/bin
 
 function k() {
+  # short cut for kubectl binary
   local cluster=${1}
   export CLUSTER=${1}
   if ! [[ -r ~/.kube/${cluster} ]]; then
@@ -56,6 +57,8 @@ function k() {
       action="${action} --sort-by=.lastTimestamp" ;;
     *get?po*|*get?rollouts*)
       action="${action} --sort-by=.metadata.creationTimestamp" ;;
+    *top*)
+      action="${action} --sort-by=memory" ;;
     *get?no*)
       action="${action} --sort-by=.metadata.creationTimestamp \
 --label-columns=\
@@ -99,6 +102,7 @@ node-lifecycle"
 }
 
 function h() {
+  # shortcut for helm binary
   local cluster=${1}
   if ! [[ -r ~/.kube/${cluster} ]]; then
     echo "No kubeconfig found for \"${cluster}\"!"
@@ -128,6 +132,35 @@ function h() {
     echo "Running: \"${helm_path} ${kube_config} ${action}\""
   fi
   ${helm_path} ${kube_config} ${action} #--kube-context admin@${cluster}
+}
+
+function e {
+  # shortcut for eksctl binary
+  local cluster=${1}
+  if ! [[ -r ~/.kube/${cluster} ]]; then
+    echo "No kubeconfig found for \"${cluster}\"!"
+    return 1
+  fi
+  shift
+  local action=${@} # ex: "get pod"
+
+  local my_aws_profile="$(map-cluster-to-profile ${cluster})" # dynamically determine
+
+  # verify that eks clusters mapped to an my_aws_profile
+  if [[ "${my_aws_profile}" == "" ]]; then
+    echo "Could not map the cluster name to an aws profile."
+    return 1
+  fi
+  # if ! $(on_vpn); then
+  #   work_vpn
+  #   echo
+  # fi
+
+
+  if [[ ${VERBOSE} -ge 1 ]]; then
+    echo "Running: \"eksctl --profile ${my_aws_profile} --cluster ${cluster} ${action}\""
+  fi
+  eksctl --profile ${my_aws_profile} --cluster ${cluster} ${action}
 }
 
 function netshoot {
@@ -243,9 +276,17 @@ function _get_latest_version_from_github()
 # kubectl get rs -lapp -ogo-template='{{range .items}}{{.metadata.labels.app}}{{"\n"}}{{end}}' | awk '{print $1}' | sort | uniq -c
 
 # show counts of unique images/versions by namespace (watch is helpful for rollouts)
-# watch "kubectl -n operations get po --sort-by=.metadata.creationTimestamp -o jsonpath='{..image}' | tr -s '[[:space:]]' '\n' | sort | uniq -c"
 # all namespaces except default
-# kubectl --context ${CLUSTER} get po --all-namespaces --field-selector=metadata.namespace!=default -o jsonpath='{..image}' | tr -s '[[:space:]]' '\n' | sort | uniq -c
+# watch "kubectl --all-namespaces --field-selector=metadata.namespace!=default get po --sort-by=.metadata.creationTimestamp -o jsonpath='{..image}' | tr -s '[[:space:]]' '\n' | sort | uniq -c"
+
+# show all images in all clusters (takes 5+ mins)
+# for cluster1 in $(find clusters/ -mindepth 4 -type d -exec basename '{}' \;); do
+#   echo -e "\n\n${cluster1}"
+#   for ns1 in $(kubectl --context ${cluster1} get ns -oname); do
+#     echo -e "  ${ns1}"
+#     kubectl --context ${cluster1} get po -n ${ns1##*/} -o jsonpath='{..image}' | tr -s '[[:space:]]' '\n' | sort | uniq -c
+#   done
+# done | grep -E 'mine|theirs|yours'
 
 # show counts of unique images/version for kubelet
 # kubectl --context ${CLUSTER} get no --sort-by=.metadata.creationTimestamp -o jsonpath='{..kubeletVersion}' | tr -s '[[:space:]]' '\n' | sort | uniq -c

@@ -72,8 +72,7 @@ function get-ec2-hostname-from-id() {
   local role=""
   local profile1=""
   role="$(saml2aws exec aws sts get-caller-identity | jq -r ".Arn" | cut -d/ -f2 | tr '[A-Z]' '[a-z]')"
-  role=${role%login}
-  for profile1 in $(grep \ ${role}- ~/.aws/config | awk '{print $2}' | sed 's/]^//g'); do
+  for profile1 in $(grep \ ${role%login}- ~/.aws/config | awk '{print $2}' | sed 's/]^//g'); do
     aws ec2 --profile ${profile1%]} describe-instances --instance-ids "${1}" \
      --query "Reservations[*].Instances[*][PrivateDnsName]" --output text 2> /dev/null
     [[ ${?} -eq 0 ]] && break

@@ -27,13 +27,14 @@ function gitp {
   git checkout ${desired_branch}
   git pull origin ${desired_branch}
   git fetch --prune --all
+  git merge origin/main
 
   local local_merged_branches=$(git branch --merged | grep -vE "${default_branch}|${current_branch}")
   local local_deleted_branches=$(git branch -vv | grep ': gone]' | grep -v '\*' | awk '{print $1}')
   [[ ${VERBOSE} -ge 1 ]] && echo "local_merged_branches=${local_merged_branches}; local_deleted_branches=${local_deleted_branches}"
 
   # delete local branches (excluding default and current) which have been merged
-  if [[ -n ${local_merged_branches} ]]; then
+  if [[ -z ${local_merged_branches} ]]; then
     for br1 in ${local_merged_branches}; do
       echo -e "\nDeleting local branch \"${br1}\" that's already merged..."
       git branch -d "${br1}"
@@ -41,7 +42,7 @@ function gitp {
   fi
 
   # delete local branches that were deleted upstream (ex: closed PRs; this doesn't get all of them?)
-  if [[ -n ${local_deleted_branches} ]]; then
+  if [[ -z ${local_deleted_branches} ]]; then
     for br1 in ${local_deleted_branches}; do
       echo -e "\nDeleting local branch \"${br1}\" that's not on remote (RISKY?!)..."
       git branch -d "${br1}"
