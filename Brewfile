@@ -11,7 +11,7 @@ brew "diffutils"
 brew "ed"
 brew "findutils"
 brew "gawk"
-brew "gdb" # no bottle for Apple Silicon; gdb needs more actions to work. See `brew info gdb`
+# brew "gdb" # no bottle for Apple Silicon; gdb needs more actions to work. See `brew info gdb`
 brew "gnu-indent"
 brew "gnu-sed"
 brew "gnu-tar"
@@ -68,7 +68,7 @@ brew "nmap"
 brew "oath-toolkit"
 brew "pstree"
 brew "shellcheck"
-brew "sslyze" # no bottle for Apple Silicon
+# brew "sslyze" # no bottle for Apple Silicon
 brew "step"
 brew "tmux"
 brew "tree"

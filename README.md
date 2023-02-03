@@ -1,10 +1,10 @@
 # Homeshick dotfiles
 
 ## Bootstrap from macos or linux
-The below shortened url goes to raw.githubusercontent.com/kr3cj/dotfiles/home/.bootstrap.sh:
+The below shortened url goes to raw.githubusercontent.com/kr3cj/dotfiles/main/home/.bootstrap.sh:
 
 ```
-curl -L goo.gl/vQJOF9 | zsh
+curl -L tinyurl.com/kr3cj-bootstrap | zsh
 ```
 
 ## Workstation customizations

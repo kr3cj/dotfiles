@@ -1,10 +1,12 @@
 #!/bin/zsh
+LOG1=/var/tmp/bootstrap_$(date +%Y-%m-%d-%H:%M:%S).log
+(
 # the purpose of this script is to install my homeshick dotfiles from github
 
-read -p "Push enter when sudo is auth'd by corporate software..."
+/usr/bin/read -s -k "?Push enter when sudo is auth'd by corporate software..."
 sudo -l
 # disabling in favor of corporate security method
-# read -p "Warn security teams at work before proceeding as it trips alerts; press enter key to continue"
+# /usr/bin/read -s -k "?Warn security teams at work before proceeding as it trips alerts; press enter key to continue"
 # if ! sudo grep -q $(whoami) /etc/sudoers && [[ ${GHA_CI_RUN} != true ]]; then
 #   sudo bash -c "echo \"$(whoami) ALL=(ALL) NOPASSWD: ALL\" >> /etc/sudoers"
 # fi
@@ -25,7 +27,7 @@ if [[ $(uname) == "Darwin" ]] ; then
     echo "You need to run \"xcode-select --install\"! Aborting!"
     exit 1
   fi
-  read -p "When finished, press enter key to continue"
+  /usr/bin/read -s -k "?When finished, press enter key to continue"
 elif [[ $(uname) == "Linux" ]] ; then
   if [[ -f /etc/redhat-release ]] ; then
     sudo yum install git -y
@@ -58,6 +60,10 @@ homeshick --force link
 
 if [[ ${GHA_CI_RUN} != true ]]; then
   # this prevents workstation update from running before workstation setup in CI builds
-  grep -q local /etc/shells || zsh ~/.workstation_setup.sh
+  grep -q "[a-z]\/bin\/bash" /etc/shells || zsh ~/.workstation_setup.sh
 fi
 # [[ -f ~/.bash_profile ]] && source ~/.bash_profile
+)
+
+# close out logging
+) 2>&1 | tee -a ${LOG1}

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set +x
-LOG=/var/tmp/workstation_update_$(date +%Y-%m-%d).log
+LOG=/var/tmp/workstation_update_$(date +%Y-%m-%d-%H:%M:%S).log
 (
 # the purpose of this script is to update client binaries on an occasional basis
 # child of ~/.workstation_setup

@@ -1,10 +1,10 @@
 #!/bin/zsh
-LOG2=/var/tmp/workstation_setup_$(date +%Y-%m-%d).log
+LOG2=/var/tmp/workstation_setup_$(date +%Y-%m-%d-%H:%M:%S).log
 (
 # the purpose of this script is to house all initial workstation customizations in linux or macos
 
 if [[ ${GHA_CI_RUN} != true ]]; then
-  read -p "System looks new. Press any key to start installing workstation software."
+  /usr/bin/read -s -k "?System looks new. Press any key to start installing workstation software."
 fi
 
 export IS_MACOS="false"
@@ -43,7 +43,7 @@ BREWBIN_PATH="/usr/local/bin/brew"
 BASE_PATH="$(${BREWBIN_PATH} --prefix)"
 export PATH="${BASE_PATH}/bin:${PATH}"
 echo -e "\nInstalling brew packages..."
-brew bundle
+brew bundle --file ~/.homesick/repos/dotfiles/Brewfile
 
 # TODO: requires macos permission
 # upgrade software Fridays at 10am
@@ -59,7 +59,7 @@ if ${IS_MACOS}; then
   brew_options=" --default-names --with-default-names --with-gettext --override-system-vi \
     --override-system-vim --custom-system-icons"
   # install main apps into user Applications to avoid admin permission requirements for upgrades
-  brew bundle
+  brew bundle --file ~/.homesick/repos/dotfiles/Brewfile
   HOMEBREW_CASK_OPTS=""
 
   echo "Configuring new brew packages"
@@ -92,14 +92,14 @@ if ${IS_MACOS}; then
   tmux source ~/.tmux.conf
   ~/.tmux/plugins/tpm/bin/install_plugins
 
-  read -p "Push enter when sudo is auth'd by corporate software..."
+  /usr/bin/read -s -k "?Push enter when sudo is auth'd by corporate software..."
   sudo -l || return 1
   echo "Remove this stuff that I don't use on macos"
   sudo rm -rf /Applications/{iMovie.app,GarageBand.app,Pages.app,Numbers.app}
 
   # docker/colima
   # mkdir -p ~/.docker
-  colima start
+  /opt/homebrew/bin/colima start
 
   # TODO: use openvpn to connect to Mullvad via CLI
   #  https://helpdesk.privateinternetaccess.com/hc/en-us/articles/219437987-Installing-OpenVPN-PIA-on-MacOS
@@ -128,15 +128,16 @@ EOF
     redhat.vscode-yaml \
     timonwong.shellcheck \
     ; do
-    echo "code --install-extension ${extension1} --verbose" >> /var/tmp/vscode_installs.sh
+    echo "code --install-extension ${extension1}" >> /var/tmp/vscode_installs.sh
   done
   bash /var/tmp/vscode_installs.sh && rm -v /var/tmp/vscode_installs.sh
   echo "Grab Personal Access Token from GitHub; put into vscode"
 
   # gce and gke stuff (https://cloud.google.com/sdk/docs/quickstart-mac-os-x)
-  go get golang.org/x/tools/cmd/godoc
+  # TODO: fix for newer versions
+  # go get golang.org/x/tools/cmd/godoc
 
-  read -p "Push enter when sudo is auth'd by corporate software..."
+  /usr/bin/read -s -k "?Push enter when sudo is auth'd by corporate software..."
   sudo -l || return 1
   # install awscli session-manager-plugin
   (
@@ -175,7 +176,7 @@ EOF
     op account add --address ${CUSTOM_HOME_PASSWD_MGR_ACCOUNT[0]} --email ${CUSTOM_HOME_PASSWD_MGR_ACCOUNT[1]}
     eval \$(op signin) \
     Then start \"~/.workstation_setup_private.sh\"."
-    read -p
+    /usr/bin/read -s -k "?Press any key to continue."
     # [[ -r ~/.workstation_setup_private.sh ]] && \
     #   zsh ~/.workstation_setup_private.sh
   else

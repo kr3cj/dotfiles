@@ -1,5 +1,5 @@
 #!/bin/zsh
-LOG3=/var/tmp/workstation_setup_$(date +%Y-%m-%d).log
+LOG3=/var/tmp/workstation_setup_private_$(date +%Y-%m-%d-%H:%M:%S).log
 (
   # the purpose of this script is to house all macos workstation customizations requiring access to dotfiles_private
   echo "first, check that we are authenticated to password manager."
@@ -65,10 +65,10 @@ LOG3=/var/tmp/workstation_setup_$(date +%Y-%m-%d).log
   if [[ ${GHA_CI_RUN} != true ]]; then
     # iterm2 customizations
     # Specify the preferences directory
-    defaults write com.googlecode.iterm2.plist PrefsCustomFolder -string \
+    # defaults write com.googlecode.iterm2.plist PrefsCustomFolder -string \
       "~/.homesick/repos/dotfiles_private/iterm2/"
     # Tell iTerm2 to use the custom preferences in the directory
-    defaults write com.googlecode.iterm2.plist LoadPrefsFromCustomFolder -bool true
+    # defaults write com.googlecode.iterm2.plist LoadPrefsFromCustomFolder -bool true
 
     # install java; TODO: move to work_setup.sh
     # brew tap homebrew/cask-versions
@@ -82,9 +82,9 @@ LOG3=/var/tmp/workstation_setup_$(date +%Y-%m-%d).log
     source "${HOME}/.homesick/repos/homeshick/homeshick.sh"
     homeshick track dotfiles_private ~/.macos_defaults_original_$(hostname)_$(/bin/date +%Y-%m-%d).json
     # FIX: second, load customizations https://github.com/mathiasbynens/dotfiles/blob/master/.macos
-    zsh ~/.macos_sane_defaults
+    # zsh ~/.macos_sane_defaults
     # Disable user interface sounds (screnshots, emptying trash)
-    defaults write com.apple.systemsound "com.apple.sound.uiaudio.enabled" -int 0
+    # defaults write com.apple.systemsound "com.apple.sound.uiaudio.enabled" -int 0
     # TODO: add iterm.app to "System Preferences > Security & Privacy > Privacy > Full Disk Access"
     echo "Give Full Disk Access permission to iTerm.app"
   fi
