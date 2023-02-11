@@ -23,6 +23,8 @@ function docker-login () {
 alias docker-clean="sudo docker system prune --all --force --volumes"
 
 function docker-reset () {
+  hash docker 2>/dev/null || return
+  hash colima 2>/dev/null || return
   [[ -f docker-compose.yml || -f docker-compose.yaml ]] && docker-compose down --remove-orphans
   docker stop $(docker container ls -a -q)
   docker system prune --all --force --volumes
