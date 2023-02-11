@@ -48,7 +48,6 @@ brew "m4"
 ### install extra tools I like
 brew "ack"
 # brew "android-file-transfer" # not found
-brew "aria2"
 brew "asdf"
 brew "bash-completion"
 brew "certigo"
