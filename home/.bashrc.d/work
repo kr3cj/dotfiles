@@ -68,7 +68,7 @@ function _create_socks_proxy {
   [[ ${VERBOSE} -ge 1 ]] && ssh_proxy_options="-vvv ${ssh_proxy_options}"
   local ssh_proxy_response_file="/var/tmp/ssh_proxy_response.txt"
   # clear contents of response file
-  > ${ssh_proxy_response_file}
+  :> ${ssh_proxy_response_file}
   local response
 
   if ! _check_socks_proxy ${host1} ${port1}; then
@@ -114,26 +114,29 @@ function mount_home_nfs {
     # lpadmin -p canon_mg5220 -L "canon_mg5220" -E -v lpd://printer.${CUSTOM_HOME_NAS_HOST#*\.} -m everywhere
 }
 function work_saml2aws {
+  # TODO: use "grep x_security_token_expires ~/.aws/credentials" instead of custom timestamp
   if ! session_is_active saml; then
     # ${HOME}/.asdf/shims/saml2aws exec -- aws sts get-caller-identity --query Arn --output text > /dev/null
 
-    # --mfa-token not supported yet for ${CUSTOM_WORK_SSO_PROVIDER}
     # uncomment pbcopy once saml2aws over asdf on arm64 uses keychain
     # make sure we are authenticated to password manager
-    export OP_SESSION_my="$(head -n1 ~/.pm_session_token)";
-    _passman_needs_auth || _passman_auth;
-    otp "${CUSTOM_WORK_DOMAINS[0]/.com/} ${CUSTOM_WORK_SSO_PROVIDER} saml2aws" # | pbcopy
-    # remove once ""
-    passman "${CUSTOM_WORK_DOMAINS[0]/.com/} ${CUSTOM_WORK_SSO_PROVIDER}"
+    export OP_SESSION_my="$(head -n1 ~/.pm_session_token)"
+    _passman_needs_auth || _passman_auth
+    # SAML2AWS_USERNAME="${LOGNAME}@${CUSTOM_WORK_DOMAINS[0]}"
+    SAML2AWS_PASSWORD=$(op item get "${CUSTOM_WORK_DOMAINS[1]/.com/} ${CUSTOM_WORK_SSO_PROVIDER}" --fields "password" --cache --session ${OP_SESSION_my})
+    SAML2AWS_MFA_TOKEN=$(otp "${CUSTOM_WORK_DOMAINS[1]/.com/} ${CUSTOM_WORK_SSO_PROVIDER}")
 
-    saml login # --skip-prompt # remove --skip-prompt once when pw is changed
+    saml login --password=${SAML2AWS_PASSWORD} --mfa-token=${SAML2AWS_MFA_TOKEN} --skip-prompt
+    # remove --skip-prompt once when pw is changed
     if [[ ${?} == 0 ]]; then
+      # TODO: remove in favor of "grep x_security_token_expires ~/.aws/credentials"
       session_is_active saml "${SAML2AWS_SESSION_DURATION} seconds" || true
       # docker-login
-      # open -a "Brave Browser" --args --profile-directory=Work "https://${CUSTOM_WORK_DOMAINS[0]/.com/}.${CUSTOM_WORK_SSO_PROVIDER}.com"
+      # open -a "Brave Browser" --args --profile-directory=Work "https://${CUSTOM_WORK_DOMAINS[0]/.com/}.${CUSTOM_WORK_SSO_PROVIDER_OLD}.com"
     else
       echo "Has your password changed? Try removing keychain and run \"saml login\""
     fi
+    unset SAML2AWS_PASSWORD SAML2AWS_MFA_TOKEN
   fi
 }
 function work_vpn {
@@ -148,6 +151,10 @@ function work_vpn {
       echo ""
       unmount_home_nfs
 
+      # make sure we are authenticated to password manager
+      export OP_SESSION_my="$(head -n1 ~/.pm_session_token)"
+      _passman_needs_auth || _passman_auth
+
       # TODO: why does this command take ~2min sometimes
       time /opt/cisco/anyconnect/bin/vpn disconnect vpn.${CUSTOM_WORK_DOMAINS[0]}
       # echo "Killing gui"
@@ -159,15 +166,11 @@ function work_vpn {
         return 1
       fi
 
-      # make sure we are authenticated to password manager
-      export OP_SESSION_my="$(head -n1 ~/.pm_session_token)";
-      _passman_needs_auth || _passman_auth;
-
       /opt/cisco/anyconnect/bin/vpn -s < <(
         echo connect vpn.${CUSTOM_WORK_DOMAINS[0]}
         echo ${LOGNAME}@${CUSTOM_WORK_DOMAINS[0]}
-        op item get "${CUSTOM_WORK_DOMAINS[0]/.com/} ${CUSTOM_WORK_SSO_PROVIDER}" --fields "password" --cache --session ${OP_SESSION_my}
-        otp "${CUSTOM_WORK_DOMAINS[0]/.com/} ${CUSTOM_WORK_SSO_PROVIDER}"
+        op item get "${CUSTOM_WORK_DOMAINS[0]/.com/} ${CUSTOM_WORK_SSO_PROVIDER_OLD}" --fields "password" --cache --session ${OP_SESSION_my}
+        otp "${CUSTOM_WORK_DOMAINS[0]/.com/} ${CUSTOM_WORK_SSO_PROVIDER_OLD}"
       )
     fi
   fi
@@ -180,7 +183,7 @@ ${is_weekend} || work_vpn
 ${at_work} && _create_socks_proxy "home.${CUSTOM_HOME_DOMAIN}" "2000"
 # pm
 
-[[ $(pwd) == "/Users/${LOGNAME}" ]] && cd ~/build/github/ibex
+[[ $(pwd) == "${HOME}" ]] && cd ~/build/github/ibex
 
 # if ${at_home}; then
 #   if $(ping -c1 -W1 -i0.1 ${CUSTOM_HOME_NAS_HOST} &> /dev/null); then
