@@ -1,0 +1,9 @@
+[[ $- = *i* ]] || return
+${IS_MACOS} || return
+
+source $(brew --prefix asdf)/libexec/asdf.sh
+
+[[ -f ${HOME}/.asdf/asdf.sh ]] && source ${HOME}/.asdf/asdf.sh
+[[ -f ${HOME}/.asdf/completions/asdf.bash ]] && source ${HOME}/.asdf/completions/asdf.bash
+
+export ASDF_DIR="$(brew --prefix asdf)/libexec"

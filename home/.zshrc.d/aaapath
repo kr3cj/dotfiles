@@ -1,0 +1,34 @@
+function pathadd() {
+  unset newpath
+  local newpath=${1%/}
+  if [[ ! -d "${newpath}" ]] ; then
+    [[ ${VERBOSE} -ge 1 ]] && echo "Directory \"${1}\" does not exist."
+    return
+  fi
+  if [[ "${PATH}" =~ (^|:)"${newpath}"(:|$) ]] ; then
+    [[ ${VERBOSE} -ge 1 ]] && echo "Path \"${newpath}\" already exists in path \"${PATH}\"."
+    return
+  fi
+  [[ ${VERBOSE} -ge 1 ]] && echo "...adding \"${newpath}\" to \${PATH}"
+  if [[ "${2}" == "after" ]] ; then
+    export PATH="${PATH}:${newpath}"
+  else
+    export PATH="${newpath}:${PATH}"
+  fi
+}
+
+# add admin paths, replace macos utilities with GNU core utilities (should already include /usr/sbin/ and /sbin )
+BREWBIN_PATH="/usr/local/bin/brew"
+[[ "${IS_ARM}" == "true" ]] && BREWBIN_PATH="/opt/homebrew/bin/brew"
+BASE_PATH="$(${BREWBIN_PATH} --prefix)"
+for path2 in \
+  /usr/sbin \
+  ${BASE_PATH}/bin \
+  ${BASE_PATH}/sbin \
+  ${BASE_PATH}/opt/python/bin \
+  ${BASE_PATH}/opt/curl/bin \
+  ${BASE_PATH}/opt/openssl/bin \
+  $(/bin/ls -d $(brew --prefix)/opt/*/libexec/gnubin) \
+  ; do
+  pathadd ${path2}
+done
