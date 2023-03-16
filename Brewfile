@@ -134,6 +134,7 @@ cask "keystore-explorer", args: { appdir: "~/Applications" }
 # cask "pycharm-ce", args: { appdir: "~/Applications" }
 cask "spotify", args: { appdir: "~/Applications" }
 cask "visual-studio-code", args: { appdir: "~/Applications" }
+cask "warp", args { appdir: "~/Applications" }
 cask "wireshark", args: { appdir: "~/Applications" }
 
 ### App Store installs won't work until authenticated to apple account
