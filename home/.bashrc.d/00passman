@@ -16,7 +16,7 @@ function _passman_auth() {
   [[ ${VERBOSE} -ge 1 ]] && \
     echo "Need to auth passman; about to run \"op account get --account my --raw\""
   # clear contents of file
-  > ~/.pm_session_token
+  :> ~/.pm_session_token
   OP_SESSION_my="$(op signin --account my --raw)"
   if [[ "${?}" -eq 0 ]]; then
     echo ${OP_SESSION_my} > ~/.pm_session_token

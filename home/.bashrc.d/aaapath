@@ -18,7 +18,9 @@ function pathadd() {
 }
 
 # add admin paths, replace macos utilities with GNU core utilities (should already include /usr/sbin/ and /sbin )
-BASE_PATH="$(brew --prefix)"
+BREWBIN_PATH="/usr/local/bin/brew"
+[[ "${IS_ARM}" == "true" ]] && BREWBIN_PATH="/opt/homebrew/bin/brew"
+BASE_PATH="$(${BREWBIN_PATH} --prefix)"
 for path2 in \
   /usr/sbin \
   ${BASE_PATH}/bin \

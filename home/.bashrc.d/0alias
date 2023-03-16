@@ -19,9 +19,9 @@ esac
 
 [[ -f ~/.base_homeshick_vars ]] && source ~/.base_homeshick_vars
 
-alias egrep='egrep --color=auto'
-alias fgrep='fgrep --color=auto'
-alias grep='grep --color=auto'
+alias egrep='egrep --color=always'
+alias fgrep='fgrep --color=always'
+alias grep='grep --color=always'
 alias ducks="du -cshx ./ | sort -h"
 alias cdd="homeshick cd dotfiles"
 alias cdp="homeshick cd dotfiles_private"
@@ -156,8 +156,8 @@ if [[ "${IS_MACOS}" == "true" ]]; then
 
   alias curl="$(brew --prefix curl)/bin/curl"
   # since the path file hasn't been sourced yet, use absolute paths to ls for macos
-  alias ls="$(brew --prefix coreutils)/libexec/gnubin/ls -G --color=auto"
-  alias ll="$(brew --prefix coreutils)/libexec/gnubin/ls -hl -G --color=auto"
+  alias ls="$(brew --prefix coreutils)/libexec/gnubin/ls -G --color=always"
+  alias ll="$(brew --prefix coreutils)/libexec/gnubin/ls -hl -G --color=always"
   alias srm="/bin/rm -vP"
   alias brewdeps="brew leaves | xargs brew deps --include-build --tree"
   alias slack="open -a Slack"
@@ -284,8 +284,8 @@ if [[ "${IS_MACOS}" == "true" ]]; then
     curl https://wttr.in/${CUSTOM_HOME_ZIPCODE}
   }
 elif [[ "${IS_LINUX}" == "true" ]]; then
-  alias ls="ls --color=auto"
-  alias ll="ls -hal --color=auto"
+  alias ls="ls --color=always"
+  alias ll="ls -hal --color=always"
   alias list-services="systemctl list-unit-files --type=service | grep enabled | \
     cut -d. -f1 | sort"
   # enforce one use of clipboard memory

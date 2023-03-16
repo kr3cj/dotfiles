@@ -193,22 +193,10 @@ function ibexs() {
 # export KREW_ROOT=${HOME}/.krew
 # pathadd ${KREW_ROOT}/bin
 
-function _get_latest_version_from_github()
-{
-  # mostly replaced by kubectl/krew outdated and FairwindsOps/nova
-  local path=${@}
-  if ! [[ ${path} =~ [a-z]\/[a-z] ]]; then
-    echo "Invalid path provided to ${FUNCNAME[0]}. Must be like \"this/that\""
-    return 1
-  fi
-  local version=$(curl -s -H "Authorization: Bearer ${GITHUB_API_TOKEN}" \
-    https://api.github.com/repos/${path}/releases/latest | jq -r '.tag_name')
-  if [[ ${version} =~ ^v[0-9].* ]] || [[ ${version} =~ ^[0-9].* ]]; then
-    echo ${version/v}
-  else
-    echo "Invalid version returned for \"${FUNCNAME[0]} ${path}\""
-    return 1
-  fi
+function count-k8s-services() {
+  for cluster1 in $(find clusters/ -mindepth 4 -type d -exec basename '{}' \;); do
+  echo "${cluster1}: $(kubectl --context ${cluster1} get rollout -A -oname \
+   | grep -v paved-road | wc -l)"; done
 }
 
 # function doit () {
