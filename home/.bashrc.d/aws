@@ -11,26 +11,26 @@ export AWS_DEFAULT_REGION=us-east-1
 export SAML2AWS_CONFIGFILE=~/.saml2aws
 export SAML2AWS_SESSION_DURATION=43200 # 12 hour max for "saml2aws login"
 # export SAML2AWS_MFA="TOTP"
-# export SAML2AWS_ROLE=${CUSTOM_WORK_IAM_ROLE}
-# export SAML2AWS_PROFILE=
-
-export base_profile="$(basename $(echo ${IBEX_PROFILE:-CUSTOM_WORK_IAM_ROLE##*/}) Login | tr [A-Z] [a-z])"
+export SAML2AWS_ROLE="$(grep role_arn ~/.saml2aws | awk '{print $2}')"
+export SAML2AWS_PROFILE="$(basename $(grep role_arn ~/.saml2aws | cut -d/ -f2) Login | tr [A-Z] [a-z])"
 
 function saml() {
   # saml2aws logins can have a max session duration of 12h, but role chaining can only have a max session duration of 1h
   local args
   # [[ ${@} =~ "--session-duration" ]] || args="--session-duration=${SAML2AWS_SESSION_DURATION}"
-  [[ ${@} =~ "--role" ]] || args="${args} --role=${CUSTOM_WORK_IAM_ROLE}"
+  [[ ${@} =~ "--role" ]] || args="${args} --role=${SAML2AWS_ROLE}"
   # [[ ${@} =~ "--mfa" ]] || args="${args} --mfa=${SAML2AWS_MFA}"
   [[ ${@} =~ "--config" ]] || args="${args} --config=${SAML2AWS_CONFIGFILE}"
   # [[ ${@} =~ "--skip-prompt" ]] || args="${args} --skip-prompt"
+  [[ ${@} =~ "--quiet" ]] || args="${args} --quiet" # disable logging for security
   if [[ ${@} =~ "--exec-profile" ]] ; then
     export MY_AWS_PROFILE=$(echo ${@} | sed -r 's/.*--exec-profile[=,\ ]([^ ]+).*/\1/')
     # add 1 hour session duration if missing
     [[ ${@} =~ "--session-duration" ]] || args="${args} --session-duration=3600"
   fi
-  [[ ${VERBOSE} -ge 1 ]] && \
-    echo "Running \"$(which saml2aws) ${args} ${*}\""
+  # disable verbosity for password visibility
+  # [[ ${VERBOSE} -ge 1 ]] && \
+  #   echo "Running \"$(which saml2aws) ${args} ${*}\""
   saml2aws ${args} ${*}
 }
 
@@ -84,7 +84,7 @@ function get-latest-eks-ami-release-version() {
     jq -r '.serverVersion.major + "." + .serverVersion.minor' | sed 's/+$//g')"
   local desired_kube_version="${1:-$current_kube_version}"
 
-  aws ec2 --profile=${base_profile} describe-images --owners amazon \
+  aws ec2 --profile=${SAML2AWS_PROFILE} describe-images --owners amazon \
    --image-ids "$(aws ssm --profile=${the_profile} get-parameters \
     --names /aws/service/eks/optimized-ami/${desired_kube_version%+}/amazon-linux-2/recommended/image_id \
     --region us-east-1 | jq -r '.Parameters[0].Value')" | jq -r '.Images[0].Name'
@@ -119,7 +119,7 @@ function get-all-eks-ami-release-versions-and-ids() {
 }
 
 function show-domain-registration-expirations() {
-  for profile1 in $(grep \ ${CUSTOM_WORK_IAM_PROFILE_PREFIX%admin}- ~/.aws/config \
+  for profile1 in $(grep \ ${SAML2AWS_PROFILE%admin}- ~/.aws/config \
    | awk '{print $2}' | sed 's/]^//g'); do
     echo ${profile1%]}
     aws --profile ${profile1%]} route53domains list-domains | \
@@ -128,7 +128,7 @@ function show-domain-registration-expirations() {
 }
 
 function show-acm-cert-expirations() {
-  for profile1 in $(grep \ ${CUSTOM_WORK_IAM_PROFILE_PREFIX%admin}- ~/.aws/config \
+  for profile1 in $(grep \ ${SAML2AWS_PROFILE%admin}- ~/.aws/config \
    | awk '{print $2}' | sed 's/]^//g'); do
     echo ${profile1%]}
     for arn1 in $(aws --profile ${profile1%]} acm list-certificates --max-items 100 \
