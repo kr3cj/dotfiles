@@ -1,0 +1,64 @@
+[[ $- = *i* ]] || return
+${IS_MACOS} || return
+
+# remote host for container tools (https://docs.docker.com/engine/security/https/)
+export DOCKER_REGISTRY="${CUSTOM_WORK_DEFAULT_AWS_ACCT}.dkr.ecr.us-east-1.amazonaws.com"
+export DOCKER_HOST="unix:///${HOME}/.colima/docker.sock"
+
+function docker () {
+  if [[ ${@} =~ pull ]] && ! [[ ${@} =~ public.ecr.aws ]] && ! [[ ${@} =~ .com/ ]] && ! [[ ${@} =~ .io/ ]]; then
+    echo -e "  Remember you can pull docker stuff from \"docker pull public.ecr.aws/docker/library/${@#pull\ }\"...\n"
+    # see also https://gallery.ecr.aws/docker/
+  fi
+  $(which docker) ${@}
+}
+function docker-login () {
+  aws --profile=${SAML2AWS_PROFILE}-mono-production ecr get-login-password --region us-east-1 | \
+    docker login --username AWS --password-stdin ${CUSTOM_WORK_DEFAULT_AWS_ACCT}.dkr.ecr.us-east-1.amazonaws.com
+  # AWS ECR Repository for EKS Add-On images. See Amazon container image registries - Amazon EKS
+  aws --profile=${SAML2AWS_PROFILE}-mono-production ecr get-login-password --region us-east-1 | \
+    docker login --username AWS --password-stdin 602401143452.dkr.ecr.us-east-1.amazonaws.com
+}
+
+alias docker-clean="sudo docker system prune --all --force --volumes"
+
+function docker-reset () {
+  hash docker 2>/dev/null || return
+  hash colima 2>/dev/null || return
+  [[ -f docker-compose.yml || -f docker-compose.yaml ]] && docker-compose down --remove-orphans
+  docker stop $(docker container ls -a -q)
+  docker system prune --all --force --volumes
+  colima stop
+  # colima delete
+  colima start
+
+  ${IS_LINUX} && sudo systemctl restart docker.service
+  # ${IS_MACOS} && (echo -e "\nRestarting docker... (wait 1 min)" && killall Docker && open /Applications/Docker.app && sleep 60)
+
+  docker ps -a
+}
+
+# when connected to saml2aws using certain rolearns, auth to ECR if necessary
+# if [[ -n ${MY_AWS_PROFILE} ]]; then
+#   docker ps -a > /dev/null || return 1
+#   $(docker login | grep -q 'Username (AWS):') && "aws ecr get-login --no-include-email | bash"
+#   # check_ecr_auth="curl \
+#   #   --connect-timeout 1 \
+#   #   --header \"Authorization: Basic $(aws ecr get-authorization-token \
+#   #     --output text --query 'authorizationData[].authorizationToken')\" \
+#   #   --silent \
+#   #   --output /dev/null \
+#   #   --write-out \"%{http_code}\" \
+#   #   https://${CUSTOM_WORK_DEFAULT_AWS_ACCT}.dkr.ecr.us-east-1.amazonaws.com/v2/_catalog"
+#   # if [[ $(eval ${check_ecr_auth}) -ne 200 ]]; then
+#   #   echo "Authenticating to ECR..."
+#   #   aws ecr get-login --no-include-email | bash
+#   # fi
+# fi
+
+${is_weekend} && return
+# if necessary, start container engine
+pgrep -q colima || colima start
+# if necessary, authenticate to docker repos
+jq -e '.auths | has("'"${CUSTOM_WORK_DEFAULT_AWS_ACCT}"'.dkr.ecr.us-east-1.amazonaws.com")' \
+ ~/.docker/config.json > /dev/null || docker-login

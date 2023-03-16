@@ -1,0 +1,20 @@
+[[ $- = *i* ]] || return
+${IS_MACOS} || return
+
+# Workaround for macos incompatibility with commercial routers
+# [[ $(sysctl -n net.link.ether.inet.arp_unicast_lim) -ne 1 ]] && \
+#   sudo sysctl -w net.link.ether.inet.arp_unicast_lim=1
+
+# [[ $(launchctl limit maxfiles | awk '{print $2}') -lt 65535 ]] && \
+#   echo "###!!! you should run: sudo launchctl limit maxfiles 65536 200000"
+# dockerd doesn't seem to check above setting so also set ulimit
+[[ "$(ulimit -n)" -lt "65535" ]] && ulimit -n 65536
+
+export BASH_SILENCE_DEPRECATION_WARNING=1
+
+export HOMEBREW_CASK_OPTS="--appdir=~/Applications"
+
+for path3 in $(ls -d $(brew --prefix)/opt/*/libexec/gnuman); do
+  MANPATH="${path3}:${MANPATH}"
+done
+export MANPATH

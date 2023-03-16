@@ -1,0 +1,288 @@
+[[ $- = *i* ]] || return
+${IS_MACOS} || return
+
+find ~/.kube/ \
+  -mindepth 1 \
+  -maxdepth 1 \
+  -type f \
+  -exec chmod -c 600 '{}' \;
+export KUBECONFIG=$(find ~/.kube/ \
+  -mindepth 1 \
+  -maxdepth 1 \
+  -type f \
+  ! -name minikube \
+  | sort \
+  | tr '\n' ':' || "")
+  # -printf "%p:" \
+
+source <(kubectl completion zsh) # slow
+# alias k=kubectl
+source <(kubectl completion zsh | sed 's/kubectl/k/g' )
+
+source ~/.private-utils.sh
+
+pathadd ${HOME}/build/github/ibex
+# https://github.com/jimmidyson/asdf-krew/issues/3
+# pathadd ${HOME}/.asdf/installs/krew/$(asdf list krew | tail -fn1)/bin
+
+function k() {
+  # short cut for kubectl binary
+  local cluster=${1}
+  export CLUSTER=${1}
+  if ! [[ -r ~/.kube/${cluster} ]]; then
+    echo "No kubeconfig found for \"${cluster}\"!"
+    return 1
+  fi
+  shift
+  local action="${@}"
+
+  local my_aws_profile="$(map-cluster-to-profile ${cluster})"
+  # verify that eks clusters mapped to a my_aws_profile
+  if [[ "${my_aws_profile}" == "" ]]; then
+    return 1
+  fi
+  # if ! $(on_vpn); then
+  #   work_vpn
+  #   echo
+  # fi
+
+  local kube_config="--context ${cluster}"
+  # some kubectl plugin commands won't work with "--kubeconfig"
+  if [[ ${action} =~ "outdated" ]] || [[ ${action} =~ "node-admin" ]]; then
+    kube_config=""
+  fi
+  # automatic sorting and displaying of labels for common get commands
+  case ${action} in
+    *get?events*)
+      action="${action} --sort-by=.lastTimestamp" ;;
+    *get?po*|*get?rollouts*)
+      action="${action} --sort-by=.metadata.creationTimestamp" ;;
+    *top*)
+      action="${action} --sort-by=memory" ;;
+    *get?no*)
+      action="${action} --sort-by=.metadata.creationTimestamp \
+--label-columns=\
+eks.amazonaws.com/nodegroup-image,\
+instance,\
+node.kubernetes.io/instance-type,\
+failure-domain.beta.kubernetes.io/zone,\
+nodegroup_name,\
+function,\
+node-lifecycle"
+# -o=custom-columns=\
+# NAME:.metadata.name,\
+# UNSCHEDULABLE?:spec.unschedulable,\
+# START_TIME:.metadata.creationTimestamp,\
+# KUBELET:.status.nodeInfo.kubeletVersion,\
+# IMAGE:\".metadata.labels.eks\.amazonaws\.com/nodegroup-image\",\
+# TYPE:\".metadata.labels.node\.kubernetes\.io/instance-type\",\
+# NODEGROUP:.metadata.labels.nodegroup_name,\
+# FUNCTION:.metadata.labels.function,\
+# LIFECYCLE:.metadata.labels.node-lifecycle,\
+# AZ_AND_INSTANCE_ID:.spec.providerID,\
+# SCALE_DOWN_DISABLED?:\".metadata.annotations.cluster-autoscaler\.kubernetes\.io/scale-down-disabled\",\
+# UNSCHEDULABLE?:.spec.taints[?(@.key=='eks.amazonaws.com/nodegroup')].value"
+# info on SCALE_DOWN_DISABLED: https://github.com/aws/containers-roadmap/issues/916
+# info on UNSCHEDULABLE: https://docs.aws.amazon.com/eks/latest/userguide/managed-node-update-behavior.html#managed-node-update-scale-up
+
+# watch -n10 "kubectl --context ${CLUSTER} get no --sort-by=.metadata.creationTimestamp -o=custom-columns=NAME:.metadata.name,\"STATUS:status.conditions[?(@.status=='True')].type\",START_TIME:.metadata.creationTimestamp,KUBELET:.status.nodeInfo.kubeletVersion,IMAGE:\".metadata.labels.eks\.amazonaws\.com/nodegroup-image\",TYPE:\".metadata.labels.node\.kubernetes\.io/instance-type\",NODEGROUP:.metadata.labels.nodegroup_name,FUNCTION:.metadata.labels.function,LIFECYCLE:.metadata.labels.node-lifecycle,AZ_AND_INSTANCE_ID:.spec.providerID,SCALE_DOWN_DISABLED?:\".metadata.annotations.cluster-autoscaler\.kubernetes\.io/scale-down-disabled\",\"UNSCHEDULABLE:.spec.taints[?(@.key=='eks.amazonaws.com/nodegroup')].value\""
+
+# -ojsonpath=\
+# {range $.items[*]}{.metadata.name}{.spec.taints.eks\.amazonaws\.com/nodegroup=unschedulable{\"\n\"}{end}'"
+# another taint we use on proxy nodes: node-upgrading=true:NoSchedule
+      ;;
+    *)
+      [[ ${VERBOSE} -ge 1 ]] && echo "matched global"
+      action="${action}" ;;
+  esac
+
+  [[ ${VERBOSE} -ge 1 ]] && \
+    echo "Running: \"$(whence -p kubectl) ${kube_config} ${action}\""
+  eval "kubectl ${kube_config} ${action}" #--context admin@${cluster}
+}
+
+function h() {
+  # shortcut for helm binary
+  local cluster=${1}
+  if ! [[ -r ~/.kube/${cluster} ]]; then
+    echo "No kubeconfig found for \"${cluster}\"!"
+    return 1
+  fi
+  shift
+  local action=${@} # ex: "get pod"
+
+  local my_aws_profile="$(map-cluster-to-profile ${cluster})" # dynamically determine
+
+  # verify that eks clusters mapped to an my_aws_profile
+  if [[ "${my_aws_profile}" == "" ]]; then
+    echo "Could not map the cluster name to an aws profile."
+    return 1
+  fi
+  # if ! $(on_vpn); then
+  #   work_vpn
+  #   echo
+  # fi
+
+  local kube_config="--kube-context ${cluster}"
+  local helm_path="$(asdf where helm)/bin/helm"
+  echo "Using helm client $(${helm_path} ${kube_config} version --client --short)..."
+
+  if [[ ${VERBOSE} -ge 1 ]]; then
+    echo "To see helm2 releases, run: \"\$(asdf where helm 2.16.12)/bin/helm ${kube_config} ls\""
+    echo "Running: \"${helm_path} ${kube_config} ${action}\""
+  fi
+  eval "${helm_path} ${kube_config} ${action}" #--kube-context admin@${cluster}
+}
+
+function e {
+  # shortcut for eksctl binary
+  local cluster=${1}
+  if ! [[ -r ~/.kube/${cluster} ]]; then
+    echo "No kubeconfig found for \"${cluster}\"!"
+    return 1
+  fi
+  shift
+  local action=${@} # ex: "get pod"
+
+  local my_aws_profile="$(map-cluster-to-profile ${cluster})" # dynamically determine
+
+  # verify that eks clusters mapped to an my_aws_profile
+  if [[ "${my_aws_profile}" == "" ]]; then
+    echo "Could not map the cluster name to an aws profile."
+    return 1
+  fi
+  # if ! $(on_vpn); then
+  #   work_vpn
+  #   echo
+  # fi
+
+
+  if [[ ${VERBOSE} -ge 1 ]]; then
+    echo "Running: \"eksctl --profile ${my_aws_profile} --cluster ${cluster} ${action}\""
+  fi
+  eval "eksctl --profile ${my_aws_profile} --cluster ${cluster} ${action}"
+}
+
+function netshoot {
+  # spin up a throwaway container in k8s for network debugging
+  kubectl --context ${1} run tmp-shell --rm -i --tty --image nicolaka/netshoot -- /bin/bash
+}
+
+function ibexs() {
+  if ! [[ $(pwd) =~ ibex ]] ; then
+    echo "You must be in the ibex repo to run it"
+    exit 1
+  fi
+
+  local cluster=${1}
+  if ! [[ -r ~/.kube/${cluster} ]]; then
+    echo "No kubeconfig found for \"${cluster}\"!"
+    return 1
+  fi
+  shift
+  local args="${@}"
+
+  local my_cluster_path="$(map-cluster-to-path ${cluster})"
+
+  [[ ${VERBOSE} -ge 1 ]] && \
+    echo "Running: ./ibex --cluster ${my_cluster_path} ${args}"
+  ./ibex --cluster ${my_cluster_path} ${args}
+}
+
+# kubectl plugin manager: krew
+# export KREW_ROOT=${HOME}/.krew
+# pathadd ${KREW_ROOT}/bin
+
+function count-k8s-services() {
+  for cluster1 in $(find clusters/ -mindepth 4 -type d -exec basename '{}' \;); do
+  echo "${cluster1}: $(kubectl --context ${cluster1} get rollout -A -oname \
+   | grep -v paved-road | wc -l)"; done
+}
+
+# function doit () {
+#   local saml2aws-profile=${1}
+#   shift
+#   local nodes=${@}
+#   for node1 in ${nodes} ; do
+#     echo -e "\n starting on ${node1} at $(date)"
+#     kubectl drain ${node1} --ignore-daemonsets --force --delete-emptdir-data
+#     saml2aws exec --exec-profile=${saml2aws-profile} -- \
+#       aws ec2 terminate-instances --instance-ids \
+#         kubectl get nodes -o go-template --template=\'{{.spec.externalID}}\' ${nodeid}
+#   done
+# }
+
+# if one AZ is having problems in EC2...
+# 1) Use datadog to look at all errors in a cluster per AZ to find the one that is having problems
+# 2) If running spot ASGs (which span multi AZ), simply remove the bad AZ subnet from its config in the console
+# 3) cordon and drain those nodes from the cluster
+# [optional] kubectl cordon -l 'failure-domain.beta.kubernetes.io/zone=us-east-1d'
+# kubectl drain --ignore-daemonsets --delete-emptdir-data -l 'failure-domain.beta.kubernetes.io/zone=us-east-1d'
+# repeat the drain as necessary to catch any new nodes coming up in the bad AZ
+# 4) If running ASGs per AZ, decrease the max nodes to the same as the running nodes and min to 0 (so no new ones can spin up)
+#  watch for race condition between decreasing max and cluster-autoscaler not knowing to prevent launching in bad az
+
+# kubectl get node \
+  # -l kubernetes.io/role=node,failure-domain.beta.kubernetes.io/zone=us-east-${az} \
+  # --label-columns function
+  # --no-headers \
+  # --sort-by metadata.creationTimestamp
+
+  # -o name
+
+# get/delete/describe pods from multiple labels like release
+# k -n kube-system get pod -l 'release in (kiam-server,kiam-agent)'
+
+# get all ds,deploy complete with different labels using custom columns:
+# kubectl get deploy,ds --all-namespaces -o custom-columns=\
+# NAMESPACE:.metadata.namespace,\
+# K8S_NAME:.metadata.name,\
+# INSTANCE:".metadata.labels.app\.kubernetes\.io\/instance",\
+# K8S-APP:.metadata.labels.k8s-app,\
+# APP:.metadata.labels.app,\
+# HELM_RELEASE:".metadata.labels.helm\.sh\/chart",\
+# SHORT_IMAGE:.spec.template.spec.containers[0].image\
+#  | grep -v ^default
+
+# I can get a list of pods sorted by the node its on using the below.
+# But how can I show *node* labels by pod?
+# kubectl get pods -o wide --sort-by="{.spec.nodeName}"
+
+# get list of running pods on the node
+# kubectl get po --field-selector=spec.nodeName=ip-10-1-2-3.ec2.internal | grep -v event-observer
+
+# get events by specific pod/node
+# kubectl get events -n operations --sort-by='{.lastTimestamp}' --field-selector involvedObject.kind=Pod,involvedObject.name=datadog-worker-bv9nk
+
+# force pod deletion (only removes from etcd, doesn't force kill container on node)
+# kubectl -n operations delete pod/host-agent-datadog-l22qs --grace-period=0 --force
+
+# show count of deployment revisionHistoryLimit by microservice (replicationsets)
+# kubectl get deploy -ogo-template='{{range .items}}{{.metadata.name}}{{"\t"}}{{.spec.revisionHistoryLimit}}{{"\n"}}{{end}}' | column -t | awk '{print $2}' | sort | uniq -c
+
+# show count of configmaps by microservice
+# kubectl get rs -lapp -ogo-template='{{range .items}}{{.metadata.labels.app}}{{"\n"}}{{end}}' | awk '{print $1}' | sort | uniq -c
+
+# show counts of unique images/versions by namespace (watch is helpful for rollouts)
+# all namespaces except default
+# watch "kubectl --all-namespaces --field-selector=metadata.namespace!=default get po --sort-by=.metadata.creationTimestamp -o jsonpath='{..image}' | tr -s '[[:space:]]' '\n' | sort | uniq -c"
+
+# show all images in all clusters (takes 5+ mins)
+# for cluster1 in $(find clusters/ -mindepth 4 -type d -exec basename '{}' \;); do
+#   echo -e "\n\n${cluster1}"
+#   for ns1 in $(kubectl --context ${cluster1} get ns -oname); do
+#     echo -e "  ${ns1}"
+#     kubectl --context ${cluster1} get po -n ${ns1##*/} -o jsonpath='{..image}' | tr -s '[[:space:]]' '\n' | sort | uniq -c
+#   done
+# done | grep -E 'mine|theirs|yours'
+
+# show counts of unique images/version for kubelet
+# kubectl --context ${CLUSTER} get no --sort-by=.metadata.creationTimestamp -o jsonpath='{..kubeletVersion}' | tr -s '[[:space:]]' '\n' | sort | uniq -c
+
+# show all pods from nodes with given label
+# pcols=""; for n in $(kubectl get node -lfunction=cluster-critical -ocustom-columns=name:metadata.name --no-headers); do kubectl get pod \
+# --all-namespaces -o wide --field-selector "spec.nodeName=$n" $pcols; pcols="--no-headers"; done | column -t
+
+# show Pods with containers that aren't ready. Each row is the pod name, container name, ready state, started state.
+# kubectl get pod --all-namespaces -o go-template='POD{{"\t"}}CONTAINER{{"\t"}}READY{{"\t"}}STARTED{{"\n"}}{{range .items}}{{$p:=.metadata.name}}{{range \
+# .status.containerStatuses}}{{if not .ready}}{{$p}}{{"\t"}}{{.name}}{{"\t"}}{{.ready}}{{"\t"}}{{.started}}{{"\n"}}{{end}}{{end}}{{end}}'
