@@ -75,12 +75,14 @@ if ${IS_MACOS}; then
   # install asdf tools
   export PATH="${BASE_PATH}/opt/asdf/libexec/bin/asdf:${LOG_NAME}/.asdf/shims:${PATH}"
   # golang
-  for asdf_plugin in argo awscli eksctl golang helm helmfile jq k9s kubectl kustomize \
+  for asdf_plugin in argo awscli eksctl golang grpcurl helm helmfile jq k9s krew kubectl kustomize \
       minikube nova pluto poetry python saml2aws sinker sops sopstool terraform \
       terraform-docs yq viddy; do
     # kops linkerd minikube octant
     asdf plugin-add ${asdf_plugin}
   done
+
+  kubectl krew install get-all
 
   # pip3 install --upgrade distribute
   # pip3 install --upgrade pip
@@ -173,7 +175,7 @@ EOF
   if [[ ${GHA_CI_RUN} != true ]]; then
     # secret zero
     echo -e "\nTo continue, you must be authenticated to password manager cli: \
-    op account add --address ${CUSTOM_HOME_PASSWD_MGR_ACCOUNT[0]} --email ${CUSTOM_HOME_PASSWD_MGR_ACCOUNT[1]}
+    op account add --address ${CUSTOM_HOME_PASSWD_MGR_ACCOUNT[1]} --email ${CUSTOM_HOME_PASSWD_MGR_ACCOUNT[2]}
     eval \$(op signin) \
     Then start \"~/.workstation_setup_private.sh\"."
     /usr/bin/read -s -k "?Press any key to continue."

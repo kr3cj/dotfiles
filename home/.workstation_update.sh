@@ -13,33 +13,33 @@ if [[ ${GHA_CI_RUN} != true ]]; then
 fi
 
 # 3rd party package management
-if hash npm 2>/dev/null ; then
-  echo -e "Updating npm..."
-  npm install npm -g
-  npm update -g
-fi
-if hash gem 2>/dev/null && [[ ${GHA_CI_RUN} != true ]]; then
-  echo -e "\nUpdating gems..."
-  # ~/.gemrc should prevent ri or rdoc files from being installed
-  # sudo gem update --system --conservative --minimal-deps --no-verbose --force
-  # sudo gem update --conservative --minimal-deps --no-verbose --force
-  # to remove all ri and rdocs of installed gems:
-  # sudo rm -vrf $(gem env gemdir)/doc
-fi
-if hash pip 2>/dev/null; then
-  echo -e "\nUpdating pip..."
-  python -m pip install --upgrade pip
-  pip install --upgrade setuptools
-  pip install --upgrade -r <( pip freeze )
-  # for pkg in $(sudo -H pip list --outdated --format=columns | tail -n +3 | awk '{print $1}') ; do
-  #   sudo -H pip install ${pkg} --upgrade
-  # done
-  # pip freeze -local | grep -v '^\-e' | cut -d= -f1 | xargs -n1 pip install -U
-fi
-if hash tmux 2>/dev/null ; then
-  echo -e "\nUpdating tmux plugins..."
-  ~/.tmux/plugins/tpm/bin/update_plugins all
-fi
+# if hash npm 2>/dev/null ; then
+#   echo -e "Updating npm..."
+#   npm install npm -g
+#   npm update -g
+# fi
+# if hash gem 2>/dev/null && [[ ${GHA_CI_RUN} != true ]]; then
+#   echo -e "\nUpdating gems..."
+#   ~/.gemrc should prevent ri or rdoc files from being installed
+#   sudo gem update --system --conservative --minimal-deps --no-verbose --force
+#   sudo gem update --conservative --minimal-deps --no-verbose --force
+#   to remove all ri and rdocs of installed gems:
+#   sudo rm -vrf $(gem env gemdir)/doc
+# fi
+# if hash pip 2>/dev/null; then
+#   echo -e "\nUpdating pip..."
+#   python -m pip install --upgrade pip
+#   pip install --upgrade setuptools
+#   pip install --upgrade -r <( pip freeze )
+#   # for pkg in $(sudo -H pip list --outdated --format=columns | tail -n +3 | awk '{print $1}') ; do
+#   #   sudo -H pip install ${pkg} --upgrade
+#   # done
+#   # pip freeze -local | grep -v '^\-e' | cut -d= -f1 | xargs -n1 pip install -U
+# fi
+# if hash tmux 2>/dev/null ; then
+#   echo -e "\nUpdating tmux plugins..."
+#   ~/.tmux/plugins/tpm/bin/update_plugins all
+# fi
 # if hash gcloud 2>/dev/null && [[ ${GHA_CI_RUN} != true ]]; then
   # echo -e "\nUpdating glcoud..."
   # sudo gcloud components update --quiet
@@ -60,13 +60,6 @@ if [[ $(uname) == "Darwin" ]] ; then
   # done
   # cd ~/build/all-repos
   echo -e "Updating stubborn config files to homesick repo"
-  # cp -av ~/.kube/config ~/.homesick/repos/dotfiles_private/home/.kube/
-  # cp -av ~/.docker/*.json ~/.homesick/repos/dotfiles_private/home/.docker/
-
-  # echo -e "\nUpdating work specific yeoman tools..."
-  # for generator1 in $(yo --generators | grep /); do
-  #   npm install --global ${generator/\//\/generator-}
-  # done
 
   echo -e "\nUpdating brew packages..."
   # hack for weird virt-manager dependency (or just remove spice-gtk, virt-manager and virt-viewer)
@@ -78,8 +71,7 @@ if [[ $(uname) == "Darwin" ]] ; then
   # brew upgrade --cask
   for cask1 in $(brew upgrade --cask --dry-run | awk '{print $1}') ; do
     case ${cask1} in
-      alfred|brave-browser|docker|firefox|github|google-backup-and-sync|\
-      spotify|visual-studio-code|virtualbox)
+      brave-browser|firefox|github|spotify|visual-studio-code)
         # TODO: letting apps update themselves may mistakenly install them to /Applications intead of ~/Applications :(
         # docker|github|iterm2|slack|spotify|zoom
         echo "Skipping cask that should auto update itself: ${cask1}" ;;
@@ -104,13 +96,13 @@ if [[ $(uname) == "Darwin" ]] ; then
     ${helm_binary} repo update ${repo1}
   done
 
-  # echo -e "\nUpdating kubectl krew plugins."
-  # (
-  #   # change to home dir to pick up .tool-versions for asdf
-  #   cd ~
-  #   # ~/.asdf/shims/kubectl krew system receipts-upgrade
-  #   ~/.asdf/shims/kubectl krew upgrade
-  # )
+  echo -e "\nUpdating kubectl krew plugins."
+  (
+    # change to home dir to pick up .tool-versions for asdf
+    cd ~
+    # ~/.asdf/shims/kubectl krew system receipts-upgrade
+    ~/.asdf/shims/kubectl krew upgrade
+  )
 
   # echo -e "\nUpdating password manager." # done via cask
   # /usr/local/bin/op update
@@ -143,7 +135,7 @@ if [[ $(uname) == "Darwin" ]] ; then
       cp -avL ${TOOL_FILE} ${TOOL_FILE}.$(date +%Y%m%d).backup
 
       # read each line of .tool-versions into array of tool+version
-      [[ -f ${TOOL_FILE}.new ]] && true > ${TOOL_FILE}.new
+      [[ -f ${TOOL_FILE}.new ]] && :> ${TOOL_FILE}.new
       while read line1; do
         array=( ${line1} )
         tool1="${array[0]}"
@@ -187,7 +179,7 @@ if [[ $(uname) == "Darwin" ]] ; then
       diff ${TOOL_FILE}.$(/bin/date +%Y%m%d).backup ${TOOL_FILE}.new
       cat ${TOOL_FILE}.new > ${TOOL_FILE} && rm ${TOOL_FILE}.new
       (cd ${HOME} && $(brew --prefix asdf)/bin/asdf install)
-      asdf reshim python
+      asdf reshim python krew
       echo "Finished updating asdf ${TOOL_FILE}"
       # TODO: Remove all unused versions automatically
       echo "Remove old asdf config files older than 30 days"
@@ -232,6 +224,9 @@ if [[ $(uname) == "Darwin" ]] ; then
   $(brew --prefix findutils)/libexec/gnubin/find ${HOME} -mindepth 1 -maxdepth 2 -type f \
     -name ".[^.]*" -not \( -name ".DS_Store" -or -name ".localized" \
     -or -name "*_history" -or -name "*hst" -or -name "*hist" \
+    -or -name ".tool-versions.*" -or -name ".fzf.*" -or -name ".viminfo" \
+    -or -name ".*_session_token" -or -name ".CFUserTextEncoding" \
+    -or -name ".wget-hsts" -or -name ".zcompdump" \
     -or -name ".macos_*.json" -or -name .gitignore -or -name .yarnrc \) \
     -exec echo 'Unmanaged dotfile: {}; Track with \"homeshick track dotfiles <name>\"?' \;
 
