@@ -1,3 +1,0 @@
-[[ $- = *i* ]] || return
-clear_clip 20
-${IS_MACOS} || return
