@@ -1,6 +1,6 @@
-[[ $- = *i* ]] || return
-${IS_MACOS} || return
-${HEALTHY_INTERNET} || return
+[[ $- = *i* ]] || return 0
+${IS_MACOS} || return 0
+${HEALTHY_INTERNET} || return 0
 
 # TODO: move most of this to a script called after login or screen-unlock
 #  https://stackoverflow.com/questions/6442364/running-script-upon-login-mac
@@ -82,7 +82,7 @@ function _create_socks_proxy {
       echo "ERROR: Skipping ${funcstack[1]}; unable to connect to \"${host1}:22\"."
       return 1
     else
-      /usr/bin/ssh ${ssh_proxy_options} ${port1} ${host1}
+      eval "/usr/bin/ssh ${ssh_proxy_options} ${port1} ${host1}"
     fi
   fi
   # if [[ -s ${ssh_proxy_response_file} ]]; then
@@ -114,29 +114,16 @@ function mount_home_nfs {
     # lpadmin -p canon_mg5220 -L "canon_mg5220" -E -v lpd://printer.${CUSTOM_HOME_NAS_HOST#*\.} -m everywhere
 }
 function work_saml2aws {
-  # TODO: use "grep x_security_token_expires ~/.aws/credentials" instead of custom timestamp
-  if ! session_is_active saml; then
-    # ${HOME}/.asdf/shims/saml2aws exec -- aws sts get-caller-identity --query Arn --output text > /dev/null
-
-    # uncomment pbcopy once saml2aws over asdf on arm64 uses keychain
+  if [[ $(grep expir ~/.aws/credentials | tail -n1 | awk '{print $3}') < $(gdate --iso-8601=seconds) ]]; then
     # make sure we are authenticated to password manager
     export OP_SESSION_my="$(head -n1 ~/.pm_session_token)"
     _passman_needs_auth || _passman_auth
-    # SAML2AWS_USERNAME="${LOGNAME}@${CUSTOM_WORK_DOMAINS[1]}"
-    SAML2AWS_PASSWORD=$(op item get "${CUSTOM_WORK_DOMAINS[1]/.com/} ${CUSTOM_WORK_SSO_PROVIDER}" --fields "password" --cache --session ${OP_SESSION_my})
-    SAML2AWS_MFA_TOKEN=$(otp "${CUSTOM_WORK_DOMAINS[1]/.com/} ${CUSTOM_WORK_SSO_PROVIDER}")
-
-    saml login --password=${SAML2AWS_PASSWORD} --mfa-token=${SAML2AWS_MFA_TOKEN} --skip-prompt
+    saml login --skip-prompt \
+     --password=$(op item get "${CUSTOM_WORK_DOMAINS[1]/.com/} ${CUSTOM_WORK_SSO_PROVIDER}" --fields "password" --cache --session ${OP_SESSION_my}) \
+     --mfa-token=$(otp "${CUSTOM_WORK_DOMAINS[1]/.com/} ${CUSTOM_WORK_SSO_PROVIDER}")
     # remove --skip-prompt once when pw is changed
-    if [[ ${?} == 0 ]]; then
-      # TODO: remove in favor of "grep x_security_token_expires ~/.aws/credentials"
-      session_is_active saml "${SAML2AWS_SESSION_DURATION} seconds" || true
-      # docker-login
-      # open -a "Brave Browser" --args --profile-directory=Work "https://${CUSTOM_WORK_DOMAINS[1]/.com/}.${CUSTOM_WORK_SSO_PROVIDER}.com"
-    else
-      echo "Has your password changed? Try removing keychain and run \"saml login\""
-    fi
-    unset SAML2AWS_PASSWORD SAML2AWS_MFA_TOKEN
+    [[ ${?} == 0 ]] || \
+     echo "Has your password changed? Try removing keychain and run \"saml login\""
   fi
 }
 function work_vpn {
@@ -176,15 +163,6 @@ function work_vpn {
   fi
 }
 
-# only proceed on work system
-${IS_ARM} || return
-${is_weekend} && ${IS_ARM} || work_saml2aws
-${is_weekend} || work_vpn
-${at_work} && _create_socks_proxy "home.${CUSTOM_HOME_DOMAIN}" "2000"
-# pm
-
-# [[ $(pwd) == "${HOME}" ]] && cd ~/build/github/ibex
-
 # if ${at_home}; then
 #   if $(ping -c1 -W1 -i0.1 ${CUSTOM_HOME_NAS_HOST} &> /dev/null); then
 #     mount_home_nfs
@@ -204,3 +182,12 @@ ${at_work} && _create_socks_proxy "home.${CUSTOM_HOME_DOMAIN}" "2000"
 #   # # establish SSH tunnel to home proxy
 #   # _create_socks_proxy "home.${CUSTOM_HOME_DOMAIN}" "2000"
 # fi
+
+# only proceed on work system
+${IS_ARM} || return 0
+${is_weekend} || work_saml2aws
+${is_weekend} || work_vpn
+${at_work} && _create_socks_proxy "home.${CUSTOM_HOME_DOMAIN}" "2000"
+# pm
+
+[[ $(pwd) == "${HOME}" ]] && cd ~/build/github/ibex || return 0
