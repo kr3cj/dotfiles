@@ -1,5 +1,5 @@
-[[ $- = *i* ]] || return
-${IS_MACOS} || return
+[[ $- = *i* ]] || return 0
+${IS_MACOS} || return 0
 
 function tma() {
   local host1=${1}

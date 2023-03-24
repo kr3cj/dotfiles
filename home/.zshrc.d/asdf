@@ -1,5 +1,5 @@
-[[ $- = *i* ]] || return
-${IS_MACOS} || return
+[[ $- = *i* ]] || return 0
+${IS_MACOS} || return 0
 
 source $(brew --prefix asdf)/libexec/asdf.sh
 

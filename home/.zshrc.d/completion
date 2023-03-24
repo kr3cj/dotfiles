@@ -1,8 +1,13 @@
-[[ $- = *i* ]] || return
+[[ $- = *i* ]] || return 0
+
+# https://scriptingosx.com/2019/07/moving-to-zsh-part-5-completions/
+
+# load bashcompinit for some old bash completions
+autoload bashcompinit && bashcompinit
+[[ -r ~/Projects/autopkg_complete/autopkg ]] && source ~/Projects/autopkg_complete/autopkg
 
 if type brew &>/dev/null; then
-  FPATH=$(brew --prefix)/share/zsh-completions:$FPATH
+  FPATH=${BASE_PATH}/share/zsh-completions:${FPATH}
 
-  autoload -Uz compinit
-  compinit
+  autoload -Uz compinit && compinit
 fi

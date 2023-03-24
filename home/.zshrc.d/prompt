@@ -1,5 +1,7 @@
-[[ $- = *i* ]] || return
+[[ $- = *i* ]] || return 0
 
 # [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
 # eval "$(starship init zsh)"
+
+# https://scriptingosx.com/2019/07/moving-to-zsh-06-customizing-the-zsh-prompt/

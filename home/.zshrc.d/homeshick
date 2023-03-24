@@ -1,4 +1,4 @@
-[[ $- = *i* ]] || return
+[[ $- = *i* ]] || return 0
 
 source "${HOME}/.homesick/repos/homeshick/homeshick.sh"
 # source "${HOME}/.homesick/repos/homeshick/completions/homeshick-completion.bash"
@@ -9,7 +9,7 @@ ${HEALTHY_INTERNET} && homeshick --quiet refresh 7
 # can take a long time and requires tty?; TODO: try shallow symlinking?
 # https://github.com/andsens/homeshick/wiki/Symlinking#shallow-symlinking
 
-${IS_LINUX} || return
+${IS_LINUX} || return 0
 homeshick --force link dotfiles dotfiles_private
 # print any dead links in home directory
 find ${HOME} -mindepth 1 -maxdepth 2 -xtype l \

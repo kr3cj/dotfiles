@@ -1,5 +1,5 @@
-[[ $- = *i* ]] || return
-${IS_MACOS} || return
+[[ $- = *i* ]] || return 0
+${IS_MACOS} || return 0
 
 # Workaround for macos incompatibility with commercial routers
 # [[ $(sysctl -n net.link.ether.inet.arp_unicast_lim) -ne 1 ]] && \
@@ -14,7 +14,10 @@ export BASH_SILENCE_DEPRECATION_WARNING=1
 
 export HOMEBREW_CASK_OPTS="--appdir=~/Applications"
 
-for path3 in $(ls -d $(brew --prefix)/opt/*/libexec/gnuman); do
+for path3 in $(ls -d ${BASE_PATH}/opt/*/libexec/gnuman); do
   MANPATH="${path3}:${MANPATH}"
 done
 export MANPATH
+# link homebrew man pages https://apple.stackexchange.com/questions/111061/linking-manuals-from-homebrew
+
+# export MANPATH="/opt/homebrew/share/man${MANPATH+:$MANPATH}:"

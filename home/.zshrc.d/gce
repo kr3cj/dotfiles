@@ -1,11 +1,11 @@
-[[ $- = *i* ]] || return
-${IS_MACOS} || return
+[[ $- = *i* ]] ||  0
+${IS_MACOS} || return 0
 
 # gce bash completion
-# source "$(brew --prefix)/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/completion.bash.inc"
+# source "${BASE_PATH}/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/completion.bash.inc"
 
 # gce pathing (sourcing path.bash.inc duplicates entries into ${PATH})
-# source "$(brew --prefix)/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/path.bash.inc"
+# source "${BASE_PATH}/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/path.bash.inc"
 
 # gcloud info
 # gcloud help
