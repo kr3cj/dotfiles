@@ -1,30 +1,30 @@
-[[ $- = *i* ]] || return
-${IS_MACOS} || return
+[[ $- = *i* ]] || return 0
+${IS_MACOS} || return 0
 
 # remote host for container tools (https://docs.docker.com/engine/security/https/)
 export DOCKER_REGISTRY="${CUSTOM_WORK_DEFAULT_AWS_ACCT}.dkr.ecr.us-east-1.amazonaws.com"
 export DOCKER_HOST="unix:///${HOME}/.colima/docker.sock"
 
-function docker () {
-  if [[ ${@} =~ pull ]] && ! [[ ${@} =~ public.ecr.aws ]] && ! [[ ${@} =~ .com/ ]] && ! [[ ${@} =~ .io/ ]]; then
-    echo -e "  Remember you can pull docker stuff from \"docker pull public.ecr.aws/docker/library/${@#pull\ }\"...\n"
-    # see also https://gallery.ecr.aws/docker/
-  fi
-  $(which docker) ${@}
-}
+# function docker () {
+#   if [[ ${@} =~ pull ]] && ! [[ ${@} =~ public.ecr.aws ]] && ! [[ ${@} =~ .com/ ]] && ! [[ ${@} =~ .io/ ]]; then
+#     echo -e "  Remember you can pull docker stuff from \"docker pull public.ecr.aws/docker/library/${@#pull\ }\"...\n"
+#     # see also https://gallery.ecr.aws/docker/
+#   fi
+#   $(whence -p docker) ${@}
+# }
 function docker-login () {
-  aws --profile=${SAML2AWS_PROFILE}-mono-production ecr get-login-password --region us-east-1 | \
-    docker login --username AWS --password-stdin ${CUSTOM_WORK_DEFAULT_AWS_ACCT}.dkr.ecr.us-east-1.amazonaws.com
+  eval "aws --profile=${SAML2AWS_PROFILE1}-mono-production ecr get-login-password --region us-east-1 | \
+    docker login --username AWS --password-stdin ${CUSTOM_WORK_DEFAULT_AWS_ACCT}.dkr.ecr.us-east-1.amazonaws.com"
   # AWS ECR Repository for EKS Add-On images. See Amazon container image registries - Amazon EKS
-  aws --profile=${SAML2AWS_PROFILE}-mono-production ecr get-login-password --region us-east-1 | \
-    docker login --username AWS --password-stdin 602401143452.dkr.ecr.us-east-1.amazonaws.com
+  eval "aws --profile=${SAML2AWS_PROFILE1}-mono-production ecr get-login-password --region us-east-1 | \
+    docker login --username AWS --password-stdin 602401143452.dkr.ecr.us-east-1.amazonaws.com"
 }
 
 alias docker-clean="sudo docker system prune --all --force --volumes"
 
 function docker-reset () {
-  hash docker 2>/dev/null || return
-  hash colima 2>/dev/null || return
+  hash docker 2>/dev/null || return 0
+  hash colima 2>/dev/null || return 0
   [[ -f docker-compose.yml || -f docker-compose.yaml ]] && docker-compose down --remove-orphans
   docker stop $(docker container ls -a -q)
   docker system prune --all --force --volumes
@@ -56,9 +56,9 @@ function docker-reset () {
 #   # fi
 # fi
 
-${is_weekend} && return
+${is_weekend} && return 0
 # if necessary, start container engine
 pgrep -q colima || colima start
-# if necessary, authenticate to docker repos
+# if necessary, authenticate to docker repos; this always returns true now in zsh?
 jq -e '.auths | has("'"${CUSTOM_WORK_DEFAULT_AWS_ACCT}"'.dkr.ecr.us-east-1.amazonaws.com")' \
  ~/.docker/config.json > /dev/null || docker-login
