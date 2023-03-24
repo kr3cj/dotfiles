@@ -10,19 +10,22 @@ export AWS_DEFAULT_REGION=us-east-1
 # move saml2aws variables to config file
 export SAML2AWS_CONFIGFILE=~/.saml2aws
 export SAML2AWS_SESSION_DURATION=43200 # 12 hour max for "saml2aws login"
-# export SAML2AWS_MFA="TOTP"
-export SAML2AWS_ROLE="$(grep role_arn ~/.saml2aws | awk '{print $2}')"
+export SAML2AWS_MFA="TOTP"
+export SAML2AWS_ROLE="$(grep role_arn ~/.saml2aws | awk '{print $3}')"
 export SAML2AWS_PROFILE="$(basename $(grep role_arn ~/.saml2aws | cut -d/ -f2) Login | tr [A-Z] [a-z])"
+# export SAML2AWS_USERNAME="${LOGNAME}@${CUSTOM_WORK_DOMAINS[0]}"
+# export SAML2AWS_PASSWORD=
+# export SAML2AWS_MFA_TOKEN=
 
 function saml() {
   # saml2aws logins can have a max session duration of 12h, but role chaining can only have a max session duration of 1h
   local args
   # [[ ${@} =~ "--session-duration" ]] || args="--session-duration=${SAML2AWS_SESSION_DURATION}"
-  [[ ${@} =~ "--role" ]] || args="${args} --role=${SAML2AWS_ROLE}"
+  # [[ ${@} =~ "--role" ]] || args="${args} --role=${SAML2AWS_ROLE}"
   # [[ ${@} =~ "--mfa" ]] || args="${args} --mfa=${SAML2AWS_MFA}"
-  [[ ${@} =~ "--config" ]] || args="${args} --config=${SAML2AWS_CONFIGFILE}"
+  # [[ ${@} =~ "--config" ]] || args="${args} --config=${SAML2AWS_CONFIGFILE}"
   # [[ ${@} =~ "--skip-prompt" ]] || args="${args} --skip-prompt"
-  [[ ${@} =~ "--quiet" ]] || args="${args} --quiet" # disable logging for security
+  # [[ ${@} =~ "--quiet" ]] || args="${args} --quiet" # disable logging for security
   if [[ ${@} =~ "--exec-profile" ]] ; then
     export MY_AWS_PROFILE=$(echo ${@} | sed -r 's/.*--exec-profile[=,\ ]([^ ]+).*/\1/')
     # add 1 hour session duration if missing
