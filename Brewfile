@@ -118,7 +118,6 @@ brew "tfenv"
 # slack zoom
 
 ### desktop installs
-cask "1password-cli", args: { appdir: "~/Applications" }
 cask "alfred", args: { appdir: "~/Applications" }
 cask "balenaetcher", args: { appdir: "~/Applications" }
 cask "brave-browser", args: { appdir: "~/Applications" }
