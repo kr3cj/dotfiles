@@ -21,6 +21,8 @@ stty -echoctl
 export GHA_CI_RUN="${GHA_CI_RUN:-false}"
 [[ -f ~/.base_homeshick_vars ]] && source ~/.base_homeshick_vars
 
+export MYSHELL=$(printf "%s\n" $0)
+
 # impatiently detect healthy internet connectivity; prereq for passwd mgr stuff
 export HEALTHY_INTERNET=false
 export timeout_path
