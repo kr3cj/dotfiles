@@ -1,8 +1,10 @@
-[[ $- = *i* ]] || return
+[[ $- = *i* ]] || return 0
+
+# convert bash_history to zsh_history https://thiagowfx.github.io/2022/02/transfer-bash-history-to-zsh/
 
 export HISTFILE=~/.${LOGNAME/\.*/}_zsh_history
-SAVEHIST=1000000
-HISTSIZE=1000000
+export SAVEHIST=1000000
+export HISTSIZE=1000000
 # share history across multiple zsh sessions
 setopt SHARE_HISTORY
 # append to history
@@ -10,4 +12,5 @@ setopt APPEND_HISTORY
 setopt EXTENDED_HISTORY
 
 # make zsh history behave more like bash history
-alias history="history -1"
+alias history="history 1"
+# get last 100 lines with timstamp: fc -li 100
