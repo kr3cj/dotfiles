@@ -1,0 +1,38 @@
+function pathadd() {
+  local newpath=${1%/}
+  # check if directory exists and is readable first
+  if [[ ! -d "${newpath}" ]] ; then
+    [[ ${VERBOSE} -ge 1 ]] && echo "Directory \"${1}\" does not exist."
+    return 0
+  fi
+
+  if [[ "${PATH}" =~ (^|:)"${newpath}"(:|$) ]] ; then
+    [[ ${VERBOSE} -ge 1 ]] && echo "Path \"${newpath}\" already exists in path \"${PATH}\"."
+    return 0
+  else
+    [[ ${VERBOSE} -ge 1 ]] && echo "...adding \"${newpath}\" to \${PATH}"
+    if [[ "${2}" == "after" ]] ; then
+      export PATH="${PATH}:${newpath}"
+    else
+      export PATH="${newpath}:${PATH}"
+    fi
+  fi
+}
+
+# add admin paths, replace macos utilities with GNU core utilities (should already include /usr/sbin/ and /sbin )
+export BREWBIN_PATH="/usr/local/bin/brew"
+[[ "${IS_ARM}" == "true" ]] && export BREWBIN_PATH="/opt/homebrew/bin/brew"
+export BASE_PATH="$(${BREWBIN_PATH} --prefix)"
+# if you need to reset PATH
+# PATH="/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
+for path2 in \
+ /usr/sbin \
+ ${BASE_PATH}/bin \
+ ${BASE_PATH}/sbin \
+ ${BASE_PATH}/opt/python/bin \
+ ${BASE_PATH}/opt/curl/bin \
+ ${BASE_PATH}/opt/openssl/bin \
+ $(/bin/ls -d ${BASE_PATH}/opt/*/libexec/gnubin) \
+ ; do
+  pathadd ${path2}
+done

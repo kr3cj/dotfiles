@@ -1,5 +1,5 @@
-[[ $- = *i* ]] || return
-${IS_MACOS} || return
+[[ $- = *i* ]] || return 0
+${IS_MACOS} || return 0
 
 # passman doesn't have support for debug logging, session timeout control,
 # or even an easy way to know if you're authenticated
@@ -27,7 +27,7 @@ function _passman_auth() {
   # clear_clip 10
 }
 
-function passman() {
+function passman {
   # TODO: convert to flag based args instead of positional args
   # # if the first variable is an integer, then clear clipboard
 
@@ -47,8 +47,8 @@ function passman() {
 }
 
 function otp {
-  [[ ${VERBOSE} -ge 1 ]] && \
-    echo "Running: op item get --otp \"${1}\" --cache --session ${OP_SESSION_my}"
+  # [[ ${VERBOSE} -ge 1 ]] && \
+  #   echo "Running: op item get --otp \"${1}\" --cache --session ${OP_SESSION_my}"
   op item get --otp "${1}" --cache --session ${OP_SESSION_my}
 }
 
