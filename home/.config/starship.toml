@@ -1,0 +1,25 @@
+[aws]
+# format = 'on [$symbol($profile )(\($region\) )]($style)'
+# style = 'bold blue'
+# symbol = '🅰 '
+force_display = true
+
+[[battery.display]]
+threshold = 20
+
+[git_branch]
+symbol = '🌱 '
+ignore_branches = ['master', 'main']
+
+[kubernetes]
+disabled = false
+
+[memory_usage]
+disabled = false
+
+[shlvl]
+disabled = false
+threshold = 3
+
+[sudo]
+disabled = false
