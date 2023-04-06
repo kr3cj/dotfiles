@@ -40,6 +40,7 @@ function bashcurl {
   [[ ${VERBOSE} -ge 1 ]] && echo "PORT=${PORT}"
   [[ ${VERBOSE} -ge 1 ]] && echo "DOC=${DOC}"
 
+  # wrap with "bash -c" ?
   exec 5<>/dev/tcp/${HOST}/${PORT}
   echo -en "GET ${DOC} HTTP/1.1\r\nHost: ${HOST}\r\n${tag}\r\n\r\n" >&5
   while read line; do
@@ -138,16 +139,18 @@ if [[ "${IS_MACOS}" == "true" ]]; then
   export BASE_PATH="$(${BREWBIN_PATH} --prefix)"
   # export PATH="${BASE_PATH}/bin:${BASE_PATH}/opt/asdf/libexec/bin/asdf:${LOG_NAME}/.asdf/shims:${PATH}"
 
-  alias curl="$(brew --prefix curl)/bin/curl"
+  # alias curl="$(brew --prefix curl)/bin/curl"
   # since the path file hasn't been sourced yet, use absolute paths to ls for macos
   alias ls="$(brew --prefix coreutils)/libexec/gnubin/ls -G --color=always"
   alias ll="$(brew --prefix coreutils)/libexec/gnubin/ls -hl -G --color=always"
-  alias srm="/bin/rm -vP"
+  # alias srm="/bin/rm -vP"
   alias brewdeps="brew leaves | xargs brew deps --include-build --tree"
   alias slack="open -a Slack"
   alias spotify="open -a Spotify"
   # alias gphoto="open --background -a \"Google Photos Backup\""
   # alias gphoto="open --background -a \"Backup and Sync\""
+  alias utc="echo -e \"date -u: $($(brew --prefix coreutils)/libexec/gnubin/date -u)\n\
+  date --rfc-3339=seconds -u: $($(brew --prefix coreutils)/libexec/gnubin/date --rfc-3339=seconds -u)\""
 
   function ack {
     $(whence -p ack) "${@}" --ignore-dir=.terraform
@@ -155,8 +158,7 @@ if [[ "${IS_MACOS}" == "true" ]]; then
 
   function alfred {
     passman  "${CUSTOM_WORK_DOMAINS[1]/.com/} macbook" || echo "Unable to cache pw."
-    $(whence -p alfred) ${*}
-    # $(whence -p alfred) "${@}"
+    $(whence -p alfred) "${@}"
   }
 
   function argod () {
@@ -193,7 +195,7 @@ if [[ "${IS_MACOS}" == "true" ]]; then
 
   function keybase {
     passman  "Keybase" || echo "Unable to cache pw."
-    $(whence -p keybase) ${*}
+    $(whence -p keybase) "${@}"
   }
 
   function mysql-client {
@@ -220,8 +222,8 @@ if [[ "${IS_MACOS}" == "true" ]]; then
 
   function rsync {
     echo "Running: time $(whence -p rsync) -axHAXS --append-verify --info=progress2 --numeric-ids --size-only ${@}"
-    time $(whence -p rsync) -axHAXS --append-verify --info=progress2 --numeric-ids --size-only ${@}
-    # ttime $(whence -p rsync) -axHAWXSP --numeric-ids --size-only ${@}
+    time $(whence -p rsync) -axHAXS --append-verify --info=progress2 --numeric-ids --size-only "${@}"
+    # time $(whence -p rsync) -axHAWXSP --numeric-ids --size-only "${@}"
   }
 
   # https://github.com/chubin/awesome-console-services

@@ -235,8 +235,8 @@ if [[ "${IS_MACOS}" == "true" ]]; then
 
   function rsync {
     echo "Running: time $(which rsync) -axHAXS --append-verify --info=progress2 --numeric-ids --size-only ${@}"
-    time $(which rsync) -axHAXS --append-verify --info=progress2 --numeric-ids --size-only ${@}
-    # ttime $(which rsync) -axHAWXSP --numeric-ids --size-only ${@}
+    time $(which rsync) -axHAXS --append-verify --info=progress2 --numeric-ids --size-only "${@}"
+    # time $(which rsync) -axHAWXSP --numeric-ids --size-only "${@}"
   }
 
   # https://github.com/chubin/awesome-console-services
