@@ -66,7 +66,7 @@ LOG3=/var/tmp/workstation_setup_private_$(date +%Y-%m-%d-%H:%M:%S).log
     # iterm2 customizations
     # Specify the preferences directory
     # defaults write com.googlecode.iterm2.plist PrefsCustomFolder -string \
-      "~/.homesick/repos/dotfiles_private/iterm2/"
+    #  "~/.homesick/repos/dotfiles_private/iterm2/"
     # Tell iTerm2 to use the custom preferences in the directory
     # defaults write com.googlecode.iterm2.plist LoadPrefsFromCustomFolder -bool true
 
