@@ -156,8 +156,8 @@ function work_vpn {
       /opt/cisco/anyconnect/bin/vpn -s < <(
         echo connect vpn.${CUSTOM_WORK_DOMAINS[1]}
         echo ${LOGNAME}@${CUSTOM_WORK_DOMAINS[1]}
-        op item get "${CUSTOM_WORK_DOMAINS[1]/.com/} ${CUSTOM_WORK_SSO_PROVIDER_OLD}" --fields "password" --cache --session ${OP_SESSION_my}
-        otp "${CUSTOM_WORK_DOMAINS[1]/.com/} ${CUSTOM_WORK_SSO_PROVIDER_OLD}"
+        op item get "${CUSTOM_WORK_DOMAINS[1]/.com/} ${CUSTOM_WORK_SSO_PROVIDER}" --fields "password" --cache --session ${OP_SESSION_my}
+        otp "${CUSTOM_WORK_DOMAINS[1]/.com/} ${CUSTOM_WORK_SSO_PROVIDER}"
       )
     fi
   fi
