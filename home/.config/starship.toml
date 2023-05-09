@@ -4,8 +4,24 @@
 # symbol = '🅰 '
 force_display = true
 
+[battery]
+full_symbol = '🔋 '
+charging_symbol = '⚡️ '
+discharging_symbol = '💀 '
 [[battery.display]]
-threshold = 20
+threshold = 60
+
+# [env_var.on_vpn]
+# variable = 'on_vpn'
+# default = ''
+# symbol = '🤓'
+
+# [custom.vpn]
+# command = 'custom_vpn_command_here' # shows output of command
+# detect_files = ['foo'] # can specify filters but wildcards are not supported
+# when = ''' test "$at_work" = "true" '''
+# style = "bright-yellow bold"
+# format = " at [$output]($style)"
 
 [git_branch]
 symbol = '🌱 '
@@ -13,6 +29,7 @@ ignore_branches = ['master', 'main']
 
 [kubernetes]
 disabled = false
+detect_files = ['ibex']
 
 [memory_usage]
 disabled = false

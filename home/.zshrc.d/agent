@@ -36,7 +36,9 @@ function ssh_keys () {
   #  1) keychain can manage it and ssh-agent
   #  2) container mounts must have it on disk, they can't just read it from ssh-agent
   for ssh_key in "" _personal ; do
-    [[ -f ~/.ssh/id_rsa${ssh_key} ]] || _download_ssh_key_from_passman ${ssh_key}
+    [[ -f ~/.ssh/id_rsa${ssh_key} && \
+     $(${BASE_PATH}/opt/coreutils/libexec/gnubin/stat -c%s ~/.ssh/id_rsa${ssh_key}) -gt 0 ]] \
+     || _download_ssh_key_from_passman ${ssh_key}
   done
 }
 

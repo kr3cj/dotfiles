@@ -28,26 +28,6 @@ else
   echo "Could not determine location from ip_address ${ip_address}"
 fi
 
-function on_vpn {
-  if [[ ${ip_address} =~ ${CUSTOM_WORK_VPN_SUBNET} ]]; then
-    # ping -c1 -W1 -i0.1 tools.${CUSTOM_WORK_DOMAINS[0]} &> /dev/null
-    # local response=$(curl https://${CUSTOM_WORK_K8S_DOMAIN}/version?timeout=2s \
-    #   --insecure \
-    #   --silent \
-    #   --show-error \
-    #   --write-out "%{http_code}" \
-    #   --output /dev/null \
-    #   --connect-timeout 2 \
-    #   --max-time 5)
-    # if [[ ${response} -eq 200 ]]; then
-    # return $(port ${CUSTOM_WORK_K8S_DOMAIN}:443 &>/dev/null)
-    /opt/cisco/anyconnect/bin/vpn state | grep -q Connected
-    return ${?}
-  else
-    return 1
-  fi
-}
-
 function _check_socks_proxy {
   local host1=${1}
   local port1=${2}
@@ -126,47 +106,11 @@ function work_saml2aws {
       echo "Has your password changed? Try removing keychain and run \"saml login\""
   fi
 }
-function work_vpn {
-  # see https://gist.github.com/p120ph37/10999344 for cisco automatio with split tunnel
-  if ! on_vpn; then
-    echo ""
-    if read -t 2 -s -p "Connecting to work VPN in 2 seconds, press Enter to skip..."; then
-      echo ""
-      # mount_home_nfs
-      # _create_socks_proxy "proxy.${CUSTOM_HOME_NAS_HOST#*\.}" "2000"
-    else
-      echo ""
-      unmount_home_nfs
-
-      # make sure we are authenticated to password manager
-      export OP_SESSION_my="$(head -n1 ~/.pm_session_token)"
-      _passman_needs_auth || _passman_auth
-
-      # TODO: why does this command take ~2min sometimes
-      time /opt/cisco/anyconnect/bin/vpn disconnect vpn.${CUSTOM_WORK_DOMAINS[0]}
-      # echo "Killing gui"
-      pgrep -f AnyConnect
-      pkill -f AnyConnect
-
-      if ! $(port vpn.${CUSTOM_WORK_DOMAINS[0]}:443 &> /dev/null); then
-        echo "ERROR: Skipping ${FUNCNAME[0]}; unable to connect to \"vpn.${CUSTOM_WORK_DOMAINS[0]}:443\"."
-        return 1
-      fi
-
-      /opt/cisco/anyconnect/bin/vpn -s < <(
-        echo connect vpn.${CUSTOM_WORK_DOMAINS[0]}
-        echo ${LOGNAME}@${CUSTOM_WORK_DOMAINS[0]}
-        op item get "${CUSTOM_WORK_DOMAINS[0]/.com/} ${CUSTOM_WORK_SSO_PROVIDER}" --fields "password" --cache --session ${OP_SESSION_my}
-        otp "${CUSTOM_WORK_DOMAINS[0]/.com/} ${CUSTOM_WORK_SSO_PROVIDER}"
-      )
-    fi
-  fi
-}
 
 # only proceed on work system
 ${IS_ARM} || return
 ${is_weekend} && ${IS_ARM} || work_saml2aws
-${is_weekend} || work_vpn
+# ${is_weekend} || work_vpn
 ${at_work} && _create_socks_proxy "home.${CUSTOM_HOME_DOMAIN}" "2000"
 # pm
 

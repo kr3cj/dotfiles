@@ -194,6 +194,11 @@ if [[ $(uname) == "Darwin" ]] ; then
     fi
   fi
 
+  if hash steampipe 2>/dev/null ; then
+    echo -e "\nUpdating steampipe plugins..."
+    steampipe plugin update --all
+  fi
+
   /bin/rm -vr ~/.gradle/caches/* 2> /dev/null || echo
   /bin/rm -vr ~/.ivy2/{local,cache}/* 2> /dev/null || echo
   /bin/rm -vr ~/Library/Containers/com.apple.mail/Data/Library/Mail\ Downloads/* 2> /dev/null || echo

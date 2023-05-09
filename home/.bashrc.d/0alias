@@ -259,7 +259,7 @@ if [[ "${IS_MACOS}" == "true" ]]; then
         herky*)
           passman \"herky.${CUSTOM_HOME_NAS_HOST#*\.}\" ;;
         ip-10-*)
-          use_ssm=\"true\"
+          use_ssm=\"false\"
       esac
       # using homebrew ssh $(which ssh) results in 'Bad configuration option: usekeychain' :shrug:
       if \${use_ssm}; then

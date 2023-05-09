@@ -1,22 +1,23 @@
-1password-cli 2.16.0
+1password-cli 2.17.0
 awscli 2.2.47
-golang 1.20.2
+golang 1.20.4
 # grpcurl 1.8.2
 # helm 3.9.0
 # TODO: failed for arm64
 jq 1.6
 k9s 0.27.3
 krew 0.4.3
-kubectl 1.26.3
-minikube 1.29.0
+kubectl 1.27.1
+minikube 1.30.1
 # nodejs 11.9.0
 # nodejs 12.18.4
 # nova 3.1.0
 # pluto 3.4.0
-python 3.11.2
-saml2aws 2.36.5
+python 3.11.3
+saml2aws 2.36.6
 # sopstool 0.4.2
-starship 1.13.1
+starship 1.14.2
+steampipe 0.20.0-test.1
 # TODO: failed for arm64
 terraform 0.12.31
 terraform-docs 0.16.0

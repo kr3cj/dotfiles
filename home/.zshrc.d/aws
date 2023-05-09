@@ -122,23 +122,23 @@ function get-all-eks-ami-release-versions-and-ids() {
 }
 
 function show-domain-registration-expirations() {
-  for profile1 in $(grep \ ${SAML2AWS_PROFILE1%admin}- ~/.aws/config \
-   | awk '{print $2}' | sed 's/]^//g'); do
-    echo ${profile1%]}
-    aws --profile ${profile1%]} route53domains list-domains | \
+  for profile1 in $(grep \ ${SAML2AWS_PROFILE1}- ~/.aws/config \
+   | awk '{print $2}' | sed 's/]//g'); do
+    echo ${profile1}
+    aws --profile ${profile1} route53domains list-domains | \
      jq -r '.Domains | map(.DomainName + " " + .Expiry)[]' - | sort ; \
   done | column -t
 }
 
 function show-acm-cert-expirations() {
-  for profile1 in $(grep \ ${SAML2AWS_PROFILE1%admin}- ~/.aws/config \
-   | awk '{print $2}' | sed 's/]^//g'); do
-    echo ${profile1%]}
-    for arn1 in $(aws --profile ${profile1%]} acm list-certificates --max-items 100 \
+  for profile1 in $(grep \ ${SAML2AWS_PROFILE1}- ~/.aws/config \
+   | awk '{print $2}' | sed 's/]//g'); do
+    echo ${profile1}
+    for arn1 in $(aws --profile ${profile1} acm list-certificates --max-items 100 \
      | jq -r '.CertificateSummaryList[].CertificateArn'); do
-      aws --profile ${profile1%]} acm describe-certificate --certificate-arn ${arn1} \
-       | jq -r '.Certificate.DomainName + "\t" + .Certificate.NotAfter + "\t" + .CertificateArn' -; \
-       done | sort | column -t
+      aws --profile ${profile1} acm describe-certificate --certificate-arn ${arn1} \
+       | jq -r '.Certificate.DomainName + "\t" + .Certificate.NotAfter + "\t" + .Certificate.CertificateArn' -; \
+       done | sort | column -tter
     echo
   done
 }

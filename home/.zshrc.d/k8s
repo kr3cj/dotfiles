@@ -41,10 +41,6 @@ function k() {
   if [[ "${my_aws_profile}" == "" ]]; then
     return 1
   fi
-  # if ! $(on_vpn); then
-  #   work_vpn
-  #   echo
-  # fi
 
   local kube_config="--context ${cluster}"
   # some kubectl plugin commands won't work with "--kubeconfig"
@@ -118,10 +114,6 @@ function h() {
     echo "Could not map the cluster name to an aws profile."
     return 1
   fi
-  # if ! $(on_vpn); then
-  #   work_vpn
-  #   echo
-  # fi
 
   local kube_config="--kube-context ${cluster}"
   local helm_path="$(asdf where helm)/bin/helm"
@@ -151,11 +143,6 @@ function e {
     echo "Could not map the cluster name to an aws profile."
     return 1
   fi
-  # if ! $(on_vpn); then
-  #   work_vpn
-  #   echo
-  # fi
-
 
   if [[ ${VERBOSE} -ge 1 ]]; then
     echo "Running: \"eksctl --profile ${my_aws_profile} --cluster ${cluster} ${action}\""
