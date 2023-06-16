@@ -21,9 +21,25 @@ source <(kubectl completion zsh | sed 's/kubectl/k/g' )
 
 source ~/.private-utils.sh
 
-pathadd ${HOME}/build/github/ibex
+path=(
+  ${HOME}/build/github/ibex
+  $path
+) \
+# krew stuff
+function krew () {
+  # must reshim asdf krew after every plugin install
+  local cmd=${@}
+  local run_reshim="false"
+  [[ ${cmd} =~ "install" ]] && run_reshim="true"
+  kubectl krew ${@}
+  ${run_reshim} && asdf reshim krew
+}
 # https://github.com/jimmidyson/asdf-krew/issues/3
 # pathadd ${HOME}/.asdf/installs/krew/$(asdf list krew | tail -fn1)/bin
+
+# kubectl plugin manager: krew
+# export KREW_ROOT=${HOME}/.krew
+# pathadd ${KREW_ROOT}/bin
 
 function k() {
   # short cut for kubectl binary
@@ -175,10 +191,6 @@ function ibexs() {
     echo "Running: ./ibex --cluster ${my_cluster_path} ${args}"
   ./ibex --cluster ${my_cluster_path} ${args}
 }
-
-# kubectl plugin manager: krew
-# export KREW_ROOT=${HOME}/.krew
-# pathadd ${KREW_ROOT}/bin
 
 function count-k8s-services() {
   for cluster1 in $(find clusters/ -mindepth 4 -type d -exec basename '{}' \;); do
