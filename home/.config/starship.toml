@@ -38,5 +38,5 @@ disabled = false
 disabled = false
 threshold = 3
 
-[sudo]
-disabled = false
+# [sudo]
+# disabled = false
