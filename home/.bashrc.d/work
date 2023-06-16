@@ -94,7 +94,7 @@ function mount_home_nfs {
     # lpadmin -p canon_mg5220 -L "canon_mg5220" -E -v lpd://printer.${CUSTOM_HOME_NAS_HOST#*\.} -m everywhere
 }
 function work_saml2aws {
-  if [[ $(grep expir ~/.aws/credentials | head -n1 | awk '{print $3}') < $(gdate --iso-8601=seconds) ]]; then
+  if [[ $(aws --profile saml configure get x_security_token_expires) < $(gdate --iso-8601=seconds) ]]; then
     # make sure we are authenticated to password manager
     export OP_SESSION_my="$(head -n1 ~/.pm_session_token)"
     _passman_needs_auth || _passman_auth
