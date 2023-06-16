@@ -123,6 +123,7 @@ EOF
   for extension1 in \
     DavidAnson.vscode-markdownlint \
     eamodio.gitlens \
+    GitHub.copilot \
     GitHub.vscode-pull-request-github \
     hashicorp.terraform \
     moshfeu.compare-folders \
