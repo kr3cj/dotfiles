@@ -82,7 +82,13 @@ if ${IS_MACOS}; then
     asdf plugin-add ${asdf_plugin}
   done
 
-  kubectl krew install get-all
+  # install krew plugins for kubectl
+  kubectl krew index add surajincloud git@github.com:surajincloud/krew-index.git
+  kubectl krew search eks
+  for krew_plugin in get-all surajincloud/kubectl-eks; do
+    kubectl krew install
+  done
+  asdf reshim krew
 
   # pip3 install --upgrade distribute
   # pip3 install --upgrade pip
@@ -100,8 +106,9 @@ if ${IS_MACOS}; then
   sudo rm -rf /Applications/{iMovie.app,GarageBand.app,Pages.app,Numbers.app}
 
   # docker/colima
-  # mkdir -p ~/.docker
   /opt/homebrew/bin/colima start
+  mkdir -p ~/.docker/cli-plugins
+  ln -sfn /opt/homebrew/opt/docker-buildx/bin/docker-buildx ~/.docker/cli-plugins/docker-buildx
 
   # TODO: use openvpn to connect to Mullvad via CLI
   #  https://helpdesk.privateinternetaccess.com/hc/en-us/articles/219437987-Installing-OpenVPN-PIA-on-MacOS

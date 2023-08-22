@@ -28,7 +28,6 @@ pathadd ${HOME}/build/github/ibex
 function k() {
   # short cut for kubectl binary
   local cluster=${1}
-  export CLUSTER=${1}
   if ! [[ -r ~/.kube/${cluster} ]]; then
     echo "No kubeconfig found for \"${cluster}\"!"
     return 1

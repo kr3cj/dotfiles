@@ -57,8 +57,8 @@ function docker-reset () {
 # fi
 
 ${is_weekend} && return 0
-# if necessary, start container engine
+# if necessary, start container engine (this doesn't work after some reboots for some reason)
 pgrep -q colima || colima start
 # if necessary, authenticate to docker repos; this always returns true now in zsh?
-jq -e '.auths | has("'"${CUSTOM_WORK_DEFAULT_AWS_ACCT}"'.dkr.ecr.us-east-1.amazonaws.com")' \
- ~/.docker/config.json > /dev/null || docker-login
+# jq -e '.auths | has("'"${CUSTOM_WORK_DEFAULT_AWS_ACCT}"'.dkr.ecr.us-east-1.amazonaws.com")' \
+#  ~/.docker/config.json > /dev/null || docker-login

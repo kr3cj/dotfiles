@@ -1,7 +1,7 @@
 [aws]
-# format = 'on [$symbol($profile )(\($region\) )]($style)'
+format = 'on [$symbol($profile )(\[$duration\] )]($style)'
 # style = 'bold blue'
-# symbol = '🅰 '
+# symbol = '☁️ '
 force_display = true
 
 [battery]
@@ -33,6 +33,18 @@ detect_files = ['ibex']
 
 [memory_usage]
 disabled = false
+
+# [nodejs]
+# disabled = true
+
+[package]
+disabled = true
+
+[python]
+disabled = true
+
+[ruby]
+disabled = true
 
 [shlvl]
 disabled = false

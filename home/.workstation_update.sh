@@ -154,7 +154,7 @@ if [[ $(uname) == "Darwin" ]] ; then
           example1)
             echo "Skipping upgrade of locked asdf plugin \"${tool1}:${old_version1}\""
             echo "${tool1} ${old_version1}" >> ${TOOL_FILE}.new ;;
-          argo|awscli|terraform)
+          argo|terraform)
             # ASDF_HASHICORP_OVERWRITE_ARCH_TERRAFORM=x86_64 asdf install terraform 1.0.1
             echo "Getting latest patch version of asdf plugin \"${tool1}:${old_version1}\"..."
             # use bash parameter expansion to extract the major and minor version from ${old_version1}
