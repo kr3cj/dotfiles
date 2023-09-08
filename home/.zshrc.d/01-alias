@@ -9,7 +9,7 @@ alias grep='grep --color=always'
 alias ducks="du -cshx ./ | sort -h"
 alias cdd="homeshick cd dotfiles"
 alias cdp="homeshick cd dotfiles_private"
-[[ "${MYSHELL}" =~ zsh ]] && alias pp="source ~/.zprofile" || alias pp="source ~/.bash_profile"
+[[ "${MYSHELL}" =~ zsh ]] && alias p="source ~/.zshrc" || alias p="source ~/.bash_profile"
 alias dmesg="dmesg --follow --ctime"
 
 function acp {
@@ -88,6 +88,10 @@ function port {
     return 1
   fi
 
+  if pgrep -qi ${CUSTOM_WORK_VPN_PROVIDER}; then
+    echo "WARNING: ${CUSTOM_WORK_VPN_PROVIDER} will always return success for VPN connections so don't trust them"
+  fi
+
   [[ ${VERBOSE} -ge 1 ]] && \
     echo "Running: ${timeout_path} 2 bash -c \"echo >/dev/tcp/${host1}/${port1}\" > /dev/null 2>&1 && echo success \
     || (>&2 echo \"failure\"; return 1)"
@@ -134,11 +138,6 @@ function _throttle()
 }
 
 if [[ "${IS_MACOS}" == "true" ]]; then
-  export BREWBIN_PATH="/usr/local/bin/brew"
-  [[ "${IS_ARM}" == "true" ]] && export BREWBIN_PATH="/opt/homebrew/bin/brew"
-  export BASE_PATH="$(${BREWBIN_PATH} --prefix)"
-  # export PATH="${BASE_PATH}/bin:${BASE_PATH}/opt/asdf/libexec/bin/asdf:${LOG_NAME}/.asdf/shims:${PATH}"
-
   # alias curl="$(brew --prefix curl)/bin/curl"
   # since the path file hasn't been sourced yet, use absolute paths to ls for macos
   alias ls="$(brew --prefix coreutils)/libexec/gnubin/ls -G --color=always"
@@ -242,11 +241,11 @@ if [[ "${IS_MACOS}" == "true" ]]; then
       local use_ssm=\"false\"
       case \"\${host1}\" in
         ${CUSTOM_WORK_SUBNET}*|$(echo ${CUSTOM_WORK_DOMAINS[@]/#/*.}|tr ' ' '|'))
-          passman  \"${CUSTOM_WORK_DOMAINS[1]/.com/} ${CUSTOM_WORK_SSO_PROVIDER}\";;
+          passman  \"${CUSTOM_WORK_DOMAINS[1]/.com/} ${CUSTOM_WORK_SSO_PROVIDER}\" ;;
         herky*)
           passman \"herky.${CUSTOM_HOME_NAS_HOST#*\.}\" ;;
-        ip-10-*)
-          use_ssm=\"true\"
+        i-*|ip-10-*|10.*|ip-172-*|172.*|$(echo ${CUSTOM_WORK_DOMAINS[@]/#/*.}|tr ' ' '|'))
+          use_ssm=\"true\" ;;
       esac
       # using homebrew ssh $(whence -p ssh) results in 'Bad configuration option: usekeychain' :shrug:
       if \${use_ssm}; then
