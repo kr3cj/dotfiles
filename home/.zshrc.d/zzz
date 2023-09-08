@@ -1,3 +1,11 @@
 [[ $- = *i* ]] || return 0
 ${IS_MACOS} || return 0
+
+# if necessary, authenticate to docker repos (must be after aws auth)
+if ! jq -e '.auths | has("'"${CUSTOM_WORK_DEFAULT_AWS_ACCT}"'.dkr.ecr.us-east-1.amazonaws.com")' \
+ ~/.docker/config.json > /dev/null || \
+ [[ -n $(find ~/.docker/ -mindepth 1 -maxdepth 1 -name config.json -mmin +720) ]] ; then
+  docker-login
+fi
+
 clear_clip 20

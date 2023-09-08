@@ -3,6 +3,9 @@ format = 'on [$symbol($profile )(\[$duration\] )]($style)'
 # style = 'bold blue'
 # symbol = '☁️ '
 force_display = true
+# [aws.profile_aliases]
+# [aws.region_aliases]
+# us-east-1 = 'va'
 
 [battery]
 full_symbol = '🔋 '
@@ -34,8 +37,8 @@ detect_files = ['ibex']
 [memory_usage]
 disabled = false
 
-# [nodejs]
-# disabled = true
+[nodejs]
+disabled = true
 
 [package]
 disabled = true

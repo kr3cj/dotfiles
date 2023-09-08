@@ -49,6 +49,7 @@ fi
 # TODO: update chrome extensions (https://github.com/mdamien/chrome-extensions-archive/issues/8)
 
 if [[ $(uname) == "Darwin" ]] ; then
+  # must use old style path building since we're in bash
   BREWBIN_PATH="/usr/local/bin/brew"
   [[ "$(uname -m)" == "arm64" ]] && BREWBIN_PATH="/opt/homebrew/bin/brew"
   BASE_PATH="$(${BREWBIN_PATH} --prefix)"
@@ -112,7 +113,7 @@ if [[ $(uname) == "Darwin" ]] ; then
   echo "open System Preferences->Privacy & Security->Full Disk Access->Check iTerm.app"
   $(brew --prefix findutils)/libexec/gnubin/find ~/.Trash/ -type d -delete
 
-  # brew cask cleanup
+  # brew cask cleanupb
   brew autoremove
   brew doctor
   brew cleanup -s
@@ -147,11 +148,11 @@ if [[ $(uname) == "Darwin" ]] ; then
             echo "Skipping commented line \"${line1}\""
             echo "${line1}" >> ${TOOL_FILE}.new ;;
           nodejs)
-            echo "nodejs install requires libtool PATH workaround github.com/nodejs/node/issues/2341:"
+            echo "ATTENTION: nodejs install requires libtool PATH workaround github.com/nodejs/node/issues/2341:"
             echo "$ alias libtool=\"/usr/bin/libtool\""
             echo "$ asdf install nodejs $(asdf latest nodejs ${old_version1%\.*})"
             echo "$ unalias libtool" ;;
-          example1)
+          1password-cli|viddy)
             echo "Skipping upgrade of locked asdf plugin \"${tool1}:${old_version1}\""
             echo "${tool1} ${old_version1}" >> ${TOOL_FILE}.new ;;
           argo|terraform)
