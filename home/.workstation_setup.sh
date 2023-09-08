@@ -45,13 +45,6 @@ export PATH="${BASE_PATH}/bin:${PATH}"
 echo -e "\nInstalling brew packages..."
 brew bundle --file ~/.homesick/repos/dotfiles/Brewfile
 
-# TODO: requires macos permission
-# upgrade software Fridays at 10am
-if ! $(crontab -l | grep -q workstation_update) ; then
-  # FIX: crontab: tmp/tmp.55269: Operation not permitted
-  (crontab -l 2>/dev/null; echo "0 10 * * 5 ~/.workstation_update.sh") | crontab -
-fi
-
 # install software on macos
 if ${IS_MACOS}; then
   echo "Configuring macos. This will take an hour or so."

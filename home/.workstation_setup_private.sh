@@ -39,6 +39,11 @@ LOG3=/var/tmp/workstation_setup_private_$(date +%Y-%m-%d-%H:%M:%S).log
      ~/.asdf/shims/helm plugin install https://github.com/${plugin1}
   done
 
+  # load cronjobs, I mean launchd
+  mkdir ~/Library/LaunchAgents
+  launchctl load -w workstation_update.plist
+  launchctl load -w create_socks_proxy.plist
+
   # mas is a CLI for AppStore installs/updates
   if [[ ${GHA_CI_RUN} != true ]]; then
     echo "Prepare to sign into \"App Store.app\" manually..."

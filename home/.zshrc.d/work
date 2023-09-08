@@ -28,45 +28,6 @@ else
   echo "Could not determine location from ip_address ${ip_address}"
 fi
 
-function _check_socks_proxy {
-  local host1=${1}
-  local port1=${2}
-  local host1_ip="$(dig @1.1.1.1 +short ${host1} | grep '^[.0-9]*$' | tail -n1)"
-  local response
-  response="$(curl --connect-timeout 5 --silent --socks5 localhost:${port1} https://ifconfig.me | grep '^[.0-9]*$' | tail -n1)"
-  if [[ "${response}" != "${host1_ip}" ]] ; then
-    return 1
-  else
-    return 0
-  fi
-}
-function _create_socks_proxy {
-  local host1=${1}
-  local port1=${2}
-  local ssh_proxy_options="-o ServerAliveInterval=10 -o ServerAliveCountMax=20 -f -N -D "
-  # local ssh_proxy_options="-f -N -D "
-  [[ ${VERBOSE} -ge 1 ]] && ssh_proxy_options="-vvv ${ssh_proxy_options}"
-  local ssh_proxy_response_file="/var/tmp/ssh_proxy_response.txt"
-  # clear contents of response file
-  :> ${ssh_proxy_response_file}
-  local response
-
-  if ! _check_socks_proxy ${host1} ${port1}; then
-    echo "socks proxy not connected/working; first kill any old sessions"
-    pgrep -f "ssh ${ssh_proxy_options} ${port1} ${host1}" && \
-    pkill -f "ssh ${ssh_proxy_options} ${port1} ${host1}"
-
-    echo -e "\nEstablishing ssh tunnel with ${host1}:${port1} \
-     (/usr/bin/ssh ${ssh_proxy_options} ${port1} \"${host1}\")"
-    if ! port ${host1}:22 &> /dev/null; then
-      echo "ERROR: Skipping ${funcstack[1]}; unable to connect to \"${host1}:22\"."
-      return 1
-    else
-      eval "/usr/bin/ssh ${ssh_proxy_options} ${port1} ${host1}"
-    fi
-  fi
-}
-
 function unmount_home_nfs {
   while $(mount | grep -q "Documents/share1") ; do
     umount -fv -t nfs ${CUSTOM_HOME_NAS_HOST}:/share
@@ -105,28 +66,9 @@ function on_vpn {
    https://argo-cd.ops.int.${CUSTOM_WORK_DOMAINS[2]})
 }
 
-# if ${at_home}; then
-#   if $(ping -c1 -W1 -i0.1 ${CUSTOM_HOME_NAS_HOST} &> /dev/null); then
-#     mount_home_nfs
-#     # openit "Backup and Sync"
-#   fi
-# elif ${at_work}; then
-#   work_saml2aws
-#   _create_socks_proxy "home.${CUSTOM_HOME_DOMAIN}" "2000"
-
-#   # open desktop apps (TODO: --background not working for Slack and Atom)
-# openit Slack "Visual Studio Code"
-#   unmount_home_nfs
-# else
-#   unmount_home_nfs
-#   # # establish SSH tunnel to home proxy
-#   # _create_socks_proxy "home.${CUSTOM_HOME_DOMAIN}" "2000"
-# fi
-
 # only proceed on work system
 ${IS_ARM} || return 0
 ${is_weekend} || work_saml2aws
-_create_socks_proxy "home.${CUSTOM_HOME_DOMAIN}" "2000"
 # pm
 
 [[ $(pwd) == "${HOME}" ]] && cd ~/build/github/ibex || return 0
