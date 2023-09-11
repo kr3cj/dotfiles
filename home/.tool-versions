@@ -1,10 +1,9 @@
 1password-cli 2.19.0
-awscli 2.13.15
+awscli 2.13.17
 golang 1.21.1
 # grpcurl 1.8.2
 # helm 3.9.0
-# TODO: failed for arm64
-jq 1.6
+jq 1.7
 k9s 0.27.4
 krew 0.4.4
 kubectl 1.28.1
@@ -17,8 +16,7 @@ python 3.11.5
 saml2aws 2.36.10
 # sopstool 0.4.2
 starship 1.16.0
-steampipe 0.20.9
-# TODO: failed for arm64
+steampipe 0.20.11
 terraform 0.12.31
 terraform-docs 0.16.0
 # tfenv 2.0.0
