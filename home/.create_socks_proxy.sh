@@ -56,13 +56,13 @@ function _create_socks_proxy {
   :> ${ssh_proxy_response_file}
 
   if ! _check_socks_proxy ${host1} ${port1}; then
-    echo "socks proxy not connected/working; first kill any old sessions"
+    echo "socks proxy not connected/working; first kill any old sessions at $(date)"
     /usr/bin/pgrep -f "/usr/bin/ssh ${ssh_proxy_options} ${port1} ${host1}" && \
     /usr/bin/pkill -f "/usr/bin/ssh ${ssh_proxy_options} ${port1} ${host1}"
 
-    echo -e "\nEstablishing ssh tunnel with ${host1}:${port1} (/usr/bin/ssh ${ssh_proxy_options} ${port1} \"${host1}\")"
+    echo -e "\nEstablishing ssh tunnel with ${host1}:${port1} (/usr/bin/ssh ${ssh_proxy_options} ${port1} \"${host1}\") at $(date)"
     if ! port ${host1}:22 &> /dev/null; then
-      echo "ERROR: Skipping ${funcstack[1]}; unable to connect to \"${host1}:22\"."
+      echo "ERROR: Skipping ${funcstack[1]}; unable to connect to \"${host1}:22\" at $(date)."
       return 1
     else
       eval "/usr/bin/ssh ${ssh_proxy_options} ${port1} ${host1}"
