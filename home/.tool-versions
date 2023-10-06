@@ -1,6 +1,6 @@
 1password-cli 2.19.0
-awscli 2.13.22
-golang 1.21.1
+awscli 2.13.25
+golang 1.21.2
 # grpcurl 1.8.2
 # helm 3.9.0
 jq 1.7
@@ -16,7 +16,7 @@ python 3.12.0
 saml2aws 2.36.11
 # sopstool 0.4.2
 starship 1.16.0
-steampipe 0.21.0
+steampipe 0.21.1
 terraform 0.12.31
 terraform-docs 0.16.0
 # tfenv 2.0.0
