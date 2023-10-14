@@ -57,17 +57,17 @@ function _create_socks_proxy {
   :> ${ssh_proxy_response_file}
 
   if ! _check_socks_proxy ${host1} ${port1}; then
-    echo "$(date --rfc-3339=seconds) WARN: socks proxy not connected/working; first kill any old sessions"
+    # echo "$(date -Iseconds) WARN: socks proxy not connected/working; first kill any old sessions"
     /usr/bin/pgrep -f "/usr/bin/ssh ${ssh_proxy_options} ${port1} ${host1}" && \
     /usr/bin/pkill -f "/usr/bin/ssh ${ssh_proxy_options} ${port1} ${host1}"
 
     if ! port ${host1}:22 &> /dev/null; then
-      echo "$(date --rfc-3339=seconds) ERROR: Skipping ${funcstack[1]}; unable to connect to \"${host1}:22\" at $(date)."
+      echo "$(date -Iseconds) ERROR: Skipping ${funcstack[1]}; unable to connect to \"${host1}:22\" at $(date)."
       return 1
     else
-      # echo "$(date --rfc-3339=seconds) INFO: attempting ssh tunnel with ${host1}:${port1} \"${host1}\")"
+      # echo "$(date -Iseconds) INFO: attempting ssh tunnel with ${host1}:${port1} \"${host1}\")"
       eval "/usr/bin/ssh ${ssh_proxy_options} ${port1} ${host1}"
-      [[ ${?} -eq 0 ]] && echo "$(date --rfc-3339=seconds) INFO: established ssh tunnel with ${host1}:${port1}"
+      [[ ${?} -eq 0 ]] && echo "$(date -Iseconds) INFO: established ssh tunnel with ${host1}:${port1}"
     fi
   fi
 }
