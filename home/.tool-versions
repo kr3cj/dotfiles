@@ -1,5 +1,6 @@
 1password-cli 2.19.0
 awscli 2.13.26
+aws-sso-cli 1.14.0
 golang 1.21.3
 # grpcurl 1.8.2
 # helm 3.9.0

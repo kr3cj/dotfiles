@@ -68,7 +68,7 @@ if ${IS_MACOS}; then
   # install asdf tools
   export PATH="${BASE_PATH}/opt/asdf/libexec/bin/asdf:${LOG_NAME}/.asdf/shims:${PATH}"
   # golang
-  for asdf_plugin in 1password-cli argo awscli eksctl golang grpcurl helm helmfile jq k9s krew \
+  for asdf_plugin in 1password-cli argo awscli aws-sso-cli eksctl golang grpcurl helm helmfile jq k9s krew \
    kubectl kustomize minikube nova pluto poetry python saml2aws sinker sops sopstool starship \
    steampipe terraform terraform-docs viddy yq; do
    # kops linkerd minikube octant
