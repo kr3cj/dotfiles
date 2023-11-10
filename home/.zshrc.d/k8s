@@ -198,15 +198,13 @@ function count-k8s-services() {
 }
 
 # function doit () {
-#   local saml2aws-profile=${1}
 #   shift
 #   local nodes=${@}
 #   for node1 in ${nodes} ; do
 #     echo -e "\n starting on ${node1} at $(date)"
 #     kubectl drain ${node1} --ignore-daemonsets --force --delete-emptdir-data
-#     saml2aws exec --exec-profile=${saml2aws-profile} -- \
-#       aws ec2 terminate-instances --instance-ids \
-#         kubectl get nodes -o go-template --template=\'{{.spec.externalID}}\' ${nodeid}
+#     aws --profile my-profile ec2 terminate-instances --instance-ids \
+#       kubectl get nodes -o go-template --template=\'{{.spec.externalID}}\' ${nodeid}
 #   done
 # }
 

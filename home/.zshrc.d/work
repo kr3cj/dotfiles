@@ -47,35 +47,37 @@ function mount_home_nfs {
     # see https://www.jamf.com/jamf-nation/discussions/31099/adding-printer-to-mac-via-terminal-command-line-for-airprint
     # lpadmin -p canon_mg5220 -L "canon_mg5220" -E -v lpd://printer.${CUSTOM_HOME_NAS_HOST#*\.} -m everywhere
 }
-function work_saml2aws {
-  if [[ $(aws --profile saml configure get x_security_token_expires) < $(gdate --iso-8601=seconds) ]]; then
+
+# function on_vpn {
+#   return $(curl --fail --fail-early --max-time 1 --silent -o /dev/null \
+#    https://argo-cd.ops.int.${CUSTOM_WORK_DOMAINS[2]})
+# }
+function work_aws-sso {
+  if aws-sso list Expires | grep Default | grep -q Expired; then
+  # if [[ $(aws --profile saml configure get x_security_token_expires) < $(gdate --iso-8601=seconds) ]]; then
     # make sure we are authenticated to password manager
     export OP_SESSION_my="$(head -n1 ~/.pm_session_token)"
     _passman_needs_auth || _passman_auth
-    saml login --skip-prompt \
-     --password=$(op item get "${CUSTOM_WORK_DOMAINS[1]/.com/} ${CUSTOM_WORK_SSO_PROVIDER}" --fields "password" --cache --session ${OP_SESSION_my}) \
-     --mfa-token=$(otp "${CUSTOM_WORK_DOMAINS[1]/.com/} ${CUSTOM_WORK_SSO_PROVIDER}")
-    # remove --skip-prompt once when pw is changed
-    [[ ${?} == 0 ]] || \
-     echo "Has your password changed? Try removing keychain and run \"saml login\""
+    pm && echo "Unlock your password manager browser extension now..."
+    sleep 5
+    open -n -a "Brave Browser" --args https://github.com/${CUSTOM_WORK_DOMAINS[1]/.com} --profile-directory="Default"
+    sleep 10
+    # no known way to bypass browser for ${CUSTOM_WORK_SSO_PROVIDER} (with MFA) or aws-sso
+    aws-sso console \
+     --account="${CUSTOM_WORK_DEFAULT_AWS_ACCT}" \
+     --profile="${CUSTOM_WORK_DEFAULT_AWS_PROFILE}" \
+     --region="${AWS_DEFAULT_REGION}"
   fi
-}
-
-function on_vpn {
-  return $(curl --fail --fail-early --max-time 1 --silent -o /dev/null \
-   https://argo-cd.ops.int.${CUSTOM_WORK_DOMAINS[2]})
 }
 
 # only proceed on work system
 ${IS_ARM} || return 0
 ${is_weekend} && return 0
-work_saml2aws
+work_aws-sso
 # if necessary, authenticate to docker repos (must be after aws auth)
 if ! jq -e '.auths | has("'"${CUSTOM_WORK_DEFAULT_AWS_ACCT}"'.dkr.ecr.us-east-1.amazonaws.com")' \
  ~/.docker/config.json > /dev/null || \
  [[ -n $(find ~/.docker/ -mindepth 1 -maxdepth 1 -name config.json -mmin +720) ]] ; then
   docker-login
 fi
-# pm
-
 [[ $(pwd) == "${HOME}" ]] && cd ~/build/github/ibex || return 0

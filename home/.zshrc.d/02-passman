@@ -55,7 +55,7 @@ function otp {
 
 function session_is_active {
   # usage: session_is_active <tool_name> [<session_validity_length>]
-  # ex1: if $(session_is_active saml2aws); then echo "already active session"; fi
+  # ex1: if $(session_is_active sudo); then echo "already active session"; fi
   # description: return 0 if a tool's session token is active, else 1
   #  To reduce the number of unnecessary authentication calls (which can be slow)
   #  when other native mechanisms to check don't exist. If necessary, sets up a

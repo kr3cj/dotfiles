@@ -40,3 +40,5 @@ compdef __aws_sso_profile_complete aws-sso-profile
 complete -C $(asdf where aws-sso-cli)/bin/aws-sso aws-sso
 
 # END_AWS_SSO_CLI
+
+complete -C 'aws_completer' aws

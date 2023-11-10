@@ -7,36 +7,6 @@ export AWS_FEDERATION_TOKEN_TTL=12h
 export AWS_ASSUME_ROLE_TTL=1h # 4h for devtoolsSandboxAccountAccessRole
 export AWS_DEFAULT_REGION=us-east-1 # aws configure list | grep region | awk '{print $2}'
 
-# move saml2aws variables to config file
-export SAML2AWS_CONFIGFILE=~/.saml2aws
-export SAML2AWS_SESSION_DURATION=43200 # 12 hour max for "saml2aws login"
-export SAML2AWS_MFA="TOTP"
-export SAML2AWS_ROLE="$(grep role_arn ~/.saml2aws | awk '{print $3}')"
-export SAML2AWS_PROFILE1="$(basename $(grep role_arn ~/.saml2aws | cut -d/ -f2) Login | tr '[A-Z]' '[a-z]')"
-# export SAML2AWS_USERNAME="${LOGNAME}@${CUSTOM_WORK_DOMAINS[0]}"
-# export SAML2AWS_PASSWORD=
-# export SAML2AWS_MFA_TOKEN=
-
-function saml() {
-  # saml2aws logins can have a max session duration of 12h, but role chaining can only have a max session duration of 1h
-  local args
-  # [[ ${@} =~ "--session-duration" ]] || args="--session-duration=${SAML2AWS_SESSION_DURATION}"
-  # [[ ${@} =~ "--role" ]] || args="${args} --role=${SAML2AWS_ROLE}"
-  # [[ ${@} =~ "--mfa" ]] || args="${args} --mfa=${SAML2AWS_MFA}"
-  # [[ ${@} =~ "--config" ]] || args="${args} --config=${SAML2AWS_CONFIGFILE}"
-  # [[ ${@} =~ "--skip-prompt" ]] || args="${args} --skip-prompt"
-  # [[ ${@} =~ "--quiet" ]] || args="${args} --quiet" # disable logging for security
-  if [[ ${@} =~ "--exec-profile" ]] ; then
-    export MY_AWS_PROFILE=$(echo ${@} | sed -r 's/.*--exec-profile[=,\ ]([^ ]+).*/\1/')
-    # add 1 hour session duration if missing
-    [[ ${@} =~ "--session-duration" ]] || args="${args} --session-duration=3600"
-  fi
-  # disable verbosity for password visibility
-  [[ ${VERBOSE} -ge 1 ]] && \
-    echo "Running \"$(whence -p saml2aws) ${args} ${*}\""
-  eval "saml2aws ${args} ${*}"
-}
-
 function get-ec2-id-from-pod() {
   # only requires kube config with correct context and namespace set
   basename "$(kubectl --context ${1} \
@@ -74,7 +44,7 @@ function get-ec2-hostname-from-id() {
   # until https://github.com/aws/containers-roadmap/issues/1395
   local role=""
   local profile1=""
-  role="$(saml2aws exec aws sts get-caller-identity | jq -r ".Arn" | cut -d/ -f2 | tr '[A-Z]' '[a-z]')"
+  role="$(aws-sso exec -p ${CUSTOM_WORK_DEFAULT_AWS_PROFILE} aws sts get-caller-identity | jq -r ".Arn" | cut -d/ -f2 | tr '[A-Z]' '[a-z]')"
   for profile1 in $(grep \ ${role%login}- ~/.aws/config | awk '{print $2}' | sed 's/]^//g'); do
     aws ec2 --profile ${profile1%]} describe-instances --instance-ids "${1}" \
      --query "Reservations[*].Instances[*][PrivateDnsName]" --output text 2> /dev/null
@@ -87,7 +57,7 @@ function get-latest-eks-ami-release-version() {
     jq -r '.serverVersion.major + "." + .serverVersion.minor' | sed 's/+$//g')"
   local desired_kube_version="${1:-$current_kube_version}"
 
-  aws ec2 --profile=${SAML2AWS_PROFILE1} describe-images --owners amazon \
+  aws ec2 --profile=${CUSTOM_WORK_DEFAULT_AWS_PROFILE} describe-images --owners amazon \
    --image-ids "$(aws ssm --profile=${the_profile} get-parameters \
     --names /aws/service/eks/optimized-ami/${desired_kube_version%+}/amazon-linux-2/recommended/image_id \
     --region us-east-1 | jq -r '.Parameters[0].Value')" | jq -r '.Images[0].Name'
@@ -122,16 +92,19 @@ function get-all-eks-ami-release-versions-and-ids() {
 }
 
 function show-domain-registration-expirations() {
-  for profile1 in $(grep \ ${SAML2AWS_PROFILE1}- ~/.aws/config \
+  local profile1
+  for profile1 in $(grep \ ${CUSTOM_WORK_DEFAULT_AWS_PROFILE}- ~/.aws/config \
    | awk '{print $2}' | sed 's/]//g'); do
     echo ${profile1}
-    aws --profile ${profile1} route53domains list-domains | \
+    aws --profile \${profile1} route53domains list-domains | \
      jq -r '.Domains | map(.DomainName + " " + .Expiry)[]' - | sort ; \
   done | column -t
 }
 
 function show-acm-cert-expirations() {
-  for profile1 in $(grep \ ${SAML2AWS_PROFILE1}- ~/.aws/config \
+  local profile1
+  local arn1
+  for profile1 in $(grep \ ${CUSTOM_WORK_DEFAULT_AWS_PROFILE}- ~/.aws/config \
    | awk '{print $2}' | sed 's/]//g'); do
     echo ${profile1}
     for arn1 in $(aws --profile ${profile1} acm list-certificates --max-items 100 \
