@@ -17,8 +17,8 @@ function gitp {
     # if ! [[ "${current_branch}" =~ "master" || "${current_branch}" =~ ""]]; then
     case "${current_branch}" in
       default|dev|development|main|master|pending)
-        echo "${LP_COLOR_SAML2AWS_PROD}Update default branch: \
-\"git branch -m master ${default_branch}; git fetch origin; git branch -u origin/main ${default_branch}\"${NO_COL}" ;;
+        echo "Update default branch: \
+\"git branch -m master ${default_branch}; git fetch origin; git branch -u origin/main ${default_branch}\"" ;;
       *)
         echo -e "\n Default branch: \"${default_branch}\"\n Current branch: \"${current_branch}\"\n" ;;
     esac

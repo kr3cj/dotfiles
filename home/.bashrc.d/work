@@ -28,6 +28,26 @@ else
   echo "Could not determine location from ip_address ${ip_address}"
 fi
 
+function unmount_home_nfs {
+  while $(mount | grep -q "Documents/share1") ; do
+    umount -fv -t nfs ${CUSTOM_HOME_NAS_HOST}:/share
+  done
+  while $(mount | grep -q "Pictures/share1") ; do
+    umount -fv -t nfs ${CUSTOM_HOME_NAS_HOST}:/share/pictures
+  done
+}
+function mount_home_nfs {
+    mount | grep -q "Documents/share1" || mount -t nfs -o \
+      vers=4,rw,soft,intr,bg,rwsize=32768,dsize=32768 \
+      ${CUSTOM_HOME_NAS_HOST}:/mnt/media/share ~/Documents/share1
+    mount | grep -q "Pictures/share1" || mount -t nfs -o \
+      vers=4,rw,soft,intr,bg,rwsize=32768,dsize=32768 \
+      ${CUSTOM_HOME_NAS_HOST}:/mnt/media/share/pictures ~/Pictures/share1
+    # add printer
+    # see https://www.jamf.com/jamf-nation/discussions/31099/adding-printer-to-mac-via-terminal-command-line-for-airprint
+    # lpadmin -p canon_mg5220 -L "canon_mg5220" -E -v lpd://printer.${CUSTOM_HOME_NAS_HOST#*\.} -m everywhere
+}
+
 function _check_socks_proxy {
   local host1=${1}
   local port1=${2}
@@ -74,64 +94,33 @@ function _create_socks_proxy {
   # fi
 }
 
-function unmount_home_nfs {
-  while $(mount | grep -q "Documents/share1") ; do
-    umount -fv -t nfs ${CUSTOM_HOME_NAS_HOST}:/share
-  done
-  while $(mount | grep -q "Pictures/share1") ; do
-    umount -fv -t nfs ${CUSTOM_HOME_NAS_HOST}:/share/pictures
-  done
-}
-function mount_home_nfs {
-    mount | grep -q "Documents/share1" || mount -t nfs -o \
-      vers=4,rw,soft,intr,bg,rwsize=32768,dsize=32768 \
-      ${CUSTOM_HOME_NAS_HOST}:/mnt/media/share ~/Documents/share1
-    mount | grep -q "Pictures/share1" || mount -t nfs -o \
-      vers=4,rw,soft,intr,bg,rwsize=32768,dsize=32768 \
-      ${CUSTOM_HOME_NAS_HOST}:/mnt/media/share/pictures ~/Pictures/share1
-    # add printer
-    # see https://www.jamf.com/jamf-nation/discussions/31099/adding-printer-to-mac-via-terminal-command-line-for-airprint
-    # lpadmin -p canon_mg5220 -L "canon_mg5220" -E -v lpd://printer.${CUSTOM_HOME_NAS_HOST#*\.} -m everywhere
-}
-function work_saml2aws {
-  if [[ $(aws --profile saml configure get x_security_token_expires) < $(gdate --iso-8601=seconds) ]]; then
+function work_aws-sso {
+  if aws-sso list Expires | grep Default | grep -q Expired; then
+  # if [[ $(aws --profile saml configure get x_security_token_expires) < $(gdate --iso-8601=seconds) ]]; then
     # make sure we are authenticated to password manager
     export OP_SESSION_my="$(head -n1 ~/.pm_session_token)"
     _passman_needs_auth || _passman_auth
-
-    saml login --skip-prompt \
-     --password=$(op item get "${CUSTOM_WORK_DOMAINS[0]/.com/} ${CUSTOM_WORK_SSO_PROVIDER}" --fields "password" --cache --session ${OP_SESSION_my}) \
-     --mfa-token=$(otp "${CUSTOM_WORK_DOMAINS[0]/.com/} ${CUSTOM_WORK_SSO_PROVIDER}")
-    [[ ${?} == 0 ]] || \
-      echo "Has your password changed? Try removing keychain and run \"saml login\""
+    pm && echo "Unlock your password manager browser extension now..."
+    sleep 5
+    open -n -a "Brave Browser" --args https://github.com/${CUSTOM_WORK_DOMAINS[1]/.com} --profile-directory="Default"
+    sleep 10
+    # no known way to bypass browser for ${CUSTOM_WORK_SSO_PROVIDER} (with MFA) or aws-sso
+    aws-sso console \
+     --account="${CUSTOM_WORK_DEFAULT_AWS_ACCT}" \
+     --profile="${CUSTOM_WORK_DEFAULT_AWS_PROFILE}" \
+     --region="${AWS_DEFAULT_REGION}"
   fi
 }
 
 # only proceed on work system
 ${IS_ARM} || return
 ${is_weekend} && ${IS_ARM} || work_saml2aws
-# ${is_weekend} || work_vpn
-${at_work} && _create_socks_proxy "home.${CUSTOM_HOME_DOMAIN}" "2000"
-# pm
+work_aws-sso
+# if necessary, authenticate to docker repos (must be after aws auth)
+if ! jq -e '.auths | has("'"${CUSTOM_WORK_DEFAULT_AWS_ACCT}"'.dkr.ecr.us-east-1.amazonaws.com")' \
+ ~/.docker/config.json > /dev/null || \
+ [[ -n $(find ~/.docker/ -mindepth 1 -maxdepth 1 -name config.json -mmin +720) ]] ; then
+  docker-login
+fi
 
 [[ $(pwd) == "${HOME}" ]] && cd ~/build/github/ibex
-
-# if ${at_home}; then
-#   if $(ping -c1 -W1 -i0.1 ${CUSTOM_HOME_NAS_HOST} &> /dev/null); then
-#     mount_home_nfs
-#     # openit "Backup and Sync"
-#   fi
-# elif ${at_work}; then
-#   work_saml2aws
-#   _create_socks_proxy "home.${CUSTOM_HOME_DOMAIN}" "2000"
-
-#   # open desktop apps (TODO: --background not working for Slack and Atom)
-# openit Slack "Visual Studio Code"
-#   unmount_home_nfs
-#   work_vpn
-# else
-#   unmount_home_nfs
-#   work_vpn
-#   # # establish SSH tunnel to home proxy
-#   # _create_socks_proxy "home.${CUSTOM_HOME_DOMAIN}" "2000"
-# fi

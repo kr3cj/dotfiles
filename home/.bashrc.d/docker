@@ -13,10 +13,10 @@ function docker () {
   $(which docker) ${@}
 }
 function docker-login () {
-  aws --profile=${SAML2AWS_PROFILE}-mono-production ecr get-login-password --region us-east-1 | \
+  aws --profile=${CUSTOM_WORK_DEFAULT_AWS_PROFILE} ecr get-login-password --region us-east-1 | \
     docker login --username AWS --password-stdin ${CUSTOM_WORK_DEFAULT_AWS_ACCT}.dkr.ecr.us-east-1.amazonaws.com
   # AWS ECR Repository for EKS Add-On images. See Amazon container image registries - Amazon EKS
-  aws --profile=${SAML2AWS_PROFILE}-mono-production ecr get-login-password --region us-east-1 | \
+  aws --profile=${CUSTOM_WORK_DEFAULT_AWS_PROFILE}-mono-production ecr get-login-password --region us-east-1 | \
     docker login --username AWS --password-stdin 602401143452.dkr.ecr.us-east-1.amazonaws.com
 }
 
@@ -38,7 +38,7 @@ function docker-reset () {
   docker ps -a
 }
 
-# when connected to saml2aws using certain rolearns, auth to ECR if necessary
+# when connected to aws-sso using certain rolearns, auth to ECR if necessary
 # if [[ -n ${MY_AWS_PROFILE} ]]; then
 #   docker ps -a > /dev/null || return 1
 #   $(docker login | grep -q 'Username (AWS):') && "aws ecr get-login --no-include-email | bash"
@@ -59,6 +59,4 @@ function docker-reset () {
 ${is_weekend} && return
 # if necessary, start container engine
 pgrep -q colima || colima start
-# if necessary, authenticate to docker repos
-jq -e '.auths | has("'"${CUSTOM_WORK_DEFAULT_AWS_ACCT}"'.dkr.ecr.us-east-1.amazonaws.com")' \
- ~/.docker/config.json > /dev/null || docker-login
+
