@@ -204,10 +204,10 @@ if [[ $(uname) == "Darwin" ]] ; then
   /bin/rm -vr ~/.ivy2/{local,cache}/* 2> /dev/null || echo
   /bin/rm -vr ~/Library/Containers/com.apple.mail/Data/Library/Mail\ Downloads/* 2> /dev/null || echo
   if [[ ${GHA_CI_RUN} != true ]]; then
-    /usr/bin/sudo /bin/rm -vr /System/Library/Speech/Voices/* 2> /dev/null || echo
+    # /usr/bin/sudo /bin/rm -vr /System/Library/Speech/Voices/* 2> /dev/null || echo
     # /usr/bin/sudo /bin/rm -vr /private/var/tmp/* 2> /dev/null || echo
-    /usr/bin/sudo /usr/sbin/purge
-    /usr/bin/sudo /usr/sbin/periodic daily weekly monthly
+    # /usr/bin/sudo /usr/sbin/purge
+    # /usr/bin/sudo /usr/sbin/periodic daily weekly monthly
     # /usr/bin/sudo rm -vr ~/Library/Caches/*
 
     # ensure credential files for development are locked down
