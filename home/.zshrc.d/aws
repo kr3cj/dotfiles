@@ -60,7 +60,7 @@ function get-latest-eks-ami-release-version() {
   aws ec2 --profile=${CUSTOM_WORK_DEFAULT_AWS_PROFILE} describe-images --owners amazon \
    --image-ids "$(aws ssm --profile=${the_profile} get-parameters \
     --names /aws/service/eks/optimized-ami/${desired_kube_version%+}/amazon-linux-2/recommended/image_id \
-    --region us-east-1 | jq -r '.Parameters[0].Value')" | jq -r '.Images[0].Name'
+    --region ${AWS_DEFAULT_REGION} | jq -r '.Parameters[0].Value')" | jq -r '.Images[0].Name'
 }
 
 function get-all-eks-ami-release-versions-and-ids() {
@@ -82,10 +82,10 @@ function get-all-eks-ami-release-versions-and-ids() {
   {
     echo "ManagedNodeGroups UnmanagedNodeGroups SsmParameter"
     echo "----------------- --------------------- ----------------------------------------------"
-    for param1 in $(aws ssm --profile=${the_profile} describe-parameters --region us-east-1 --max-items 100 \
+    for param1 in $(aws ssm --profile=${the_profile} describe-parameters --region ${AWS_DEFAULT_REGION} --max-items 100 \
                     --parameter-filters "Key=Path,Values=/aws/service/eks/optimized-ami/${desired_kube_version%+}/amazon-linux-2/" \
                     | jq -r '.Parameters[].Name' | grep -v recommended | sort -r); do
-      aws ssm --profile=${the_profile} get-parameters --names ${param1} --region us-east-1 | \
+      aws ssm --profile=${the_profile} get-parameters --names ${param1} --region ${AWS_DEFAULT_REGION} | \
         jq -r '.Parameters[0].Value' | jq -r '.release_version + " " + .image_id + " " + .Name'
     done
   } | column -t

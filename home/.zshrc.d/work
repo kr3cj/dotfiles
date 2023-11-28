@@ -61,12 +61,14 @@ function work_aws-sso {
     pm && echo "Unlock your password manager browser extension now..."
     sleep 5
     open -n -a "Brave Browser" --args https://github.com/${CUSTOM_WORK_DOMAINS[1]/.com} --profile-directory="Default"
-    sleep 10
+    sleep 11
     # no known way to bypass browser for ${CUSTOM_WORK_SSO_PROVIDER} (with MFA) or aws-sso
-    aws-sso console \
-     --account="${CUSTOM_WORK_DEFAULT_AWS_ACCT}" \
-     --profile="${CUSTOM_WORK_DEFAULT_AWS_PROFILE}" \
-     --region="${AWS_DEFAULT_REGION}"
+    aws-sso exec --profile "${CUSTOM_WORK_DEFAULT_AWS_PROFILE}" \
+     aws sts get-caller-identity > /dev/null
+    # aws-sso console \
+    #  --account="${CUSTOM_WORK_DEFAULT_AWS_ACCT}" \
+    #  --profile="${CUSTOM_WORK_DEFAULT_AWS_PROFILE}" \
+    #  --region="${AWS_DEFAULT_REGION}"
   fi
 }
 
@@ -75,7 +77,7 @@ ${IS_ARM} || return 0
 ${is_weekend} && return 0
 work_aws-sso
 # if necessary, authenticate to docker repos (must be after aws auth)
-if ! jq -e '.auths | has("'"${CUSTOM_WORK_DEFAULT_AWS_ACCT}"'.dkr.ecr.us-east-1.amazonaws.com")' \
+if ! jq -e '.auths | has("'"${CUSTOM_WORK_DEFAULT_AWS_ACCT}"'.dkr.ecr.'"${AWS_DEFAULT_REGION}"'.amazonaws.com")' \
  ~/.docker/config.json > /dev/null || \
  [[ -n $(find ~/.docker/ -mindepth 1 -maxdepth 1 -name config.json -mmin +720) ]] ; then
   docker-login

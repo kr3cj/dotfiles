@@ -2,7 +2,7 @@
 ${IS_MACOS} || return 0
 
 # remote host for container tools (https://docs.docker.com/engine/security/https/)
-export DOCKER_REGISTRY="${CUSTOM_WORK_DEFAULT_AWS_ACCT}.dkr.ecr.us-east-1.amazonaws.com"
+export DOCKER_REGISTRY="${CUSTOM_WORK_DEFAULT_AWS_ACCT}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com"
 export DOCKER_HOST="unix:///${HOME}/.colima/docker.sock"
 
 # function docker () {
@@ -13,11 +13,11 @@ export DOCKER_HOST="unix:///${HOME}/.colima/docker.sock"
 #   $(whence -p docker) ${@}
 # }
 function docker-login () {
-  eval "aws --profile=${CUSTOM_WORK_DEFAULT_AWS_PROFILE}Admin ecr get-login-password --region us-east-1 | \
-    docker login --username AWS --password-stdin ${CUSTOM_WORK_DEFAULT_AWS_ACCT}.dkr.ecr.us-east-1.amazonaws.com"
+  eval "aws --profile=${CUSTOM_WORK_DEFAULT_AWS_PROFILE}Admin ecr get-login-password --region ${AWS_DEFAULT_REGION} | \
+    docker login --username AWS --password-stdin ${CUSTOM_WORK_DEFAULT_AWS_ACCT}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com"
   # AWS ECR Repository for EKS Add-On images. See Amazon container image registries - Amazon EKS
-  eval "aws --profile=${CUSTOM_WORK_DEFAULT_AWS_PROFILE}Admin ecr get-login-password --region us-east-1 | \
-    docker login --username AWS --password-stdin 602401143452.dkr.ecr.us-east-1.amazonaws.com"
+  eval "aws --profile=${CUSTOM_WORK_DEFAULT_AWS_PROFILE}Admin ecr get-login-password --region ${AWS_DEFAULT_REGION} | \
+    docker login --username AWS --password-stdin 602401143452.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com"
 }
 
 alias docker-clean="sudo docker system prune --all --force --volumes"

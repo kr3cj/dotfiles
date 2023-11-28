@@ -1,5 +1,5 @@
 1password-cli 2.22.0
-awscli 2.13.36
+awscli 2.13.39
 aws-sso-cli 1.14.2
 golang 1.21.4
 # grpcurl 1.8.2

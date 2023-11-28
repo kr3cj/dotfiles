@@ -198,13 +198,25 @@ if [[ "${IS_MACOS}" == "true" ]]; then
   }
 
   function mysql-client {
+    # usage mysql-client cluster1 short-rds-host1 user1 dbname1
     # spin up a throwaway container in k8s for querying RDS
     kubectl --context ${1} run --generator=run-pod/v1 \
-      tmp-shell --rm -i --tty --image arey/mysql-client -- \
-        mysql -P3306 -h"${2}.us-east-1.rds.amazonaws.com" -u"user1" -p"SeeLastPass"
+     tmp-shell --rm -i --tty --image arey/mysql-client -- \
+      mysql -P3306 -h"${2}.${AWS_DEFAULT_REGION}.rds.amazonaws.com" -u"${3}" ${4}
     # docker run --rm -it alpine:latest sh
     #   apk add bash mysql-client
-    #   mysql -h"something.us-east-1.rds.amazonaws.com" -P"3306" -u"user1" -p"SeeLastPass"
+    #   mysql -h"${2}.${AWS_DEFAULT_REGION}.rds.amazonaws.com" -P"3306" -u"${3}" ${4}
+  }
+
+  function psql-client {
+    # usage: psql-client cluster1 short-rds-host1 user1 dbname1
+    # spin up a throwaway container in k8s for querying RDS
+    postgresql://${3}@${2}.${AWS_DEFAULT_REGION}.rds.amazonaws.com:5432/${4}
+    kubectl --context ${1} run --generator=run-pod/v1 \
+     tmp-shell --rm -i --tty --image jbergknoff/postgresql-client -- \
+      postgresql://${3}@${2}.${AWS_DEFAULT_REGION}.rds.amazonaws.com/${4}"
+    # docker run --rm -it jbergknoff/postgresql-client \
+    #  postgresql://${3}@${2}.${AWS_DEFAULT_REGION}.rds.amazonaws.com/${4}"
   }
 
   function openit {

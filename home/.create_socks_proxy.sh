@@ -34,16 +34,18 @@ if ! /usr/bin/hash $(brew --prefix curl)/bin/curl 2>/dev/null && ${timeout_path}
   return 0
 fi
 
-function _check_socks_proxy {
+function _socks_proxy_is_alive {
   local host1=${1}
   local port1=${2}
+  local sourcesite="https://api.ipify.org?format=yaml" # https://checkip.dyndns.org https://ifconfig.me
   local host1_ip="$(/usr/bin/dig @1.1.1.1 +short ${host1} | $(brew --prefix grep)/libexec/gnubin/grep '^[.0-9]*$' | tail -n1)"
   local response
-  response="$($(brew --prefix curl)/bin/curl --connect-timeout 5 --silent --socks5 localhost:${port1} https://ifconfig.me | $(brew --prefix grep)/libexec/gnubin/grep '^[.0-9]*$' | tail -n1)"
-  if [[ "${response}" != "${host1_ip}" ]] ; then
-    return 1
-  else
+  response="$($(brew --prefix curl)/bin/curl --connect-timeout 5 --silent --socks5 localhost:${port1} ${sourcesite} \
+   | $(brew --prefix grep)/libexec/gnubin/grep '^[.0-9]*$' | tail -n1)"
+  if [[ "${response}" == "${host1_ip}" ]] ; then
     return 0
+  else
+    return 1
   fi
 }
 function _create_socks_proxy {
@@ -56,8 +58,10 @@ function _create_socks_proxy {
   # clear contents of response file
   :> ${ssh_proxy_response_file}
 
-  if ! _check_socks_proxy ${host1} ${port1}; then
-    # echo "$(date -Iseconds) WARN: socks proxy not connected/working; first kill any old sessions"
+  if _socks_proxy_is_alive ${host1} ${port1}; then
+    echo "$(date -Iseconds) INFO: socks proxy already connected/working; skipping"
+  else
+    echo "$(date -Iseconds) WARN: socks proxy not connected/working; first kill any old sessions"
     /usr/bin/pgrep -f "/usr/bin/ssh ${ssh_proxy_options} ${port1} ${host1}" && \
     /usr/bin/pkill -f "/usr/bin/ssh ${ssh_proxy_options} ${port1} ${host1}"
 
