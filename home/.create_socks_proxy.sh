@@ -62,8 +62,8 @@ function _create_socks_proxy {
     echo "$(date -Iseconds) INFO: socks proxy already connected/working; skipping"
   else
     echo "$(date -Iseconds) WARN: socks proxy not connected/working; first kill any old sessions"
-    /usr/bin/pgrep -f "/usr/bin/ssh ${ssh_proxy_options} ${port1} ${host1}" && \
-    /usr/bin/pkill -f "/usr/bin/ssh ${ssh_proxy_options} ${port1} ${host1}"
+    /usr/bin/pgrep -f "/usr/bin/ssh ${ssh_proxy_options}${port1} ${host1}" && \
+    /usr/bin/pkill -f "/usr/bin/ssh ${ssh_proxy_options}${port1} ${host1}"
 
     if ! port ${host1}:22 &> /dev/null; then
       echo "$(date -Iseconds) ERROR: Skipping ${funcstack[1]}; unable to connect to \"${host1}:22\" at $(date)."

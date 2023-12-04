@@ -1,5 +1,5 @@
 1password-cli 2.22.0
-awscli 2.13.39
+awscli 2.14.5
 aws-sso-cli 1.14.2
 golang 1.21.4
 # grpcurl 1.8.2
@@ -18,6 +18,6 @@ saml2aws 2.36.12
 # sopstool 0.4.2
 starship 1.16.0
 steampipe 0.21.1
-terraform 1.6.4
+terraform 1.6.5
 terraform-docs 0.16.0
 viddy 0.4.0
