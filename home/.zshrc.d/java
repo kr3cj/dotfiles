@@ -2,4 +2,7 @@
 ${IS_MACOS} || return 0
 
 export MVN_REPO_LOGIN="readonly:${CUSTOM_WORK_NPM_MVN_AUTH}"
-alias j8='export JAVA_HOME=`/usr/libexec/java_home -v 1.8`'
+# alias j8='export JAVA_HOME=`/usr/libexec/java_home -v 1.8`'
+
+# temporary for monolith ruby stuff
+export GEM_REPO_LOGIN="readonly:${CUSTOM_WORK_NPM_MVN_AUTH}"

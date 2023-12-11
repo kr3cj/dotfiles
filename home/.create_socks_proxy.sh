@@ -58,9 +58,9 @@ function _create_socks_proxy {
   # clear contents of response file
   :> ${ssh_proxy_response_file}
 
-  if _socks_proxy_is_alive ${host1} ${port1}; then
-    echo "$(date -Iseconds) INFO: socks proxy already connected/working; skipping"
-  else
+  if ! _socks_proxy_is_alive ${host1} ${port1}; then
+    # echo "$(date -Iseconds) INFO: socks proxy already connected/working; skipping"
+  # else
     echo "$(date -Iseconds) WARN: socks proxy not connected/working; first kill any old sessions"
     /usr/bin/pgrep -f "/usr/bin/ssh ${ssh_proxy_options}${port1} ${host1}" && \
     /usr/bin/pkill -f "/usr/bin/ssh ${ssh_proxy_options}${port1} ${host1}"
