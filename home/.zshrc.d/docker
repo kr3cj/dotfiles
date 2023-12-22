@@ -40,4 +40,4 @@ function docker-reset () {
 
 ${is_weekend} && return 0
 # if necessary, start container engine (this doesn't work after some reboots for some reason)
-pgrep -q colima || colima start
+pgrep -qf "colima/qemu.pid" || colima start
