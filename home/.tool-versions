@@ -1,13 +1,13 @@
 1password-cli 2.24.0
-awscli 2.15.3
+awscli 2.15.7
 aws-sso-cli 1.14.2
 golang 1.21.5
 # grpcurl 1.8.2
 # helm 3.9.0
 jq 1.7.1
-k9s 0.29.1
+k9s 0.30.8
 krew 0.4.4
-kubectl 1.29.0
+kubectl 1.28.5
 minikube 1.32.0
 # nodejs 11.9.0
 # nodejs 12.18.4
@@ -16,8 +16,8 @@ minikube 1.32.0
 python 3.12.1
 saml2aws 2.36.13
 # sopstool 0.4.2
-starship 1.16.0
-steampipe 0.21.2
+starship 1.17.1
+steampipe 0.21.3
 terraform 1.6.6
 terraform-docs 0.17.0
 viddy 0.4.0

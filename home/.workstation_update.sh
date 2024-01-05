@@ -154,16 +154,19 @@ if [[ $(uname) == "Darwin" ]] ; then
             echo "$ unalias libtool" ;;
           example)
             echo "Skipping upgrade of locked asdf plugin \"${tool1}:${old_version1}\""
+            echo "  (latest major/minor version for \"${tool1}\" is $($(brew --prefix asdf)/bin/asdf latest ${tool1}))"
             echo "${tool1} ${old_version1}" >> ${TOOL_FILE}.new ;;
-          example)
+          kubectl)
             # ASDF_HASHICORP_OVERWRITE_ARCH_TERRAFORM=x86_64 asdf install terraform 1.0.1
             echo "Getting latest patch version of asdf plugin \"${tool1}:${old_version1}\"..."
+            echo "  (latest major/minor version for \"${tool1}\" is $($(brew --prefix asdf)/bin/asdf latest ${tool1}))"
             # use bash parameter expansion to extract the major and minor version from ${old_version1}
             new_version1="$($(brew --prefix asdf)/bin/asdf latest ${tool1} ${old_version1%\.*})"
             # if asdf dropped old_version, above will return emtpy string, so return old_version
             echo "${tool1} ${new_version1:=${old_version1}}" >> ${TOOL_FILE}.new ;;
           example2)
             echo "Getting latest minor version only of asdf plugin \"${tool}:${old_version1}\"..."
+            echo "  (latest major/minor version for \"${tool1}\" is $($(brew --prefix asdf)/bin/asdf latest ${tool1}))"
             # use bash parameter expansion to extract the major version from ${old_version1}
             new_version1="$($(brew --prefix asdf)/bin/asdf latest ${tool1} ${old_version1%%\.*})"
             # if asdf dropped old_version, above will return emtpy string, so return old_version
