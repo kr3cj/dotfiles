@@ -63,11 +63,11 @@ function work_aws-sso {
     open -n -a "Brave Browser" --args https://github.com/${CUSTOM_WORK_DOMAINS[1]/.com} --profile-directory="Default"
     sleep 11
     # no known way to bypass browser for ${CUSTOM_WORK_SSO_PROVIDER} (with MFA) or aws-sso
-    aws-sso exec --profile "${CUSTOM_WORK_DEFAULT_AWS_PROFILE}" \
+    aws-sso exec --profile "${MY_AWS_PROFILE}" \
      aws sts get-caller-identity > /dev/null
     # aws-sso console \
     #  --account="${CUSTOM_WORK_DEFAULT_AWS_ACCT}" \
-    #  --profile="${CUSTOM_WORK_DEFAULT_AWS_PROFILE}" \
+    #  --profile="${MY_AWS_PROFILE}" \
     #  --region="${AWS_DEFAULT_REGION}"
   fi
 }

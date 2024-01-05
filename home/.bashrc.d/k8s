@@ -190,7 +190,7 @@ function count-k8s-services() {
 #   for node1 in ${nodes} ; do
 #     echo -e "\n starting on ${node1} at $(date)"
 #     kubectl drain ${node1} --ignore-daemonsets --force --delete-emptdir-data
-#     aws --profile ${CUSTOM_WORK_DEFAULT_AWS_PROFILE} ec2 terminate-instances --instance-ids \
+#     aws --profile ${MY_AWS_PROFILE} ec2 terminate-instances --instance-ids \
 #       kubectl get nodes -o go-template --template=\'{{.spec.externalID}}\' ${nodeid}
 #   done
 # }

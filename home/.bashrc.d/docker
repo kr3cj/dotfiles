@@ -13,10 +13,10 @@ function docker () {
   $(which docker) ${@}
 }
 function docker-login () {
-  aws --profile=${CUSTOM_WORK_DEFAULT_AWS_PROFILE} ecr get-login-password --region ${AWS_DEFAULT_REGION} | \
+  aws --profile=${MY_AWS_PROFILE} ecr get-login-password --region ${AWS_DEFAULT_REGION} | \
     docker login --username AWS --password-stdin ${CUSTOM_WORK_DEFAULT_AWS_ACCT}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com
   # AWS ECR Repository for EKS Add-On images. See Amazon container image registries - Amazon EKS
-  aws --profile=${CUSTOM_WORK_DEFAULT_AWS_PROFILE}-mono-production ecr get-login-password --region ${AWS_DEFAULT_REGION} | \
+  aws --profile=${MY_AWS_PROFILE}-mono-production ecr get-login-password --region ${AWS_DEFAULT_REGION} | \
     docker login --username AWS --password-stdin 602401143452.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com
 }
 

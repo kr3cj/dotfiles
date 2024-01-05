@@ -6,6 +6,9 @@ export AWS_SESSION_TTL=12h
 export AWS_FEDERATION_TOKEN_TTL=12h
 export AWS_ASSUME_ROLE_TTL=1h # 4h for devtoolsSandboxAccountAccessRole
 export AWS_DEFAULT_REGION=us-east-1 # aws configure list | grep region | awk '{print $2}'
+# export AWS_DEFAULT_PROFILE=${CUSTOM_WORK_DEFAULT_AWS_PROFILE}
+# export AWS_PROFILE=${CUSTOM_WORK_DEFAULT_AWS_PROFILE}
+export MY_AWS_PROFILE=${CUSTOM_WORK_DEFAULT_AWS_PROFILE}
 
 function get-ec2-id-from-pod() {
   # only requires kube config with correct context and namespace set
@@ -44,7 +47,7 @@ function get-ec2-hostname-from-id() {
   # until https://github.com/aws/containers-roadmap/issues/1395
   local role=""
   local profile1=""
-  role="$(aws-sso exec -p ${CUSTOM_WORK_DEFAULT_AWS_PROFILE} aws sts get-caller-identity | jq -r ".Arn" | cut -d/ -f2 | tr '[A-Z]' '[a-z]')"
+  role="$(aws-sso exec -p ${MY_AWS_PROFILE} aws sts get-caller-identity | jq -r ".Arn" | cut -d/ -f2 | tr '[A-Z]' '[a-z]')"
   for profile1 in $(grep \ ${role%login}- ~/.aws/config | awk '{print $2}' | sed 's/]^//g'); do
     aws ec2 --profile ${profile1%]} describe-instances --instance-ids "${1}" \
      --query "Reservations[*].Instances[*][PrivateDnsName]" --output text 2> /dev/null
@@ -57,7 +60,7 @@ function get-latest-eks-ami-release-version() {
     jq -r '.serverVersion.major + "." + .serverVersion.minor' | sed 's/+$//g')"
   local desired_kube_version="${1:-$current_kube_version}"
 
-  aws ec2 --profile=${CUSTOM_WORK_DEFAULT_AWS_PROFILE} describe-images --owners amazon \
+  aws ec2 --profile=${MY_AWS_PROFILE} describe-images --owners amazon \
    --image-ids "$(aws ssm --profile=${the_profile} get-parameters \
     --names /aws/service/eks/optimized-ami/${desired_kube_version%+}/amazon-linux-2/recommended/image_id \
     --region ${AWS_DEFAULT_REGION} | jq -r '.Parameters[0].Value')" | jq -r '.Images[0].Name'
@@ -93,7 +96,7 @@ function get-all-eks-ami-release-versions-and-ids() {
 
 function show-domain-registration-expirations() {
   local profile1
-  for profile1 in $(grep \ ${CUSTOM_WORK_DEFAULT_AWS_PROFILE}- ~/.aws/config \
+  for profile1 in $(grep \ ${MY_AWS_PROFILE}- ~/.aws/config \
    | awk '{print $2}' | sed 's/]//g'); do
     echo ${profile1}
     aws --profile \${profile1} route53domains list-domains | \
@@ -104,7 +107,7 @@ function show-domain-registration-expirations() {
 function show-acm-cert-expirations() {
   local profile1
   local arn1
-  for profile1 in $(grep \ ${CUSTOM_WORK_DEFAULT_AWS_PROFILE}- ~/.aws/config \
+  for profile1 in $(grep \ ${MY_AWS_PROFILE}- ~/.aws/config \
    | awk '{print $2}' | sed 's/]//g'); do
     echo ${profile1}
     for arn1 in $(aws --profile ${profile1} acm list-certificates --max-items 100 \
