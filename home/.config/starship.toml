@@ -1,5 +1,5 @@
 [aws]
-format = 'on [$symbol($profile )(\[$duration\] )]($style)'
+format = '[$symbol($profile )(\[$duration\] )]($style)'
 # style = 'bold blue'
 # symbol = '☁️ '
 force_display = true
