@@ -66,16 +66,17 @@ if [[ $(uname) == "Darwin" ]] ; then
   # hack for weird virt-manager dependency (or just remove spice-gtk, virt-manager and virt-viewer)
   # brew uninstall --ignore-dependencies spice-protocol
   brew update
-  brew upgrade
+  brew upgrade # TODO: if asdf gets updated, must reshim plugins?
   brew upgrade --cask
   # dont rely on "brew upgrade --cask" to skip auto-updating casks. Loop over each instead
   # brew upgrade --cask
-  for cask1 in $(brew upgrade --cask --dry-run | awk '{print $1}') ; do
+  for cask1 in $(brew outdated --cask --greedy | awk '{print $1}') ; do
     case ${cask1} in
-      brave-browser|firefox|github|spotify|visual-studio-code)
+      # alfred|android-file-transfer|balenaetcher|brave-browser|firefox|font-fira-code|font-fira-code-nerd-font|gimp|github|iterm2|keystore-explorer|microsoft-edge|spotify|visual-studio-code|warp|wireshark)
         # TODO: letting apps update themselves may mistakenly install them to /Applications intead of ~/Applications :(
-        # docker|github|iterm2|slack|spotify|zoom
-        echo "Skipping cask that should auto update itself: ${cask1}" ;;
+        # docker|github|iterm2|slack|zoom
+      android-file-transfer|brave-browser|github|microsoft-edge|spotify|visual-studio-code|wireshark)
+        echo "Skipping cask \"${cask1}\" that should auto update itself" ;;
       *)
         echo "Upgrading cask \"${cask1}\"..."
         brew upgrade --cask ${cask1} ;;
@@ -156,7 +157,7 @@ if [[ $(uname) == "Darwin" ]] ; then
             echo "Skipping upgrade of locked asdf plugin \"${tool1}:${old_version1}\""
             echo "  (latest major/minor version for \"${tool1}\" is $($(brew --prefix asdf)/bin/asdf latest ${tool1}))"
             echo "${tool1} ${old_version1}" >> ${TOOL_FILE}.new ;;
-          kubectl)
+          argocd|kubectl)
             # ASDF_HASHICORP_OVERWRITE_ARCH_TERRAFORM=x86_64 asdf install terraform 1.0.1
             echo "Getting latest patch version of asdf plugin \"${tool1}:${old_version1}\"..."
             echo "  (latest major/minor version for \"${tool1}\" is $($(brew --prefix asdf)/bin/asdf latest ${tool1}))"

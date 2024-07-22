@@ -120,22 +120,26 @@ brew "tfenv"
 
 ### desktop installs
 cask "alfred", args: { appdir: "~/Applications" }
-cask "balenaetcher", args: { appdir: "~/Applications" }
-cask "brave-browser", args: { appdir: "~/Applications" }
+cask "android-file-transfer", args: { appdir: "/Applications" }
+# cask "balenaetcher", args: { appdir: "~/Applications" }
+cask "brave-browser", args: { appdir: "/Applications" }
 cask "firefox", args: { appdir: "~/Applications" }
+cask "font-fira-code", args: { appdir: "~/Applications" }
+cask "font-fira-code-nerd-font", args: { appdir: "~/Applications" }
 cask "gimp", args: { appdir: "~/Applications" }
-cask "github", args: { appdir: "~/Applications" }
+cask "github", args: { appdir: "/Applications" }
 # cask "goland", args: { appdir: "~/Applications" }
 # cask "intellij-idea", args: { appdir: "~/Applications" }
 # cask "intellij-idea-ce", args: { appdir: "~/Applications" }
-cask "iterm2", args: { appdir: "~/Applications" }
-cask "keystore-explorer", args: { appdir: "~/Applications" }
+# cask "iterm2", args: { appdir: "~/Applications" }
+# cask "keystore-explorer", args: { appdir: "~/Applications" }
 # cask "librecad", args: { appdir: "~/Applications" }
+cask "microsoft-edge", args: { appdir: "/Applications" }
 # cask "pycharm-ce", args: { appdir: "~/Applications" }
-cask "spotify", args: { appdir: "~/Applications" }
-cask "visual-studio-code", args: { appdir: "~/Applications" }
+cask "spotify", args: { appdir: "/Applications" }
+cask "visual-studio-code", args: { appdir: "/Applications" }
 cask "warp", args { appdir: "~/Applications" }
-cask "wireshark", args: { appdir: "~/Applications" }
+cask "wireshark", args: { appdir: "/Applications" }
 
 ### App Store installs won't work until authenticated to apple account
 mas "CopyClip", id: 595191960
