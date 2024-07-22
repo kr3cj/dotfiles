@@ -154,43 +154,16 @@ function netshoot {
   kubectl --context ${1} run tmp-shell --rm -i --tty --image nicolaka/netshoot -- /bin/bash
 }
 
-function ibexs() {
-  if ! [[ $(pwd) =~ ibex ]] ; then
-    echo "You must be in the ibex repo to run it"
-    exit 1
-  fi
-
-  local cluster=${1}
-  if ! [[ -r ~/.kube/${cluster} ]]; then
-    echo "No kubeconfig found for \"${cluster}\"!"
-    return 1
-  fi
-  shift
-  local args="${@}"
-
-  local my_cluster_path="$(map-cluster-to-path ${cluster})"
-
-  [[ ${VERBOSE} -ge 1 ]] && \
-    echo "Running: ./ibex --cluster ${my_cluster_path} ${args}"
-  ./ibex --cluster ${my_cluster_path} ${args}
-}
-
 # kubectl plugin manager: krew
 # export KREW_ROOT=${HOME}/.krew
 # pathadd ${KREW_ROOT}/bin
-
-function count-k8s-services() {
-  for cluster1 in $(find clusters/ -mindepth 4 -type d -exec basename '{}' \;); do
-  echo "${cluster1}: $(kubectl --context ${cluster1} get rollout -A -oname \
-   | grep -v paved-road | wc -l)"; done
-}
 
 # function doit () {
 #   local nodes=${@}
 #   for node1 in ${nodes} ; do
 #     echo -e "\n starting on ${node1} at $(date)"
 #     kubectl drain ${node1} --ignore-daemonsets --force --delete-emptdir-data
-#     aws --profile ${MY_AWS_PROFILE} ec2 terminate-instances --instance-ids \
+#     aws --profile ${MY_PROFILE} ec2 terminate-instances --instance-ids \
 #       kubectl get nodes -o go-template --template=\'{{.spec.externalID}}\' ${nodeid}
 #   done
 # }

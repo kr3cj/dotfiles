@@ -13,10 +13,10 @@ export DOCKER_HOST="unix:///${HOME}/.colima/docker.sock"
 #   $(whence -p docker) ${@}
 # }
 function docker-login () {
-  eval "aws --profile=${MY_AWS_PROFILE}Admin ecr get-login-password --region ${AWS_DEFAULT_REGION} | \
+  eval "aws --profile=${MY_PROFILE}Admin ecr get-login-password --region ${AWS_DEFAULT_REGION} | \
     docker login --username AWS --password-stdin ${CUSTOM_WORK_DEFAULT_AWS_ACCT}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com"
   # AWS ECR Repository for EKS Add-On images. See Amazon container image registries - Amazon EKS
-  eval "aws --profile=${MY_AWS_PROFILE}Admin ecr get-login-password --region ${AWS_DEFAULT_REGION} | \
+  eval "aws --profile=${MY_PROFILE}Admin ecr get-login-password --region ${AWS_DEFAULT_REGION} | \
     docker login --username AWS --password-stdin 602401143452.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com"
 }
 

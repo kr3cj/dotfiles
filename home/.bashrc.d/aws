@@ -44,7 +44,7 @@ function get-ec2-hostname-from-id() {
   # until https://github.com/aws/containers-roadmap/issues/1395
   local role=""
   local profile1=""
-  role="${MY_AWS_PROFILE#*\:}"
+  role="${MY_PROFILE#*\:}"
   for profile1 in $(grep \ ${role:l}- ~/.aws/config | awk '{print $2}' | sed 's/]^//g'); do
     aws ec2 --profile ${profile1%]} describe-instances --instance-ids "${1}" \
      --query "Reservations[*].Instances[*][PrivateDnsName]" --output text 2> /dev/null
@@ -57,8 +57,8 @@ function get-latest-eks-ami-release-version() {
     jq -r '.serverVersion.major + "." + .serverVersion.minor' | sed 's/+$//g')"
   local desired_kube_version="${1:-$current_kube_version}"
 
-  aws ec2 --profile="${MY_AWS_PROFILE}" describe-images --owners amazon \
-   --image-ids "$(aws ssm --profile="${MY_AWS_PROFILE}" get-parameters \
+  aws ec2 --profile="${MY_PROFILE}" describe-images --owners amazon \
+   --image-ids "$(aws ssm --profile="${MY_PROFILE}" get-parameters \
     --names /aws/service/eks/optimized-ami/${desired_kube_version%+}/amazon-linux-2/recommended/image_id \
     --region ${AWS_DEFAULT_REGION} | jq -r '.Parameters[0].Value')" | jq -r '.Images[0].Name'
 }
@@ -93,7 +93,7 @@ function get-all-eks-ami-release-versions-and-ids() {
 
 function show-domain-registration-expirations() {
   local profile1
-  for profile1 in $(grep \ ${MY_AWS_PROFILE#*\:}- ~/.aws/config \
+  for profile1 in $(grep \ ${MY_PROFILE#*\:}- ~/.aws/config \
    | awk '{print $2}' | sed 's/]^//g'); do
     echo ${profile1%]}
     aws --profile ${profile1%]} route53domains list-domains | \
@@ -104,7 +104,7 @@ function show-domain-registration-expirations() {
 function show-acm-cert-expirations() {
   local profile1
   local arn1
-  for profile1 in $(grep \ ${MY_AWS_PROFILE#*\:}- ~/.aws/config \
+  for profile1 in $(grep \ ${MY_PROFILE#*\:}- ~/.aws/config \
    | awk '{print $2}' | sed 's/]^//g'); do
     echo ${profile1%]}
     for arn1 in $(aws --profile ${profile1%]} acm list-certificates --max-items 100 \
