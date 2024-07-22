@@ -24,10 +24,18 @@ function gitp {
     esac
   fi
 
-  git checkout ${desired_branch}
+  if ! [[ "${current_branch}" == "${desired_branch}" ]]; then
+    echo "current_branch (${current_branch}) != desired_branch (${desired_branch}); checking out desired_branch..."
+    git checkout ${desired_branch}
+  fi
   git pull origin ${desired_branch}
   git fetch --prune --all
-  git merge origin/main
+  if ! [[ "${current_branch}" == "${default_branch}" ]]; then
+    # careful doing this on big, shared repos with branches having lots of churn
+    # use slash instead of space to merge local instance's ${default_branch}
+    echo "current_branch (${current_branch}) != default_branch (${default_branch}); merging local instance of default_branch..."
+    git merge origin/${default_branch}
+  fi
 
   local local_merged_branches=$(git branch --merged | grep -vE "${default_branch}|${current_branch}")
   local local_deleted_branches=$(git branch -vv | grep ': gone]' | grep -v '\*' | awk '{print $1}')
