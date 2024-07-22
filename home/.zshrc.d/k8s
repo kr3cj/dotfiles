@@ -11,6 +11,7 @@ export KUBECONFIG=$(find ~/.kube/ \
   -maxdepth 1 \
   -type f \
   ! -name minikube \
+  -a ! -name "*.*" \
   | sort \
   | tr '\n' ':' || "")
   # -printf "%p:" \
@@ -26,7 +27,7 @@ path=(
   $path
 ) \
 # krew stuff
-function krew () {
+function kr () {
   # must reshim asdf krew after every plugin install
   local cmd=${@}
   local run_reshim="false"
@@ -51,11 +52,11 @@ function k() {
   shift
   local action="${@}"
 
-  local my_aws_profile="$(map-cluster-to-profile ${cluster})"
-  # verify that eks clusters mapped to a my_aws_profile
-  if [[ "${my_aws_profile}" == "" ]]; then
-    return 1
-  fi
+  # local my_aws_profile="$(map-cluster-to-profile ${cluster})"
+  # # verify that eks clusters mapped to a my_aws_profile
+  # if [[ "${my_aws_profile}" == "" ]]; then
+  #   return 1
+  # fi
 
   local kube_config="--context ${cluster}"
   # some kubectl plugin commands won't work with "--kubeconfig"
@@ -73,11 +74,10 @@ function k() {
     *get?no*)
       action="${action} --sort-by=.metadata.creationTimestamp \
 --label-columns=\
-eks.amazonaws.com/nodegroup-image,\
-instance,\
+ami-id,\
+instance-id,\
 node.kubernetes.io/instance-type,\
 failure-domain.beta.kubernetes.io/zone,\
-nodegroup_name,\
 function,\
 node-lifecycle"
 # -o=custom-columns=\
@@ -130,15 +130,15 @@ function h() {
     return 1
   fi
 
-  local kube_config="--kube-context ${cluster}"
+  local kube_config="--kube-context ${cluster}" # --kubeconfig ~/.kube/${cluster}
   local helm_path="$(asdf where helm)/bin/helm"
-  echo "Using helm client $(${helm_path} ${kube_config} version --client --short)..."
+  # echo "Using helm client: \"${helm_path} ${kube_config} version --client --short\"..."
 
   if [[ ${VERBOSE} -ge 1 ]]; then
     echo "To see helm2 releases, run: \"\$(asdf where helm 2.16.12)/bin/helm ${kube_config} ls\""
     echo "Running: \"${helm_path} ${kube_config} ${action}\""
   fi
-  eval "${helm_path} ${kube_config} ${action}" #--kube-context admin@${cluster}
+  eval "${helm_path} ${kube_config} ${action}"
 }
 
 function e {
@@ -195,6 +195,33 @@ function count-k8s-services() {
   for cluster1 in $(find clusters/ -mindepth 4 -type d -exec basename '{}' \;); do
   echo "${cluster1}: $(kubectl --context ${cluster1} get rollout -A -oname \
    | grep -v paved-road | wc -l)"; done
+}
+
+function count-k8s-images() {
+  local cluster1=${1}
+  if [[ -z ${cluster1} ]]; then
+    echo "Getting unique k8s images for all clusters... (this could take 5+ mins)"
+
+    # show all images in all clusters (can take 5+ mins)
+    (cd ~/build/github/ibex
+    for cluster1 in $(find clusters/ -mindepth 4 -type d -exec basename '{}' \;); do
+      echo -e "\n\n${cluster1}"
+      kubectl --context ${cluster1} get po -A -o jsonpath='{..image}' | tr -s '[[:space:]]' '\n' | sort | uniq -c | sort
+    done | grep -E 'mine|theirs|yours'
+    )
+  else
+    kubectl --context ${cluster1} get po -A -o jsonpath='{..image}' | tr -s '[[:space:]]' '\n' | sort | uniq -c | sort
+  fi
+
+  # count by rollouts
+  # for cluster1 in $(find clusters/ -mindepth 4 -type d -exec basename '{}' \;); do   echo "${cluster1}: $(kubectl --context ${cluster1} get rollout -oname | grep -v paved-road | wc -l || echo 0)"; done
+
+  # show kubelet versions across nodes
+  # kubectl --context ${CLUSTER} get no --sort-by=.metadata.creationTimestamp -o jsonpath='{..kubeletVersion}' | tr -s '[[:space:]]' '\n' | sort | uniq -c
+
+  # show counts of unique images/versions by namespace (watch is helpful for rollouts)
+  # all namespaces except default
+  # watch "kubectl --all-namespaces --field-selector=metadata.namespace!=default get po --sort-by=.metadata.creationTimestamp -o jsonpath='{..image}' | tr -s '[[:space:]]' '\n' | sort | uniq -c"
 }
 
 # function doit () {
@@ -259,22 +286,6 @@ function count-k8s-services() {
 # show count of configmaps by microservice
 # kubectl get rs -lapp -ogo-template='{{range .items}}{{.metadata.labels.app}}{{"\n"}}{{end}}' | awk '{print $1}' | sort | uniq -c
 
-# show counts of unique images/versions by namespace (watch is helpful for rollouts)
-# all namespaces except default
-# watch "kubectl --all-namespaces --field-selector=metadata.namespace!=default get po --sort-by=.metadata.creationTimestamp -o jsonpath='{..image}' | tr -s '[[:space:]]' '\n' | sort | uniq -c"
-
-# show all images in all clusters (takes 5+ mins)
-# for cluster1 in $(find clusters/ -mindepth 4 -type d -exec basename '{}' \;); do
-#   echo -e "\n\n${cluster1}"
-#   for ns1 in $(kubectl --context ${cluster1} get ns -oname); do
-#     echo -e "  ${ns1}"
-#     kubectl --context ${cluster1} get po -n ${ns1##*/} -o jsonpath='{..image}' | tr -s '[[:space:]]' '\n' | sort | uniq -c
-#   done
-# done | grep -E 'mine|theirs|yours'
-
-# show counts of unique images/version for kubelet
-# kubectl --context ${CLUSTER} get no --sort-by=.metadata.creationTimestamp -o jsonpath='{..kubeletVersion}' | tr -s '[[:space:]]' '\n' | sort | uniq -c
-
 # show all pods from nodes with given label
 # pcols=""; for n in $(kubectl get node -lfunction=cluster-critical -ocustom-columns=name:metadata.name --no-headers); do kubectl get pod \
 # --all-namespaces -o wide --field-selector "spec.nodeName=$n" $pcols; pcols="--no-headers"; done | column -t
@@ -282,3 +293,6 @@ function count-k8s-services() {
 # show Pods with containers that aren't ready. Each row is the pod name, container name, ready state, started state.
 # kubectl get pod --all-namespaces -o go-template='POD{{"\t"}}CONTAINER{{"\t"}}READY{{"\t"}}STARTED{{"\n"}}{{range .items}}{{$p:=.metadata.name}}{{range \
 # .status.containerStatuses}}{{if not .ready}}{{$p}}{{"\t"}}{{.name}}{{"\t"}}{{.ready}}{{"\t"}}{{.started}}{{"\n"}}{{end}}{{end}}{{end}}'
+
+# grab eks kubelet logs: sudo journalctl --unit=kubelet -ocat > /var/tmp/this.log
+# grab eks networking logs: /var/log/aws-routed-eni/ipamd.log
