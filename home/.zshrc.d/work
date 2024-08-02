@@ -52,23 +52,33 @@ function mount_home_nfs {
 #   return $(curl --fail --fail-early --max-time 1 --silent -o /dev/null \
 #    https://argo-cd.ops.int.${CUSTOM_WORK_DOMAINS[2]})
 # }
-function work_aws-sso {
-  # switch to manual timer as aws-sso command itself can prompt for auth
-  if aws-sso list Expires | grep Default | grep -q Expired ; then
-  # if [[ $(aws --profile saml configure get x_security_token_expires) < $(gdate --iso-8601=seconds) ]]; then
-    # make sure we are authenticated to password manager
-    export OP_SESSION_my="$(head -n1 ~/.pm_session_token)"
-    _passman_needs_auth || _passman_auth
-    pm && echo "Unlock your password manager browser extension now..."
-    sleep 5
-    # authenticate to sso
-    open -n -a "Brave Browser" --args https://${CUSTOM_WORK_DOMAINS[1]/.com}.${CUSTOM_WORK_SSO_PROVIDER}.com --profile-directory="Default"
+function work_main-sso {
+  local domain1
+  # use manual timer for ${CUSTOM_WORK_SSO_PROVIDER} expiration
+  if ! session_is_active ${CUSTOM_WORK_SSO_PROVIDER}; then
+    echo "Authenticating ${CUSTOM_WORK_SSO_PROVIDER}..."
+    open -n -a "Brave Browser" --args "https://${CUSTOM_WORK_DOMAINS[1]/.com}.${CUSTOM_WORK_SSO_PROVIDER}.com" --profile-directory="Default"
     sleep 15
-    open -n -a "Brave Browser" --args https://github.com/${CUSTOM_WORK_DOMAINS[1]/.com} --profile-directory="Default"
+    session_is_active ${CUSTOM_WORK_SSO_PROVIDER} "43200 seconds" || true # 12h
+    echo "Authenticating web apps requiring daily SSO..."
+    for domain1 in ${CUSTOM_WORK_SSO_DAILY_DOMAINS}; do
+      open -n -a "Brave Browser" --args "https://${CUSTOM_WORK_DOMAINS[1]/.com}.${CUSTOM_WORK_SSO_PROVIDER}.com/home/${domain1}?fromPlugin=true" --profile-directory="Default"
+    done
+    docker-login
+  fi
+}
+function work_cloud-sso {
+  # TODO: remove all aws-sso stuff after granted/assume stops crashing
+  # if aws-sso list Expires | grep Default | grep -q Expired ; then
+  # if [[ $(aws --profile saml configure get x_security_token_expires) < $(gdate --iso-8601=seconds) ]]; then
+
+  # use manual timer for aws-sso expiration as command itself can prompt for auth :(
+  if ! session_is_active aws_sso; then
+    echo "Authenticating aws-sso..."
+    # second, aws-sso authentication should prompt automatically via browser
     # no known way to bypass browser for ${CUSTOM_WORK_SSO_PROVIDER} (with MFA) or aws-sso
-    echo "Authorizing aws-sso..."
-    aws-sso exec --profile "${MY_PROFILE/_/:}" \
-     aws sts get-caller-identity > /dev/null
+    aws-sso exec --profile "${MY_PROFILE/_/:}" aws sts get-caller-identity > /dev/null
+    session_is_active aws_sso "28800 seconds" || true # 8h
     # aws-sso console \
     #  --account="${CUSTOM_WORK_DEFAULT_AWS_ACCT}" \
     #  --profile="${MY_PROFILE}" \
@@ -80,34 +90,37 @@ function work_aws-sso {
   fi
 }
 
-function work_granted-sso {
+# function work_granted-sso {
   # deprecated in favor of ~/.granted/config: "CredentialProcessAutoLogin = true"
-  local date_path expiration
-  date_path="$(brew --prefix coreutils)/libexec/gnubin/date"
-  expiration=$(granted sso-tokens expiry --json | jq -r '.[] | .expires_at' 2> /dev/null || \
-   ${date_path} -Is --date "-1 days")
-  if [[ ${?} -ne 0 ]] || \
-   [[ ${expiration} < $(${date_path} -Is) ]] || \
-   [[ ${expiration} == "EXPIRED" ]]; then
-    echo "Authenticating granted..."
-    granted sso login --sso-start-url https://${CUSTOM_WORK_SSO_DOMAIN}/start --sso-region ${AWS_DEFAULT_REGION}
-  fi
+  # local date_path expiration
+  # date_path="$(brew --prefix coreutils)/libexec/gnubin/date"
+  # expiration=$(granted sso-tokens expiry --json | jq -r '.[] | .expires_at' 2> /dev/null || \
+  #  ${date_path} -Is --date "-1 days")
+  # if [[ ${?} -ne 0 ]] || \
+  #  [[ ${expiration} < $(${date_path} -Is) ]] || \
+  #  [[ ${expiration} == "EXPIRED" ]]; then
+  #   echo "Authenticating granted..."
+  #   granted sso login --sso-start-url https://${CUSTOM_WORK_SSO_DOMAIN}/start --sso-region ${AWS_DEFAULT_REGION}
+  # fi
   # disable until bugfix: assume "${MY_PROFILE}" --exec -- aws sts get-caller-identity
 
-  # regen configs
+  # regen configs (put on a weekly timer or something and in backgrouns)
   # granted sso populate --prune && granted registry sync
-}
+# }
 
 # only proceed on work system
 ${IS_ARM} || return 0
 ${is_weekend} && return 0
-work_aws-sso
-# work_granted-sso
-# if necessary, authenticate to docker repos (must be after aws auth)
-if ! jq -e '.auths | has("'"${CUSTOM_WORK_DEFAULT_AWS_ACCT}"'.dkr.ecr.'"${AWS_DEFAULT_REGION}"'.amazonaws.com")' \
- ~/.docker/config.json > /dev/null || \
- [[ -n $(find ~/.docker/ -mindepth 1 -maxdepth 1 -name config.json -mmin +720) ]] ; then
-  echo "Authenticating ${MY_PROFILE}Admin for ECR pushes..."
-  docker-login
+
+# first, make sure we are authenticated to password manager
+if ! _passman_needs_auth ; then
+  _passman_auth
+  pm
+  echo "Unlock your password manager browser extension now..."
+  sleep 5
 fi
+work_main-sso
+work_cloud-sso
+work_granted-sso
+
 [[ $(pwd) == "${HOME}" ]] && cd ~/build/github/ibex || return 0
