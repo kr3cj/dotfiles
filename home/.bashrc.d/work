@@ -94,7 +94,7 @@ function _create_socks_proxy {
   # fi
 }
 
-function work_aws-sso {
+function work_cloud-sso {
   if aws-sso list Expires | grep Default | grep -q Expired; then
   # if [[ $(aws --profile saml configure get x_security_token_expires) < $(gdate --iso-8601=seconds) ]]; then
     # make sure we are authenticated to password manager
@@ -115,7 +115,7 @@ function work_aws-sso {
 # only proceed on work system
 ${IS_ARM} || return
 ${is_weekend} && ${IS_ARM} || work_saml2aws
-work_aws-sso
+work_cloud-sso
 # if necessary, authenticate to docker repos (must be after aws auth)
 if ! jq -e '.auths | has("'"${CUSTOM_WORK_DEFAULT_AWS_ACCT}"'.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com")' \
  ~/.docker/config.json > /dev/null || \

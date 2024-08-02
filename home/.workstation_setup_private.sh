@@ -9,9 +9,9 @@ LOG3=/var/tmp/workstation_setup_private_$(date +%Y-%m-%d-%H:%M:%S).log
   # load personal ssh key if necessary
   if ! ssh-add -l | grep -q "/.ssh/id_rsa_personal\ ("; then
     (umask 177
-    op item get id_rsa_personal --field notesPlain | sed 's/"//g' > ~/.ssh/id_rsa_personal
+    op item get id_rsa_personal --field notesPlain --reveal | sed 's/"//g' > ~/.ssh/id_rsa_personal
     )
-    op item get id_rsa_personal --field Passphrase | pbcopy
+    op item get id_rsa_personal --field Passphrase --reveal | pbcopy
     ssh-add -t 36000 -k ~/.ssh/id_rsa_personal
     rm -f ~/.ssh/id_rsa_personal
   fi
@@ -47,7 +47,7 @@ LOG3=/var/tmp/workstation_setup_private_$(date +%Y-%m-%d-%H:%M:%S).log
   # mas is a CLI for AppStore installs/updates
   if [[ ${GHA_CI_RUN} != true ]]; then
     echo "Prepare to sign into \"App Store.app\" manually..."
-    op item get Apple --field password | pbcopy
+    op item get Apple --field password --reveal | pbcopy
     # mas signin apple@${CUSTOM_HOME_DOMAIN} # disabled on macos 10.15.x+
     open -a "App Store"
 

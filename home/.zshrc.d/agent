@@ -9,16 +9,16 @@ function _download_ssh_key_from_passman () {
   local key=${@}
   [[ ${VERBOSE} -ge 1 ]] && \
     echo "Running ${funstack[1]} with \"${key}\"..."
-  export OP_SESSION_my="$(head -n1 ~/.pm_session_token)"
+  # export OP_SESSION_my="$(head -n1 ~/.pm_session_token)"
   _passman_needs_auth || _passman_auth
   (umask 177
   # workaround since this sometimes creates a directory
   [[ -d ~/.ssh/id_rsa${key} ]] && rmdir ~/.ssh/id_rsa${key}
   [[ -f ~/.ssh/id_rsa${key} ]] || touch ~/.ssh/id_rsa${key}
   op item get "id_rsa${key}" --field notesPlain --cache --session ${OP_SESSION_my} \
-    | sed 's/"//g' > ~/.ssh/id_rsa${key}
+    --reveal | sed 's/"//g' > ~/.ssh/id_rsa${key}
   )
-  # op item get "id_rsa${key}" --field Passphrase --cache --session ${OP_SESSION_my} | pbcopy
+  # op item get "id_rsa${key}" --field Passphrase --cache --session ${OP_SESSION_my} --reveal | pbcopy
   # ssh-add -D -q -t 43200 -k ~/.ssh/id_rsa${key}
   [[ ${?} -ne 0 ]] && echo "Failed to load \"~/.ssh/id_rsa${key}\"!"
   # must keep work private key on filesystem so container mounts have it
@@ -28,7 +28,7 @@ function _download_ssh_key_from_passman () {
   # might as well make sure the public key is on disk as well
   (umask 177
   op item get "id_rsa${key}" --field 'Public Key' --cache --session ${OP_SESSION_my} \
-    > ~/.ssh/id_rsa${key}.pub
+    --reveal > ~/.ssh/id_rsa${key}.pub
   )
 }
 function ssh_keys () {

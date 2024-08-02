@@ -7,6 +7,7 @@ ${IS_MACOS} || return 0
 # export OP_SESSION_TIMEOUT=43200
 
 function _passman_needs_auth() {
+  export OP_SESSION_my="$(head -n1 ~/.pm_session_token)"
   op vault list --cache --session ${OP_SESSION_my} &> /dev/null && return 0
   return 1
 }
@@ -32,7 +33,7 @@ function passman {
   # # if the first variable is an integer, then clear clipboard
 
   # prompt to login if necessary
-  export OP_SESSION_my="$(head -n1 ~/.pm_session_token)"
+  # export OP_SESSION_my="$(head -n1 ~/.pm_session_token)"
   _passman_needs_auth || _passman_auth
 
   local item1="${1}"
@@ -41,15 +42,15 @@ function passman {
 
   [[ ${VERBOSE} -ge 1 ]] && \
     echo "Running: op item get \"${item1}\" --field \"${field1}\" \
-      --cache --session ${OP_SESSION_my} | pbcopy"
+      --cache --session ${OP_SESSION_my} --reveal | pbcopy"
   op item get "${item1}" --field "${field1}" --cache --session ${OP_SESSION_my} \
-   | pbcopy
+   --reveal | pbcopy
 }
 
 function otp {
   # [[ ${VERBOSE} -ge 1 ]] && \
-  #   echo "Running: op item get --otp \"${1}\" --cache --session ${OP_SESSION_my}"
-  op item get --otp "${1}" --cache --session ${OP_SESSION_my}
+  #   echo "Running: op item get --otp \"${1}\" --cache --session ${OP_SESSION_my} --reveal"
+  op item get --otp "${1}" --cache --session ${OP_SESSION_my} --reveal
 }
 
 

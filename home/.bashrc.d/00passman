@@ -41,15 +41,15 @@ function passman() {
 
   [[ ${VERBOSE} -ge 1 ]] && \
     echo "Running: op item get \"${item1}\" --field \"${field1}\" \
-      --cache --session ${OP_SESSION_my} | pbcopy"
+      --cache --session ${OP_SESSION_my} --reveal | pbcopy"
   op item get "${item1}" --field "${field1}" --cache --session ${OP_SESSION_my} \
-   | pbcopy
+   --reveal | pbcopy
 }
 
 function otp {
   [[ ${VERBOSE} -ge 1 ]] && \
-    echo "Running: op item get --otp \"${1}\" --cache --session ${OP_SESSION_my}"
-  op item get --otp "${1}" --cache --session ${OP_SESSION_my}
+    echo "Running: op item get --otp \"${1}\" --cache --session ${OP_SESSION_my} --reveal"
+  op item get --otp "${1}" --cache --session ${OP_SESSION_my} --reveal
 }
 
 

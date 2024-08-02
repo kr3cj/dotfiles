@@ -14,6 +14,7 @@ path=(
   ${BASE_PATH}/opt/openssl/bin
   ${BASE_PATH}/opt/curl/bin
   ${BASE_PATH}/opt/python/bin
+  $(go env GOPATH 2> /dev/null)/bin
   ${BASE_PATH}/sbin
   ${BASE_PATH}/bin
   /usr/sbin
