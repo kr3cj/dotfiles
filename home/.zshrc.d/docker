@@ -13,11 +13,17 @@ export DOCKER_HOST="unix:///${HOME}/.colima/docker.sock"
 #   $(whence -p docker) ${@}
 # }
 function docker-login () {
-  eval "aws --profile=${MY_PROFILE}Admin ecr get-login-password --region ${AWS_DEFAULT_REGION} | \
-    docker login --username AWS --password-stdin ${CUSTOM_WORK_DEFAULT_AWS_ACCT}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com"
-  # AWS ECR Repository for EKS Add-On images. See Amazon container image registries - Amazon EKS
-  eval "aws --profile=${MY_PROFILE}Admin ecr get-login-password --region ${AWS_DEFAULT_REGION} | \
-    docker login --username AWS --password-stdin 602401143452.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com"
+  if ! jq -e '.auths | has("'"${CUSTOM_WORK_DEFAULT_AWS_ACCT}"'.dkr.ecr.'"${AWS_DEFAULT_REGION}"'.amazonaws.com")' \
+ ~/.docker/config.json > /dev/null || \
+   [[ -n $(find ~/.docker/ -mindepth 1 -maxdepth 1 -name config.json -mmin +720) ]] ; then
+    echo "Authenticating ${MY_PROFILE}Admin for ECR pushes..."
+    [[ $(pwd) == "${HOME}" ]] && cd ~/build/github/ibex || return 0
+    eval "aws --profile=${MY_PROFILE}Admin ecr get-login-password --region ${AWS_DEFAULT_REGION} | \
+      docker login --username AWS --password-stdin ${CUSTOM_WORK_DEFAULT_AWS_ACCT}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com"
+    # AWS ECR Repository for EKS Add-On images. See Amazon container image registries - Amazon EKS
+    eval "aws --profile=${MY_PROFILE}Admin ecr get-login-password --region ${AWS_DEFAULT_REGION} | \
+      docker login --username AWS --password-stdin 602401143452.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com"
+  fi
 }
 
 alias docker-clean="sudo docker system prune --all --force --volumes"
