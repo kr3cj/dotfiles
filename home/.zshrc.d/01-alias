@@ -161,19 +161,11 @@ if [[ "${IS_MACOS}" == "true" ]]; then
   }
 
   function argod () {
-    local uri
-    case $(map-cluster-to-env ${1}) in
-      staging)
-        uri=https://argo-workflow.${1}.int.staging.${CUSTOM_WORK_DOMAINS[2]}/workflows ;;
-      production)
-        uri=https://argo-workflow.${1}.int.${CUSTOM_WORK_DOMAINS[2]}/workflows ;;
-      *)
-        echo "Could not find a matching cluster config for \"${1}\"."
-        exit 1 ;;
-    esac
+    local uri="https://$(kubectl --context ${1} get -nargo ing | awk '{print $3}' | tail -n1)/workflows"
     [[ ${VERBOSE} -ge 1 ]] && \
-      echo "Running \"( KUBECONFIG=~/.kube/${1} argo auth token | pbcopy ) && open ${uri}\"..."
-    ( KUBECONFIG=~/.kube/${1} argo auth token | pbcopy ) && open ${uri}
+      echo "Running \"( KUBECONFIG=~/.kube/${1} argo auth token | | head -n1 | pbcopy ) && \
+       open ${uri}\"..."
+    ( KUBECONFIG=~/.kube/${1} argo auth token | head -n1 | pbcopy ) && open ${uri}
   }
 
   function cb() {
@@ -200,8 +192,8 @@ if [[ "${IS_MACOS}" == "true" ]]; then
   function mysql-client {
     # usage mysql-client cluster1 short-rds-host1 user1 dbname1
     # spin up a throwaway container in k8s for querying RDS
-    kubectl --context ${1} run --generator=run-pod/v1 \
-     tmp-shell --rm -i --tty --image arey/mysql-client -- \
+    kubectl --context ${1} run tmp-shell --rm -i --tty \
+     --image arey/mysql-client -- \
       mysql -P3306 -h"${2}.${AWS_DEFAULT_REGION}.rds.amazonaws.com" -u"${3}" ${4}
     # docker run --rm -it alpine:latest sh
     #   apk add bash mysql-client
@@ -212,8 +204,8 @@ if [[ "${IS_MACOS}" == "true" ]]; then
     # usage: psql-client cluster1 short-rds-host1 user1 dbname1
     # spin up a throwaway container in k8s for querying RDS
     postgresql://${3}@${2}.${AWS_DEFAULT_REGION}.rds.amazonaws.com:5432/${4}
-    kubectl --context ${1} run --generator=run-pod/v1 \
-     tmp-shell --rm -i --tty --image jbergknoff/postgresql-client -- \
+    kubectl --context ${1} run tmp-shell --rm -i --tty \
+     --image jbergknoff/postgresql-client -- \
       postgresql://${3}@${2}.${AWS_DEFAULT_REGION}.rds.amazonaws.com/${4}"
     # docker run --rm -it jbergknoff/postgresql-client \
     #  postgresql://${3}@${2}.${AWS_DEFAULT_REGION}.rds.amazonaws.com/${4}"

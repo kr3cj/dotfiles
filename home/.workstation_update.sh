@@ -157,7 +157,7 @@ if [[ $(uname) == "Darwin" ]] ; then
             echo "Skipping upgrade of locked asdf plugin \"${tool1}:${old_version1}\""
             echo "  (latest major/minor version for \"${tool1}\" is $($(brew --prefix asdf)/bin/asdf latest ${tool1}))"
             echo "${tool1} ${old_version1}" >> ${TOOL_FILE}.new ;;
-          argocd|kubectl)
+          argocd|kubectl|viddy)
             # ASDF_HASHICORP_OVERWRITE_ARCH_TERRAFORM=x86_64 asdf install terraform 1.0.1
             echo "Getting latest patch version of asdf plugin \"${tool1}:${old_version1}\"..."
             echo "  (latest major/minor version for \"${tool1}\" is $($(brew --prefix asdf)/bin/asdf latest ${tool1}))"

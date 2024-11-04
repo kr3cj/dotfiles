@@ -167,7 +167,8 @@ function e {
 
 function netshoot {
   # spin up a throwaway container in k8s for network debugging
-  kubectl --context ${1} run tmp-shell --rm -i --tty --image nicolaka/netshoot -- /bin/bash
+  kubectl --context ${1} run tmp-shell --rm -i --tty \
+   --image nicolaka/netshoot -- /bin/bash
 }
 
 function ibexs() {

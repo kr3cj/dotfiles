@@ -56,13 +56,29 @@ function work_main-sso {
   local domain1
   # use manual timer for ${CUSTOM_WORK_SSO_PROVIDER} expiration
   if ! session_is_active ${CUSTOM_WORK_SSO_PROVIDER}; then
+    # first, make sure we are authenticated to password manager
+    if ! _passman_needs_auth ; then
+      _passman_auth
+      pm
+      echo "Unlock your password manager browser extension now..."
+      sleep 5
+    fi
     echo "Authenticating ${CUSTOM_WORK_SSO_PROVIDER}..."
     open -n -a "Brave Browser" --args "https://${CUSTOM_WORK_DOMAINS[1]/.com}.${CUSTOM_WORK_SSO_PROVIDER}.com" --profile-directory="Default"
     sleep 15
     session_is_active ${CUSTOM_WORK_SSO_PROVIDER} "43200 seconds" || true # 12h
     echo "Authenticating web apps requiring daily SSO..."
     for domain1 in ${CUSTOM_WORK_SSO_DAILY_DOMAINS}; do
-      open -n -a "Brave Browser" --args "https://${CUSTOM_WORK_DOMAINS[1]/.com}.${CUSTOM_WORK_SSO_PROVIDER}.com/home/${domain1}?fromPlugin=true" --profile-directory="Default"
+      case "${domain1}" in
+        atlassian*)
+          # weekly auths
+          [[ $(/bin/date +%u) -eq 1 ]] && open -n -a "Brave Browser" --args \
+           "https://${CUSTOM_WORK_DOMAINS[1]/.com}.${CUSTOM_WORK_SSO_PROVIDER}.com/home/${domain1}?fromPlugin=true" --profile-directory="Default"
+          ;;
+        *)
+          # weekday daily auths
+          open -n -a "Brave Browser" --args "https://${CUSTOM_WORK_DOMAINS[1]/.com}.${CUSTOM_WORK_SSO_PROVIDER}.com/home/${domain1}?fromPlugin=true" --profile-directory="Default" ;;
+      esac
     done
     docker-login
   fi
@@ -79,6 +95,8 @@ function work_cloud-sso {
     # no known way to bypass browser for ${CUSTOM_WORK_SSO_PROVIDER} (with MFA) or aws-sso
     aws-sso exec --profile "${MY_PROFILE/_/:}" aws sts get-caller-identity > /dev/null
     session_is_active aws_sso "28800 seconds" || true # 8h
+    echo "Authenticating aws sts..."
+    kubectl cluster-info
     # aws-sso console \
     #  --account="${CUSTOM_WORK_DEFAULT_AWS_ACCT}" \
     #  --profile="${MY_PROFILE}" \
@@ -111,16 +129,8 @@ function work_cloud-sso {
 # only proceed on work system
 ${IS_ARM} || return 0
 ${is_weekend} && return 0
-
-# first, make sure we are authenticated to password manager
-if ! _passman_needs_auth ; then
-  _passman_auth
-  pm
-  echo "Unlock your password manager browser extension now..."
-  sleep 5
-fi
 work_main-sso
 work_cloud-sso
-work_granted-sso
+# work_granted-sso
 
 [[ $(pwd) == "${HOME}" ]] && cd ~/build/github/ibex || return 0
