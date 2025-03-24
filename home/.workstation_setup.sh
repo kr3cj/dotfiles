@@ -72,7 +72,7 @@ if ${IS_MACOS}; then
    grpcurl helm helmfile jq k9s krew kubectl kustomize minikube nova pluto poetry \
    python sinker sops sopstool starship steampipe terraform terraform-docs viddy yq; do
    # kops linkerd minikube octant
-    asdf plugin-add ${asdf_plugin}
+    asdf plugin add ${asdf_plugin}
   done
 
   # install krew plugins for kubectl

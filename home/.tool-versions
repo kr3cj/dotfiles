@@ -1,26 +1,25 @@
-1password-cli 2.30.0
-argocd 2.9.22
-awscli 2.19.0
+1password-cli 2.30.3
+awscli 2.25.1
 aws-sso-cli 1.17.0
-golang 1.23.2
-granted 0.35.1
+golang 1.24.1
+granted 0.38.0
 # grpcurl 1.8.2
 # helm 3.9.0
 jq 1.7.1
-k9s 0.32.5
-krew 0.4.4
-kubectl 1.28.15
-minikube 1.34.0
+k9s 0.40.10
+krew 0.4.5
+kubectl 1.30.11
+minikube 1.35.0
 # nodejs 11.9.0
 # nodejs 12.18.4
 # nova 3.1.0
 # pluto 3.4.0
-python 3.13.0t
+python No compatible versions available (python )
 # saml2aws 2.36.17
 # sopstool 0.4.2
-starship 1.21.1
-steampipe 0.24.2
-terraform 1.9.8
+starship 1.22.1
+steampipe 1.0.3
+terraform 1.11.2
 terraform-docs 0.19.0
 viddy 0.4.0
-yq 4.44.3
+yq 4.45.1

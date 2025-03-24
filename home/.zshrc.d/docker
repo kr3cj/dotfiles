@@ -16,15 +16,17 @@ function docker-login () {
   if ! jq -e '.auths | has("'"${CUSTOM_WORK_DEFAULT_AWS_ACCT}"'.dkr.ecr.'"${AWS_DEFAULT_REGION}"'.amazonaws.com")' \
  ~/.docker/config.json > /dev/null || \
    [[ -n $(find ~/.docker/ -mindepth 1 -maxdepth 1 -name config.json -mmin +720) ]] ; then
-    echo "Authenticating ${MY_PROFILE}Admin for ECR pushes..."
+    echo "Authenticating docker ECR pushes (${MY_PROFILE}Admin) to ${CUSTOM_WORK_DEFAULT_AWS_ACCT}..."
     [[ $(pwd) == "${HOME}" ]] && cd ~/build/github/ibex || return 0
     eval "aws --profile=${MY_PROFILE}Admin ecr get-login-password --region ${AWS_DEFAULT_REGION} | \
       docker login --username AWS --password-stdin ${CUSTOM_WORK_DEFAULT_AWS_ACCT}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com"
     # AWS ECR Repository for EKS Add-On images. See Amazon container image registries - Amazon EKS
+    echo "Authenticating docker ECR pushes (${MY_PROFILE}Admin) to 602401143452 (EKS Add-On images)..."
     eval "aws --profile=${MY_PROFILE}Admin ecr get-login-password --region ${AWS_DEFAULT_REGION} | \
       docker login --username AWS --password-stdin 602401143452.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com"
   fi
 }
+# docker pull --platform linux/x86_64 path/to/image:tag
 
 alias docker-clean="sudo docker system prune --all --force --volumes"
 
@@ -46,4 +48,4 @@ function docker-reset () {
 
 ${is_weekend} && return 0
 # if necessary, start container engine (this doesn't work after some reboots for some reason)
-pgrep -qf "colima/qemu.pid" || colima start
+pgrep -qf ".colima/_lima" || colima start

@@ -8,7 +8,7 @@ find -L ~/.ssh/ -type d -exec ${BASE_PATH}/opt/coreutils/libexec/gnubin/chmod -c
 function _download_ssh_key_from_passman () {
   local key=${@}
   [[ ${VERBOSE} -ge 1 ]] && \
-    echo "Running ${funstack[1]} with \"${key}\"..."
+    echo "Running ${funcstack[1]} with \"${key}\"..."
   # export OP_SESSION_my="$(head -n1 ~/.pm_session_token)"
   _passman_needs_auth || _passman_auth
   (umask 177

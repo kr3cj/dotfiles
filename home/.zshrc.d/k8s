@@ -225,6 +225,70 @@ function count-k8s-images() {
   # watch "kubectl --all-namespaces --field-selector=metadata.namespace!=default get po --sort-by=.metadata.creationTimestamp -o jsonpath='{..image}' | tr -s '[[:space:]]' '\n' | sort | uniq -c"
 }
 
+# extract expiration date from argocd auth-token
+function argocd_is_auth() {
+  # yq ".users[] | select(.name == \"argo-cd.example.com\") | \
+  #  .auth-token" ~/.config/argocd/config |jq -R 'gsub("-";"+") | \
+  #  gsub("_";"/") | split(".") | .[1] | @base64d | fromjson' | \
+  #  jq -r '.exp' | xargs -I {} date -d @{}
+  local context="${1}"
+
+  # Check if the context is provided
+  if [[ -z "${context}" ]]; then
+    echo "Error: ArgoCD context is required."
+    return 1
+  fi
+
+  # ArgoCD config file path
+  local config_file="${HOME}/.config/argocd/config"
+
+  # Check if the config file exists
+  if [[ ! -f "${config_file}" ]]; then
+    echo "Error: ArgoCD config file not found at ${config_file}."
+    return 1
+  fi
+
+  # Extract the auth token for the specified context
+  # local auth_token=$(yq ".contexts.\"${context}\".user.token" "${config_file}" 2>/dev/null)
+  local auth_token=$(yq ".users[] | select(.name == \"${context}\") | .auth-token" ~/.config/argocd/config)
+
+  # Check if the auth token exists
+  if [[ -z "${auth_token}" ]]; then
+    echo "ArgoCD token not found for context: ${context}. Authentication needed."
+    return 1
+  fi
+
+  # Decode the JWT token (using base64 and jq)
+  local decoded_token=$(echo "${auth_token}" | jq -R 'gsub("-";"+") | gsub("_";"/") | split(".") | .[1] | @base64d | fromjson')
+
+  # Check if the decoding was successful
+  if [[ -z "${decoded_token}" ]]; then
+    echo "Error: Failed to decode ArgoCD auth token for context: ${context}."
+    return 1
+  fi
+
+  # Extract the "exp" (expiration) and "iat" (issued at) timestamps
+  local exp=$(echo "${decoded_token}" | jq -r '.exp')
+  local iat=$(echo "${decoded_token}" | jq -r '.iat')
+
+  # Check if "exp" and "iat" exist.
+  if [[ -z "${exp}" || -z "${iat}" ]];then
+    echo "Error: Could not extract exp or iat from token for context: ${context}. Authentication needed."
+    return 1
+  fi
+
+  # Get the current timestamp (plus 40 minutes for a buffer)
+  local current_time=$(($(date +%s) + 2400))
+
+  # Check if the token has expired
+  if [[ "${current_time}" -ge "${exp}" ]]; then
+    echo "ArgoCD token for context: ${context} has expired or will expire within 40min. Authentication needed."
+    return 1
+  else
+    # echo "ArgoCD token for context: ${context} is valid."
+    return 0
+  fi
+}
 # function doit () {
 #   shift
 #   local nodes=${@}

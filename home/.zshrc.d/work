@@ -66,24 +66,27 @@ function work_main-sso {
     echo "Authenticating ${CUSTOM_WORK_SSO_PROVIDER}..."
     open -n -a "Brave Browser" --args "https://${CUSTOM_WORK_DOMAINS[1]/.com}.${CUSTOM_WORK_SSO_PROVIDER}.com" --profile-directory="Default"
     sleep 15
+    _work_cloud-sso
     session_is_active ${CUSTOM_WORK_SSO_PROVIDER} "43200 seconds" || true # 12h
-    echo "Authenticating web apps requiring daily SSO..."
+    echo "Authenticating web apps requiring daily/weekly SSO..."
     for domain1 in ${CUSTOM_WORK_SSO_DAILY_DOMAINS}; do
       case "${domain1}" in
-        atlassian*)
-          # weekly auths
-          [[ $(/bin/date +%u) -eq 1 ]] && open -n -a "Brave Browser" --args \
-           "https://${CUSTOM_WORK_DOMAINS[1]/.com}.${CUSTOM_WORK_SSO_PROVIDER}.com/home/${domain1}?fromPlugin=true" --profile-directory="Default"
+        atlassian*|datadog*|pagerduty*)
+          if [[ $(/bin/date +%u) -eq 1 ]] ; then
+            echo "Authenticating ${domain1/\/*} (weekly)..."
+            open -n -a "Brave Browser" --args \
+            "https://${CUSTOM_WORK_DOMAINS[1]/.com}.${CUSTOM_WORK_SSO_PROVIDER}.com/home/${domain1}?fromPlugin=true" --profile-directory="Default"
+          fi
           ;;
         *)
-          # weekday daily auths
+          echo "Authenticating ${domain1/\/*} (daily)..."
           open -n -a "Brave Browser" --args "https://${CUSTOM_WORK_DOMAINS[1]/.com}.${CUSTOM_WORK_SSO_PROVIDER}.com/home/${domain1}?fromPlugin=true" --profile-directory="Default" ;;
       esac
     done
     docker-login
   fi
 }
-function work_cloud-sso {
+function _work_cloud-sso {
   # TODO: remove all aws-sso stuff after granted/assume stops crashing
   # if aws-sso list Expires | grep Default | grep -q Expired ; then
   # if [[ $(aws --profile saml configure get x_security_token_expires) < $(gdate --iso-8601=seconds) ]]; then
@@ -105,10 +108,15 @@ function work_cloud-sso {
 
     # regen configs
     # aws-sso config-profiles
+    # _work_granted-sso
+    if [[ $(/bin/date +%u) -eq 1 ]] ; then
+      echo "Regenerate aws config weekly"
+      granted sso populate --prune && granted registry sync
+    fi
   fi
 }
 
-# function work_granted-sso {
+# function _work_granted-sso {
   # deprecated in favor of ~/.granted/config: "CredentialProcessAutoLogin = true"
   # local date_path expiration
   # date_path="$(brew --prefix coreutils)/libexec/gnubin/date"
@@ -121,16 +129,11 @@ function work_cloud-sso {
   #   granted sso login --sso-start-url https://${CUSTOM_WORK_SSO_DOMAIN}/start --sso-region ${AWS_DEFAULT_REGION}
   # fi
   # disable until bugfix: assume "${MY_PROFILE}" --exec -- aws sts get-caller-identity
-
-  # regen configs (put on a weekly timer or something and in backgrouns)
-  # granted sso populate --prune && granted registry sync
 # }
 
 # only proceed on work system
 ${IS_ARM} || return 0
 ${is_weekend} && return 0
 work_main-sso
-work_cloud-sso
-# work_granted-sso
 
 [[ $(pwd) == "${HOME}" ]] && cd ~/build/github/ibex || return 0

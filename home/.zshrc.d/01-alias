@@ -230,6 +230,7 @@ if [[ "${IS_MACOS}" == "true" ]]; then
   }
 
   # https://github.com/chubin/awesome-console-services
+  # https://github.com/richb-hanover/OpenWrtScripts#betterspeedtestsh
   function speedtest {
     curl -s https://raw.githubusercontent.com/sivel/speedtest-cli/master/speedtest.py \
     | python - --secure --simple --single

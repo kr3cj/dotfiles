@@ -126,7 +126,7 @@ if [[ $(uname) == "Darwin" ]] ; then
 
   if hash asdf 2>/dev/null ; then
     echo -e "\nUpdating asdf plugins..."
-    $(brew --prefix asdf)/bin/asdf plugin-update --all
+    $(brew --prefix asdf)/bin/asdf plugin update --all
     # overwrite ${TOOL_FILE} with new releases
 
     echo -e "\nUpdating asdf tool versions..."
@@ -144,6 +144,7 @@ if [[ $(uname) == "Darwin" ]] ; then
         old_version1="${array[1]}" # ${old_version1%% *} to only grab first word
         new_version1=""
 
+        # TODO: prevent "No compatible versions available" from becoming the new version
         case ${tool1} in
           \#)
             echo "Skipping commented line \"${line1}\""

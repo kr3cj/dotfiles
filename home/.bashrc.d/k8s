@@ -57,11 +57,10 @@ function k() {
     *get?no*)
       action="${action} --sort-by=.metadata.creationTimestamp \
 --label-columns=\
-eks.amazonaws.com/nodegroup-image,\
-instance,\
+ami-id,\
+instance-id,\
 node.kubernetes.io/instance-type,\
 failure-domain.beta.kubernetes.io/zone,\
-nodegroup_name,\
 function,\
 node-lifecycle"
 # -o=custom-columns=\

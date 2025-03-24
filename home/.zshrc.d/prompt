@@ -2,8 +2,8 @@
 
 # [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
-# export STARSHIP_CONFIG=~/.config/starship.toml
-
-eval "$(starship init zsh)"
+export STARSHIP_CONFIG=~/.config/starship.toml
+# eval "$(starship init zsh)"
+eval "$($(asdf where starship)/bin/starship init zsh)"
 
 # https://scriptingosx.com/2019/07/moving-to-zsh-06-customizing-the-zsh-prompt/
