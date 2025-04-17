@@ -4,7 +4,7 @@ LOG2=/var/tmp/workstation_setup_$(date +%Y-%m-%d-%H:%M:%S).log
 # the purpose of this script is to house all initial workstation customizations in linux or macos
 
 if [[ ${GHA_CI_RUN} != true ]]; then
-  /usr/bin/read -s -k "?System looks new. Press any key to start installing workstation software."
+  /usr/bin/read -p "System looks new. Press enter to start installing workstation software."
 fi
 
 export IS_MACOS="false"
@@ -93,7 +93,7 @@ if ${IS_MACOS}; then
   tmux source ~/.tmux.conf
   ~/.tmux/plugins/tpm/bin/install_plugins
 
-  /usr/bin/read -s -k "?Push enter when sudo is auth'd by corporate software..."
+  /usr/bin/read -p "Push enter when sudo is auth'd by corporate software..."
   sudo -l || return 1
   echo "Remove this stuff that I don't use on macos"
   sudo rm -rf /Applications/{iMovie.app,GarageBand.app,Pages.app,Numbers.app}
@@ -140,7 +140,7 @@ EOF
   # TODO: fix for newer versions
   # go get golang.org/x/tools/cmd/godoc
 
-  /usr/bin/read -s -k "?Push enter when sudo is auth'd by corporate software..."
+  /usr/bin/read -p "Push enter when sudo is auth'd by corporate software..."
   sudo -l || return 1
   # install awscli session-manager-plugin
   (
@@ -179,7 +179,7 @@ EOF
     op account add --address ${CUSTOM_HOME_PASSWD_MGR_ACCOUNT[1]} --email ${CUSTOM_HOME_PASSWD_MGR_ACCOUNT[2]}
     eval \$(op signin) \
     Then start \"~/.workstation_setup_private.sh\"."
-    /usr/bin/read -s -k "?Press any key to continue."
+    /usr/bin/read -p "Press any key to continue."
     # [[ -r ~/.workstation_setup_private.sh ]] && \
     #   zsh ~/.workstation_setup_private.sh
   else
