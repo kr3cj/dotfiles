@@ -1,6 +1,6 @@
 tap "homebrew/bundle"
-tap "homebrew/cask"
-tap "homebrew/core"
+# tap "homebrew/cask"
+# tap "homebrew/core"
 tap "aws/tap"
 
 ### base software (gnu core utilities)
@@ -116,27 +116,34 @@ brew "tfenv"
 # slack zoom
 
 ### desktop installs
-cask "alfred", args: { appdir: "~/Applications" }
-# cask "android-file-transfer", args: { appdir: "/Applications" }
-cask "brave-browser", args: { appdir: "/Applications" }
-cask "firefox", args: { appdir: "~/Applications" }
-cask "font-fira-code", args: { appdir: "~/Applications" }
-cask "font-fira-code-nerd-font", args: { appdir: "~/Applications" }
-cask "gimp", args: { appdir: "~/Applications" }
-cask "github", args: { appdir: "/Applications" }
-# cask "goland", args: { appdir: "~/Applications" }
-# cask "intellij-idea", args: { appdir: "~/Applications" }
-# cask "intellij-idea-ce", args: { appdir: "~/Applications" }
-# cask "iterm2", args: { appdir: "~/Applications" }
-# cask "keystore-explorer", args: { appdir: "~/Applications" }
-# cask "librecad", args: { appdir: "~/Applications" }
-# cask "microsoft-edge", args: { appdir: "/Applications" }
-# cask "pycharm-ce", args: { appdir: "~/Applications" }
-cask "raspberry-pi-imager", args: { appdir: "~/Applications" }
-cask "spotify", args: { appdir: "/Applications" }
-cask "visual-studio-code", args: { appdir: "/Applications" }
-cask "warp", args { appdir: "/Applications" }
-cask "wireshark", args: { appdir: "/Applications" }
+# first, install user casks
+cask_args appdir: '~/Applications'
+
+cask "alfred"
+cask "firefox"
+cask "font-fira-code"
+cask "font-fira-code-nerd-font"
+cask "gimp"
+# cask "goland"
+# cask "intellij-idea"
+# cask "intellij-idea-ce"
+# cask "iterm2"
+# cask "keystore-explorer"
+# cask "librecad"
+# cask "pycharm-ce"
+cask "raspberry-pi-imager"
+
+# now install system casks
+cask_args appdir: '/Applications'
+
+# cask "android-file-transfer"
+cask "brave-browser"
+cask "github"
+# cask "microsoft-edge"
+cask "spotify"
+cask "visual-studio-code"
+cask "warp"
+cask "wireshark"
 
 ### App Store installs won't work until authenticated to apple account
 mas "CopyClip", id: 595191960
