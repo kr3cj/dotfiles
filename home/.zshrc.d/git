@@ -51,6 +51,7 @@ function gitp {
 
   # delete local branches that were deleted upstream (ex: closed PRs; this doesn't get all of them?)
   if [[ -z ${local_deleted_branches} ]]; then
+    [[ ${VERBOSE} -ge 1 ]] && echo "local_deleted_branches=${local_deleted_branches}"
     for br1 in ${local_deleted_branches}; do
       echo -e "\nDeleting local branch \"${br1}\" that's not on remote (RISKY?!)..."
       git branch -d "${br1}"
