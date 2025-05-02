@@ -78,4 +78,6 @@ function _create_socks_proxy {
 
 source ~/.base_homeshick_vars
 source ~/.zshrc.d/01-alias
-_create_socks_proxy "home.${CUSTOM_HOME_DOMAIN}" "2000"
+SOCKS_HOST="home.${CUSTOM_HOME_DOMAIN}"
+[[ ${at_home} == "true" ]] && SOCKS_HOST="${CUSTOM_HOME_SOCKS_LOCAL}"
+_create_socks_proxy "${SOCKS_HOST}" "2000"
