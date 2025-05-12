@@ -52,6 +52,20 @@ function bashcurl {
   exec 5>&-
 }
 
+function decode-jwt() {
+  # Decode the JWT token (using base64 and jq)
+  local auth_token=${1}
+  if [[ -z "${auth_token}" ]]; then
+    echo "Usage: ${funcstack[1]} <jwt-token>"
+    return 1
+  fi
+  local decoded_token=$(echo "${auth_token}" | jq -R 'gsub("-";"+") | gsub("_";"/") | split(".") | .[1] | @base64d | fromjson')
+  if [[ -z "${decoded_token}" ]] || [[ "${decoded_token}" =~ "error" ]]; then
+    echo "Error decoding JWT token"
+    return 1
+  fi
+}
+
 function find-error() {
   grep -A2 -B2 -riHE 'DENIED|ERR|EXIST|FAIL|INVALID|SPECIFIED|SUCH|UNABLE|WARN|USAGE:|UNKNOWN|:\ LINE\ [0-9]' ${1} \
   | grep -v ierra \

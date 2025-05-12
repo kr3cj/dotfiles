@@ -259,7 +259,7 @@ function argocd_is_auth() {
   fi
 
   # Decode the JWT token (using base64 and jq)
-  local decoded_token=$(echo "${auth_token}" | jq -R 'gsub("-";"+") | gsub("_";"/") | split(".") | .[1] | @base64d | fromjson')
+  local decoded_token=$(decode-jwt "${auth_token}")
 
   # Check if the decoding was successful
   if [[ -z "${decoded_token}" ]]; then
