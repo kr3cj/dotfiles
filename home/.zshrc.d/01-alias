@@ -9,6 +9,7 @@ alias grep='grep --color=always'
 alias ducks="du -cshx ./ | sort -h"
 alias cdd="homeshick cd dotfiles"
 alias cdp="homeshick cd dotfiles_private"
+alias assume="source assume"
 [[ "${MYSHELL}" =~ zsh ]] && alias p="source ~/.zshrc" || alias p="source ~/.bash_profile"
 alias dmesg="dmesg --follow --ctime"
 
