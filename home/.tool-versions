@@ -1,15 +1,15 @@
 1password-cli 2.31.0
-awscli 2.27.11
+awscli 2.27.21
 aws-sso-cli 1.17.0
 golang 1.24.3
-granted 0.38.0
+# granted 0.38.0
 # grpcurl 1.8.2
 helm 3.17.3
 jq 1.7.1
-k9s 0.50.5
+k9s 0.50.6
 krew 0.4.5
-kubectl 1.30.12
-minikube 1.35.0
+kubectl 1.30.13
+minikube unable to load latest version: exit status 1
 # nodejs 11.9.0
 # nodejs 12.18.4
 # nova 3.1.0
@@ -18,8 +18,8 @@ python 3.13.3t
 # saml2aws 2.36.17
 # sopstool 0.4.2
 starship 1.23.0
-steampipe 1.1.2
-terraform 1.11.4
+steampipe 1.1.3
+terraform 1.12.1
 terraform-docs 0.20.0
 viddy 1.3.0
-yq 4.45.3
+yq 4.45.4
