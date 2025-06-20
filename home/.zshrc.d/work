@@ -71,7 +71,7 @@ function work_main-sso {
     echo "Authenticating web apps requiring daily/weekly SSO..."
     for domain1 in ${CUSTOM_WORK_SSO_DAILY_DOMAINS}; do
       case "${domain1}" in
-        atlassian*|datadog*|pagerduty*)
+        atlassian*|datadog*|pagerduty*|oidc_client*)
           if [[ $(/bin/date +%u) -eq 1 ]] ; then
             echo "Authenticating ${domain1/\/*} (weekly)..."
             open -n -a "Brave Browser" --args \

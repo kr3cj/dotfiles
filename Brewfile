@@ -70,6 +70,7 @@ brew "step"
 brew "tmux"
 brew "tree"
 brew "reattach-to-user-namespace"
+brew "uv"
 
 ### load testing clients
 brew "hey"

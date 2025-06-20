@@ -176,8 +176,8 @@ if [[ $(uname) == "Darwin" ]] ; then
           *)
             echo "Getting latest major version of asdf plugin \"${tool1}:${old_version1}\"..."
             new_version1="$($(brew --prefix asdf)/bin/asdf latest ${tool1})"
-            # if above returns emtpy string (jq, terraform-docs) or "No available versions...", return old_version
-            if [[ ${new_version1} == "" || ${new_version1} =~ "available" ]]; then
+            # if above returns emtpy string (jq, terraform-docs) or "No compatible versions...", return old_version
+            if [[ ${new_version1} == "" || ${new_version1} =~ "compatible" ]]; then
               echo "  WARNING!!! (latest major/minor version for \"${tool1}\" cannot be found!"
               echo "  Reverting to current version: ${old_version1}"
               new_version1=${old_version1}
