@@ -83,6 +83,8 @@ function work_main-sso {
           open -n -a "Brave Browser" --args "https://${CUSTOM_WORK_DOMAINS[1]/.com}.${CUSTOM_WORK_SSO_PROVIDER}.com/home/${domain1}?fromPlugin=true" --profile-directory="Default" ;;
       esac
     done
+    [[ $(/bin/date +%u) -eq 1 ]] && open -n -a "Brave Browser" --args \
+     "https://${CUSTOM_WORK_FOOD_VENDOR}" --profile-directory="Default"
     docker-login
   fi
 }

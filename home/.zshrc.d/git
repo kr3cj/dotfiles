@@ -65,6 +65,15 @@ function gitp {
   git status
 }
 
+function gitd {
+  local_branches=$(git branch -vv | grep ': gone]' | grep -v '\*' | awk '{print $1}')
+  /usr/bin/read -p "Press enter to locally remove all deleted branches (sans current and default branches): ${local_branches}"
+  for b1 in $(git branch -vv | grep ': gone]' | grep -v '\*' | awk '{print $1}'); do
+    echo ${b1}
+    git branch -D ${b1}
+  done
+}
+
 function update-all-repos {
   for repo1 in $(find ~/build/github -mindepth 1 -maxdepth 6 -path "*/.git/config") ; do echo -e "\n${repo1%.git/config}" ; \
     cd "${repo1%.git/config}" \
