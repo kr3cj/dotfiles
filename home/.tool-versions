@@ -1,16 +1,16 @@
 1password-cli 2.31.1
-awscli 2.27.50
+awscli 2.27.54
 aws-sso-cli 1.17.0
 golang 1.24.5
 # granted 0.38.0
 # grpcurl 1.8.2
 helm 3.18.4
 jq 1.8.1
-k9s 0.50.7
+k9s 0.50.9
 krew 0.4.5
-kubectl 1.32.6
+kubectl 1.32.7
 minikube 1.36.0
-nodejs 24.4.0
+nodejs 24.3.0
 # nova 3.1.0
 # pluto 3.4.0
 python 3.13.5t

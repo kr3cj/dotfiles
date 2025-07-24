@@ -94,6 +94,7 @@ function _work_cloud-sso {
     # second, assume authentication should prompt automatically via browser
     # no known way to bypass browser for ${CUSTOM_WORK_SSO_PROVIDER} (with MFA) or aws-sso
     assume "${MY_PROFILE}" && aws sts get-caller-identity > /dev/null
+    # OR assume <profile> --exec -- ./scripts/script_name.sh ...
     session_is_active assume "28800 seconds" || true # 8h
     echo "Authenticating aws sts..."
     kubectl cluster-info
