@@ -5,11 +5,13 @@
 export HISTFILE=~/.${LOGNAME/\.*/}_zsh_history
 export SAVEHIST=1000000
 export HISTSIZE=1000000
-# share history across multiple zsh sessions
-setopt SHARE_HISTORY
+# dont share history across multiple zsh sessions
+# setopt SHARE_HISTORY
+
 # append to history
 setopt APPEND_HISTORY
 setopt EXTENDED_HISTORY
+setopt HIST_IGNORE_SPACE
 
 # make zsh history behave more like bash history
 alias history="history 1"

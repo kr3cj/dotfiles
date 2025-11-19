@@ -74,12 +74,12 @@ function k() {
     *get?no*)
       action="${action} --sort-by=.metadata.creationTimestamp \
 --label-columns=\
-ami-id,\
-instance-id,\
 node.kubernetes.io/instance-type,\
 failure-domain.beta.kubernetes.io/zone,\
 function,\
-node-lifecycle"
+karpenter.sh/capacity-type"
+# eks.amazonaws.com/nodegroup-image,\
+# ,eks.amazonaws.com/capacityType"
 # -o=custom-columns=\
 # NAME:.metadata.name,\
 # UNSCHEDULABLE?:spec.unschedulable,\
@@ -193,12 +193,14 @@ function ibexs() {
 }
 
 function count-k8s-services() {
+  # see also artifact-signer; go run cmd/backsign/main.go --all-contexts --list-images
   for cluster1 in $(find clusters/ -mindepth 4 -type d -exec basename '{}' \;); do
   echo "${cluster1}: $(kubectl --context ${cluster1} get rollout -A -oname \
    | grep -v paved-road | wc -l)"; done
 }
 
 function count-k8s-images() {
+  # see also artifact-signer; go run cmd/backsign/main.go --all-contexts --list-images
   local cluster1=${1}
   if [[ -z ${cluster1} ]]; then
     echo "Getting unique k8s images for all clusters... (this could take 5+ mins)"
@@ -223,6 +225,19 @@ function count-k8s-images() {
   # show counts of unique images/versions by namespace (watch is helpful for rollouts)
   # all namespaces except default
   # watch "kubectl --all-namespaces --field-selector=metadata.namespace!=default get po --sort-by=.metadata.creationTimestamp -o jsonpath='{..image}' | tr -s '[[:space:]]' '\n' | sort | uniq -c"
+}
+
+function get-do-not-disrupt() {
+  echo "NAMESPACE\tNODE\tPOD\tNODE_CREATED"
+  kubectl --context ${1} get po -A \
+   -ojsonpath='{range .items[?(@.metadata.annotations.karpenter\.sh/do-not-disrupt=="true")]}{.metadata.namespace}{"\t"}{.spec.nodeName}{"\t"}{.metadata.name}{"\t"}{.metadata.creationTimestamp}{"\n"}{end}' \
+   | while IFS=$'\t' read -r namespace node pod timestamp; do
+     if [[ -n "$timestamp" ]]; then
+       node_created_full=$(kubectl --context ${1} get node "${node}" --no-headers -o custom-columns=CREATED:.metadata.creationTimestamp 2>/dev/null || echo "unknown")
+       node_created=$(echo "$node_created_full" | cut -d'T' -f1)
+       echo -e "${namespace}\t${node}\t${pod}\t${node_created}"
+     fi
+   done | sort -k2,2 | column -t -s $'\t'
 }
 
 # extract expiration date from argocd auth-token
@@ -320,6 +335,7 @@ function argocd_is_auth() {
 
 # get/delete/describe pods from multiple labels like release
 # k -n kube-system get pod -l 'release in (kiam-server,kiam-agent)'
+# k -n kube-system get pod -l 'release notin (default,datadog)'
 
 # get all ds,deploy complete with different labels using custom columns:
 # kubectl get deploy,ds --all-namespaces -o custom-columns=\
@@ -335,6 +351,10 @@ function argocd_is_auth() {
 # I can get a list of pods sorted by the node its on using the below.
 # But how can I show *node* labels by pod?
 # kubectl get pods -o wide --sort-by="{.spec.nodeName}"
+
+# get list of labels from a certain node or pod
+# kubectl label --list no/ip-1-2-3-4.ec2.internal
+# kubectl label --list po/my-pod-abcde
 
 # get list of running pods on the node
 # kubectl get po --field-selector=spec.nodeName=ip-10-1-2-3.ec2.internal | grep -v event-observer

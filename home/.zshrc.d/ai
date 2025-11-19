@@ -1,0 +1,4 @@
+[[ $- = *i* ]] || return 0
+${IS_MACOS} || return 0
+
+# python -m pip install -U garak

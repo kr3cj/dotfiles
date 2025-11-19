@@ -5,28 +5,8 @@ ${HEALTHY_INTERNET} || return 0
 # TODO: move most of this to a script called after login or screen-unlock
 #  https://stackoverflow.com/questions/6442364/running-script-upon-login-mac
 
-# get network awareness
-ip_address=""
-export at_work="false"
-at_home="false"
-is_weekend=""
-if [[ $(date +%a) =~ (Sat|Sun) && -z ${is_weekend} ]]; then
-  is_weekend="true"
-else
-  is_weekend="false"
-fi
-
 # grab all ip addresses
-ip_address=$(/sbin/ifconfig 2> /dev/null | grep 'inet ' | grep -v '127.0.0.1' | awk '{print $2}' | tr "\n" ' ')
-
-# figure out location
-if [[ ${ip_address} =~ ${CUSTOM_WORK_SUBNET} ]]; then
-  export at_work="true"
-elif [[ ${ip_address} =~ ${CUSTOM_HOME_SUBNET%.*\.} ]]; then
-  at_home="true"
-else
-  echo "Could not determine location from ip_address ${ip_address}"
-fi
+# ip_address=$(/sbin/ifconfig 2> /dev/null | grep 'inet ' | grep -v '127.0.0.1' | awk '{print $2}' | tr "\n" ' ')
 
 function unmount_home_nfs {
   while $(mount | grep -q "Documents/share1") ; do
@@ -100,6 +80,8 @@ function _work_cloud-sso {
     kubectl cluster-info
     if [[ $(/bin/date +%u) -eq 1 ]] ; then
       echo "Regenerate aws config weekly"
+      # granted cache clear --storage sso-token --all
+      # granted cache clear --storage session-credentials --all
       granted sso populate --prune && granted registry sync
     fi
   fi
@@ -108,6 +90,7 @@ function _work_cloud-sso {
 # only proceed on work system
 ${IS_ARM} || return 0
 ${is_weekend} && return 0
+# TODO automate monthly: "terraform login ${CUSTOM_WORK_JFROG_SUBDOMAIN}.jfrog.io"
 work_main-sso
 
 [[ $(pwd) == "${HOME}" ]] && cd ~/build/github/ibex || return 0

@@ -13,11 +13,11 @@ if [[ ${GHA_CI_RUN} != true ]]; then
 fi
 
 # 3rd party package management
-if hash npm 2>/dev/null ; then
-  echo -e "Updating npm..."
-  npm install npm -g
-  npm update -g
-fi
+# if hash npm 2>/dev/null ; then
+#   echo -e "Updating npm..."
+#   npm install npm -g
+#   npm update -g
+# fi
 # if hash gem 2>/dev/null && [[ ${GHA_CI_RUN} != true ]]; then
 #   echo -e "\nUpdating gems..."
 #   ~/.gemrc should prevent ri or rdoc files from being installed

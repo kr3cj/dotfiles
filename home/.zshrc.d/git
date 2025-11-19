@@ -3,6 +3,9 @@ if ${IS_MACOS} ; then
   export GIT_SSH="/usr/bin/ssh"
 fi
 
+# gh cli auth
+export GH_TOKEN=${GITHUB_API_TOKEN}
+
 # shellcheck disable=SC2120
 function gitp {
   local default_branch

@@ -12,3 +12,5 @@ ${IS_MACOS} || return 0
 
 # this golang debug variable should be in its own golang file but I'm lazy:
 # export GODEBUG=netdns=9
+
+export GEMINI_API_KEY="${CUSTOM_WORK_GEMINI_API_KEY}"

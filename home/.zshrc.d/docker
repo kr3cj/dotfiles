@@ -46,6 +46,8 @@ function docker-reset () {
   docker ps -a
 }
 
+export is_weekend="false"
+[[ $(date +%a) =~ (Sat|Sun) ]] && export is_weekend="true"
 ${is_weekend} && return 0
 # if necessary, start container engine (this doesn't work after some reboots for some reason)
 pgrep -qf ".colima/_lima" || colima start

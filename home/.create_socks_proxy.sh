@@ -96,17 +96,22 @@ source ~/.zshrc.d/01-alias
 
 # grab all ip addresses
 ip_address=$(/sbin/ifconfig 2> /dev/null | grep 'inet ' | grep -v '127.0.0.1' | awk '{print $2}' | tr "\n" ' ')
-# figure out location
-if [[ ${ip_address} =~ ${CUSTOM_WORK_SUBNET} ]]; then
-  export at_work="true"
-elif [[ ${ip_address} =~ ${CUSTOM_HOME_SUBNET%.*\.} ]]; then
-  at_home="true"
-else
-  echo "Could not determine location from ip_address ${ip_address}"
-fi
-
-SOCKS_HOST="home.${CUSTOM_HOME_DOMAIN}"
-SSH_PORT="222"
-[[ ${at_home} == "true" ]] && SOCKS_HOST="${CUSTOM_HOME_SOCKS_LOCAL}" && SSH_PORT="22"
+case "${ip_address}" in
+  *${CUSTOM_HOME_SUBNET%.*\.}.2.*)
+    [[ ${VERBOSE} -ge 1 ]] && echo "at home"
+    SOCKS_HOST="${CUSTOM_HOME_SOCKS_LOCAL}"
+    SSH_PORT="22"
+    ;;
+  *${CUSTOM_WORK_SUBNET}*)
+    [[ ${VERBOSE} -ge 1 ]] && echo "at work"
+    SOCKS_HOST="home.${CUSTOM_HOME_DOMAIN}"
+    SSH_PORT="222"
+    ;;
+  *)
+    [[ ${VERBOSE} -ge 1 ]] && echo "elsewhere"
+    SOCKS_HOST="home.${CUSTOM_HOME_DOMAIN}"
+    SSH_PORT="222"
+    ;;
+esac
 [[ ${VERBOSE} -ge 1 ]] && echo "About to run: _socks_proxy_is_alive ${SOCKS_HOST} 2000"
 _create_socks_proxy "${SOCKS_HOST}" "2000" "${SSH_PORT}"

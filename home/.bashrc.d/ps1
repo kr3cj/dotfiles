@@ -53,13 +53,13 @@ else
       echo ''
     fi
   }
-  function _awsvault_ps1() {
-    [[ -n ${AWS_VAULT} ]] && echo "(aws:${AWS_VAULT}) "
+  function _aws_ps1() {
+    [[ -n ${MY_PROFILE} ]] && echo "(aws:${MY_PROFILE}) "
   }
 
   # PS1 generator: https://xta.github.io/HalloweenBash/
   # TODO: use different colors for different datacenters/environments using VLANs
   export PS1="\[${BOLD}\]\[${GREEN}\]\h\[${BLUE}\] \w\[${BROWN}\]\[${BLUE}\]\$(_parse_git_branch)\$\[${NORMAL}\] "
-  PS1="\[${YELLOW}\]\$(_awsvault_ps1)\[${NORMAL}\]"${PS1}
+  PS1="\[${YELLOW}\]\$(_aws_ps1)\[${NORMAL}\]"${PS1}
   PS1="\[${YELLOW}\]\$(_kube_ps1)\[${NORMAL}\]"${PS1}
 fi

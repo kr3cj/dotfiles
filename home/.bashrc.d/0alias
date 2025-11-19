@@ -217,12 +217,14 @@ if [[ "${IS_MACOS}" == "true" ]]; then
   function psql-client {
     # usage: psql-client cluster1 short-rds-host1 user1 dbname1
     # spin up a throwaway container in k8s for querying RDS
-    postgresql://${3}@${2}.${AWS_DEFAULT_REGION}.rds.amazonaws.com:5432/${4}
+    # postgresql://${3}@${2}.${AWS_DEFAULT_REGION}.rds.amazonaws.com:5432/${4}
+    # stopped using jbergknoff/postgresql-client and switched to bitnami/postgresql
     kubectl --context ${1} run tmp-shell --rm -i --tty \
      --image jbergknoff/postgresql-client -- \
       postgresql://${3}@${2}.${AWS_DEFAULT_REGION}.rds.amazonaws.com/${4}"
-    # docker run --rm -it jbergknoff/postgresql-client \
+    # docker run --rm -it jbergknoff/postgresql-client:latest \
     #  postgresql://${3}@${2}.${AWS_DEFAULT_REGION}.rds.amazonaws.com/${4}"
+    # psql -h <hostname> -U <user> -d <dbname> -p <port>
   }
 
   function openit {
@@ -245,9 +247,10 @@ if [[ "${IS_MACOS}" == "true" ]]; then
 
   # https://github.com/chubin/awesome-console-services
   function speedtest {
-    curl -s https://raw.githubusercontent.com/sivel/speedtest-cli/master/speedtest.py \
-    | python - --secure --simple --single
+    # curl -s https://raw.githubusercontent.com/sivel/speedtest-cli/master/speedtest.py \
+    # | python - --secure --simple --single
     # includes bufferbloat score: http://www.dslreports.com/speedtest
+    networkQuality
   }
 
   if [[ ${GHA_CI_RUN} != true ]]; then

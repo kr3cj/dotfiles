@@ -9,12 +9,6 @@ ${HEALTHY_INTERNET} || return
 ip_address=""
 at_work="false"
 at_home="false"
-is_weekend=""
-if [[ $(date +%a) =~ (Sat|Sun) && -z ${is_weekend} ]]; then
-  is_weekend="true"
-else
-  is_weekend="false"
-fi
 
 # grab all ip addresses
 ip_address=$(/sbin/ifconfig 2> /dev/null | grep 'inet ' | grep -v '127.0.0.1' | awk '{print $2}' | tr "\n" ' ')
