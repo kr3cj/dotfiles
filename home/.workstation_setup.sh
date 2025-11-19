@@ -165,6 +165,7 @@ EOF
    cleanbrowsing/dnsperftest \
    DataDog/datadog-serverless-functions \
    DataDog/Miscellany \
+   wshobson/agents \
    ; do
     git clone https://github.com/${repo1}.git
   done

@@ -101,6 +101,18 @@ LOG3=/var/tmp/workstation_setup_private_$(date +%Y-%m-%d-%H:%M:%S).log
     # cd all-repos
   fi
 
+  # import opencode agents from symlinked github.com/wshobson/agents/
+  for agent1 in \
+   cloud-infrastructure/agents/terraform-specialist.md \
+   cloud-infrastructure/agents/kubernetes-architect.md \
+   loud-infrastructure/agents/cloud-architect.md \
+   shell-scripting/agents/bash-pro.md \
+   systems-programming/agents/golang-pro.md \
+   ; do
+    ln -s ~/build/github/agents/plugins/${agent1} \
+     ~/.config/opencode/agent/
+  done
+
   # close out logging
 ) 2>&1 | tee -a ${LOG3}
 
