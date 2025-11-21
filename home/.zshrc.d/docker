@@ -51,3 +51,8 @@ export is_weekend="false"
 ${is_weekend} && return 0
 # if necessary, start container engine (this doesn't work after some reboots for some reason)
 pgrep -qf ".colima/_lima" || colima start
+
+# retrieve java version from docker image
+# image="${CUSTOM_WORK_DEFAULT_AWS_ACCT}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/<my-cool-service>@sha256:<hash>"
+# docker pull && docker run --platform linux/amd64 --entrypoint java ${image} -version
+# OR: docker inspect ${image}
