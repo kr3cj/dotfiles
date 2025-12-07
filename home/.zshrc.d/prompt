@@ -1,9 +1,7 @@
 [[ $- = *i* ]] || return 0
 
-# [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+bindkey \^U backward-kill-line
 
 export STARSHIP_CONFIG=~/.config/starship.toml
-# eval "$(starship init zsh)"
+eval "$(fzf --zsh)"
 eval "$($(asdf where starship)/bin/starship init zsh)"
-
-# https://scriptingosx.com/2019/07/moving-to-zsh-06-customizing-the-zsh-prompt/
