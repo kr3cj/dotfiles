@@ -1,5 +1,5 @@
 1password-cli 2.32.0
-awscli 2.32.10
+awscli 2.32.11
 aws-sso-cli 1.17.0
 golang 1.25.5
 # granted 0.38.0

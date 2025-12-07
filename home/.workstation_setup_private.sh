@@ -12,8 +12,9 @@ LOG3=/var/tmp/workstation_setup_private_$(date +%Y-%m-%d-%H:%M:%S).log
     op item get id_rsa_personal --field notesPlain --reveal | sed 's/"//g' > ~/.ssh/id_rsa_personal
     )
     op item get id_rsa_personal --field Passphrase --reveal | pbcopy
-    ssh-add -t 36000 -k ~/.ssh/id_rsa_personal
-    rm -f ~/.ssh/id_rsa_personal
+    ssh-add --apple-use-keychain -k ~/.ssh/id_rsa_personal
+    # ssh-add -t 36000 -k ~/.ssh/id_rsa_personal
+    # rm -f ~/.ssh/id_rsa_personal
   fi
   private_repos="git@github.com:kr3cj/dotfiles_private.git"
   for private_repo in ${private_repos}; do

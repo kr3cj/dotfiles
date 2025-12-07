@@ -5,42 +5,42 @@ ${IS_MACOS} || return 0
 find -L ~/.ssh/ -type f -exec ${BASE_PATH}/opt/coreutils/libexec/gnubin/chmod -c 600 '{}' \;
 find -L ~/.ssh/ -type d -exec ${BASE_PATH}/opt/coreutils/libexec/gnubin/chmod -c 700 '{}' \;
 
-function _download_ssh_key_from_passman () {
-  local key=${@}
-  [[ ${VERBOSE} -ge 1 ]] && \
-    echo "Running ${funcstack[1]} with \"${key}\"..."
-  # export OP_SESSION_my="$(head -n1 ~/.pm_session_token)"
-  _passman_needs_auth || _passman_auth
-  (umask 177
-  # workaround since this sometimes creates a directory
-  [[ -d ~/.ssh/id_rsa${key} ]] && rmdir ~/.ssh/id_rsa${key}
-  [[ -f ~/.ssh/id_rsa${key} ]] || touch ~/.ssh/id_rsa${key}
-  op item get "id_rsa${key}" --field notesPlain --cache --session ${OP_SESSION_my} \
-    --reveal | sed 's/"//g' > ~/.ssh/id_rsa${key}
-  )
-  # op item get "id_rsa${key}" --field Passphrase --cache --session ${OP_SESSION_my} --reveal | pbcopy
-  # ssh-add -D -q -t 43200 -k ~/.ssh/id_rsa${key}
-  [[ ${?} -ne 0 ]] && echo "Failed to load \"~/.ssh/id_rsa${key}\"!"
-  # must keep work private key on filesystem so container mounts have it
-  # [[ -z ${key} ]] || rm -f ~/.ssh/id_rsa${key}
-  # rm -f ~/.ssh/id_rsa${key}
+# function _download_ssh_key_from_passman () {
+#   local key=${@}
+#   [[ ${VERBOSE} -ge 1 ]] && \
+#     echo "Running ${funcstack[1]} with \"${key}\"..."
+#   # export OP_SESSION_my="$(head -n1 ~/.pm_session_token)"
+#   _passman_needs_auth || _passman_auth
+#   (umask 177
+#   # workaround since this sometimes creates a directory
+#   [[ -d ~/.ssh/id_rsa${key} ]] && rmdir ~/.ssh/id_rsa${key}
+#   [[ -f ~/.ssh/id_rsa${key} ]] || touch ~/.ssh/id_rsa${key}
+#   op item get "id_rsa${key}" --field notesPlain --cache --session ${OP_SESSION_my} \
+#     --reveal | sed 's/"//g' > ~/.ssh/id_rsa${key}
+#   )
+#   # op item get "id_rsa${key}" --field Passphrase --cache --session ${OP_SESSION_my} --reveal | pbcopy
+#   # ssh-add -D -q -t 43200 -k ~/.ssh/id_rsa${key}
+#   [[ ${?} -ne 0 ]] && echo "Failed to load \"~/.ssh/id_rsa${key}\"!"
+#   # must keep work private key on filesystem so container mounts have it
+#   # [[ -z ${key} ]] || rm -f ~/.ssh/id_rsa${key}
+#   # rm -f ~/.ssh/id_rsa${key}
 
-  # might as well make sure the public key is on disk as well
-  (umask 177
-  op item get "id_rsa${key}" --field 'Public Key' --cache --session ${OP_SESSION_my} \
-    --reveal > ~/.ssh/id_rsa${key}.pub
-  )
-}
-function ssh_keys () {
-  # used to load private keys into ssh-agent, then delete from disk. Can't do that now since:
-  #  1) keychain can manage it and ssh-agent
-  #  2) container mounts must have it on disk, they can't just read it from ssh-agent
-  for ssh_key in "" _personal ; do
-    [[ -f ~/.ssh/id_rsa${ssh_key} && \
-     $(${BASE_PATH}/opt/coreutils/libexec/gnubin/stat -c%s ~/.ssh/id_rsa${ssh_key}) -gt 0 ]] \
-     || _download_ssh_key_from_passman ${ssh_key}
-  done
-}
+#   # might as well make sure the public key is on disk as well
+#   (umask 177
+#   op item get "id_rsa${key}" --field 'Public Key' --cache --session ${OP_SESSION_my} \
+#     --reveal > ~/.ssh/id_rsa${key}.pub
+#   )
+# }
+# function ssh_keys () {
+#   # used to load private keys into ssh-agent, then delete from disk. Can't do that now since:
+#   #  1) keychain can manage it and ssh-agent
+#   #  2) container mounts must have it on disk, they can't just read it from ssh-agent
+#   for ssh_key in "" _personal ; do
+#     [[ -f ~/.ssh/id_rsa${ssh_key} && \
+#      $(${BASE_PATH}/opt/coreutils/libexec/gnubin/stat -c%s ~/.ssh/id_rsa${ssh_key}) -gt 0 ]] \
+#      || _download_ssh_key_from_passman ${ssh_key}
+#   done
+# }
 
 ${HEALTHY_INTERNET} || return 0
 ssh_keys
