@@ -28,7 +28,7 @@ threshold = 60
 
 [git_branch]
 symbol = '🌱 '
-ignore_branches = ['master', 'main']
+ignore_branches = ['xyz']
 
 [kubernetes]
 disabled = false

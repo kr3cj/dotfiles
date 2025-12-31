@@ -43,4 +43,4 @@ find -L ~/.ssh/ -type d -exec ${BASE_PATH}/opt/coreutils/libexec/gnubin/chmod -c
 # }
 
 ${HEALTHY_INTERNET} || return 0
-ssh_keys
+# ssh_keys
