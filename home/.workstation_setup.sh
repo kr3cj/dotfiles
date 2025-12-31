@@ -65,15 +65,9 @@ if ${IS_MACOS}; then
 
   # input license for intellij, then goland should detect it, then remove intellij?
 
-  # install asdf tools
-  export PATH="${BASE_PATH}/opt/asdf/libexec/bin/asdf:${LOG_NAME}/.asdf/shims:${PATH}"
-  # golang
-  for asdf_plugin in 1password-cli argo awscli aws-sso-cli eksctl golang granted \
-   grpcurl helm helmfile jq k9s krew kubectl kustomize minikube nova pluto poetry \
-   python sinker sops sopstool starship steampipe terraform terraform-docs viddy yq; do
-   # kops linkerd minikube octant
-    asdf plugin add ${asdf_plugin}
-  done
+  # install mise tools
+  export PATH="${BASE_PATH}/bin/mise:${LOG_NAME}/.local/share/mise/shims:${PATH}"
+  mise install
 
   # install krew plugins for kubectl
   kubectl krew index add surajincloud git@github.com:surajincloud/krew-index.git
@@ -81,7 +75,7 @@ if ${IS_MACOS}; then
   for krew_plugin in get-all surajincloud/kubectl-eks; do
     kubectl krew install
   done
-  asdf reshim krew
+  mise reshim krew
 
   # pip3 install --upgrade distribute
   # pip3 install --upgrade pip

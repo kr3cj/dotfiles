@@ -152,7 +152,7 @@ if [[ "${IS_MACOS}" == "true" ]]; then
   BREWBIN_PATH="/usr/local/bin/brew"
   [[ "${IS_ARM}" == "true" ]] && BREWBIN_PATH="/opt/homebrew/bin/brew"
   BASE_PATH="$(${BREWBIN_PATH} --prefix)"
-  export PATH="${BASE_PATH}/bin:${BASE_PATH}/opt/asdf/libexec/bin/asdf:${LOG_NAME}/.asdf/shims:${PATH}"
+  export PATH="${BASE_PATH}/bin:${BASE_PATH}/bin/mise:${LOG_NAME}/.local/share/mise/shims:${PATH}"
 
   alias curl="$(brew --prefix curl)/bin/curl"
   # since the path file hasn't been sourced yet, use absolute paths to ls for macos

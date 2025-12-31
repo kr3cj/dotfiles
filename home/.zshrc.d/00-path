@@ -10,7 +10,7 @@ export BASE_PATH="$(${BREWBIN_PATH} --prefix)"
 
 path=(
   # remove libtool in case `bundle install` fails on `grpc` with it?
-  ${ASDF_DATA_DIR:-${HOME}/.asdf}/shims
+  ${MISE_DATA_DIR:-${HOME}/.local/share/mise}/shims
   $(/bin/ls -d ${BASE_PATH}/opt/*/libexec/gnubin)
   ${BASE_PATH}/opt/openssl/bin
   ${BASE_PATH}/opt/curl/bin

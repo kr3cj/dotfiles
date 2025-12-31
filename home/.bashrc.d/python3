@@ -1,4 +1,4 @@
 [[ $- = *i* ]] || return
 ${IS_MACOS} || return
 
-# pathadd $(asdf where python)/bin # just do "asdf reshim python" instead
+# pathadd $(mise where python)/bin # just do "mise reshim python" instead

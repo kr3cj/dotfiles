@@ -28,15 +28,15 @@ path=(
 ) \
 # krew stuff
 function kr () {
-  # must reshim asdf krew after every plugin install
+  # must reshim mise krew after every plugin install
   local cmd=${@}
   local run_reshim="false"
   [[ ${cmd} =~ "install" ]] && run_reshim="true"
   kubectl krew ${@}
-  ${run_reshim} && asdf reshim krew
+  ${run_reshim} && mise reshim krew
 }
 # https://github.com/jimmidyson/asdf-krew/issues/3
-# pathadd ${HOME}/.asdf/installs/krew/$(asdf list krew | tail -fn1)/bin
+# pathadd ${HOME}/.local/share/mise/installs/krew/$(mise list krew | tail -fn1)/bin
 
 # kubectl plugin manager: krew
 # export KREW_ROOT=${HOME}/.krew
@@ -78,6 +78,7 @@ node.kubernetes.io/instance-type,\
 failure-domain.beta.kubernetes.io/zone,\
 function,\
 karpenter.sh/capacity-type"
+# DRAIN:\".metadata.labels.ibops\.net/drainme\""
 # eks.amazonaws.com/nodegroup-image,\
 # ,eks.amazonaws.com/capacityType"
 # -o=custom-columns=\
@@ -96,7 +97,13 @@ karpenter.sh/capacity-type"
 # info on SCALE_DOWN_DISABLED: https://github.com/aws/containers-roadmap/issues/916
 # info on UNSCHEDULABLE: https://docs.aws.amazon.com/eks/latest/userguide/managed-node-update-behavior.html#managed-node-update-scale-up
 
-# watch -n10 "kubectl --context ${CLUSTER} get no --sort-by=.metadata.creationTimestamp -o=custom-columns=NAME:.metadata.name,\"STATUS:status.conditions[?(@.status=='True')].type\",START_TIME:.metadata.creationTimestamp,KUBELET:.status.nodeInfo.kubeletVersion,IMAGE:\".metadata.labels.eks\.amazonaws\.com/nodegroup-image\",TYPE:\".metadata.labels.node\.kubernetes\.io/instance-type\",NODEGROUP:.metadata.labels.nodegroup_name,FUNCTION:.metadata.labels.function,LIFECYCLE:.metadata.labels.node-lifecycle,AZ_AND_INSTANCE_ID:.spec.providerID,SCALE_DOWN_DISABLED?:\".metadata.annotations.cluster-autoscaler\.kubernetes\.io/scale-down-disabled\",\"UNSCHEDULABLE:.spec.taints[?(@.key=='eks.amazonaws.com/nodegroup')].value\""
+# watch -n10 "kubectl --context ${CLUSTER} get no --sort-by=.metadata.creationTimestamp -o=custom-columns=\
+#  NAME:.metadata.name,\"STATUS:status.conditions[?(@.status=='True')].type\",START_TIME:.metadata.creationTimestamp,\
+#  KUBELET:.status.nodeInfo.kubeletVersion,IMAGE:\".metadata.labels.eks\.amazonaws\.com/nodegroup-image\",\
+#  TYPE:\".metadata.labels.node\.kubernetes\.io/instance-type\",NODEGROUP:.metadata.labels.nodegroup_name,\
+#  FUNCTION:.metadata.labels.function,LIFECYCLE:.metadata.labels.node-lifecycle,AZ_AND_INSTANCE_ID:.spec.providerID,\
+#  SCALE_DOWN_DISABLED?:\".metadata.annotations.cluster-autoscaler\.kubernetes\.io/scale-down-disabled\",\
+#  \"UNSCHEDULABLE:.spec.taints[?(@.key=='eks.amazonaws.com/nodegroup')].value\""
 
 # -ojsonpath=\
 # {range $.items[*]}{.metadata.name}{.spec.taints.eks\.amazonaws\.com/nodegroup=unschedulable{\"\n\"}{end}'"
@@ -131,11 +138,11 @@ function h() {
   fi
 
   local kube_config="--kube-context ${cluster}" # --kubeconfig ~/.kube/${cluster}
-  local helm_path="$(asdf where helm)/bin/helm"
+  local helm_path="$(mise where helm)/$(uname)-$(arch)/helm"
   # echo "Using helm client: \"${helm_path} ${kube_config} version --client --short\"..."
 
   if [[ ${VERBOSE} -ge 1 ]]; then
-    echo "To see helm2 releases, run: \"\$(asdf where helm 2.16.12)/bin/helm ${kube_config} ls\""
+    echo "To see helm2 releases, run: \"\$(mise where helm 2.16.12)/bin/helm ${kube_config} ls\""
     echo "Running: \"${helm_path} ${kube_config} ${action}\""
   fi
   eval "${helm_path} ${kube_config} ${action}"
@@ -227,7 +234,7 @@ function count-k8s-images() {
   # watch "kubectl --all-namespaces --field-selector=metadata.namespace!=default get po --sort-by=.metadata.creationTimestamp -o jsonpath='{..image}' | tr -s '[[:space:]]' '\n' | sort | uniq -c"
 }
 
-function get-do-not-disrupt() {
+function get-do-not-disrupt-pods() {
   echo "NAMESPACE\tNODE\tPOD\tNODE_CREATED"
   kubectl --context ${1} get po -A \
    -ojsonpath='{range .items[?(@.metadata.annotations.karpenter\.sh/do-not-disrupt=="true")]}{.metadata.namespace}{"\t"}{.spec.nodeName}{"\t"}{.metadata.name}{"\t"}{.metadata.creationTimestamp}{"\n"}{end}' \

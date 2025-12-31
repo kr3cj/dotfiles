@@ -20,7 +20,7 @@ esac
 BREWBIN_PATH="/usr/local/bin/brew"
 [[ "${IS_ARM}" == "true" ]] && BREWBIN_PATH="/opt/homebrew/bin/brew"
 BASE_PATH="$(${BREWBIN_PATH} --prefix)"
-export PATH="${BASE_PATH}/bin:${BASE_PATH}/opt/asdf/libexec/bin/asdf:${LOG_NAME}/.asdf/shims:${PATH}"
+export PATH="${BASE_PATH}/bin:${BASE_PATH}/bin/mise:${LOG_NAME}/.local/share/mise/shims:${PATH}"
 
 # test for healthy internet connection
 export timeout_path

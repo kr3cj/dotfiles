@@ -2,11 +2,5 @@
 ${IS_MACOS} || return 0
 
 # export ASDF_DIR="$(brew --prefix asdf)/libexec"
-export ASDF_CONFIG_FILE="${HOME}/.asdfrc"
-export ASDF_DATA_DIR="${HOME}/.asdf"
-
-# echo -e "\n. $(brew --prefix asdf)/libexec/asdf.sh" >> ${ZDOTDIR:-~}/.zshrc
-# source $(brew --libexec/asdf.shprefix asdf)/
-
-# [[ -f ${HOME}/.asdf/asdf.sh ]] && source ${HOME}/.asdf/asdf.sh
-# [[ -f ${HOME}/.asdf/completions/asdf.bash ]] && source ${HOME}/.asdf/completions/asdf.bash
+# export ASDF_CONFIG_FILE="${HOME}/.asdfrc"
+export MISE_DATA_DIR="${HOME}/.local/share/mise"

@@ -28,16 +28,16 @@ LOG3=/var/tmp/workstation_setup_private_$(date +%Y-%m-%d-%H:%M:%S).log
     homeshick --force link
   done
 
-  asdf install
+  mise install
   # heptio-authenticator-aws, aws-iam-authenticator, kubesec, minikube, python, ruby, trerraform, terragrunt, vault
 
   # install helm plugin for Visual Studio Code
-  # manually add asdf pat
+  # manually add mise pat
   for plugin1 in \
    lrills/helm-unittest \
    databus23/helm-diff \
    aslafy-z/helm-git ; do
-     ~/.asdf/shims/helm plugin install https://github.com/${plugin1}
+     ~/.local/share/mise/shims/helm plugin install https://github.com/${plugin1}
   done
 
   # load cronjobs, I mean launchd

@@ -47,7 +47,6 @@ brew "m4"
 
 ### install extra tools I like
 brew "ack"
-brew "asdf" # icu4c@76 libxml2 readline
 brew "bash-completion"
 brew "certigo"
 brew "cfssl"
@@ -62,6 +61,7 @@ brew "fzf"
 brew "gnu-getopt"
 brew "hub"
 brew "mas"
+brew "mise"
 brew "mtr"
 brew "nmap"
 brew "pstree"
@@ -93,7 +93,7 @@ brew "jid"
 brew "make"
 # brew "maven"
 # brew "mysql-client"
-# brew "node" # use asdf nodejs instead
+# brew "node" # use mise nodejs instead
 # brew "perl518" # tap homebrew/versions
 brew "python@3.13"
 # brew "rbenv"

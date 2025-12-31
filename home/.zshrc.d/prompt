@@ -4,4 +4,4 @@ bindkey \^U backward-kill-line
 
 export STARSHIP_CONFIG=~/.config/starship.toml
 eval "$(fzf --zsh)"
-eval "$($(asdf where starship)/bin/starship init zsh)"
+eval "$($(mise where starship)/starship init zsh)"

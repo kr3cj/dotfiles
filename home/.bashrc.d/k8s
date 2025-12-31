@@ -23,7 +23,7 @@ source ~/.private-utils.sh
 
 pathadd ${HOME}/build/github/ibex
 # https://github.com/jimmidyson/asdf-krew/issues/3
-# pathadd ${HOME}/.asdf/installs/krew/$(asdf list krew | tail -fn1)/bin
+# pathadd ${HOME}/.mise/installs/krew/$(mise list krew | tail -fn1)/bin
 
 function k() {
   # short cut for kubectl binary
@@ -114,11 +114,11 @@ function h() {
   fi
 
   local kube_config="--kube-context ${cluster}"
-  local helm_path="$(asdf where helm)/bin/helm"
+  local helm_path="$(mise where helm)/bin/helm"
   echo "Using helm client $(${helm_path} ${kube_config} version --client --short)..."
 
   if [[ ${VERBOSE} -ge 1 ]]; then
-    echo "To see helm2 releases, run: \"\$(asdf where helm 2.16.12)/bin/helm ${kube_config} ls\""
+    echo "To see helm2 releases, run: \"\$(mise where helm 2.16.12)/bin/helm ${kube_config} ls\""
     echo "Running: \"${helm_path} ${kube_config} ${action}\""
   fi
   ${helm_path} ${kube_config} ${action} #--kube-context admin@${cluster}

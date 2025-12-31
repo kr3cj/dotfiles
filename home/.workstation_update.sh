@@ -53,7 +53,7 @@ if [[ $(uname) == "Darwin" ]] ; then
   BREWBIN_PATH="/usr/local/bin/brew"
   [[ "$(uname -m)" == "arm64" ]] && BREWBIN_PATH="/opt/homebrew/bin/brew"
   BASE_PATH="$(${BREWBIN_PATH} --prefix)"
-  export PATH="${BASE_PATH}/bin:${BASE_PATH}/opt/asdf/libexec/bin/asdf:${LOG_NAME}/.asdf/shims:${PATH}"
+  export PATH="${BASE_PATH}/bin:${BASE_PATH}/bin/mise:${LOG_NAME}/.local/share/mise/shims:${PATH}"
 
   # echo -e "\nUpdating vscode extensions..."
   # for ext1 in $(code --list-extensions); do
@@ -66,7 +66,7 @@ if [[ $(uname) == "Darwin" ]] ; then
   # hack for weird virt-manager dependency (or just remove spice-gtk, virt-manager and virt-viewer)
   # brew uninstall --ignore-dependencies spice-protocol
   brew update
-  brew upgrade # TODO: if asdf gets updated, must reshim plugins?
+  brew upgrade # TODO: if mise gets updated, must reshim plugins?
   brew upgrade --cask
   # dont rely on "brew upgrade --cask" to skip auto-updating casks. Loop over each instead
   # brew upgrade --cask
@@ -89,7 +89,7 @@ if [[ $(uname) == "Darwin" ]] ; then
   # fi
 
   echo -e "\nUpdating helm plugins."
-  helm_binary="$($(brew --prefix asdf)/bin/asdf where helm)/bin/helm"
+  helm_binary="$($(brew --prefix mise)/bin/mise where helm)/$(uname)-$(arch)/helm"
   for hplug in $(${helm_binary} plugin list | grep -v ^NAME | awk '{print $1}') ; do
     ${helm_binary} plugin update ${hplug}
   done
@@ -100,10 +100,10 @@ if [[ $(uname) == "Darwin" ]] ; then
 
   echo -e "\nUpdating kubectl krew plugins."
   (
-    # change to home dir to pick up .tool-versions for asdf
+    # change to home dir to pick up .tool-versions for mise
     cd ~
-    # ~/.asdf/shims/kubectl krew system receipts-upgrade
-    ~/.asdf/shims/kubectl krew upgrade
+    # ~/.local/share/mise/shims/kubectl krew system receipts-upgrade
+    ~/.local/share/mise/shims/kubectl krew upgrade
   )
 
   # echo -e "\nUpdating password manager." # done via cask
@@ -124,12 +124,12 @@ if [[ $(uname) == "Darwin" ]] ; then
   # done
   brew missing
 
-  if hash asdf 2>/dev/null ; then
-    echo -e "\nUpdating asdf plugins..."
-    $(brew --prefix asdf)/bin/asdf plugin update --all
+  if hash mise 2>/dev/null ; then
+    echo -e "\nUpdating mise plugins..."
+    $(brew --prefix mise)/bin/mise up
     # overwrite ${TOOL_FILE} with new releases
 
-    echo -e "\nUpdating asdf tool versions..."
+    echo -e "\nUpdating mise tool versions..."
     # from https://gist.github.com/ig0rsky/fef7f785b940d13b52eb1b379bd7438d
     TOOL_FILE="${HOME}/.tool-versions"
     if [[ -f ${TOOL_FILE} ]]; then
@@ -152,37 +152,37 @@ if [[ $(uname) == "Darwin" ]] ; then
           nodejs)
             echo "ATTENTION: nodejs install requires libtool PATH workaround github.com/nodejs/node/issues/2341:"
             echo "$ alias libtool=\"/usr/bin/libtool\""
-            echo "$ asdf install nodejs $(asdf latest nodejs ${old_version1%\.*})"
+            echo "$ mise install nodejs $(mise latest nodejs ${old_version1%\.*})"
             echo "$ unalias libtool" ;;
           python)
-            echo "Skipping upgrade of locked asdf plugin \"${tool1}:${old_version1}\""
-            echo "  (latest major/minor version for \"${tool1}\" is $($(brew --prefix asdf)/bin/asdf latest ${tool1}))"
+            echo "Skipping upgrade of locked mise plugin \"${tool1}:${old_version1}\""
+            echo "  (latest major/minor version for \"${tool1}\" is $($(brew --prefix mise)/bin/mise latest ${tool1}))"
             echo "${tool1} ${old_version1}" >> ${TOOL_FILE}.new ;;
           argocd|kubectl|viddy)
-            # ASDF_HASHICORP_OVERWRITE_ARCH_TERRAFORM=x86_64 asdf install terraform 1.0.1
-            echo "Getting latest patch version of asdf plugin \"${tool1}:${old_version1}\"..."
-            echo "  (latest major/minor version for \"${tool1}\" is $($(brew --prefix asdf)/bin/asdf latest ${tool1}))"
+            # ASDF_HASHICORP_OVERWRITE_ARCH_TERRAFORM=x86_64 mise install terraform 1.0.1
+            echo "Getting latest patch version of mise plugin \"${tool1}:${old_version1}\"..."
+            echo "  (latest major/minor version for \"${tool1}\" is $($(brew --prefix mise)/bin/mise latest ${tool1}))"
             # use bash parameter expansion to extract the major and minor version from ${old_version1}
-            new_version1="$($(brew --prefix asdf)/bin/asdf latest ${tool1} ${old_version1%\.*})"
+            new_version1="$($(brew --prefix mise)/bin/mise latest ${tool1} ${old_version1%\.*})"
             # if asdf dropped old_version, above will return emtpy string, so return old_version
             echo "${tool1} ${new_version1:=${old_version1}}" >> ${TOOL_FILE}.new ;;
           example2)
-            echo "Getting latest minor version only of asdf plugin \"${tool}:${old_version1}\"..."
-            echo "  (latest major/minor version for \"${tool1}\" is $($(brew --prefix asdf)/bin/asdf latest ${tool1}))"
+            echo "Getting latest minor version only of mise plugin \"${tool}:${old_version1}\"..."
+            echo "  (latest major/minor version for \"${tool1}\" is $($(brew --prefix mise)/bin/mise latest ${tool1}))"
             # use bash parameter expansion to extract the major version from ${old_version1}
-            new_version1="$($(brew --prefix asdf)/bin/asdf latest ${tool1} ${old_version1%%\.*})"
+            new_version1="$($(brew --prefix mise)/bin/mise latest ${tool1} ${old_version1%%\.*})"
             # if asdf dropped old_version, above will return emtpy string, so return old_version
             echo "${tool1} ${new_version1:=${old_version1}}" >> ${TOOL_FILE}.new ;;
           *)
-            echo "Getting latest major version of asdf plugin \"${tool1}:${old_version1}\"..."
-            new_version1="$($(brew --prefix asdf)/bin/asdf latest ${tool1})"
+            echo "Getting latest major version of mise plugin \"${tool1}:${old_version1}\"..."
+            new_version1="$($(brew --prefix mise)/bin/mise latest ${tool1})"
             # if above returns emtpy string (jq, terraform-docs) or "No compatible versions...", return old_version
             if [[ ${new_version1} == "" || ${new_version1} =~ "compatible" ]]; then
               echo "  WARNING!!! (latest major/minor version for \"${tool1}\" cannot be found!"
               echo "  Reverting to current version: ${old_version1}"
               new_version1=${old_version1}
             else
-              new_version1="$($(brew --prefix asdf)/bin/asdf latest ${tool1} ${old_version1%%\.*})"
+              new_version1="$($(brew --prefix mise)/bin/mise latest ${tool1} ${old_version1%%\.*})"
             fi
             # echo "${tool1} ${new_version1:=${old_version1}}" >> ${TOOL_FILE}.new ;;
             echo "${tool1} ${new_version1}" >> ${TOOL_FILE}.new ;;
@@ -192,11 +192,11 @@ if [[ $(uname) == "Darwin" ]] ; then
       echo -e "Now a diff of the version updates:...\n"
       diff ${TOOL_FILE}.$(/bin/date +%Y%m%d).backup ${TOOL_FILE}.new
       cat ${TOOL_FILE}.new > ${TOOL_FILE} && rm ${TOOL_FILE}.new
-      (cd ${HOME} && $(brew --prefix asdf)/bin/asdf install)
-      asdf reshim python krew
-      echo "Finished updating asdf ${TOOL_FILE}"
+      (cd ${HOME} && $(brew --prefix mise)/bin/mise install)
+      mise reshim python krew
+      echo "Finished updating mise ${TOOL_FILE}"
       # TODO: Remove all unused versions automatically
-      echo "Remove old asdf config files older than 30 days"
+      echo "Remove old mise config files older than 30 days"
       $(brew --prefix findutils)/libexec/gnubin/find ${HOME}/ \
         -mindepth 1 \
         -maxdepth 1 \
@@ -204,7 +204,7 @@ if [[ $(uname) == "Darwin" ]] ; then
         -name ".tool-versions\.*" \
         -mtime +30 \
         -print -delete
-      ( cd ~; asdf install )
+      ( cd ~; mise install )
     fi
   fi
 
