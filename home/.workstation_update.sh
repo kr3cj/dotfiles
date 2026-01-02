@@ -7,9 +7,9 @@ LOG=/var/tmp/workstation_update_$(date +%Y-%m-%d-%H:%M:%S).log
 
 if [[ ${GHA_CI_RUN} != true ]]; then
   echo -e "Backup current macos configs..."
-  defaults read > ~/.homesick/repos/dotfiles_private/home/.macos_current.json
-  # [[ -l ~/.macos_current.json ]] ||   \
-  #  ln -s ~/.homesick/repos/dotfiles_private/home/.macos_current.json ~/.macos_current.json
+  defaults read > ~/.homesick/repos/dotfiles_private/home/.macos_current_$(hostname).json
+  # [[ -l ~/.macos_current_$(hostname).json ]] ||   \
+  #  ln -s ~/.homesick/repos/dotfiles_private/home/.macos_current_$(hostname).json ~/.macos_current_$(hostname).json
 fi
 
 # 3rd party package management
