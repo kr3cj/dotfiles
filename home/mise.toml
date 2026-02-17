@@ -1,0 +1,35 @@
+[settings]
+experimental = true # needed currently for lockfile support
+lockfile = true
+locked = false # will use locked checksum if exists, installs locked version without checksum as a fallback
+# Python from binary builds
+disable_hints = ["python_precompiled"]
+python_compile = false
+
+[tool_alias]
+# awscli from Aqua is weird, use asdf plugin
+awscli = "asdf:https://github.com/MetricMike/asdf-awscli.git"
+# ensure that Poetry uses the mise fork just in case longer term users
+# of mise had different plugins installed
+poetry = "asdf:https://github.com/mise-plugins/mise-poetry.git"
+
+[tools]
+# We use version prefix matches here to ease upgrades.
+# But we utilize lockfiles to ensure exact versions are used.
+# This allows us to specify required version "types" (major/minor/patch) on a per tool basis.
+1password-cli = "2"
+awscli = "2"
+golang = "1"
+helm = "3"
+jq = "1"
+k9s = "0"
+krew = "0"
+kubectl = "1.33"     # minor pinning, should match cluster versions and be updated during cluster upgrades
+minikube = "1"
+python = "3"      # python must be before poetry
+starship = "1"
+steampipe = "1"
+terraform = "1"
+terraform-docs = "0"
+viddy = "1"
+yq = "4"

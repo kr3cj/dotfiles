@@ -1,0 +1,5 @@
+[settings]
+python_compile = true
+[tool_alias]
+# awscli from Aqua is weird, use asdf plugin
+awscli = "asdf:https://github.com/MetricMike/asdf-awscli.git"
