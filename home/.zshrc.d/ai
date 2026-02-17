@@ -1,4 +1,7 @@
 [[ $- = *i* ]] || return 0
 ${IS_MACOS} || return 0
 
-# python -m pip install -U garak
+# python -m pip install -U
+
+export ANTHROPIC_BASE_URL=${CUSTOM_WORK_ANTHROPIC_BASE_URL}
+export ANTHROPIC_AUTH_TOKEN=${CUSTOM_WORK_ANTHROPIC_TOKEN}

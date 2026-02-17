@@ -75,6 +75,7 @@ brew "uv"
 # AI tools
 brew "gemini-cli"
 brew "sst/tap/opencode"
+brew "atlassian/homebrew-acli"
 brew "ripgrep"
 # copilot cli but https://github.com/github/copilot-cli/issues/19
 
@@ -128,8 +129,6 @@ cask_args appdir: '~/Applications'
 
 # cask "alfred"
 cask "firefox"
-cask "font-fira-code"
-cask "font-fira-code-nerd-font"
 cask "gimp"
 # cask "goland"
 # cask "intellij-idea"
@@ -139,6 +138,7 @@ cask "iterm2"
 # cask "librecad"
 # cask "pycharm-ce"
 cask "raspberry-pi-imager"
+cask "claude-code"
 
 # now install system casks
 cask_args appdir: '/Applications'
