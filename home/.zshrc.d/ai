@@ -3,5 +3,6 @@ ${IS_MACOS} || return 0
 
 # python -m pip install -U
 
-export ANTHROPIC_BASE_URL=${CUSTOM_WORK_ANTHROPIC_BASE_URL}
-export ANTHROPIC_AUTH_TOKEN=${CUSTOM_WORK_ANTHROPIC_TOKEN}
+# disable while we trial Claude Code+Cowork Natively
+# export ANTHROPIC_BASE_URL=${CUSTOM_WORK_ANTHROPIC_BASE_URL}
+# export ANTHROPIC_AUTH_TOKEN=${CUSTOM_WORK_ANTHROPIC_TOKEN}

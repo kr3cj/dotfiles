@@ -106,6 +106,14 @@ if [[ $(uname) == "Darwin" ]] ; then
     ~/.local/share/mise/shims/kubectl krew upgrade
   )
 
+  if hash claude 2>/dev/null ; then
+    echo -e "\nUpdating claud code plugins."
+    # claude_binary="$($(brew --prefix mise)/bin/mise where claude)/$(uname)-$(arch)/claude"
+    for plugin1 in $(claude plugin list --json | jq -r '.[].id') ; do
+      claude update ${plugin1}
+    done
+  fi
+
   # echo -e "\nUpdating password manager." # done via cask
   # /usr/local/bin/op update
 
