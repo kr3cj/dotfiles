@@ -8,7 +8,7 @@
 
 # test that we are on macos
 if ! [[ $(uname) == "Darwin" ]]; then
-  return 0
+  exit 0
 fi
 
 # use old style path building since we're in bash
@@ -31,36 +31,29 @@ elif [[ -e /opt/homebrew/bin/timeout ]]; then
 elif [[ -e /usr/bin/timeout ]]; then
   timeout_path=/usr/bin/timeout
 fi
-if ! /usr/bin/hash $(brew --prefix curl)/bin/curl 2>/dev/null && ${timeout_path} 3 $(brew --prefix curl)/bin/curl github.com; then
-  return 0
+export curl_path
+if [[ -x "${BASE_PATH}/opt/curl/bin/curl" ]]; then
+  curl_path="${BASE_PATH}/opt/curl/bin/curl"
+elif [[ -x "${BASE_PATH}/bin/curl" ]]; then
+  curl_path="${BASE_PATH}/bin/curl"
+else
+  curl_path="/usr/bin/curl"
+fi
+if ! /usr/bin/hash "${curl_path}" 2>/dev/null; then
+  exit 0
+fi
+if [[ -n "${timeout_path}" ]] && ! "${timeout_path}" 3 "${curl_path}" --silent --head --fail https://github.com > /dev/null 2>&1; then
+  exit 0
 fi
 
 function _socks_proxy_is_alive {
-  local host1=${1}
   local proxy_port1=${2}
-  $(brew --prefix curl)/bin/curl --connect-timeout 5 --silent \
-   --head --fail --socks5-hostname localhost:${proxy_port1} https://www.cloudflare.com/cdn-cgi/trace
-  if [[ ${?} -gt 0 ]] ; then
-    return 1
-  else
+  # Check if an ssh process is listening on the SOCKS port locally
+  if /usr/sbin/lsof -nPiTCP:${proxy_port1} -sTCP:LISTEN -c ssh > /dev/null 2>&1; then
     return 0
+  else
+    return 1
   fi
-
-  # local sourcesite="https://api.ipify.org?format=yaml" # https://checkip.dyndns.org https://ifconfig.me
-  # local host1_ip="$(/usr/bin/dig @1.1.1.1 +short ${host1} | $(brew --prefix grep)/libexec/gnubin/grep '^[.0-9]*$' | tail -n1)"
-  # if [[ "${host1_ip}" == "" ]]; then
-  #   echo "$(date -Iseconds) ERROR: unable to resolve ${host1} to an ip address; quitting"
-  #   return 1
-  # fi
-  # local response
-  # response="$($(brew --prefix curl)/bin/curl --connect-timeout 5 --silent --socks5 \
-  #  localhost:${proxy_port1} ${sourcesite} \
-  #  | $(brew --prefix grep)/libexec/gnubin/grep '^[.0-9]*$' | tail -n1)"
-  # if [[ "${response}" == "${host1_ip}" ]] ; then
-  #   return 0
-  # else
-  #   return 1
-  # fi
 }
 function _create_socks_proxy {
   local host1=${1}
@@ -75,17 +68,16 @@ function _create_socks_proxy {
 
   if ! _socks_proxy_is_alive ${host1} ${proxy_port1}; then
     echo "$(date -Iseconds) WARN: socks proxy not connected/working; first kill any old sessions"
-    /usr/bin/pgrep -f "/usr/bin/ssh ${ssh_proxy_options}${proxy_port1}.*" && \
-    /usr/bin/pkill -f "/usr/bin/ssh ${ssh_proxy_options}${proxy_port1}.*"
-
-    if ! port ${host1}:${ssh_port1} &> /dev/null; then
-      echo "$(date -Iseconds) ERROR: Skipping ${funcstack[1]}; unable to connect to \"${host1}:${ssh_port1}\" at $(date)."
-      return 1
-    else
-      # echo "$(date -Iseconds) INFO: attempting ssh tunnel with ${host1}:${proxy_port1} \"${host1}\")"
-      eval "/usr/bin/ssh ${ssh_proxy_options} ${proxy_port1} -p ${ssh_port1} ${host1}"
-      [[ ${?} -eq 0 ]] && echo "$(date -Iseconds) INFO: established ssh tunnel with ${host1}:${proxy_port1}"
+    local existing_ssh_pid
+    existing_ssh_pid=$(/usr/sbin/lsof -tiTCP:${proxy_port1} -sTCP:LISTEN -c ssh 2>/dev/null | /usr/bin/head -n1)
+    if [[ -n "${existing_ssh_pid}" ]]; then
+      echo "$(date -Iseconds) INFO: killing stale ssh process ${existing_ssh_pid}"
+      /bin/kill "${existing_ssh_pid}"
     fi
+
+    # Connect without a raw TCP pre-check (which causes invalid protocol errors on the target)
+    /usr/bin/ssh ${ssh_proxy_options} "${proxy_port1}" -p "${ssh_port1}" "${host1}"
+    [[ ${?} -eq 0 ]] && echo "$(date -Iseconds) INFO: established ssh tunnel with ${host1}:${proxy_port1}"
   else
     [[ ${VERBOSE} -ge 1 ]] && echo "$(date -Iseconds) INFO: socks proxy already connected/working; skipping"
   fi
