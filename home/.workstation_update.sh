@@ -222,6 +222,7 @@ if [[ $(uname) == "Darwin" ]] ; then
   fi
 
   /bin/rm -vr ~/.gradle/caches/* 2> /dev/null || echo
+  $(brew --prefix findutils)/libexec/gnubin/find ~/.cache/uv/archive-v0/ -mindepth 1 -maxdepth 1 -type d -mtime +30 -print -exec rm -r '{}' +
   /bin/rm -vr ~/.ivy2/{local,cache}/* 2> /dev/null || echo
   /bin/rm -vr ~/Library/Containers/com.apple.mail/Data/Library/Mail\ Downloads/* 2> /dev/null || echo
   if [[ ${GHA_CI_RUN} != true ]]; then
