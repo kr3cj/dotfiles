@@ -76,6 +76,7 @@ brew "uv"
 brew "gemini-cli"
 brew "sst/tap/opencode"
 brew "atlassian/homebrew-acli"
+brew "databricks/tap/databricks"
 brew "ripgrep"
 # copilot cli but https://github.com/github/copilot-cli/issues/19
 
