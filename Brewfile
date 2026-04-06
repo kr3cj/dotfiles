@@ -32,7 +32,7 @@ brew "wget"
 ### install newer utilities
 brew "bash"
 brew "file-formula"
-brew "gh"
+# brew "gh" # use mise instead
 brew "git"
 brew "less"
 brew "liquidprompt"
@@ -57,31 +57,31 @@ brew "docker-buildx"
 brew "docker-compose"
 # brew "dos2unix"
 # brew "ec2-instance-selector"
-brew "fzf"
+# brew "fzf" # use mise instead
 brew "gnu-getopt"
-brew "hub"
+brew "hub" # use mise instead but not working with "arm" using version "v2"
 brew "mas"
 brew "mise"
 brew "mtr"
 brew "nmap"
 brew "pstree"
-brew "shellcheck"
-# brew "sslyze" # no bottle for Apple Silicon
+# brew "shellcheck" # use mise instead
+# brew "sslyze" # no bottle for Apple Silicon; using certigo instead
 brew "step"
 brew "tmux"
 brew "tree"
 brew "reattach-to-user-namespace"
-brew "uv"
+# brew "uv" # use mise instead
 # AI tools
-brew "gemini-cli"
-brew "sst/tap/opencode"
+# brew "gemini-cli"
+# brew "sst/tap/opencode"
 brew "atlassian/homebrew-acli"
 brew "databricks/tap/databricks"
-brew "ripgrep"
+# brew "ripgrep" # use mise instead
 # copilot cli but https://github.com/github/copilot-cli/issues/19
 
 ### load testing clients
-brew "hey"
+brew "hey" # use mise instead but not working
 brew "siege"
 # brew "artillery"
 # brew "gauntlet"
@@ -90,16 +90,17 @@ brew "siege"
 # brew "android-platform-tools"
 # brew "ansible"
 brew "go"
-brew "golang"
+# brew "golang" # use mise instead
+brew "granted" # use mise instead - but cannot find v0.39.0
 brew "jid"
 brew "make"
 # brew "maven"
 # brew "mysql-client"
 # brew "node" # use mise nodejs instead
 # brew "perl518" # tap homebrew/versions
-brew "python@3.13"
+brew "python@3.14" # use mise instead but required by nmap and vim
 # brew "rbenv"
-# brew "ruby"
+brew "ruby" # use mise instead but required by vim
 # brew "ruby-build"
 # brew "svn"
 # brew "terraform_landscape"
@@ -139,7 +140,7 @@ cask "iterm2"
 # cask "librecad"
 # cask "pycharm-ce"
 cask "raspberry-pi-imager"
-cask "claude-code"
+# cask "claude-code" # use mise instead
 
 # now install system casks
 cask_args appdir: '/Applications'
@@ -151,7 +152,7 @@ cask "github"
 cask "spotify"
 cask "visual-studio-code"
 # cask "warp"
-# cask "wireshark"
+cask "wireshark"
 
 ### App Store installs won't work until authenticated to apple account
 mas "CopyClip", id: 595191960

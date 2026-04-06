@@ -1,5 +1,65 @@
+# See https://mise.jdx.dev/registry.html#tools or https://github.com/mise-plugins/ or "mise plugins ls --urls"
 [settings]
-python_compile = true
+experimental = true # needed currently for lockfile support
+lockfile = true
+locked = false # will use locked checksum if exists, installs locked version without checksum as a fallback
+# Python from binary builds
+disable_hints = ["python_precompiled"]
+python_compile = false
+
 [tool_alias]
 # awscli from Aqua is weird, use asdf plugin
 awscli = "asdf:https://github.com/MetricMike/asdf-awscli.git"
+# opencode = "aqua:anomalyco/opencode"
+# ensure that Poetry uses the mise fork just in case longer term users
+# of mise had different plugins installed
+poetry = "asdf:https://github.com/mise-plugins/mise-poetry.git"
+pup = "github:DataDog/pup"
+
+[tools]
+# We use version prefix matches here to ease upgrades.
+# But we utilize lockfiles to ensure exact versions are used.
+# This allows us to specify required version "types" (major/minor/patch) on a per tool basis.
+1password-cli = "latest"
+fzf = "latest"
+gh = "latest"
+grpcurl = "1"
+helm = "4"
+helm-docs = "1"
+# hey = "0" # not working https://github.com/mise-plugins/mise-hey
+# hub = "latest" # ?using go because it gets me an aarm64 binary, all other methods get x86_64 (https://github.com/mise-plugins/asdf-hub)
+jq = "1"
+k9s = "0"
+krew = "0"
+kubectl = "1"
+kubent = "0"
+python = "3"
+ripgrep = "latest"
+shellcheck = "0"
+starship = "1"
+uv = "latest"
+viddy = "1"
+yq = "4"
+
+# work
+# argo = "latest"
+awscli = "2"
+claude = "latest"
+golang = "1"
+golangci-lint = "2"
+# gradle = "latest"
+# granted = "latest" # moved to "fwdcloudsec:granted"?
+# iam-policy-json-to-terraform = "1"
+# java = "corretto-25"
+# minikube = "1"
+# nodejs = "25"
+pup = "latest"
+# ruby = "4"
+# rust = "latest"
+steampipe = "2"
+terraform = "1"
+terraform-docs = "0"
+terraform-ls = "latest"
+terraform-validator = "3"
+tflint = "0"
+tfsec = "1"
