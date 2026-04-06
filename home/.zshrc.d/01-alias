@@ -67,6 +67,16 @@ function decode-jwt() {
   fi
 }
 
+function epoch-to-date() {
+  local epoch=${1}
+  if [[ -z "${epoch}" ]]; then
+    echo "Usage: ${funcstack[1]} <seconds-since-epoch>"
+    return 1
+  fi
+  date -d "@${epoch}" +%Y-%m-%d-%H:%M:%S 2>/dev/null \
+    || date -r "${epoch}" +%Y-%m-%d-%H:%M:%S
+}
+
 function find-error() {
   grep -A2 -B2 -riHE 'DENIED|ERR|EXIST|FAIL|INVALID|SPECIFIED|SUCH|UNABLE|WARN|USAGE:|UNKNOWN|:\ LINE\ [0-9]' ${1} \
   | grep -v ierra \
