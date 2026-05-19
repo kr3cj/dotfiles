@@ -10,6 +10,9 @@ export AWS_DEFAULT_REGION=us-east-1 # aws configure list | grep region | awk '{p
 # export AWS_PROFILE=${CUSTOM_WORK_DEFAULT_AWS_PROFILE}
 export MY_PROFILE=${CUSTOM_WORK_DEFAULT_AWS_PROFILE}
 
+export GRANTED_ALIAS_CONFIGURED="true"
+alias assume=". assume"
+
 function map-ec2-id-from-pod() {
   # only requires kube config with correct context and namespace set
   basename "$(kubectl --context ${1} \

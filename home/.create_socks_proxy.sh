@@ -90,6 +90,7 @@ source ~/.zshrc.d/01-alias
 ip_address=$(/sbin/ifconfig 2> /dev/null | grep 'inet ' | grep -v '127.0.0.1' | awk '{print $2}' | tr "\n" ' ')
 case "${ip_address}" in
   *${CUSTOM_HOME_SUBNET%.*\.}.2.*)
+    # need a better way to detect if we're at home vs a coffee shop
     [[ ${VERBOSE} -ge 1 ]] && echo "at home"
     SOCKS_HOST="${CUSTOM_HOME_SOCKS_LOCAL}"
     SSH_PORT="22"

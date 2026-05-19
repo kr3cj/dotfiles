@@ -3,7 +3,8 @@ ${IS_MACOS} || return 0
 
 # remote host for container tools (https://docs.docker.com/engine/security/https/)
 export DOCKER_REGISTRY="${CUSTOM_WORK_DEFAULT_AWS_ACCT}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com"
-export DOCKER_HOST="unix:///${HOME}/.colima/docker.sock"
+# export DOCKER_HOST="unix://${HOME}/.colima/default/docker.sock" # use "docker context use colima" instead
+export DOCKER_CONTEXT=colima
 
 # function docker () {
 #   if [[ ${@} =~ pull ]] && ! [[ ${@} =~ public.ecr.aws ]] && ! [[ ${@} =~ .com/ ]] && ! [[ ${@} =~ .io/ ]]; then

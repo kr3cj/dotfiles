@@ -5,7 +5,7 @@ lockfile = true
 locked = false # will use locked checksum if exists, installs locked version without checksum as a fallback
 # Python from binary builds
 disable_hints = ["python_precompiled"]
-python_compile = false
+# python_compile = false
 
 [tool_alias]
 # awscli from Aqua is weird, use asdf plugin

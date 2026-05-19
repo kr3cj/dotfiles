@@ -67,14 +67,16 @@ function decode-jwt() {
   fi
 }
 
-function epoch-to-date() {
+function epoch() {
   local epoch=${1}
   if [[ -z "${epoch}" ]]; then
     echo "Usage: ${funcstack[1]} <seconds-since-epoch>"
     return 1
   fi
-  date -d "@${epoch}" +%Y-%m-%d-%H:%M:%S 2>/dev/null \
-    || date -r "${epoch}" +%Y-%m-%d-%H:%M:%S
+  if [[ ${#epoch} -gt 10 ]]; then
+    echo "Warning: input is ${#epoch} digits, only using the first 10"
+  fi
+  date -d "@${epoch:0:10}" +%Y-%m-%d-%H:%M:%S 2>/dev/null
 }
 
 function find-error() {
@@ -134,7 +136,7 @@ function sudo()
       echo ""
       read "?Push enter when sudo is auth'd by corporate software..."
     fi
-    passman "$(hostname) macbook"
+    passman "$(hostname)"
   fi
   $(whence -p sudo) ${@}
 }
@@ -228,7 +230,7 @@ if [[ "${IS_MACOS}" == "true" ]]; then
   function psql-client {
     # usage: psql-client cluster1 short-rds-host1 user1 dbname1
     # spin up a throwaway container in k8s for querying RDS
-    postgresql://${3}@${2}.${AWS_DEFAULT_REGION}.rds.amazonaws.com:5432/${4}
+    # postgresql://${3}@${2}.${AWS_DEFAULT_REGION}.rds.amazonaws.com:5432/${4}
     kubectl --context ${1} run tmp-shell --rm -i --tty \
      --image jbergknoff/postgresql-client -- \
       postgresql://${3}@${2}.${AWS_DEFAULT_REGION}.rds.amazonaws.com/${4}"
