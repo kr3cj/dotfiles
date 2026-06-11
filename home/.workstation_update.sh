@@ -107,6 +107,8 @@ if [[ $(uname) == "Darwin" ]] ; then
   )
 
   if hash claude 2>/dev/null ; then
+    echo -e "\nCopy contents of ~/.claude.json to symlinked and versioned file since Claude destroys symlink."
+    cp -av ~/.claude.json ~/.homesick/repos/dotfiles_private/home/.claude.json
     echo -e "\nUpdating claud code plugins."
     # claude_binary="$($(brew --prefix mise)/bin/mise where claude)/$(uname)-$(arch)/claude"
     for plugin1 in $(claude plugin list --json | jq -r '.[].id') ; do
