@@ -89,6 +89,7 @@ brew "siege"
 ### dev stuff
 # brew "android-platform-tools"
 # brew "ansible"
+brew "gitleaks"
 brew "go"
 # brew "golang" # use mise instead
 brew "granted" # use mise instead - but cannot find v0.39.0

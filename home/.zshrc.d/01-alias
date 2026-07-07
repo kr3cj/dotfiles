@@ -54,6 +54,7 @@ function bashcurl {
 }
 
 function decode-jwt() {
+  echo "See also https://jwtui.cli.rs for a terminal based UI for decoding/encoding JWT..."
   # Decode the JWT token (using base64 and jq)
   local auth_token=${1}
   if [[ -z "${auth_token}" ]]; then
@@ -136,7 +137,8 @@ function sudo()
       echo ""
       read "?Push enter when sudo is auth'd by corporate software..."
     fi
-    passman "$(hostname)"
+    # passman "$(hostname)"
+    passman "${CUSTOM_WORK_DOMAINS[1]/.com} ${CUSTOM_WORK_SSO_PROVIDER}"
   fi
   $(whence -p sudo) ${@}
 }

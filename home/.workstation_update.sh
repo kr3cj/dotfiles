@@ -176,6 +176,8 @@ if [[ $(uname) == "Darwin" ]] ; then
             new_version1="$($(brew --prefix mise)/bin/mise latest ${tool1} ${old_version1%\.*})"
             # if asdf dropped old_version, above will return emtpy string, so return old_version
             echo "${tool1} ${new_version1:=${old_version1}}" >> ${TOOL_FILE}.new ;;
+          # jiffy)
+            # mise up github:Ibotta/jiffy ;;
           example2)
             echo "Getting latest minor version only of mise plugin \"${tool}:${old_version1}\"..."
             echo "  (latest major/minor version for \"${tool1}\" is $($(brew --prefix mise)/bin/mise latest ${tool1}))"
