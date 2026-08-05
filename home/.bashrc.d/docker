@@ -18,6 +18,7 @@ function docker-login () {
   # AWS ECR Repository for EKS Add-On images. See Amazon container image registries - Amazon EKS
   aws --profile=${MY_PROFILE}-mono-production ecr get-login-password --region ${AWS_DEFAULT_REGION} | \
     docker login --username AWS --password-stdin 602401143452.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com
+  # $(brew --prefix docker)/bin/docker login ${CUSTOM_WORK_JFROG_SUBDOMAIN}.jfrog.io
 }
 
 alias docker-clean="sudo docker system prune --all --force --volumes"

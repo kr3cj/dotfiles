@@ -93,9 +93,10 @@ if ${IS_MACOS}; then
   sudo rm -rf /Applications/{iMovie.app,GarageBand.app,Pages.app,Numbers.app}
 
   # docker/colima
-  /opt/homebrew/bin/colima start
-  mkdir -p ~/.docker/cli-plugins
-  ln -sfn /opt/homebrew/opt/docker-buildx/bin/docker-buildx ~/.docker/cli-plugins/docker-buildx
+  mkdir -p "${HOME}/.docker/cli-plugins"
+  ln -sfn "$(brew --prefix docker-compose)/bin/docker-compose" "${HOME}/.docker/cli-plugins/docker-compose"
+  ln -sfn "$(brew --prefix docker-buildx)/bin/docker-buildx "${HOME}/.docker/cli-plugins/docker-buildx"
+  ${BASE_PATH}/bin/colima start
 
   # TODO: use openvpn to connect to Mullvad via CLI
   #  https://helpdesk.privateinternetaccess.com/hc/en-us/articles/219437987-Installing-OpenVPN-PIA-on-MacOS
