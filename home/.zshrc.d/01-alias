@@ -1,7 +1,7 @@
 #  troubleshooting
 # [[ ${HISTSIZE} -lt 1000000 ]] && echo -e "\nSomething has overridden \${HISTSIZE} to ${HISTSIZE}!!!\n"
 
-[[ -f ~/.base_homeshick_vars ]] && source ~/.base_homeshick_vars
+# [[ -f ~/.base_homeshick_vars ]] && source ~/.base_homeshick_vars
 
 alias egrep='egrep --color=always'
 alias fgrep='fgrep --color=always'

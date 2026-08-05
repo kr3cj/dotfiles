@@ -1,6 +1,4 @@
 export GHA_CI_RUN="${GHA_CI_RUN:-false}"
-[[ -f ~/.base_homeshick_vars ]] && source ~/.base_homeshick_vars
-
 export MYSHELL=$(printf "%s\n" $0)
 
 # impatiently detect healthy internet connectivity; prereq for passwd mgr stuff
@@ -38,6 +36,28 @@ case "$(uname -m)" in
   arm64)
     export IS_ARM="true"
 esac
+
+if ${IS_MACOS}; then
+  ### Functions for setting and getting environment variables from the OSX keychain ###
+  ### Adapted from https://gist.github.com/bmhatfield/f613c10e360b4f27033761bbee4404fd ###
+  # Use: keychain-environment-variable SECRET_ENV_VAR
+  function keychain-environment-variable () {
+    # [[ -z ${1} ]] &&
+    security find-generic-password -w -a ${USER} -D "environment variable" -s "${1}"
+  }
+  # Use: set-keychain-environment-variable SECRET_ENV_VAR
+  #   provide: super_secret_key_abc123
+  function set-keychain-environment-variable () {
+    [ -n "${1}" ] || print "Missing environment variable name"
+
+    # Note: if using bash, use `-p` to indicate a prompt string, rather than the leading `?`
+    read -s "?Enter Value for ${1}: " secret
+
+    ( [ -n "${1}" ] && [ -n "$secret" ] ) || return 1
+    security add-generic-password -U -a ${USER} -D "environment variable" -s "${1}" -w "${secret}"
+  }
+fi
+[[ -f ~/.base_homeshick_vars ]] && source ~/.base_homeshick_vars
 
 if [[ -d ${HOME}/.zshrc.d ]]; then
   for dotd in $(find ${HOME}/.zshrc.d -follow -type f -not -name '*.disabled' | sort); do
