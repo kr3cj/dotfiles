@@ -77,6 +77,9 @@ if [[ $(uname) == "Darwin" ]] ; then
         # docker|github|iterm2|slack|zoom
       android-file-transfer|brave-browser|github|microsoft-edge|spotify|visual-studio-code|wireshark)
         echo "Skipping cask \"${cask1}\" that should auto update itself" ;;
+      ${CUSTOM_WORK_DOMAINS[0]/.com/}/private/*)
+        echo "Upgrade private ${CUSTOM_WORK_DOMAINS[0]/.com/} package"
+        brew install ${cask1}
       *)
         echo "Upgrading cask \"${cask1}\"..."
         brew upgrade --cask ${cask1} ;;
@@ -107,6 +110,8 @@ if [[ $(uname) == "Darwin" ]] ; then
   )
 
   if hash claude 2>/dev/null ; then
+    echo -e "\n Updating claude plugins."
+    claude plugin marketplace update ${CUSTOM_WORK_DOMAINS[0]/.com}
     echo -e "\nCopy contents of ~/.claude.json to symlinked and versioned file since Claude destroys symlink."
     cp -av ~/.claude.json ~/.homesick/repos/dotfiles_private/home/.claude.json
     echo -e "\nUpdating claud code plugins."
@@ -177,7 +182,7 @@ if [[ $(uname) == "Darwin" ]] ; then
             # if asdf dropped old_version, above will return emtpy string, so return old_version
             echo "${tool1} ${new_version1:=${old_version1}}" >> ${TOOL_FILE}.new ;;
           # jiffy)
-            # mise up github:Ibotta/jiffy ;;
+            # mise up github:${CUSTOM_WORK_DOMAINS[0]/.com}/jiffy ;;
           example2)
             echo "Getting latest minor version only of mise plugin \"${tool}:${old_version1}\"..."
             echo "  (latest major/minor version for \"${tool1}\" is $($(brew --prefix mise)/bin/mise latest ${tool1}))"

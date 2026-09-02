@@ -77,6 +77,7 @@ brew "reattach-to-user-namespace"
 # brew "sst/tap/opencode"
 brew "atlassian/homebrew-acli"
 brew "databricks/tap/databricks"
+brew "datadog/lapdog/lapdog" # expat + python@3.13
 # brew "ripgrep" # use mise instead
 # copilot cli but https://github.com/github/copilot-cli/issues/19
 

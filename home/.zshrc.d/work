@@ -58,6 +58,7 @@ function work_main-sso {
         datadog*|pagerduty*|oidc_client*)
           if [[ $(/bin/date +%u) -eq 1 ]] ; then
             echo "Authenticating ${domain1/\/*} (weekly)..."
+            jiffy login
             open -n -a "Brave Browser" --args \
             "https://${CUSTOM_WORK_DOMAINS[1]/.com}.${CUSTOM_WORK_SSO_PROVIDER}.com/home/${domain1}?fromPlugin=true" --profile-directory="Default"
           fi

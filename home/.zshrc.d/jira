@@ -1,0 +1,4 @@
+[[ $- = *i* ]] || return 0
+
+export JIRA_BASE_URL=https://${CUSTOM_WORK_DOMAINS[1]/.com}.atlassian.net
+export JIRA_EMAIL=${JIRA_USERNAME}
