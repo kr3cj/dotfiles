@@ -83,7 +83,6 @@ function _create_socks_proxy {
   fi
 }
 
-source ~/.base_homeshick_vars
 source ~/.zshrc.d/01-alias
 
 # grab all ip addresses

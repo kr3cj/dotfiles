@@ -3,7 +3,7 @@
 ```
 Not logged in.
 Success: Logged in as lastpass@${CUSTOM_HOME_DOMAIN}.
-Must re-authenticate with VAULT (https://vault.${CUSTOM_WORK_DOMAINS[4]}:8200...)
+Must re-authenticate with VAULT (https://vault.${CUSTOM_WORK_DOMAIN_INTERNAL}:8200...)
 Password (will be hidden):
 Enter passphrase for ${HOME}/.ssh/id_rsa:
 Identity added: ${HOME}/.ssh/id_rsa (${HOME}/.ssh/id_rsa)
@@ -13,8 +13,8 @@ Lifetime set to 36000 seconds
 Identity added: ${HOME}/.ssh/id_rsa_coreos (${HOME}/.ssh/id_rsa_coreos)
 Lifetime set to 36000 seconds
 net.link.ether.inet.arp_unicast_lim: 0 -> 1
-Establishing ssh tunnel with ${CUSTOM_WORK_LDAP_NAME}@forinf2.${CUSTOM_WORK_DOMAINS[1]}:2002...
-Establishing ssh tunnel with ${CUSTOM_WORK_LDAP_NAME}@laxinf2.${CUSTOM_WORK_DOMAINS[1]}:2003...
+Establishing ssh tunnel with ${CUSTOM_WORK_LDAP_NAME}@forinf2.${CUSTOM_WORK_DOMAIN_EXTERNAL}:2002...
+Establishing ssh tunnel with ${CUSTOM_WORK_LDAP_NAME}@laxinf2.${CUSTOM_WORK_DOMAIN_EXTERNAL}:2003...
 Establishing ssh tunnel with ${LOGNAME/\.*/}@${CUSTOM_HOME_DOMAIN}:2000...
 ${LOGNAME/\.*/}@home.${CUSTOM_HOME_DOMAIN}'s password:
 net.link.ether.inet.arp_unicast_lim: 3 -> 1

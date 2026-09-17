@@ -30,7 +30,7 @@ function mount_home_nfs {
 
 # function on_vpn {
 #   return $(curl --fail --fail-early --max-time 1 --silent -o /dev/null \
-#    https://argo-cd.ops.int.${CUSTOM_WORK_DOMAINS[2]})
+#    https://argo-cd.ops.int.${CUSTOM_WORK_DOMAIN_EXTERNAL})
 # }
 function work_main-sso {
   local domain1
@@ -44,12 +44,12 @@ function work_main-sso {
       sleep 5
     fi
     echo "Authenticating ${CUSTOM_WORK_SSO_PROVIDER}..."
-    open -n -a "Brave Browser" --args "https://${CUSTOM_WORK_DOMAINS[1]/.com}.${CUSTOM_WORK_SSO_PROVIDER}.com" --profile-directory="Default"
+    open -n -a "Brave Browser" --args "https://${CUSTOM_WORK_DOMAIN_EXTERNAL/.com}.${CUSTOM_WORK_SSO_PROVIDER}.com" --profile-directory="Default"
     sleep 15
     _work_cloud-sso
 
     echo "Authenticating Claude apps..."
-    claude auth login --email ${USER}@${CUSTOM_WORK_DOMAINS[1]} --sso
+    claude auth login --email ${USER}@${CUSTOM_WORK_DOMAIN_EXTERNAL} --sso
 
     session_is_active ${CUSTOM_WORK_SSO_PROVIDER} "43200 seconds" || true # 12h
     echo "Authenticating web apps requiring daily/weekly SSO..."
@@ -60,12 +60,12 @@ function work_main-sso {
             echo "Authenticating ${domain1/\/*} (weekly)..."
             jiffy login
             open -n -a "Brave Browser" --args \
-            "https://${CUSTOM_WORK_DOMAINS[1]/.com}.${CUSTOM_WORK_SSO_PROVIDER}.com/home/${domain1}?fromPlugin=true" --profile-directory="Default"
+            "https://${CUSTOM_WORK_DOMAIN_EXTERNAL/.com}.${CUSTOM_WORK_SSO_PROVIDER}.com/home/${domain1}?fromPlugin=true" --profile-directory="Default"
           fi
           ;;
         *)
           echo "Authenticating ${domain1/\/*} (daily)..."
-          open -n -a "Brave Browser" --args "https://${CUSTOM_WORK_DOMAINS[1]/.com}.${CUSTOM_WORK_SSO_PROVIDER}.com/home/${domain1}?fromPlugin=true" --profile-directory="Default" ;;
+          open -n -a "Brave Browser" --args "https://${CUSTOM_WORK_DOMAIN_EXTERNAL/.com}.${CUSTOM_WORK_SSO_PROVIDER}.com/home/${domain1}?fromPlugin=true" --profile-directory="Default" ;;
       esac
     done
     if [[ $(/bin/date +%u) -eq 1 ]]; then

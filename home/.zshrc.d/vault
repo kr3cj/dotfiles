@@ -3,7 +3,7 @@ ${IS_MACOS} || return 0
 return 0
 
 export VAULT_REACHABLE="true"
-export VAULT_ADDR="https://vault.${CUSTOM_WORK_DOMAINS[2]}:8200"
+export VAULT_ADDR="https://vault.${CUSTOM_WORK_DOMAIN_INTERNAL}:8200"
 export VAULT_CLIENT_TIMEOUT=2
 export VAULT_MAX_RETRIES=5
 # export VAULT_MFA=#TODO

@@ -170,7 +170,7 @@ if [[ "${IS_MACOS}" == "true" ]]; then
   }
 
   function alfred {
-    passman  "${CUSTOM_WORK_DOMAINS[0]/.com/} macbook" || echo "Unable to cache pw."
+    passman  "${CUSTOM_WORK_DOMAIN_EXTERNAL/.com/} macbook" || echo "Unable to cache pw."
     $(which alfred) ${*}
     # $(which alfred) "${@}"
   }
@@ -261,8 +261,8 @@ if [[ "${IS_MACOS}" == "true" ]]; then
       shift
       local use_ssm=\"false\"
       case \"\${host1}\" in
-        ${CUSTOM_WORK_SUBNET}*|$(echo ${CUSTOM_WORK_DOMAINS[@]/#/*.}|tr ' ' '|'))
-          passman  \"${CUSTOM_WORK_DOMAINS[0]/.com/} ${CUSTOM_WORK_SSO_PROVIDER}\";;
+        ${CUSTOM_WORK_SUBNET}*|$(echo ${CUSTOM_WORK_DOMAIN_EXTERNAL/#/*.}|tr ' ' '|'))
+          passman  \"${CUSTOM_WORK_DOMAIN_EXTERNAL/.com/} ${CUSTOM_WORK_SSO_PROVIDER}\";;
         herky*)
           passman \"herky.${CUSTOM_HOME_NAS_HOST#*\.}\" ;;
         ip-10-*)

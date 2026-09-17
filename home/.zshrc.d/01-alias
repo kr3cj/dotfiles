@@ -1,8 +1,6 @@
 #  troubleshooting
 # [[ ${HISTSIZE} -lt 1000000 ]] && echo -e "\nSomething has overridden \${HISTSIZE} to ${HISTSIZE}!!!\n"
 
-# [[ -f ~/.base_homeshick_vars ]] && source ~/.base_homeshick_vars
-
 alias egrep='egrep --color=always'
 alias fgrep='fgrep --color=always'
 alias grep='grep --color=always'
@@ -90,6 +88,26 @@ function joke() {
   curl https://icanhazdadjoke.com; echo
 }
 
+### Functions for setting and getting environment variables from the OSX keychain ###
+### Adapted from https://gist.github.com/bmhatfield/f613c10e360b4f27033761bbee4404fd ###
+# Use: keychain-environment-variable SECRET_ENV_VAR
+function keychain-environment-variable () {
+  # [[ -z ${1} ]] &&
+  security find-generic-password -w -a ${USER} -D "environment variable" -s "${1}"
+}
+# Use: set-keychain-environment-variable SECRET_ENV_VAR
+#   provide: super_secret_key_abc123
+function set-keychain-environment-variable () {
+  [ -n "${1}" ] || print "Missing environment variable name"
+
+  # Note: if using bash, use `-p` to indicate a prompt string, rather than the leading `?`
+  read -s "?Enter Value for ${1}: " secret
+
+  ( [ -n "${1}" ] && [ -n "$secret" ] ) || return 1
+  security add-generic-password -U -a ${USER} -D "environment variable" -s "${1}" -w "${secret}"
+}
+[[ -f ~/.base_homeshick_vars ]] && source ~/.base_homeshick_vars
+
 function port {
   # strip http.* from parameter
   local host1=${1#*//}
@@ -138,7 +156,7 @@ function sudo()
       read "?Push enter when sudo is auth'd by corporate software..."
     fi
     # passman "$(hostname)"
-    passman "${CUSTOM_WORK_DOMAINS[1]/.com} ${CUSTOM_WORK_SSO_PROVIDER}"
+    passman "${CUSTOM_WORK_DOMAIN_EXTERNAL/.com} ${CUSTOM_WORK_SSO_PROVIDER}"
   fi
   $(whence -p sudo) ${@}
 }
@@ -185,7 +203,7 @@ if [[ "${IS_MACOS}" == "true" ]]; then
   }
 
   function alfred {
-    passman  "${CUSTOM_WORK_DOMAINS[1]/.com/} macbook" || echo "Unable to cache pw."
+    passman  "${CUSTOM_WORK_DOMAIN_EXTERNAL/.com/} macbook" || echo "Unable to cache pw."
     $(whence -p alfred) "${@}"
   }
 
@@ -275,11 +293,11 @@ if [[ "${IS_MACOS}" == "true" ]]; then
       shift
       local use_ssm=\"false\"
       case \"\${host1}\" in
-        ${CUSTOM_WORK_SUBNET}*|$(echo ${CUSTOM_WORK_DOMAINS[@]/#/*.}|tr ' ' '|'))
-          passman  \"${CUSTOM_WORK_DOMAINS[1]/.com/} ${CUSTOM_WORK_SSO_PROVIDER}\" ;;
+        ${CUSTOM_WORK_SUBNET}*|$(echo ${CUSTOM_WORK_DOMAIN_EXTERNAL/#/*.}|tr ' ' '|'))
+          passman  \"${CUSTOM_WORK_DOMAIN_EXTERNAL/.com/} ${CUSTOM_WORK_SSO_PROVIDER}\" ;;
         herky*)
           passman \"herky.${CUSTOM_HOME_NAS_HOST#*\.}\" ;;
-        i-*|ip-10-*|10.*|ip-172-*|172.*|$(echo ${CUSTOM_WORK_DOMAINS[@]/#/*.}|tr ' ' '|'))
+        i-*|ip-10-*|10.*|ip-172-*|172.*|$(echo ${CUSTOM_WORK_DOMAIN_EXTERNAL/#/*.}|tr ' ' '|'))
           use_ssm=\"true\" ;;
       esac
       # using homebrew ssh $(whence -p ssh) results in 'Bad configuration option: usekeychain' :shrug:
