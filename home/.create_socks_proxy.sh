@@ -20,7 +20,7 @@ esac
 BREWBIN_PATH="/usr/local/bin/brew"
 [[ "${IS_ARM}" == "true" ]] && BREWBIN_PATH="/opt/homebrew/bin/brew"
 BASE_PATH="$(${BREWBIN_PATH} --prefix)"
-export PATH="${BASE_PATH}/bin:${BASE_PATH}/bin/mise:${HOME}/.local/share/mise/shims:${PATH}"
+export PATH="${BASE_PATH}/bin:${HOME}/.local/share/mise/shims:${PATH}"
 
 # test for healthy internet connection
 if [[ -e /usr/local/bin/timeout ]]; then
@@ -83,10 +83,9 @@ function _create_socks_proxy {
   fi
 }
 
-source ~/.zshrc.d/01-alias
-
 # grab all ip addresses
 ip_address=$(/sbin/ifconfig 2> /dev/null | grep 'inet ' | grep -v '127.0.0.1' | awk '{print $2}' | tr "\n" ' ')
+source ~/.zshrc.d/00-keychain
 case "${ip_address}" in
   *${CUSTOM_HOME_SUBNET%.*\.}.2.*)
     # need a better way to detect if we're at home vs a coffee shop
