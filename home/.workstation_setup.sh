@@ -66,7 +66,7 @@ if ${IS_MACOS}; then
   # input license for intellij, then goland should detect it, then remove intellij?
 
   # install mise tools
-  export PATH="${BASE_PATH}/bin/mise:${LOG_NAME}/.local/share/mise/shims:${PATH}"
+  export PATH="${BASE_PATH}/bin/mise:${LOGNAME}/.local/share/mise/shims:${PATH}"
   mise install
 
   # install krew plugins for kubectl

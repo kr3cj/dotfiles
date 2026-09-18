@@ -20,10 +20,9 @@ esac
 BREWBIN_PATH="/usr/local/bin/brew"
 [[ "${IS_ARM}" == "true" ]] && BREWBIN_PATH="/opt/homebrew/bin/brew"
 BASE_PATH="$(${BREWBIN_PATH} --prefix)"
-export PATH="${BASE_PATH}/bin:${BASE_PATH}/bin/mise:${LOG_NAME}/.local/share/mise/shims:${PATH}"
+export PATH="${BASE_PATH}/bin:${BASE_PATH}/bin/mise:${HOME}/.local/share/mise/shims:${PATH}"
 
 # test for healthy internet connection
-export timeout_path
 if [[ -e /usr/local/bin/timeout ]]; then
   timeout_path=/usr/local/bin/timeout
 elif [[ -e /opt/homebrew/bin/timeout ]]; then
@@ -31,7 +30,6 @@ elif [[ -e /opt/homebrew/bin/timeout ]]; then
 elif [[ -e /usr/bin/timeout ]]; then
   timeout_path=/usr/bin/timeout
 fi
-export curl_path
 if [[ -x "${BASE_PATH}/opt/curl/bin/curl" ]]; then
   curl_path="${BASE_PATH}/opt/curl/bin/curl"
 elif [[ -x "${BASE_PATH}/bin/curl" ]]; then
@@ -39,7 +37,7 @@ elif [[ -x "${BASE_PATH}/bin/curl" ]]; then
 else
   curl_path="/usr/bin/curl"
 fi
-if ! /usr/bin/hash "${curl_path}" 2>/dev/null; then
+if ! [[ -x "${curl_path}" ]]; then
   exit 0
 fi
 if [[ -n "${timeout_path}" ]] && ! "${timeout_path}" 3 "${curl_path}" --silent --head --fail https://github.com > /dev/null 2>&1; then
@@ -47,9 +45,10 @@ if [[ -n "${timeout_path}" ]] && ! "${timeout_path}" 3 "${curl_path}" --silent -
 fi
 
 function _socks_proxy_is_alive {
+  local host_port1=${1} # this is ignored right now because the check is local only
   local proxy_port1=${2}
   # Check if an ssh process is listening on the SOCKS port locally
-  if /usr/sbin/lsof -nPiTCP:${proxy_port1} -sTCP:LISTEN -c ssh > /dev/null 2>&1; then
+  if /usr/sbin/lsof -anPiTCP:${proxy_port1} -sTCP:LISTEN -c ssh > /dev/null 2>&1; then
     return 0
   else
     return 1
@@ -69,7 +68,7 @@ function _create_socks_proxy {
   if ! _socks_proxy_is_alive ${host1} ${proxy_port1}; then
     echo "$(date -Iseconds) WARN: socks proxy not connected/working; first kill any old sessions"
     local existing_ssh_pid
-    existing_ssh_pid=$(/usr/sbin/lsof -tiTCP:${proxy_port1} -sTCP:LISTEN -c ssh 2>/dev/null | /usr/bin/head -n1)
+    existing_ssh_pid=$(/usr/sbin/lsof -atiTCP:${proxy_port1} -sTCP:LISTEN -c ssh 2>/dev/null | /usr/bin/head -n1)
     if [[ -n "${existing_ssh_pid}" ]]; then
       echo "$(date -Iseconds) INFO: killing stale ssh process ${existing_ssh_pid}"
       /bin/kill "${existing_ssh_pid}"
@@ -80,6 +79,7 @@ function _create_socks_proxy {
     [[ ${?} -eq 0 ]] && echo "$(date -Iseconds) INFO: established ssh tunnel with ${host1}:${proxy_port1}"
   else
     [[ ${VERBOSE} -ge 1 ]] && echo "$(date -Iseconds) INFO: socks proxy already connected/working; skipping"
+    return 0
   fi
 }
 

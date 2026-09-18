@@ -53,7 +53,7 @@ if [[ $(uname) == "Darwin" ]] ; then
   BREWBIN_PATH="/usr/local/bin/brew"
   [[ "$(uname -m)" == "arm64" ]] && BREWBIN_PATH="/opt/homebrew/bin/brew"
   BASE_PATH="$(${BREWBIN_PATH} --prefix)"
-  export PATH="${BASE_PATH}/bin:${BASE_PATH}/bin/mise:${LOG_NAME}/.local/share/mise/shims:${PATH}"
+  export PATH="${BASE_PATH}/bin:${BASE_PATH}/bin/mise:${LOGNAME}/.local/share/mise/shims:${PATH}"
 
   # echo -e "\nUpdating vscode extensions..."
   # for ext1 in $(code --list-extensions); do

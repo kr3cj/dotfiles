@@ -253,9 +253,9 @@ if [[ "${IS_MACOS}" == "true" ]]; then
     # postgresql://${3}@${2}.${AWS_DEFAULT_REGION}.rds.amazonaws.com:5432/${4}
     kubectl --context ${1} run tmp-shell --rm -i --tty \
      --image jbergknoff/postgresql-client -- \
-      postgresql://${3}@${2}.${AWS_DEFAULT_REGION}.rds.amazonaws.com/${4}"
+      postgresql://${3}@${2}.${AWS_DEFAULT_REGION}.rds.amazonaws.com/${4}
     # docker run --rm -it jbergknoff/postgresql-client \
-    #  postgresql://${3}@${2}.${AWS_DEFAULT_REGION}.rds.amazonaws.com/${4}"
+    #  postgresql://${3}@${2}.${AWS_DEFAULT_REGION}.rds.amazonaws.com/${4}
   }
 
   function openit {
