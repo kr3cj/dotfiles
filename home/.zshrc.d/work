@@ -51,6 +51,9 @@ function work_main-sso {
     echo "Authenticating Claude apps..."
     claude auth login --email ${USER}@${CUSTOM_WORK_DOMAIN_EXTERNAL} --sso
 
+    echo "Authenticating ${CUSTOM_WORK_DATA_PROVIDER} cli..."
+    ${CUSTOM_WORK_DATA_PROVIDER} auth login --profile DEFAULT
+
     session_is_active ${CUSTOM_WORK_SSO_PROVIDER} "43200 seconds" || true # 12h
     echo "Authenticating web apps requiring daily/weekly SSO..."
     for domain1 in ${CUSTOM_WORK_SSO_DAILY_DOMAINS}; do

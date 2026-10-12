@@ -1,0 +1,9 @@
+{
+  "name": "My messages highlighted",
+  "base": "dark",
+  "overrides": {
+    "userMessageBackground": "#1e3a5f",
+    "userMessageBackgroundHover": "#28507f",
+    "briefLabelYou": "#5fd7ff"
+  }
+}
