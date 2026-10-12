@@ -2,6 +2,7 @@
 # tap "homebrew/cask"
 # tap "homebrew/core"
 tap "aws/tap"
+tap "fwdcloudsec/granted"
 
 ### base software (gnu core utilities)
 brew "coreutils"
@@ -94,7 +95,7 @@ brew "gitleaks"
 brew "git-filter-repo"
 brew "go"
 # brew "golang" # use mise instead
-brew "granted" # use mise instead - but cannot find v0.39.0
+brew "fwdcloudsec/granted/granted" # use mise instead - but cannot find v0.39.0
 brew "jid"
 brew "make"
 # brew "maven"
