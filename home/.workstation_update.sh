@@ -79,7 +79,7 @@ if [[ $(uname) == "Darwin" ]] ; then
         echo "Skipping cask \"${cask1}\" that should auto update itself" ;;
       ${CUSTOM_WORK_DOMAIN_EXTERNAL/.com/}/private/*)
         echo "Upgrade private ${CUSTOM_WORK_DOMAIN_EXTERNAL/.com/} package"
-        brew install ${cask1}
+        brew install ${cask1} ;;
       *)
         echo "Upgrading cask \"${cask1}\"..."
         brew upgrade --cask ${cask1} ;;
@@ -114,11 +114,11 @@ if [[ $(uname) == "Darwin" ]] ; then
     claude plugin marketplace update ${CUSTOM_WORK_DOMAIN_EXTERNAL/.com}
     echo -e "\nCopy contents of ~/.claude.json to symlinked and versioned file since Claude destroys symlink."
     cp -av ~/.claude.json ~/.homesick/repos/dotfiles_private/home/.claude.json
-    echo -e "\nUpdating claud code plugins."
+    # echo -e "\nUpdating claude code plugins." # managed by a package manager
     # claude_binary="$($(brew --prefix mise)/bin/mise where claude)/$(uname)-$(arch)/claude"
-    for plugin1 in $(claude plugin list --json | jq -r '.[].id') ; do
-      claude update ${plugin1}
-    done
+    # for plugin1 in $(claude plugin list --json | jq -r '.[].id') ; do
+    #   claude update ${plugin1}
+    # done
   fi
 
   # echo -e "\nUpdating password manager." # done via cask
